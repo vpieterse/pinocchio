@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Pinocchio</title>
+    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-static-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a href="index.html" class="navbar-brand">Pinocchio</a>
+                <button class="navbar-toggle" data-toggle="collapse" data-target=".navHeaderCollapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse navHeaderCollapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="userAdmin.html">User Admin</a></li>
+                    <li><a href="roundAdmin.html">Round Admin</a></li>
+                    <li><a href="teamAdmin.html">Team Admin</a></li>
+                    <li><a href="questionAdmin.html">Question Admin</a></li>
+                    <li><a href="questionnaireAdmin.html">Questionnaire Admin</a></li>
+                    <li><a href="fileManager.html">File Manager</a></li>
+                    <li class="active"><a href="serverManager.html">Server Manager</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="col-md-4">
+            <a class="btn btn-info btn-lg">Refresh Site</a>
+        </div>
+        <div class="col-md-4">
+            <a class="btn btn-info btn-lg">Create Dump</a>
+        </div>
+        <div class="col-md-4">
+            <a class="btn btn-info btn-lg">Remove Dumps</a>
+        </div>
+    </div>
+
+    <div class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container">
+            <p class="navbar-text pull-left">&copy; Dillon Heins</p>
+            <a class="navbar-btn btn-danger btn pull-right">Log Out</a>
+        </div>
+    </div>
+
+    <script src="jquery.min.js"></script>
+    <script src="js/bootstrap.js"></script>
+</body>
+</html>
