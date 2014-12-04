@@ -135,6 +135,7 @@
                     </div>
                 </div>
             </div>
+			
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
@@ -142,11 +143,43 @@
                             Maintain Users <b class="caret"></b>
                         </a>
                     </h4>
-                </div>
+                </div>	
+				
                 <div id="collapseThree" class="panel-collapse collapse">
                     <div class="panel-body">
+						<input type="text" class="form-control" id="search" placeholder="Search">
+						
+						<?php
+							$con=mysqli_connect('localhost','root','','dbpinocchio');
+							// Check connection
+							if (mysqli_connect_errno())
+							{
+							echo "Failed to connect to MySQL: " . mysqli_connect_error();
+							}
+							
+							$result = mysqli_query($con,"SELECT * FROM tbusers");
+
+							echo "<table border='1'>
+							<tr>
+							<th>Firstname</th>
+							<th>Lastname</th>
+							</tr>";
+
+							while($row = mysqli_fetch_array($result))
+							{
+							echo "<tr>";
+							echo "<td>" . $row['id'] . "</td>";
+							echo "<td>" . $row['studentNumber'] . "</td>";
+							echo "</tr>";
+							}
+							echo "</table>";
+							
+							mysqli_close($con);
+						?>
+						
+						<!--
                         <div class="table-responsive">
-                            <table class="table sortable">
+                            <table class="table sortable" id="users">
                                 <thead>
                                     <tr>
                                         <th>#</th>
@@ -162,7 +195,7 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>14035538</td>
+                                        <td contenteditable="true">14035538</td>
                                         <td>Mr</td>
                                         <td>D</td>
                                         <td>Dillon</td>
@@ -207,6 +240,7 @@
                                     </tr>
                                 </tbody>
                             </table>
+							-->
                         </div>
                     </div>
                 </div>
@@ -224,5 +258,19 @@
     <script src="jquery.min.js"></script>
     <script src="js/bootstrap.js"></script>
     <script src="bootstrap-sortable.js"></script>
+	<script>
+					var $rows = $('#users tbody tr');
+					$('#search').keyup(function() {
+
+						var val = '^(?=.*\\b' + $.trim($(this).val()).split(/\s+/).join('\\b)(?=.*\\b') + ').*$',
+							reg = RegExp(val, 'i'),
+							text;
+
+						$rows.show().filter(function() {
+							text = $(this).text().replace(/\s+/g, ' ');
+							return !reg.test(text);
+						}).hide();
+					});
+				</script>
 </body>
 </html>
