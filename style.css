@@ -36,6 +36,21 @@
     border-color: #fff;
 }
 
+.btn-warning{
+    background-color: #d9534f;
+    border-color: none;
+}
+
+.btn-warning:hover{
+    background-color: #d9534f;
+    border-color: #fff;
+}
+
+.btn-warning:focus{
+    background-color: #d9534f;
+    border-color: #fff;
+}
+
 body{
     padding-bottom: 60px;
 }
