@@ -1,51 +1,34 @@
 <?php  
+// Testing ////
+//$values = array('name'=>'Piet', 'age'=>'37', 'city'=>'Pietoria');
+ $values = array('name'=>'Johnny', 'age'=>'31', 'city'=>'Johnburg');
+//$values = array('name'=>'Johnny', 'name' => 'Piet');
+//echo '<br>'.insertIntoTable('users', $values);
+//print_r(insertIntoTable('users', $values));
+print_r(selectFromTable('users', $values));
+////////////
 
-function insertIntoDatabase($table, $values){
-  $sql = 'INSERT into ' . $table . ' (';
-  $count = 0;
-
-  foreach($values as $x => $x_value)
+/**
+* A function that inserts values into a specified table in the database.
+*
+* @param table The name of the table to insert into
+* @param values An associative array indexed with the column name and containing the value to insert. i.e.:
+*        $values = array('name'=>'Piet', 'age'=>'37', 'city'=>'Pietoria');
+* @return The result of the query.
+*/
+function insertIntoTable($table, $values){
+  /// @todo This connection or the values for it could be stored outside somewhere.
+  $con = mysqli_connect("localhost","root","","dbTest");  
+  // Check connection
+  if (mysqli_connect_errno())
   {
-    if($count == 0)
-    {
-      $sql = $sql . $x;
-    }
-    else
-    {
-      $sql = $sql . ', ' . $x;
-    }
-    ++$count;
+    echo "Failed to connect to MySQL: " . mysqli_connect_error();
   }
 
-  $sql = $sql . ') VALUES (';
-
-  $count = 0;
-  foreach($values as $x => $x_value)
-  {
-    if($count == 0)
-    {
-      $sql = $sql . $x_value;
-    }
-    else
-    {
-      $sql = $sql . ', ' . $x_value;
-    }
-    ++$count;
-  }
-
-  $sql = $sql . ')';
-  
-  return $sql;
-}
-
-$values = array('Name'=>'Piet', 'age'=>'37', 'city'=>'Pietoria');
-
-echo insertIntoDatabase('users', $values);
-
-function insertIntoDatabase($table, $values){
   $sql = 'INSERT into ' . $table . ' (';
   $count = 0;
   $typeDef = "";
+  $params = array();
 
   foreach($values as $x => $x_value)
   {
@@ -58,8 +41,9 @@ function insertIntoDatabase($table, $values){
     {
       $sql = $sql . ', ' . $x;
     }
-    // Build typeDef string for mysqli_prepared_query
 
+    // Build typeDef string for mysqli_prepared_query
+    /// @todo Improve this type inference. i.e. use mysqli_fetch_field
     if (is_int($x_value)) {
       $typeDef = $typeDef . 'i';
     }
@@ -68,6 +52,7 @@ function insertIntoDatabase($table, $values){
     }else{
       $typeDef = $typeDef . 's';
     }
+    array_push($params, $x_value);
     
     ++$count;
   }
@@ -83,11 +68,210 @@ function insertIntoDatabase($table, $values){
       $sql = $sql . ', ?';
   }
   $sql = $sql . ')';
-  echo $typeDef;
-  return $sql;
+  
+  // Uncomment for debug
+  //echo $typeDef.'<br>';
+  //print_r($params);
+
+  
+  $result = mysqli_prepared_query($con, $sql, $typeDef, $params) or die(mysqli_error($link));
+
+  return $result;
 }
 
+/**
+* A function that runs a select statement on a specified table in the database.
+*
+* @param table The name of the table to select from
+* @param values An associative array indexed with the column name and containing the values used for the select statement. i.e.:
+*        $values = array('name'=>'Piet', 'age'=>'37', 'city'=>'Pietoria');
+* @param and Sets if ANDs are used for the where statement. Uses ORs if false. Default is true.
+* @return The result of the query. See mysqli_prepared_query example below.
+*/
+function selectFromTable($table, $values, $and = TRUE){
+  /// @todo This connection or the values for it could be stored outside somewhere.
+  $con = mysqli_connect("localhost","root","","dbTest");  
+  // Check connection
+  if (mysqli_connect_errno())
+  {
+    echo "Failed to connect to MySQL: " . mysqli_connect_error();
+  }
 
+  $sql = 'SELECT * FROM ' . $table . ' WHERE ';
+  $count = 0;
+  $typeDef = "";
+  $params = array();
+
+  foreach($values as $x => $x_value)
+  {
+    echo $count;
+    // Append column names
+    if($count == count($values)-1)
+    {
+      $sql = $sql . $x . ' = ?';
+    }
+    else
+    {
+      $sql = ($and) ? $sql . $x . ' = ? AND ' : $sql . $x . ' = ? OR ' ;
+      //$sql = $sql . $x . ' = ? AND ';
+    }
+
+    // Build typeDef string for mysqli_prepared_query
+    /// @todo Improve this type inference. i.e. use mysqli_fetch_field
+    if (is_int($x_value)) {
+      $typeDef = $typeDef . 'i';
+    }
+    else if (is_double($x_value)) {
+      $typeDef = $typeDef . 'd';
+    }else{
+      $typeDef = $typeDef . 's';
+    }
+    array_push($params, $x_value);
+    
+    ++$count;
+  }
+  
+  // Uncomment for debug
+  //echo $typeDef.'<br>';
+  //print_r($params);
+  //echo $sql;
+
+  $result = mysqli_prepared_query($con, $sql, $typeDef, $params) or die(mysqli_error($link));
+
+  return $result;
+}
+
+/**
+*  For queries: 
+*  Results of single queries are given as arrays[row#][associated Data Array] 
+*  Results of multiple queries are given as arrays[query#][row#][associated Data Array] 
+*
+*  For queries which return an affected row#, affected rows are returned instead of (array[row#][associated Data Array]) 
+*  Example below the function @todo include in docs?
+*
+* @param link The SQL link
+* @param sql The SQL statement
+* @param typeDef The type of each parameter that will be bound. 
+*        i.e if there are 2 string types then this will be 'ss'. Available types s(string), i(int), d(double), b(blob).
+* @param params An array of the values to be bound
+* @return An array containing the results of the queries 
+*/
+function mysqli_prepared_query($link, $sql, $typeDef = FALSE, $params = FALSE){ 
+  if($stmt = mysqli_prepare($link,$sql)){ 
+    if(count($params) == count($params,1)){ 
+      $params = array($params); 
+      $multiQuery = FALSE; 
+    } else { 
+      $multiQuery = TRUE; 
+    }  
+    
+    if($typeDef){ 
+      $bindParams = array();    
+      $bindParamsReferences = array(); 
+      $bindParams = array_pad($bindParams,(count($params,1)-count($params))/count($params),"");         
+      foreach($bindParams as $key => $value){ 
+        $bindParamsReferences[$key] = &$bindParams[$key];  
+      } 
+      array_unshift($bindParamsReferences,$typeDef); 
+      $bindParamsMethod = new ReflectionMethod('mysqli_stmt', 'bind_param'); 
+      $bindParamsMethod->invokeArgs($stmt,$bindParamsReferences); 
+    } 
+    
+    $result = array(); 
+    foreach($params as $queryKey => $query){ 
+      foreach($bindParams as $paramKey => $value){ 
+        $bindParams[$paramKey] = $query[$paramKey]; 
+      } 
+      $queryResult = array(); 
+      if(mysqli_stmt_execute($stmt)){ 
+        $resultMetaData = mysqli_stmt_result_metadata($stmt);
+        if($resultMetaData){                                                                    
+          $stmtRow = array();
+          $rowReferences = array();
+          while ($field = mysqli_fetch_field($resultMetaData)) {
+            $rowReferences[] = &$stmtRow[$field->name];
+          }
+          mysqli_free_result($resultMetaData); 
+          $bindResultMethod = new ReflectionMethod('mysqli_stmt', 'bind_result'); 
+          $bindResultMethod->invokeArgs($stmt, $rowReferences); 
+          while(mysqli_stmt_fetch($stmt)){ 
+            $row = array(); 
+            foreach($stmtRow as $key => $value){ 
+              $row[$key] = $value;           
+            } 
+            $queryResult[] = $row; 
+          } 
+          mysqli_stmt_free_result($stmt); 
+        } else { 
+          $queryResult[] = mysqli_stmt_affected_rows($stmt); 
+        } 
+      } else { 
+        $queryResult[] = FALSE; 
+      } 
+      $result[$queryKey] = $queryResult; 
+    } 
+    mysqli_stmt_close($stmt);   
+  } else { 
+    $result = FALSE; 
+  } 
+  
+  if($multiQuery){ 
+    return $result; 
+  } else { 
+    return $result[0]; 
+  } 
+} 
+
+/*
+Example(s): 
+For a table of firstName and lastName: 
+John Smith 
+Mark Smith 
+Jack Johnson 
+Bob Johnson 
+
+<?php 
+//single query, single result 
+$query = "SELECT * FROM names WHERE firstName=? AND lastName=?"; 
+$params = array("Bob","Johnson"); 
+
+mysqli_prepared_query($link,$query,"ss",$params) 
+/* 
+returns array( 
+0=> array('firstName' => 'Bob', 'lastName' => 'Johnson') 
+) 
+//
+//single query, multiple results 
+$query = "SELECT * FROM names WHERE lastName=?"; 
+$params = array("Smith"); 
+
+mysqli_prepared_query($link,$query,"s",$params) 
+/* 
+returns array( 
+0=> array('firstName' => 'John', 'lastName' => 'Smith') 
+1=> array('firstName' => 'Mark', 'lastName' => 'Smith') 
+) 
+//
+
+//multiple query, multiple results 
+$query = "SELECT * FROM names WHERE lastName=?"; 
+$params = array(array("Smith"),array("Johnson")); 
+
+mysqli_prepared_query($link,$query,"s",$params) 
+/* 
+returns array( 
+0=> 
+array( 
+0=> array('firstName' => 'John', 'lastName' => 'Smith') 
+1=> array('firstName' => 'Mark', 'lastName' => 'Smith') 
+) 
+1=> 
+array( 
+0=> array('firstName' => 'Jack', 'lastName' => 'Johnson') 
+1=> array('firstName' => 'Bob', 'lastName' => 'Johnson') 
+) 
+) 
+*/ 
 
 
 
