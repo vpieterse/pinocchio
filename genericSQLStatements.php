@@ -2,11 +2,74 @@
 // Testing ////
 //$values = array('name'=>'Piet', 'age'=>'37', 'city'=>'Pietoria');
  $values = array('name'=>'Johnny', 'age'=>'31', 'city'=>'Johnburg');
+  $where = array('id'=>'5');
 //$values = array('name'=>'Johnny', 'name' => 'Piet');
 //echo '<br>'.insertIntoTable('users', $values);
 //print_r(insertIntoTable('users', $values));
-print_r(selectFromTable('users', $values));
+print_r(updateTable('users', $values, $where));
 ////////////
+
+/**
+* A function that runs a delete statement on a specified table in the database.
+*
+* @param table The name of the table to delete from
+* @param values An associative array indexed with the column name and containing the values used for the delete statement. i.e.:
+*        $values = array('name'=>'Piet', 'age'=>'37', 'city'=>'Pietoria');
+* @param and Sets if ANDs are used for the where statement. Uses ORs if false. Default is true.
+* @return The result of the query. See mysqli_prepared_query example below.
+*/
+function deleteFromTable($table, $values, $and = TRUE){
+  /// @todo This connection or the values for it could be stored outside somewhere.
+  $con = mysqli_connect("localhost","root","","dbTest");  
+  // Check connection
+  if (mysqli_connect_errno())
+  {
+    echo "Failed to connect to MySQL: " . mysqli_connect_error();
+  }
+
+  $sql = 'DELETE FROM ' . $table . ' WHERE ';
+  $count = 0;
+  $typeDef = "";
+  $params = array();
+
+  foreach($values as $x => $x_value)
+  {
+    // Append column names
+    if($count == count($values)-1)
+    {
+      $sql = $sql . $x . ' = ?';
+    }
+    else
+    {
+      $sql = ($and) ? $sql . $x . ' = ? AND ' : $sql . $x . ' = ? OR ' ;
+      //$sql = $sql . $x . ' = ? AND ';
+    }
+
+    // Build typeDef string for mysqli_prepared_query
+    /// @todo Improve this type inference. i.e. use mysqli_fetch_field
+    if (is_int($x_value)) {
+      $typeDef = $typeDef . 'i';
+    }
+    else if (is_double($x_value)) {
+      $typeDef = $typeDef . 'd';
+    }else{
+      $typeDef = $typeDef . 's';
+    }
+    array_push($params, $x_value);
+    
+    ++$count;
+  }
+  
+  // Uncomment for debug
+  //echo $typeDef.'<br>';
+  //print_r($params);
+  //echo $sql;
+
+  $result = mysqli_prepared_query($con, $sql, $typeDef, $params) or die(mysqli_error($link));
+
+  return $result;
+}
+
 
 /**
 * A function that inserts values into a specified table in the database.
@@ -104,7 +167,6 @@ function selectFromTable($table, $values, $and = TRUE){
 
   foreach($values as $x => $x_value)
   {
-    echo $count;
     // Append column names
     if($count == count($values)-1)
     {
@@ -140,6 +202,90 @@ function selectFromTable($table, $values, $and = TRUE){
 
   return $result;
 }
+
+/**
+* A function that updates certain values in a specific table in the database.
+*
+* @param table The name of the table to update.
+* @param values An associative array indexed with the column name and containing the new values. i.e.:
+*         This is for the 'set' part of the statement SET column1=value1,column2=value2,...
+*        $values = array('name'=>'Piet', 'age'=>'37', 'city'=>'Pietoria');
+* @param whereValues An associative array indexed with the column name and containing the values for the
+*         where part of the statement. i.e.: WHERE some_column=some_value;
+* @param and Sets if ANDs are used for the where statement. Uses ORs if false. Default is true.
+* @return The result of the query.
+*/
+function updateTable($table, $values, $whereValues, $and = TRUE){
+  /// @todo This connection or the values for it could be stored outside somewhere.
+  $con = mysqli_connect("localhost","root","","dbTest");  
+  // Check connection
+  if (mysqli_connect_errno())
+  {
+    echo "Failed to connect to MySQL: " . mysqli_connect_error();
+  }
+
+  $sql = 'UPDATE ' . $table . ' SET ';
+  $count = 0;
+  $typeDef = "";
+  $params = array();
+
+  foreach($values as $x => $x_value)
+  {
+    // Append column names
+    if($count == count($values)-1)
+    {
+      $sql = $sql . $x . ' = ?';
+    }
+    else
+    {
+      $sql = $sql . $x . ' = ?, ' ;
+    }
+    
+    // Build typeDef string for mysqli_prepared_query
+    /// @todo Improve this type inference. i.e. use mysqli_fetch_field
+    if (is_int($x_value)) {
+      $typeDef = $typeDef . 'i';
+    }
+    else if (is_double($x_value)) {
+      $typeDef = $typeDef . 'd';
+    }else{
+      $typeDef = $typeDef . 's';
+    }
+    array_push($params, $x_value);
+
+    ++$count;
+  }
+
+
+  $sql = $sql . ' WHERE ';
+  $count = 0;
+
+  foreach($whereValues as $x => $x_value)
+  {
+   // Append column names
+   if($count == count($whereValues)-1)
+   {
+     $sql = $sql . $x . ' = ' . $x_value;
+   }
+   else
+   {
+     $sql = ($and) ? $sql . $x . ' = ' . $x_value . ' AND ' : $sql . $x . ' = ' . $x_value . ' OR ' ;
+     //$sql = $sql . $x . ' = ? AND ';
+   }
+   
+   ++$count;
+  }
+  
+  // Uncomment for debug
+  //echo $typeDef.'<br>';
+  //print_r($params);
+  echo $sql;
+  
+  $result = mysqli_prepared_query($con, $sql, $typeDef, $params) or die(mysqli_error($link));
+
+  return $result;
+}
+
 
 /**
 *  For queries: 
