@@ -145,49 +145,51 @@
                     </h4>
                 </div>	
 				
-                <div id="collapseThree" class="panel-collapse collapse">
+				<div id="collapseThree" class="panel-collapse collapse">
                     <div class="panel-body">
 					
 						<input type="text" class="form-control" id="search" placeholder="Search" onkeyup="showResult(this.value)">
 						
 						<?php
-							$con=mysqli_connect('localhost','root','','dbpinocchio'); //replace this with appropriate login info and database name etc.
+							include 'genericSQLStatements.php';
+							
+							$con=mysqli_connect('localhost','root','','dbTest'); // @todo replace this with appropriate login info and database name etc.
 							// Check connection
 							if (mysqli_connect_errno())
 							{
-							echo "Failed to connect to MySQL: " . mysqli_connect_error();
+								echo "Failed to connect to MySQL: " . mysqli_connect_error();
 							}
 							
-							$result = mysqli_query($con,"SELECT * FROM tbusers"); //replace this with appropriate table
-
+							//$result = mysqli_query($con, "SELECT * FROM users");
+							$result = selectFromTable("users",array(1=>1)); 
+							
 							echo " <div class='table-responsive'>
-                            <table class='table sortable' id='users'>
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Student Number</th>
-                                        <th>Title</th>
-                                        <th>Initials</th>
-                                        <th>First Name</th>
-                                        <th>Surname</th>
-                                        <th data-defaultsort='disabled'>Password</th>
-                                        <th data-defaultsort='disabled'>Cell</th>
-                                        <th>Email</th>
-                                        <th>Status</th>
-                                        <th></th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
+							<table class='table sortable' id='users'>
+								<thead>
+									<tr>
+										<th>#</th>
+										<th>Student Number</th>
+										<th>Title</th>
+										<th>Initials</th>
+										<th>First Name</th>
+										<th>Surname</th>
+										<th data-defaultsort='disabled'>Password</th>
+										<th data-defaultsort='disabled'>Cell</th>
+										<th>Email</th>
+										<th>Status</th>
+										<th></th>
+										<th></th>
+									</tr>
+								</thead>
 								<tbody>";
 							
 							$list = array();
-							$count = 0;
-							
-							while($row = mysqli_fetch_assoc($result)) //used to display the info within the database
+							foreach($result as $row) //used to display the info within the database
 							{
 								$list[] = $row;
 							}
 							
+							$count = 0;
 							$out  = "";
 							foreach($list as $key => $element)
 							{
@@ -199,6 +201,7 @@
 								$out.= "<td><button type='button' class='btn btn-success btn-xs' id='accept' onclick='acceptEdit()'>&#10004;</button></td>";
 								$out.= "<td><button type='button' class='btn btn-warning btn-xs' id='delete' onclick='deleteRow()'>&#10008;</button></td>";
 								$out .= "</tr>";
+								$count = $count + 1;
 							}
 							$out .= "</tbody>";
 							$out .= "</table>";
@@ -270,6 +273,7 @@
 		function acceptEdit()
 		{
 			alert("Clicked Accept");
+			//updateTable("users", $row, array(studentnumber=>$row[2]));// @todo Change the table name to the correct name
 		}
 		
 		function deleteRow()

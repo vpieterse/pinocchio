@@ -1,12 +1,12 @@
 <?php  
 // Testing ////
 //$values = array('name'=>'Piet', 'age'=>'37', 'city'=>'Pietoria');
- $values = array('name'=>'Johnny', 'age'=>'31', 'city'=>'Johnburg');
-  $where = array('id'=>'5');
+// $values = array('name'=>'Johnny', 'age'=>'31', 'city'=>'Johnburg');
+//  $where = array('id'=>'5');
 //$values = array('name'=>'Johnny', 'name' => 'Piet');
 //echo '<br>'.insertIntoTable('users', $values);
 //print_r(insertIntoTable('users', $values));
-print_r(updateTable('users', $values, $where));
+//print_r(updateTable('users', $values, $where));
 ////////////
 
 /**
@@ -198,7 +198,7 @@ function selectFromTable($table, $values, $and = TRUE){
   //print_r($params);
   //echo $sql;
 
-  $result = mysqli_prepared_query($con, $sql, $typeDef, $params) or die(mysqli_error($link));
+  $result = mysqli_prepared_query($con, $sql, $typeDef, $params) or die(mysqli_error($con));
 
   return $result;
 }
@@ -281,7 +281,8 @@ function updateTable($table, $values, $whereValues, $and = TRUE){
   //print_r($params);
   echo $sql;
   
-  $result = mysqli_prepared_query($con, $sql, $typeDef, $params) or die(mysqli_error($link));
+  //$result = mysqli_prepared_query($con, $sql, $typeDef, $params) or die(mysqli_error($link));
+  $result = mysqli_prepared_query($con, $sql, $typeDef, $params) or die(mysqli_error($con));
 
   return $result;
 }
@@ -303,6 +304,7 @@ function updateTable($table, $values, $whereValues, $and = TRUE){
 * @return An array containing the results of the queries 
 */
 function mysqli_prepared_query($link, $sql, $typeDef = FALSE, $params = FALSE){ 
+	$multiQuery = TRUE; // bugfix: pre-initialize multiQuery to solve for "Undefined variable" error
   if($stmt = mysqli_prepare($link,$sql)){ 
     if(count($params) == count($params,1)){ 
       $params = array($params); 
