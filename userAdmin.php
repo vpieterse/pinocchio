@@ -193,13 +193,16 @@
 							$out  = "";
 							foreach($list as $key => $element)
 							{
+								$row = array();
 								$out .= "<tr>";
 								foreach($element as $subkey => $subelement)
 								{
 									$out .= "<td contenteditable=true>$subelement</td>";
+									$row[$subkey] = $subelement;
 								}
-								$out.= "<td><button type='button' class='btn btn-success btn-xs' id='accept' onclick='acceptEdit()'>&#10004;</button></td>";
-								$out.= "<td><button type='button' class='btn btn-warning btn-xs' id='delete' onclick='deleteRow()'>&#10008;</button></td>";
+								$stringRow = serialize($row);
+								$out.= "<td><button type='button' class='btn btn-success btn-xs' id='accept' onclick='acceptEdit($stringRow)'>&#10004;</button></td>";
+								$out.= "<td><button type='button' class='btn btn-warning btn-xs' id='delete' onclick='deleteRow($stringRow)'>&#10008;</button></td>";
 								$out .= "</tr>";
 								$count = $count + 1;
 							}
@@ -270,16 +273,23 @@
 			alert("Clicked CSV Submit");
 		}
 		
-		function acceptEdit()
+		function acceptEdit($stringRow)
 		{
 			alert("Clicked Accept");
-			//updateTable("users", $row, array(studentnumber=>$row[2]));// @todo Change the table name to the correct name
+			<?php 
+				$row = unserialize($stringRow);
+				updateTable("users", $row, $where = array($row["Student Number"] => $row)["Student Number"]);
+			?>
 		}
 		
-		function deleteRow()
+		function deleteRow($stringRow)
 		{
 			alert("Clicked Delete");
+			<?php 
+				$row = unserialize($stringRow);
+				deleteFromTable("users", $row);
+			?>
 		}
-	</script>
+	<script>
 </body>
 </html>
