@@ -1,8 +1,5 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-<script src="jquery.min.js"></script>
-<script src="js/bootstrap.js"></script>
-<script src="bootstrap-sortable.js"></script>
 <head>
     <title>Pinocchio</title>
     <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -47,7 +44,7 @@
                 </div>
                 <div id="collapseOne" class="panel-collapse collapse in">
                     <div class="panel-body">
-                        <form class="form-horizontal" role="form" method="post" action="#">
+                        <form class="form-horizontal" onsubmit="return validateForm()" role="form" method="post" action="#">
                             <div class="form-group">
                                 <label for="title" class="col-sm-2 control-label">Title:</label>
                                 <div class="col-sm-3">
@@ -228,39 +225,12 @@
             <a class="navbar-btn btn-danger btn pull-right">Log Out</a>
         </div>
     </div>
+	<script src="jquery.min.js"></script>
+	<script src="js/bootstrap.js"></script>
+	<script src="bootstrap-sortable.js"></script>
+	<script src="search.js"></script>
+    <script src="validation.js"></script>
 
-	<script> //script used to search table
-		$(document).ready(function()
-		{
-			$('#search').keyup(function()
-			{
-				tableSearch($(this).val());
-			});
-		});
-
-		function tableSearch(value)
-		{
-			var table = $('#users');
-			table.find('tr').each(function(index, row)
-			{
-				var cells = $(row).find('td');
-				if(cells.length > 0)
-				{
-					var found = false;
-					cells.each(function(index, td)
-					{
-						var regExp = new RegExp(value, 'i');
-						if(regExp.test($(td).text()))
-						{
-							found = true;
-							return false;
-						}
-					});
-					if(found == true)$(row).show();else $(row).hide();
-				}
-			});
-		}
-	</script>
 	<script>
 		function userSubmit()
 		{
