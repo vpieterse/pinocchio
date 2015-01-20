@@ -9,6 +9,8 @@
 //print_r(updateTable('users', $values, $where));
 ////////////
 
+require_once '/htmlpurifier-4.6.0/library/HTMLPurifier.auto.php';
+
 /**
 * A function that runs a delete statement on a specified table in the database.
 *
@@ -20,7 +22,7 @@
 */
 function deleteFromTable($table, $values, $and = TRUE){
   /// @todo This connection or the values for it could be stored outside somewhere.
-  $con = mysqli_connect("localhost","root","","dbTest");  
+  $con = mysqli_connect("localhost","root","","peerreview");
   // Check connection
   if (mysqli_connect_errno())
   {
@@ -81,7 +83,7 @@ function deleteFromTable($table, $values, $and = TRUE){
 */
 function insertIntoTable($table, $values){
   /// @todo This connection or the values for it could be stored outside somewhere.
-  $con = mysqli_connect("localhost","root","","dbTest");  
+  $con = mysqli_connect("localhost","root","","peerreview");
   // Check connection
   if (mysqli_connect_errno())
   {
@@ -153,7 +155,7 @@ function insertIntoTable($table, $values){
 */
 function selectFromTable($table, $values, $and = TRUE){
   /// @todo This connection or the values for it could be stored outside somewhere.
-  $con = mysqli_connect("localhost","root","","dbTest");  
+  $con = mysqli_connect("localhost","root","","peerreview");
   // Check connection
   if (mysqli_connect_errno())
   {
@@ -217,7 +219,7 @@ function selectFromTable($table, $values, $and = TRUE){
 */
 function updateTable($table, $values, $whereValues, $and = TRUE){
   /// @todo This connection or the values for it could be stored outside somewhere.
-  $con = mysqli_connect("localhost","root","","dbTest");  
+  $con = mysqli_connect("localhost","root","","peerreview");
   // Check connection
   if (mysqli_connect_errno())
   {
@@ -279,7 +281,7 @@ function updateTable($table, $values, $whereValues, $and = TRUE){
   // Uncomment for debug
   //echo $typeDef.'<br>';
   //print_r($params);
-  echo $sql;
+  //echo $sql;
   
   //$result = mysqli_prepared_query($con, $sql, $typeDef, $params) or die(mysqli_error($link));
   $result = mysqli_prepared_query($con, $sql, $typeDef, $params) or die(mysqli_error($con));
@@ -303,9 +305,14 @@ function updateTable($table, $values, $whereValues, $and = TRUE){
 * @param params An array of the values to be bound
 * @return An array containing the results of the queries 
 */
-function mysqli_prepared_query($link, $sql, $typeDef = FALSE, $params = FALSE){ 
-	$multiQuery = TRUE; // bugfix: pre-initialize multiQuery to solve for "Undefined variable" error
-  if($stmt = mysqli_prepare($link,$sql)){ 
+function mysqli_prepared_query($link, $sql, $typeDef = FALSE, $params = FALSE){
+  // Set up HTML Purifier
+	$config = HTMLPurifier_Config::createDefault();
+  $purifier = new HTMLPurifier($config);
+  $cleanSql = $purifier->purify($sql);
+
+  $multiQuery = TRUE; // bugfix: pre-initialize multiQuery to solve for "Undefined variable" error
+  if($stmt = mysqli_prepare($link,$cleanSql)){
     if(count($params) == count($params,1)){ 
       $params = array($params); 
       $multiQuery = FALSE; 
@@ -314,9 +321,9 @@ function mysqli_prepared_query($link, $sql, $typeDef = FALSE, $params = FALSE){
     }  
     
     if($typeDef){ 
-      $bindParams = array();    
+      $bindParams = array();
       $bindParamsReferences = array(); 
-      $bindParams = array_pad($bindParams,(count($params,1)-count($params))/count($params),"");         
+      $bindParams = array_pad($bindParams,(count($params,1)-count($params))/count($params),"");
       foreach($bindParams as $key => $value){ 
         $bindParamsReferences[$key] = &$bindParams[$key];  
       } 
@@ -325,13 +332,13 @@ function mysqli_prepared_query($link, $sql, $typeDef = FALSE, $params = FALSE){
       $bindParamsMethod->invokeArgs($stmt,$bindParamsReferences); 
     } 
     
-    $result = array(); 
-    foreach($params as $queryKey => $query){ 
-      foreach($bindParams as $paramKey => $value){ 
-        $bindParams[$paramKey] = $query[$paramKey]; 
+    $result = array();
+    foreach($params as $queryKey => $query){
+      foreach($bindParams as $paramKey => $value){
+        $bindParams[$paramKey] = $query[$paramKey];
       } 
-      $queryResult = array(); 
-      if(mysqli_stmt_execute($stmt)){ 
+      $queryResult = array();
+      if(mysqli_stmt_execute($stmt)){
         $resultMetaData = mysqli_stmt_result_metadata($stmt);
         if($resultMetaData){                                                                    
           $stmtRow = array();
@@ -358,7 +365,7 @@ function mysqli_prepared_query($link, $sql, $typeDef = FALSE, $params = FALSE){
       } 
       $result[$queryKey] = $queryResult; 
     } 
-    mysqli_stmt_close($stmt);   
+    mysqli_stmt_close($stmt);
   } else { 
     $result = FALSE; 
   } 

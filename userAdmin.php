@@ -1,5 +1,8 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+<script src="jquery.min.js"></script>
+<script src="js/bootstrap.js"></script>
+<script src="bootstrap-sortable.js"></script>
 <head>
     <title>Pinocchio</title>
     <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -20,7 +23,7 @@
             </div>
             <div class="collapse navbar-collapse navHeaderCollapse">
                 <ul class="nav navbar-nav navbar-right">
-                    <li class="active"><a href="userAdmin.html">User Admin</a></li>
+                    <li class="active"><a href="userAdmin.php">User Admin</a></li>
                     <li><a href="roundAdmin.html">Round Admin</a></li>
                     <li><a href="teamAdmin.html">Team Admin</a></li>
                     <li><a href="questionAdmin.html">Question Admin</a></li>
@@ -153,7 +156,7 @@
 						<?php
 							include 'genericSQLStatements.php';
 							
-							$con=mysqli_connect('localhost','root','','dbTest'); // @todo replace this with appropriate login info and database name etc.
+							$con = mysqli_connect("localhost","root","","peerreview"); // @todo replace this with appropriate login info and database name etc.
 							// Check connection
 							if (mysqli_connect_errno())
 							{
@@ -161,8 +164,7 @@
 							}
 							
 							//$result = mysqli_query($con, "SELECT * FROM users");
-							$result = selectFromTable("users",array(1=>1)); 
-							
+							$result = selectFromTable("student",array(1=>1));
 							echo " <div class='table-responsive'>
 							<table class='table sortable' id='users'>
 								<thead>
@@ -227,9 +229,6 @@
         </div>
     </div>
 
-    <script src="jquery.min.js"></script>
-    <script src="js/bootstrap.js"></script>
-    <script src="bootstrap-sortable.js"></script>
 	<script> //script used to search table
 		$(document).ready(function()
 		{
@@ -278,7 +277,8 @@
 			alert("Clicked Accept");
 			<?php 
 				$row = unserialize($stringRow);
-				updateTable("users", $row, $where = array($row["Student Number"] => $row)["Student Number"]);
+                /// @TODO Update studentdetail as well
+				updateTable("users", $row, $where = array("studentID" => $row["Student Number"]));
 			?>
 		}
 		
