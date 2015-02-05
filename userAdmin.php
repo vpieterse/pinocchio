@@ -8,13 +8,7 @@
     <link rel="stylesheet" href="bootstrap-sortable.css" />
 </head>
 <body>
-	<!-- JS/PHP includes -->
-	<script src="jquery.min.js"></script>
-	<script src="js/bootstrap.js"></script>
-	<script src="bootstrap-sortable.js"></script>
-	<script src="search.js"></script>
-    <script src="validation.js"></script>
-	<?php include 'genericSQLStatements.php'; ?>
+
 	
 	<!-- TESTING ONLY -->
 	<p id="test">testing area</p>
@@ -172,7 +166,7 @@
 						<input type="text" class="form-control" id="search" placeholder="Search" onkeyup="showResult(this.value)">
 						
 						<?php
-							//include 'genericSQLStatements.php';
+							include 'genericSQLStatements.php';
 							
 							$con = mysqli_connect("localhost","root","","peerreview"); // @todo replace this with appropriate login info and database name etc.
 							// Check connection
@@ -247,6 +241,13 @@
         </div>
     </div>
 	
+	<!-- JS/PHP includes -->
+	<script src="jquery.min.js"></script>
+	<script src="js/bootstrap.js"></script>
+	<script src="bootstrap-sortable.js"></script>
+	<script src="search.js"></script>
+    <script src="validation.js"></script>
+	<?php include 'genericSQLStatements.php'; ?>
 
 	<script>
 		function userSubmit()
@@ -283,7 +284,7 @@
 			<?php 
 				$row = unserialize($stringRow);
                 /// @TODO Update studentdetail as well
-				updateTable("studentdetail", $row, $where = array("studentID" => $row["Student Number"]));
+				updateTable("users", $row, $where = array("studentID" => $row["Student Number"]));
 			?>
 		}
 		
