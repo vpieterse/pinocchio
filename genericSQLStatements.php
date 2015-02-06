@@ -125,7 +125,6 @@ function innerJoin($table1, $table2, $key, $values, $and = TRUE){
 
     ++$count;
   }
-  $sql = $sql . 'inner join on '
   // Uncomment for debug
   //echo $typeDef.'<br>';
   //print_r($params);
