@@ -6,6 +6,16 @@
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="bootstrap-sortable.css" />
+	
+	<!-- JS/PHP includes -->
+	<script src="jquery.min.js"></script>
+	<script src="js/bootstrap.js"></script>
+	<script src="bootstrap-sortable.js"></script>
+	<script src="search.js"></script>
+    <script src="validation.js"></script>
+	
+	
+	
 </head>
 <body>
 
@@ -49,7 +59,7 @@
                 </div>
                 <div id="collapseOne" class="panel-collapse collapse in">
                     <div class="panel-body">
-                        <form class="form-horizontal" onsubmit="return validateForm()" role="form" method="post" action="#">
+                        <form class="form-horizontal" onsubmit="return validateForm()" id="userForm" role="form" method="post" action="#">
                             <div class="form-group">
 								<!-- Title Input -->
                                 <label for="title" class="col-sm-2 control-label">Title:</label>
@@ -122,8 +132,7 @@
                             <div class="form-group">
 								<!-- Submit Button -->
                                 <div class="col-sm-offset-2 col-sm-10">
-                                    <button type="submit" class="btn btn-info" id="submitUser" onclick="userSubmit()">Submit</button>
-                                </div>
+                                    <input type="button" value="button" class="btn btn-info" id="submitUser" onclick='userSubmit();'/>
                             </div>
                         </form>
                     </div>
@@ -241,36 +250,32 @@
         </div>
     </div>
 	
-	<!-- JS/PHP includes -->
-	<script src="jquery.min.js"></script>
-	<script src="js/bootstrap.js"></script>
-	<script src="bootstrap-sortable.js"></script>
-	<script src="search.js"></script>
-    <script src="validation.js"></script>
-	<?php include 'genericSQLStatements.php'; ?>
-
 	<script>
+	
 		function userSubmit()
 		{
-			/// @TODO have checking for password
+			alert("hello");
+			var values = [];
+			values["studentID"] = $("#studentnumber").val();
+			values["Title"] = $("#title").val();
+			values["Initials"] = $("#initials").val();
+			values["Name"] = $("#firstname").val();
+			values["Surname"] = $("#surname").val();
+			values["Password"] = $("#password").val();
+			values["Cell"] = $("#cell").val();
+			values["Email"] = $("#email").val();
+			values["Status"] = $("#status").val();
 			
-			alert("Clicked User Submit");
+			var jsonValues = JSON.stringify(values);
 			
-			/// TESTING
-			var testing = "Clicked User Submit"; document.getElementByID("test").innerHTML = testing;
-			<?php
-				$values = array("studentID" => document.getElementByID("studentnumber").value,
-								"Title" => document.getElementByID("title").value,
-								"Initials" => document.getElementByID("initials").value,
-								"Name" => document.getElementByID("firstname").value,
-								"Surname" => document.getElementByID("surname").value,
-								"Password" => document.getElementByID("password").value,
-								"Cell" => document.getElementByID("cell").value,
-								"Email" => document.getElementByID("email").value,
-								"Status" => document.getElementByID("status").value);
+			jQuery.ajax({
+				type: "POST",
+				url: "ajaxMiddleman.php",
+				data: {"table": "studentdetail", "jsonValues": jsonValues},
 				
-				insertIntoTable("studentdetail", $values);
-			?>
+				success: function(x){ alert(x); },
+				error: function(x) { alert(x); }
+			});
 		}
 		
 		function csvSubmit()
@@ -281,21 +286,23 @@
 		function acceptEdit($stringRow)
 		{
 			alert("Clicked Accept");
-			<?php 
+			/*<?php 
 				$row = unserialize($stringRow);
-                /// @TODO Update studentdetail as well
+				/// @TODO Update studentdetail as well
 				updateTable("users", $row, $where = array("studentID" => $row["Student Number"]));
-			?>
+			?>*/
 		}
 		
 		function deleteRow($stringRow)
 		{
 			alert("Clicked Delete");
-			<?php 
+			/*<?php 
 				$row = unserialize($stringRow);
 				deleteFromTable("users", $row);
-			?>
+			?>*/
 		}
-	<script>
+		
+	</script>
+	
 </body>
 </html>
