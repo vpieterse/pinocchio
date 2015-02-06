@@ -72,6 +72,69 @@ function deleteFromTable($table, $values, $and = TRUE){
   return $result;
 }
 
+/**
+* A function that runs a inner join on a 2 tables in the database.
+*
+* @param table1 The name of the first table
+* @param table2 The name of the second table
+* @param key The name of key to join on
+* @param values An associative array indexed with the column name and containing the values used for the select statement. i.e.:
+*        $values = array('name'=>'Piet', 'age'=>'37', 'city'=>'Pietoria');
+* @param and Sets if ANDs are used for the where statement. Uses ORs if false. Default is true.
+* @return The result of the query. See mysqli_prepared_query example below.
+*/
+function innerJoin($table1, $table2, $key, $values, $and = TRUE){
+  /// @todo This connection or the values for it could be stored outside somewhere.
+  $con = mysqli_connect("localhost","root","","peerreview");
+  // Check connection
+  if (mysqli_connect_errno())
+  {
+    echo "Failed to connect to MySQL: " . mysqli_connect_error();
+  }
+
+  /// @todo Select certain columns, not * (make * default?)
+  $sql = 'SELECT * FROM '.$table1.' INNER JOIN'.$table2.' ON '.$table1.'.'.$key.'='.$table2.'.'.$key.' WHERE ';
+  $count = 0;
+  $typeDef = "";
+  $params = array();
+
+  foreach($values as $x => $x_value)
+  {
+    // Append column names
+    if($count == count($values)-1)
+    {
+      $sql = $sql . $x . ' = ?';
+    }
+    else
+    {
+      $sql = ($and) ? $sql . $x . ' = ? AND ' : $sql . $x . ' = ? OR ' ;
+      //$sql = $sql . $x . ' = ? AND ';
+    }
+
+    // Build typeDef string for mysqli_prepared_query
+    /// @todo Improve this type inference. i.e. use mysqli_fetch_field
+    if (is_int($x_value)) {
+      $typeDef = $typeDef . 'i';
+    }
+    else if (is_double($x_value)) {
+      $typeDef = $typeDef . 'd';
+    }else{
+      $typeDef = $typeDef . 's';
+    }
+    array_push($params, $x_value);
+
+    ++$count;
+  }
+  $sql = $sql . 'inner join on '
+  // Uncomment for debug
+  //echo $typeDef.'<br>';
+  //print_r($params);
+  //echo $sql;
+
+  $result = mysqli_prepared_query($con, $sql, $typeDef, $params) or die(mysqli_error($con));
+
+  return $result;
+}
 
 /**
 * A function that inserts values into a specified table in the database.
