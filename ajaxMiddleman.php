@@ -2,40 +2,37 @@
 	/**
 	* AJAX function call translator.
 	*/
-
-	echo "BLAH";
 	
-	$aResult = array();
+	$errorFeedback = array();
 
-	if( !isset($_POST['functionname']) ) { $aResult['error'] = 'No function name!'; }
-
-	if( !isset($_POST['arguments']) ) { $aResult['error'] = 'No function arguments!'; }
-
-	if( !isset($aResult['error']) ) {
-
-		switch($_POST['functionname']) {
-			case 'insertIntoTable':{
-				include 'genericSQLStatements.php';
-				insertIntoTable("A");
-				$table = $_POST["table"];
-				$jsonValues = $_POST["jsonValues"];
-				$values = json_decode($jsonValues, true);
-				
-				insertIntoTable($table, $values);
-				
-				
-			}
-			  break;
-
-			default:
-			   $aResult['error'] = 'Not found function '.$_POST['functionname'].'!';
-			break;
-		}
-
+	if( !isset($_POST['functionname']) )
+	{
+		$errorFeedback['error'] = "No function name!";
+	}
+	
+	if( !isset($_POST['table']) )
+	{
+		$errorFeedback['error'] = "No table name!";
+	}
+	
+	if( !isset($_POST['jsonValues']) )
+	{
+		$errorFeedback['error'] = "No json values!";
 	}
 
-	json_encode($aResult);
-	
-	echo $aResult;
+	if (!isset($errorFeedback['error']))
+	{
+		if ($_POST['functionname'] == "userSubmit")
+		{
+			include 'genericSQLStatements.php';
+			$insertTable = $_POST["table"];
+			$userValues = json_decode($_POST["jsonValues"], true);
+			insertIntoTable($insertTable, $userValues);
+		}
+	}
 
+	if (isset($errorFeedback['error']))
+	{
+		echo $errorFeedback['error'];
+	}
 ?>

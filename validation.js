@@ -28,9 +28,9 @@ function validateForm() {
 		return false;
 	}
 	
-	if (status != 'A' || status != 'a' || status != 'S' || status != 's')
+	if (status != 'A' && status != 'a' && status && 'S' && status != 's')
 	{
-		alert("Please enter a valid status (A for admin, S for student");
+		alert("Please enter a valid status (A for admin, S for student)");
 		return false;
 	}
 	

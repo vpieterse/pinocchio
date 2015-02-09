@@ -13,16 +13,11 @@
 	<script src="bootstrap-sortable.js"></script>
 	<script src="search.js"></script>
     <script src="validation.js"></script>
+    <script src="submit.js"></script>
 	
-	
-	
+	<script src="http://code.jquery.com/jquery-1.8.3.js" type="text/javascript"></script>	
 </head>
-<body>
-
-	
-	<!-- TESTING ONLY -->
-	<p id="test">testing area</p>
-	
+<body>	
     <nav class="navbar navbar-inverse navbar-static-top">
         <div class="container">
             <div class="navbar-header">
@@ -57,6 +52,7 @@
                         </a>
                     </h4>
                 </div>
+
                 <div id="collapseOne" class="panel-collapse collapse in">
                     <div class="panel-body">
                         <form class="form-horizontal" onsubmit="return validateForm()" id="userForm" role="form" method="post" action="#">
@@ -132,12 +128,15 @@
                             <div class="form-group">
 								<!-- Submit Button -->
                                 <div class="col-sm-offset-2 col-sm-10">
-                                    <input type="button" value="button" class="btn btn-info" id="submitUser" onclick='userSubmit();'/>
+                                    <!--<input type="button" value="button" class="btn btn-info" id="submitUser" onclick='userSubmit();'>-->
+                                    <button type="submit" class="btn btn-info" id="submitUser" onclick="userSubmit()">Submit</button>
+                                </div>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
+
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
@@ -146,6 +145,7 @@
                         </a>
                     </h4>
                 </div>
+
                 <div id="collapseTwo" class="panel-collapse collapse">
                     <div class="panel-body">
                         <form role="form" method="post" action="#">
@@ -185,23 +185,20 @@
 							}
 							
 							//$result = mysqli_query($con, "SELECT * FROM users");
-							$result = selectFromTable("student",array(1=>1));
+							$result = selectFromTable("studentdetail",array(1=>1));
 							echo " <div class='table-responsive'>
 							<table class='table sortable' id='users'>
 								<thead>
 									<tr>
-										<th>#</th>
-										<th>Student Number</th>
+										<th>Student ID</th>
 										<th>Title</th>
 										<th>Initials</th>
 										<th>First Name</th>
 										<th>Surname</th>
-										<th data-defaultsort='disabled'>Password</th>
 										<th data-defaultsort='disabled'>Cell</th>
 										<th>Email</th>
-										<th>Status</th>
-										<th></th>
-										<th></th>
+										<th>Accept Edit</th>
+										<th>Remove</th>
 									</tr>
 								</thead>
 								<tbody>";
@@ -248,61 +245,6 @@
             <p class="navbar-text pull-left">&copy; Dillon Heins</p>
             <a class="navbar-btn btn-danger btn pull-right">Log Out</a>
         </div>
-    </div>
-	
-	<script>
-	
-		function userSubmit()
-		{
-			alert("hello");
-			var values = [];
-			values["studentID"] = $("#studentnumber").val();
-			values["Title"] = $("#title").val();
-			values["Initials"] = $("#initials").val();
-			values["Name"] = $("#firstname").val();
-			values["Surname"] = $("#surname").val();
-			values["Password"] = $("#password").val();
-			values["Cell"] = $("#cell").val();
-			values["Email"] = $("#email").val();
-			values["Status"] = $("#status").val();
-			
-			var jsonValues = JSON.stringify(values);
-			
-			jQuery.ajax({
-				type: "POST",
-				url: "ajaxMiddleman.php",
-				data: {"table": "studentdetail", "jsonValues": jsonValues},
-				
-				success: function(x){ alert(x); },
-				error: function(x) { alert(x); }
-			});
-		}
-		
-		function csvSubmit()
-		{
-			alert("Clicked CSV Submit");
-		}
-		
-		function acceptEdit($stringRow)
-		{
-			alert("Clicked Accept");
-			/*<?php 
-				$row = unserialize($stringRow);
-				/// @TODO Update studentdetail as well
-				updateTable("users", $row, $where = array("studentID" => $row["Student Number"]));
-			?>*/
-		}
-		
-		function deleteRow($stringRow)
-		{
-			alert("Clicked Delete");
-			/*<?php 
-				$row = unserialize($stringRow);
-				deleteFromTable("users", $row);
-			?>*/
-		}
-		
-	</script>
-	
+    </div>	
 </body>
 </html>

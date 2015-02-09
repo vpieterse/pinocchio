@@ -200,10 +200,17 @@ function insertIntoTable($table, $values){
   //echo $typeDef.'<br>';
   //print_r($params);
 
+  if ($con->query($sql) === TRUE) {
+    echo "New record created successfully";
+  } else {
+    echo "Error: " . $sql . "<br>" . $con->error;
+  }
   
-  $result = mysqli_prepared_query($con, $sql, $typeDef, $params) or die(mysqli_error($link));
+  //This is where the problem is :(
 
-  return $result;
+  //$result = mysqli_prepared_query($con, $sql, $typeDef, $params) or die(mysqli_error($link));
+
+  //return $result;
 }
 
 /**
