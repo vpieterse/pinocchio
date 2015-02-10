@@ -37,6 +37,20 @@ function csvSubmit()
 function acceptEdit($stringRow)
 {
     alert("Clicked Accept");
+    jQuery.ajax({
+        type: "POST",
+        url: "ajaxMiddleman.php",
+        data: {table: "studentdetail", jsonValues: jsonValues, functionname: "acceptEdit"},
+        
+        success: function(x)
+        {
+            alert(x + " SUCCESS");
+        },
+        error: function(x)
+        {
+            alert(x + " ERROR");
+        }
+    });
     /*<?php 
         $row = unserialize($stringRow);
         /// @TODO Update studentdetail as well
@@ -47,6 +61,20 @@ function acceptEdit($stringRow)
 function deleteRow($stringRow)
 {
     alert("Clicked Delete");
+    jQuery.ajax({
+        type: "POST",
+        url: "ajaxMiddleman.php",
+        data: {table: "studentdetail", jsonValues: jsonValues, functionname: "deleteRow"},
+        
+        success: function(x)
+        {
+            alert(x + " SUCCESS");
+        },
+        error: function(x)
+        {
+            alert(x + " ERROR");
+        }
+    });
     /*<?php 
         $row = unserialize($stringRow);
         deleteFromTable("users", $row);

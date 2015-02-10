@@ -29,6 +29,18 @@
 			$userValues = json_decode($_POST["jsonValues"], true);
 			insertIntoTable($insertTable, $userValues);
 		}
+		else if ($_POST['functionname'] == "csvSubmit")
+		{
+			//
+		}
+		else if ($_POST['functionname'] == "acceptEdit")
+		{
+			include 'genericSQLStatements.php';
+		}
+		else if ($_POST['functionname'] == "deleteRow")
+		{
+			include 'genericSQLStatements.php';
+		}
 	}
 
 	if (isset($errorFeedback['error']))
