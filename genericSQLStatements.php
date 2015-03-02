@@ -217,12 +217,15 @@ function insertIntoTable($table, $values){
 * A function that runs a select statement on a specified table in the database.
 *
 * @param table The name of the table to select from
-* @param values An associative array indexed with the column name and containing the values used for the select statement. i.e.:
+* @param columns Which columns to select. i.e.:
+*        $columns = array('id', 'name', 'age');
+* @param values An associative array indexed with the column name and containing 
+*  	 the values used for the WHERE part of the select statement. i.e.:
 *        $values = array('name'=>'Piet', 'age'=>'37', 'city'=>'Pietoria');
 * @param and Sets if ANDs are used for the where statement. Uses ORs if false. Default is true.
 * @return The result of the query. See mysqli_prepared_query example below.
 */
-function selectFromTable($table, $values, $and = TRUE){
+function selectFromTable($table, $columns, $values, $and = TRUE){
   /// @todo This connection or the values for it could be stored outside somewhere.
   $con = mysqli_connect("localhost","root","","peerreview");
   // Check connection
@@ -231,7 +234,13 @@ function selectFromTable($table, $values, $and = TRUE){
     echo "Failed to connect to MySQL: " . mysqli_connect_error();
   }
 
-  $sql = 'SELECT * FROM ' . $table . ' WHERE ';
+  $sql = 'SELECT ';
+  $arrlength = count($columns);
+  for($x=0; $x < $arrlength; $x++){
+      $sql .= $columns[$x] . ' ';
+  }
+
+  $sql .= 'FROM ' . $table . ' WHERE ';
   $count = 0;
   $typeDef = "";
   $params = array();
