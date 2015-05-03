@@ -93,7 +93,7 @@ body.dragging, body.dragging * {
   z-index: 2000;
 }
 
-.noNumbers {
+li {
     list-style-type: none;
 }
 
