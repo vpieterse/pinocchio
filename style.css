@@ -1,4 +1,4 @@
-﻿
+
 .navbar-brand{
     color : white !important;
 }
@@ -68,4 +68,36 @@ body{
     font-weight: bold;
     color: black;
     text-decoration: none;
+}
+#classList {
+    border: 1;
+    width: 30%;
+    height: 50%;
+}
+
+.minus {
+    border-radius: 50%;
+}
+
+.plus {
+    border-radius: 50%;
+}
+
+body.dragging, body.dragging * {
+  cursor: move !important;
+}
+
+.dragged {
+  position: absolute;
+  opacity: 0.5;
+  z-index: 2000;
+}
+
+ol.drag li.placeholder {
+  position: relative;
+  /** More li styles **/
+}
+ol.drag li.placeholder:before {
+  position: absolute;
+  /** Define arrowhead **/
 }
