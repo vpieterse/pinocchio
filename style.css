@@ -93,6 +93,10 @@ body.dragging, body.dragging * {
   z-index: 2000;
 }
 
+.noNumbers {
+    list-style-type: none;
+}
+
 ol.drag li.placeholder {
   position: relative;
   /** More li styles **/
