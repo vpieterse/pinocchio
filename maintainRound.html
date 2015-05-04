@@ -22,9 +22,9 @@
                 <div class="collapse navbar-collapse navHeaderCollapse">
                     <ul class="nav navbar-nav navbar-right">
                         <li><a href="userAdmin.html">User Admin</a></li>
-                        <li><a href="maintainRound.html">Maintain Rounds</a></li>
+                        <li class="active"><a href="maintainRound.html">Maintain Rounds</a></li>
                         <li><a href="teamBuilder.html">Team Builder</a></li>
-                        <li class="active"><a href="maintainTeam.html">Maintain Teams</a></li>
+                        <li><a href="maintainTeam.html">Maintain Teams</a></li>
                         <li><a href="questionAdmin.html">Question Admin</a></li>
                         <li><a href="questionnaireAdmin.html">Questionnaire Admin</a></li>
                         <li><a href="result.html">Results</a></li>
@@ -38,7 +38,7 @@
         <div class="container">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h4 class="panel-title"><b>Maintain Teams</b></h4>
+                    <h4 class="panel-title"><b>Maintain Rounds</b></h4>
                 </div>	
 
                 <div class="panel-body">
@@ -49,6 +49,10 @@
                             <thead>
                                 <tr>
                                     <th>Round Description</th>
+                                    <th>Questionnaire Description</th>
+                                    <th>Starting Date</th>
+                                    <th>Ending Date</th>
+                                    <th>Change Status</th>
                                     <th>Maintain</th>
                                     <th>Accept Edit</th>
                                     <th>Remove</th>
@@ -56,8 +60,46 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td contenteditable=true>Est-ce qu'il y a du fromage dans votre voiture?</td>
-                                    <td><button type='button' class='btn btn-default btn-xs' id='maintain' onclick='#'><a href="teamBuilder.html">&#9679;</a></button></td>
+                                    <td contenteditable=true>This is a round</td>
+                                    <td>
+                                        <select>
+                                            <option value="First">First</option>
+                                            <option value="Second">Second</option>
+                                            <option value="Third">Third</option>
+                                        </select>
+                                        <input type="button" value="+" class="plus" field=""/>
+                                    </td>
+                                    <td>yyyy-mm-dd</td>
+                                    <td>yyyy-mm-dd</td>
+                                    <td>
+                                        <select>
+                                            <option>Active</option>
+                                            <option>Deactive</option>
+                                        </select>
+                                    </td>
+                                    <td><button type='button' class='btn btn-default btn-xs' id='maintain' onclick='#'><a href="maintainRound.html">&#9679;</a></button></td>
+                                    <td><button type='button' class='btn btn-success btn-xs' id='accept' onclick='#'>&#10004;</button></td>
+                                    <td><button type='button' class='btn btn-warning btn-xs' id='delete' onclick='#'>&#10008;</button></td>
+                                </tr>
+                                <tr>
+                                    <td contenteditable=true>This is another round</td>
+                                    <td>
+                                        <select>
+                                            <option value="First">First</option>
+                                            <option value="Second">Second</option>
+                                            <option value="Third">Third</option>
+                                            <option value="New">+</option>
+                                        </select>
+                                    </td>
+                                    <td>yyyy-mm-dd</td>
+                                    <td>yyyy-mm-dd</td>
+                                    <td>
+                                        <select>
+                                            <option>Active</option>
+                                            <option>Deactive</option>
+                                        </select>
+                                    </td>
+                                    <td><button type='button' class='btn btn-default btn-xs' id='maintain' onclick='#'><a href="maintainRound.html">&#9679;</a></button></td>
                                     <td><button type='button' class='btn btn-success btn-xs' id='accept' onclick='#'>&#10004;</button></td>
                                     <td><button type='button' class='btn btn-warning btn-xs' id='delete' onclick='#'>&#10008;</button></td>
                                 </tr>
