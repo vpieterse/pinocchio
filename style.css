@@ -93,9 +93,6 @@ body.dragging, body.dragging * {
   z-index: 2000;
 }
 
-li {
-    list-style-type: none;
-}
 
 ol.drag li.placeholder {
   position: relative;
@@ -104,4 +101,8 @@ ol.drag li.placeholder {
 ol.drag li.placeholder:before {
   position: absolute;
   /** Define arrowhead **/
+}
+
+#add {
+    margin: 6px;
 }
