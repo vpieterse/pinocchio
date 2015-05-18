@@ -231,7 +231,6 @@
                 </div>
             </div>
             <div id="rate">
-                <h4>Add Scale/Optional checkboxes</h4>
                 <div class="row">
                     <div class="col-xs-4"></div>
                     <div class="col-xs-1">
@@ -245,7 +244,133 @@
                     <div class="col-xs-5">
                         <div class="panel panel-default">
                             <div class="panel-body">
-                                <table id="table" class="table"></table>
+                                <table id="table" class="table table-striped table-condensed table-hover btable">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align: center; ">
+                                                <div class="th-inner ">Scale</div>
+                                                <div class="fht-cell"></div>
+                                                <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
+                                                    <div style="height: 34px;"></div>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; ">
+                                                <div class="th-inner ">Optional</div>
+                                                <div class="fht-cell"></div>
+                                                <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
+                                                    <div style="height: 34px;"></div>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; ">
+                                                <div class="th-inner ">Choice</div>
+                                                <div class="fht-cell"></div>
+                                                <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
+                                                    <div style="height: 34px;"></div>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; width: 20px; ">
+                                                <div class="th-inner "></div>
+                                                <div class="fht-cell"></div>
+                                                <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
+                                                    <div style="height: 34px;"></div>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; width: 20px; ">
+                                                <div class="th-inner "></div>
+                                                <div class="fht-cell"></div>
+                                                <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
+                                                    <div style="height: 34px;"></div>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr data-index="0">
+                                            <td style="text-align: center; width: 10px;">
+                                                <div class="checkbox">
+                                                    <input type="checkbox">
+                                                </div>
+                                            </td>
+                                            <td style="text-align: center; width: 10px;">
+                                                <div class="checkbox">
+                                                    <input type="checkbox">
+                                                </div>
+                                            </td>
+                                            <td style="text-align: center; ">Chicken</td>
+                                            <td style="text-align: center; width: 20px; ">
+                                                <a class="move up" href="javascript:void(0)" title="move up"><span
+                class="glyphicon glyphicon-arrow-up"></span></a>
+                                            </td>
+                                            <td style="text-align: center; width: 20px; ">
+                                                <a class="move down" href="javascript:void(0)" title="move down"><span
+                class="glyphicon glyphicon-arrow-down"></span></a>
+                                            </td>
+                                        </tr>
+                                        <tr data-index="1">
+                                            <td style="text-align: center; width: 10px;">
+                                                <div class="checkbox">
+                                                    <input type="checkbox">
+                                                </div>
+                                            </td>
+                                            <td style="text-align: center; width: 10px;">
+                                                <div class="checkbox">
+                                                    <input type="checkbox">
+                                                </div>
+                                            </td>
+                                            <td style="text-align: center; ">Beef</td>
+                                            <td style="text-align: center; width: 20px; ">
+                                                <a class="move up" href="javascript:void(0)" title="move up"><span
+                class="glyphicon glyphicon-arrow-up"></span></a>
+                                            </td>
+                                            <td style="text-align: center; width: 20px; ">
+                                                <a class="move down" href="javascript:void(0)" title="move down"><span
+                class="glyphicon glyphicon-arrow-down"></span></a>
+                                            </td>
+                                        </tr>
+                                        <tr data-index="2">
+                                            <td style="text-align: center; width: 10px;">
+                                                <div class="checkbox">
+                                                    <input type="checkbox">
+                                                </div>
+                                            </td>
+                                            <td style="text-align: center; width: 10px;">
+                                                <div class="checkbox">
+                                                    <input type="checkbox">
+                                                </div>
+                                            </td>
+                                            <td style="text-align: center; ">Fish</td>
+                                            <td style="text-align: center; width: 20px; ">
+                                                <a class="move up" href="javascript:void(0)" title="move up"><span
+                class="glyphicon glyphicon-arrow-up"></span></a>
+                                            </td>
+                                            <td style="text-align: center; width: 20px; ">
+                                                <a class="move down" href="javascript:void(0)" title="move down"><span
+                class="glyphicon glyphicon-arrow-down"></span></a>
+                                            </td>
+                                        </tr>
+                                        <tr data-index="3">
+                                            <td style="text-align: center; width: 10px;">
+                                                <div class="checkbox">
+                                                    <input type="checkbox">
+                                                </div>
+                                            </td>
+                                            <td style="text-align: center; width: 10px;">
+                                                <div class="checkbox">
+                                                    <input type="checkbox">
+                                                </div>
+                                            </td>
+                                            <td style="text-align: center; ">Other</td>
+                                            <td style="text-align: center; width: 20px; ">
+                                                <a class="move up" href="javascript:void(0)" title="move up"><span
+                class="glyphicon glyphicon-arrow-up"></span></a>
+                                            </td>
+                                            <td style="text-align: center; width: 20px; ">
+                                                <a class="move down" href="javascript:void(0)" title="move down"><span
+                class="glyphicon glyphicon-arrow-down"></span></a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
