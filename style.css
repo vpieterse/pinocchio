@@ -77,12 +77,10 @@ body{
 
 .minus {
     border-radius: 50%;
-    background-color: #044242;
 }
 
 .plus {
     border-radius: 50%;
-    background-color: #044242;
 }
 
 body.dragging, body.dragging * {
