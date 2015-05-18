@@ -17,6 +17,7 @@
             {
                 var value = document.getElementById("type").value;
                 document.getElementById("typeDisplay").innerHTML = document.getElementById(value).innerHTML;
+                initialiseStacking();
             }
         </script>
     </head>
@@ -87,7 +88,7 @@
                             <label>Type</label>
                             <select id="type" class="form-control" style="width:auto" onchange="selected()">
                                 <option value="label">Label</option>
-                                <option value="choice" onclick="initialiseStacking()">Choice</option>
+                                <option value="choice">Choice</option>
                                 <option value="rate">Rate</option>
                                 <option value="rank">Rank</option>
                                 <option value="freeform">Freeform</option>

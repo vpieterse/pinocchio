@@ -7,9 +7,3 @@ function initialiseStacking() {
             row.next().after(row);
     });
 };
-
-jQuery(document).ready(function () {
-    $("#type").change(function () {
-        initialiseStacking();
-    });
-});
