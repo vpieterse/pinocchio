@@ -1,77 +1,200 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-<head>
-    <title>Pinocchio</title>
-    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="css/bootstrap.min.css" />
-    <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-    <nav class="navbar navbar-inverse navbar-static-top">
-        <div class="container">
-            <div class="navbar-header">
-                <a href="index.html" class="navbar-brand">Pinocchio</a>
-                <button class="navbar-toggle" data-toggle="collapse" data-target=".navHeaderCollapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-            </div>
-            <div class="collapse navbar-collapse navHeaderCollapse">
-                <ul class="nav navbar-nav navbar-right">
-                    <li><a href="userAdmin.html">User Admin</a></li>
-                    <li><a href="roundAdmin.html">Round Admin</a></li>
-                    <li><a href="teamAdmin.html">Team Admin</a></li>
-                    <li><a href="questionAdmin.html">Question Admin</a></li>
-                    <li class="active"><a href="questionnaireAdmin.html">Questionnaire Admin</a></li>
-                    <li><a href="fileManager.html">File Manager</a></li>
-                    <li><a href="serverManager.html">Server Manager</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    
+    <head>
+        <title>Pinocchio</title>
+        <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="css/bootstrap.min.css" />
+        <link rel="stylesheet" href="style.css" />
+        <script src="jquery.min.js"></script>
+        <script src="js/bootstrap.js"></script>
+        <script scr="js/stacking.js"></script>
+        <script type="text/javascript">
+            function setModal()
+            {
+                var quesFrame = document.getElementById("quesFrame");
+                var doc = (quesFrame.contentDocument || quesFrame.contentWindow)
+                if(doc.document)
+                    doc = doc.document;
+                var content = doc.getElementById("content");
 
-    <div class="container">
-        <div class="panel-group" id="accordion">
+                document.getElementById("question-modal-body").innerHTML = content.innerHTML;
+            }
+
+            /*$(document).ready(function(){
+                $("#startModal").click(function(){
+                    $("#question-modal").modal({backdrop:false});
+                })
+            })*/
+        </script>
+    </head>
+    
+    <body>
+        <nav class="navbar navbar-inverse navbar-static-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <a href="index.html" class="navbar-brand">Pinocchio</a>
+                    <button class="navbar-toggle" data-toggle="collapse" data-target=".navHeaderCollapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div class="collapse navbar-collapse navHeaderCollapse">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="userAdmin.html">User Admin</a>
+                        </li>
+                        <li>
+                            <a href="maintainRound.html">Maintain Rounds</a>
+                        </li>
+                        <li>
+                            <a href="teamBuilder.html">Team Builder</a>
+                        </li>
+                        <li>
+                            <a href="maintainTeam.html">Maintain Teams</a>
+                        </li>
+                        <li>
+                            <a href="questionAdmin.html">Create Question</a>
+                        </li>
+                        <li class="active">
+                            <a href="questionnaireAdmin.html">Questionnaire Admin</a>
+                        </li>
+                        <li>
+                            <a href="result.html">Results</a>
+                        </li>
+                        <li>
+                            <a href="fileManager.html">File Manager</a>
+                        </li>
+                        <li>
+                            <a href="serverManager.html">Server Manager</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="container">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                            Create Questionnaire <b class="caret"></b>
-                        </a>
+                        <b>Questionnaire Builder</b>
                     </h4>
                 </div>
-                <div id="collapseOne" class="panel-collapse collapse in">
-                    <div class="panel-body">
-                        
-                    </div>
-                </div>
-            </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-                            Maintain Questionnaires <b class="caret"></b>
-                        </a>
-                    </h4>
-                </div>
-                <div id="collapseTwo" class="panel-collapse collapse">
-                    <div class="panel-body">
-
+                <div class="panel-body">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-xs-5">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <b>Question List</b>
+                                        </h4>
+                                    </div>
+                                    <div class="panel-body">
+                                        <input type="text" class="form-control" id="search" placeholder="Search" onkeyup="showResult(this.value)">
+                                        <div class='table-responsive'>
+                                            <table class='table sortable' id='users'>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Description</th>
+                                                        <th>&nbsp;&nbsp;</th>
+                                                        <th>Type</th>
+                                                        <th>Grouping</th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+                                            <tr>
+                                                <td>
+                                                    <ol class="drag">
+                                                        <li>What color is your hair?&nbsp;&nbsp;&nbsp;&nbsp; Freeflow&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; None</li>
+                                                        <li>Who is your favourite?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Rank&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                            Rest</li>
+                                                    </ol>
+                                                </td>
+                                            </tr>
+                                        </div>
+                                        <h4 class="panel-title">
+                                            <button type="button" class="btn btn-info btn-xs plus" data-toggle="modal" data-target="#question-modal" onclick="setModal()"
+                                            id="startModal">+</button>
+                                            <b>Add</b>
+                                        </h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <b>Questionnaires</b>
+                                        </h4>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">
+                                                    <input type="button" value="-" class="btn btn-info btn-xs minus" field="" />
+                                                    <b>Team X</b>
+                                                </h4>
+                                            </div>
+                                            <div class="panel-body">
+                                                <table class='table sortable' id='users'>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Description</th>
+                                                            <th>Type</th>
+                                                            <th>Grouping</th>
+                                                        </tr>
+                                                    </thead>
+                                                </table>
+                                                <tr>
+                                                    <td>
+                                                        <ol class="drag">
+                                                            <li>Who ate the most chicken?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Rate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                                All</li>
+                                                            <li>Why do you hate your life?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Label&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                                None</li>
+                                                        </ol>
+                                                    </td>
+                                                </tr>
+                                            </div>
+                                        </div>
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">
+                                                    <input type="button" value="+" class="btn btn-info btn-xs plus" field="" />
+                                                    <b>Add</b>
+                                                </h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="navbar navbar-default navbar-fixed-bottom">
-        <div class="container">
-            <p class="navbar-text pull-left">&copy; Dillon Heins</p>
-            <a class="navbar-btn btn-danger btn pull-right">Log Out</a>
+        <div class="navbar navbar-default navbar-fixed-bottom">
+            <div class="container">
+                <p class="navbar-text pull-left">&copy; Dillon Heins</p>
+                <a class="navbar-btn btn-danger btn pull-right">Log Out</a>
+            </div>
         </div>
-    </div>
+        <iframe id="quesFrame" src="questionAdmin.html" class="hidden" style="width:100%"></iframe>
+        <div id="question-modal" class="modal" role="dialog">
+            <div class="modal-dialog" style="width:80%;">
+                <div class="modal-content" style="width:100%;">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body" id="question-modal-body"></div>
+                </div>
+            </div>
+        </div>
+        <script src="jquery.min.js"></script>
+        <script src="js/bootstrap.js"></script>
+        <script src="js/jquery-sortable.js"></script>
+        <script src="js/dragAndDrop.js"></script>
+    </body>
 
-    <script src="jquery.min.js"></script>
-    <script src="js/bootstrap.js"></script>
-</body>
 </html>
