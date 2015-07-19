@@ -36,7 +36,6 @@ urlpatterns = [
     # url(r'^blog/', include('blog.urls')),
     url(r'^peer/', include('peer_review.urls')),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^myapp/', include('myapp.urls')),
     # url(r'^', RedirectView.as_view(url='/myapp/list/')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

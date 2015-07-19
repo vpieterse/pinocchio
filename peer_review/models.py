@@ -1,6 +1,9 @@
 from django.db import models
 from django.core.management import call_command
 
+class Document(models.Model):
+    docfile = models.FileField(upload_to='documents/%Y/%m/%d')
+
 class QuestionType(models.Model):
     name = models.CharField(max_length=30)
     def __str__(self):
