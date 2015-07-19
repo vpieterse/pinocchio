@@ -1,13 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+{% extends "myapp/base.html" %}
+
+{% block extrahead %}
     <title>Pinocchio</title>
     <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
     {% load staticfiles %}
     <link rel="stylesheet" href="{% static "myapp/css/bootstrap.min.css" %}" />
     <link rel="stylesheet" href="{% static "myapp/css/style.css" %}" />
-</head>
-<body>
+{% endblock %}
+
+{% block context %}
     <nav class="navbar navbar-inverse navbar-static-top">
         <div class="container">
             <div class="navbar-header">
@@ -36,15 +37,15 @@
         <h3>File Manager</h3>
 
         <form action="{% url "list" %}" method="post" enctype="multipart/form-data">
-			{% csrf_token %}
-			<p>{{ form.non_field_errors }}</p>
-			<p>{{ form.docfile.label_tag }} {{ form.docfile.help_text }}</p>
-			<p>
-				{{ form.docfile.errors }}
-				{{ form.docfile }}
-			</p>
-			<p><input type="submit" value="Upload" /></p>
-		</form>
+            {% csrf_token %}
+            <p>{{ form.non_field_errors }}</p>
+            <p>{{ form.docfile.label_tag }} {{ form.docfile.help_text }}</p>
+            <p>
+                {{ form.docfile.errors }}
+                {{ form.docfile }}
+            </p>
+            <p><input type="submit" value="Upload" /></p>
+        </form>
     </div>
     <button onclick="{{Question.makeDump}}">Test</button>
     <div class="navbar navbar-default navbar-fixed-bottom">
@@ -56,5 +57,4 @@
 
     <script src="{% static "myapp/js/jquery.min.js" %}"></script>
     <script src="{% static "myapp/js/bootstrap.js" %}"></script>
-</body>
-</html>
+{% endblock %}
