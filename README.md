@@ -15,12 +15,12 @@
 ### Sample page
 This is the file manager page for Pinocchio with working file upload.
 
-- Go to `pinocchio/peer_review/templates/peer_review/list.html` for the template
+- Go to `pinocchio/peer_review/templates/peer_review/fileUpload.html` for the template
 - Resources (CSS, JavaScript) are under `pinocchio/peer_review/static/peer_review/`
 - Uploaded files go to `pinocchio/media`
 
 Question admin page is showing but functionality not added yet
-- `http://127.0.0.1:8000/myapp/questionAdmin`
+- `http://127.0.0.1:8000/peer/questionAdmin`
 
 ### Admin page
 - Go to http://127.0.0.1:8000/admin/.
