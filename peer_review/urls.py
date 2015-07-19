@@ -3,7 +3,7 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-	url(r'^list', views.list, name='list'),
+	url(r'^fileUpload', views.fileUpload, name='fileUpload'),
     url(r'^questionAdmin', views.questionAdmin, name='questionAdmin'),
     
     # ex: /peer_review/

@@ -17,7 +17,7 @@ def index(request):
     output = ', '.join([p.questionText for p in latest_question_list])
     return HttpResponse(output)
 
-def list(request):
+def fileUpload(request):
     # Handle file upload
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
@@ -35,10 +35,10 @@ def list(request):
 
     # Render list page with the documents and the form
     return render_to_response(
-        'myapp/list.html',
+        'peer_review/fileUpload.html',
         {'documents': documents, 'form': form}
         ,context_instance=RequestContext(request)
     )
 
 def questionAdmin(request):
-    return render(request, 'myapp/questionAdmin.html')
+    return render(request, 'peer_review/questionAdmin.html')
