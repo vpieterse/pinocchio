@@ -3,6 +3,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.shortcuts import render
 
 from .models import Document
 from .forms import DocumentForm
@@ -29,3 +30,6 @@ def list(request):
         {'documents': documents, 'form': form},
         context_instance=RequestContext(request)
     )
+
+def questionAdmin(request):
+    return render(request, 'myapp/questionAdmin.html')

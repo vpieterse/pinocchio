@@ -19,6 +19,9 @@ This is the file manager page for Pinocchio with working file upload.
 - Resources (CSS, JavaScript) are under `pinocchio/myapp/static/myapp/`
 - Uploaded files go to `pinocchio/media`
 
+Question admin page is showing but functionality not added yet
+- `http://127.0.0.1:8000/myapp/questionAdmin`
+
 ### Admin page
 - Go to http://127.0.0.1:8000/admin/.
 Log in with:
