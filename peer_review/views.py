@@ -12,11 +12,11 @@ from .models import Document
 from .models import Question
 from .models import QuestionType
 from .forms import DocumentForm
-    
+ 
 def createQuestion(request):
     if 'question' in request.GET:
         text = request.GET['question']
-        message = 'You searched for: %r' % text
+        message = 'Inserting Question with text: %r' % text
         qType = QuestionType.objects.get(name='Rank')
         q = Question(questionText=text,
                      pubDate=timezone.now() - datetime.timedelta(days=1),
@@ -60,4 +60,5 @@ def fileUpload(request):
     )
 
 def questionAdmin(request):
-    return render(request, 'peer_review/questionAdmin.html')
+    context = {'questionTypes': QuestionType.objects.all()}
+    return render(request, 'peer_review/questionAdmin.html', context)
