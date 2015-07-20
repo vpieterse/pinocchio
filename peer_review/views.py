@@ -4,10 +4,29 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.shortcuts import render
 from django.template import RequestContext
+from django.utils import timezone
+
+import datetime
 
 from .models import Document
 from .models import Question
+from .models import QuestionType
 from .forms import DocumentForm
+    
+def createQuestion(request):
+    if 'question' in request.GET:
+        text = request.GET['question']
+        message = 'You searched for: %r' % text
+        qType = QuestionType.objects.get(name='Rank')
+        q = Question(questionText=text,
+                     pubDate=timezone.now() - datetime.timedelta(days=1),
+                     questionType=qType,
+                     questionGrouping=3        
+                     )
+        q.save()
+    else:
+        message = 'You submitted an empty form.'
+    return HttpResponse(message)
 
 def detail(request, question_id):
     return HttpResponse("You're looking at question %s." % question_id)

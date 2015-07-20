@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
 	url(r'^fileUpload', views.fileUpload, name='fileUpload'),
     url(r'^questionAdmin', views.questionAdmin, name='questionAdmin'),
+    url(r'^createQuestion/$', views.createQuestion, name='createQuestion'),
     
     # ex: /peer_review/
     url(r'^$', views.index, name='index'),
