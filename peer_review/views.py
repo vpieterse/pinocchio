@@ -10,9 +10,10 @@ import datetime
 
 from .models import Document
 from .models import Question
-from .models import QuestionType
-from .forms import DocumentForm
- 
+from .models import Student
+from .models import StudentDetail
+from .forms import DocumentForm, StudentForm, StudentDetailForm
+
 def createQuestion(request):
     if 'question' in request.GET:
         text = request.GET['question']
@@ -62,3 +63,40 @@ def fileUpload(request):
 def questionAdmin(request):
     context = {'questionTypes': QuestionType.objects.all()}
     return render(request, 'peer_review/questionAdmin.html', context)
+
+def student_list(request):
+    students = Student.objects.all
+    if request.method == "POST":
+        studentForm = StudentForm(request.post)
+        studentDetailForm = StudentDetailForm(request.post)
+        if studentForm.is_valid() and studentDetailForm.is_valid():
+            student = studentForm.save(commit = False)
+            StudentDetail = studentDetailForm.save(commit = False)
+
+            student.author = request.user
+            studentDetail.author = request.user
+
+            student.save()
+            studentDetail.save()
+            return HttpResponseRedirect('.')
+    else:
+        studentForm = StudentForm()
+        studentDetailForm = StudentDetailForm()
+    return render(request, 'peer_review/user_list.html',{'students': students, 'studentForm': studentForm, 'studentDetailForm': studentDetailForm})
+
+    # users = Student.objects.filter(created_date__lte=timezone.now()).order_by('-created_date')
+    # if request.method == "POST":
+    #     form = UserForm(request.POST)
+    #     if form.is_valid():
+    #         user = form.save(commit = False)
+    #         user.author = request.user
+    #         user.created_date = timezone.now()
+    #         user.save()
+    #         return HttpResponseRedirect('.')
+    # else:
+    #     form = UserForm()
+    # return render(request, 'user/user_list.html', {'users': users, 'form': form})
+
+def user_delete(request, user_id):
+    u = User.objects.get(pk = user_id).delete()
+    return HttpResponseRedirect('../')
