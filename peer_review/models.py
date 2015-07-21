@@ -31,10 +31,9 @@ class Header(models.Model):
 class Choice(models.Model):
     question = models.ForeignKey(Question)
     header = models.ForeignKey(Header)
-    choiceText = models.CharField(max_length=200)
     num = models.IntegerField(default=0)
     def __str__(self):
-        return self.choiceText
+        return self.header.text
     # num = models.IntegerField(default=0)
     # choiceText = models.CharField(max_length=200)
 
@@ -42,6 +41,8 @@ class Student(models.Model):
     username = models.CharField(max_length=15)
     password = models.CharField(max_length=100)
     status = models.CharField(max_length=2)
+    def __str__(self):
+        return self.username
 
 class StudentDetail(models.Model):
     student = models.ForeignKey(Student)

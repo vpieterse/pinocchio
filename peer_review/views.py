@@ -4,29 +4,12 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.shortcuts import render
 from django.template import RequestContext
-from django.utils import timezone
-
-import datetime
 
 from .models import Document
 from .models import Question
-from .models import QuestionType
-from .forms import DocumentForm
- 
-def createQuestion(request):
-    if 'question' in request.GET:
-        text = request.GET['question']
-        message = 'Inserting Question with text: %r' % text
-        qType = QuestionType.objects.get(name='Rank')
-        q = Question(questionText=text,
-                     pubDate=timezone.now() - datetime.timedelta(days=1),
-                     questionType=qType,
-                     questionGrouping=3        
-                     )
-        q.save()
-    else:
-        message = 'You submitted an empty form.'
-    return HttpResponse(message)
+from .models import Student
+from .models import StudentDetail
+from .forms import DocumentForm, StudentForm, StudentDetailForm
 
 def detail(request, question_id):
     return HttpResponse("You're looking at question %s." % question_id)
@@ -60,5 +43,41 @@ def fileUpload(request):
     )
 
 def questionAdmin(request):
-    context = {'questionTypes': QuestionType.objects.all()}
-    return render(request, 'peer_review/questionAdmin.html', context)
+    return render(request, 'peer_review/questionAdmin.html')
+
+def student_list(request):
+    students = Student.objects.all
+    if request.method == "POST":
+        studentForm = StudentForm(request.post)
+        studentDetailForm = StudentDetailForm(request.post)
+        if studentForm.is_valid() and studentDetailForm.is_valid():
+            student = studentForm.save(commit = False)
+            StudentDetail = studentDetailForm.save(commit = False)
+
+            student.author = request.user
+            studentDetail.author = request.user
+
+            student.save()
+            studentDetail.save()
+            return HttpResponseRedirect('.')
+    else:
+        studentForm = StudentForm()
+        studentDetailForm = StudentDetailForm()
+    return render(request, 'peer_review/user_list.html',{'students': students, 'studentForm': studentForm, 'studentDetailForm': studentDetailForm})
+
+    # users = Student.objects.filter(created_date__lte=timezone.now()).order_by('-created_date')
+    # if request.method == "POST":
+    #     form = UserForm(request.POST)
+    #     if form.is_valid():
+    #         user = form.save(commit = False)
+    #         user.author = request.user
+    #         user.created_date = timezone.now()
+    #         user.save()
+    #         return HttpResponseRedirect('.')
+    # else:
+    #     form = UserForm()
+    # return render(request, 'user/user_list.html', {'users': users, 'form': form})
+
+def user_delete(request, user_id):
+    u = User.objects.get(pk = user_id).delete()
+    return HttpResponseRedirect('../')
