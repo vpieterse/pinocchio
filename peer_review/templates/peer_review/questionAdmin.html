@@ -79,18 +79,23 @@
                     </h4>
                 </div>
                 <div class="panel-body">
-                    <form role="form">
+                    <form role="form" action="/peer/createQuestion/" method="get">
                         <div class="form-group">
                             <label for="question">Question</label>
-                            <textarea class="form-control" cols="40" rows="3" style="resize:none;width:auto" id="question"></textarea>
+                            <textarea class="form-control" cols="40" rows="3" style="resize:none;width:auto" id="question" name="question"></textarea>
                             <br />
                             <label>Type</label>
                             <select id="type" class="form-control" style="width:auto" onchange="selected()">
-                                <option value="label">Label</option>
+                                {% if questionTypes %}
+                                {% for qt in questionTypes %}
+                                <option value="{{qt.name}}">{{ qt.name }}</option>
+                                {% endfor %}
+                                {% endif %}
+                                <!--<option value="label">Label</option>
                                 <option value="choice">Choice</option>
                                 <option value="rate">Rate</option>
                                 <option value="rank">Rank</option>
-                                <option value="freeform">Freeform</option>
+                                <option value="freeform">Freeform</option>-->
                             </select>
                             <br />
                             <div id="typeDisplay">
@@ -121,7 +126,7 @@
                             </div>
                             <div>
                                 <br />
-                                <button type="button">Save</button>
+                                <button type="submit">Save</button>
                             </div>
                         </div>
                         <form>
@@ -129,8 +134,8 @@
             </div>
         </div>
         <div id="hidden" class="hidden">
-            <div id="label"></div>
-            <div id="choice">
+            <div id="Label"></div>
+            <div id="Choice">
                 <div class="row">
                     <div class="col-xs-4"></div>
                     <div class="col-xs-1">
@@ -229,7 +234,7 @@
                     </div>
                 </div>
             </div>
-            <div id="rate">
+            <div id="Rate">
                 <div class="row">
                     <div class="col-xs-4"></div>
                     <div class="col-xs-1">
@@ -381,7 +386,7 @@
                     </div>
                 </div>
             </div>
-            <div id="rank">
+            <div id="Rank">
                 <table>
                     <div class="row">
                         <div class="col-xs-4">
@@ -410,7 +415,7 @@
                     </div>
                 </table>
             </div>
-            <div id="freeform">
+            <div id="Freeform">
                 <div class="row">
                     <div class="col-xs-4"></div>
                     <div class="col-xs-1">
