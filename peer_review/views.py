@@ -9,7 +9,7 @@ from django.utils import timezone
 import datetime
 
 from .models import Document
-from .models import Question
+from .models import Question, QuestionType
 from .models import Student
 from .models import StudentDetail
 from .forms import DocumentForm, StudentForm, StudentDetailForm

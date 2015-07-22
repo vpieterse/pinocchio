@@ -1,4 +1,9 @@
-﻿
+﻿#header {
+    height: 30px;
+    padding-left: 50px;
+    margin-top: -5px;
+}
+
 .navbar-brand{
     color : white !important;
 }
