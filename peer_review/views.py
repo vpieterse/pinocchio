@@ -10,8 +10,7 @@ import datetime
 
 from .models import Document
 from .models import Question, QuestionType
-from .models import Student
-from .models import StudentDetail
+from .models import User, UserDetail
 from .forms import DocumentForm, UserForm
 
 def createQuestion(request):
@@ -64,22 +63,15 @@ def questionAdmin(request):
     context = {'questionTypes': QuestionType.objects.all()}
     return render(request, 'peer_review/questionAdmin.html', context)
 
-def student_list(request):
-    studentDetail = StudentDetail.objects.all
+def userList(request):
+    users = User.objects.all
     userForm = UserForm()
-    return render(request, 'peer_review/userAdmin.html', {'studentDetail': studentDetail, 'userForm': userForm})
+    return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm})
 
-def get_studentFormData(request):
+def submitForm(request):
     if request.method == "POST":
         userForm = UserForm(request.POST)
         if userForm.is_valid():
-            post_username = userForm.cleaned_data['username']
-            post_password = userForm.cleaned_data['password']
-            post_status = userForm.cleaned_data['status']
-
-            student = Student(username = post_username, password = post_password, status = post_status)
-            student.save()
-
             post_title = userForm.cleaned_data['title']
             post_initials = userForm.cleaned_data['initials']
             post_name = userForm.cleaned_data['name']
@@ -87,12 +79,21 @@ def get_studentFormData(request):
             post_cell = userForm.cleaned_data['cell']
             post_email = userForm.cleaned_data['email']
 
-            studentDetail = StudentDetail(student = student, title = post_title, initials = post_initials, name = post_name, surname = post_surname, cell = post_cell, email = post_email)
-            studentDetail.save()
-            return HttpResponseRedirect('./userAdmin')
+            userDetail = UserDetail(title = post_title, initials = post_initials, name = post_name, surname = post_surname, cell = post_cell, email = post_email)
+            userDetail.save()
+
+            post_userId = userForm.cleaned_data['userId']
+            post_password = userForm.cleaned_data['password']
+            post_status = userForm.cleaned_data['status']
+
+            user = User(userId = post_userId, password = post_password, status = post_status, userDetail = userDetail)
+            user.save()
+
+            message = "Success"
+            return HttpResponseRedirect("../")
     else:
         userForm = UserForm()
-    return render(request, 'peer_review/userAdmin.html')
+    return render(request, 'peer_review/userAdmin.html', {'userForm': userForm})
 
 def user_delete(request, user_id):
     studentDetail = StudentDetail.objects.get(student__username = user_id)

@@ -39,21 +39,23 @@ class Choice(models.Model):
     # num = models.IntegerField(default=0)
     # choiceText = models.CharField(max_length=200)
 
-class Student(models.Model):
-    username = models.CharField(max_length=15)
-    password = models.CharField(max_length=100)
-    status = models.CharField(max_length=2)
-
-class StudentDetail(models.Model):
-    student = models.ForeignKey(Student)
+class UserDetail(models.Model):
     title = models.CharField(max_length=4)
     initials = models.CharField(max_length=10)
     name = models.CharField(max_length=50)
     surname = models.CharField(max_length=50)
-    cell = models.CharField(max_length=15)
+    cell = models.CharField(max_length=10)
     email = models.CharField(max_length=60)
     def __str__(self):
-        return self.student.username + " - " + self.surname + " " + self.initials
+        return self.surname + " " + self.initials
+
+class User(models.Model):
+    userId = models.CharField(max_length=8)
+    password = models.CharField(max_length=100)
+    status = models.CharField(max_length=1)
+    userDetail = models.ForeignKey(UserDetail)
+    def __str__(self):
+        return self.userId + " - " + self.userDetail.surname + " " + self.userDetail.initials
 
 class Questionnaire(models.Model):
     intro = models.CharField(max_length=50)
@@ -65,7 +67,7 @@ class RoundDetail(models.Model):
     description = models.CharField(max_length=200)
 
 class TeamDetail(models.Model):
-    studentDetail = models.ForeignKey(StudentDetail)
+    userDetail = models.ForeignKey(UserDetail, null=True)
     roundDetail = models.ForeignKey(RoundDetail)
     teamNumber = models.IntegerField(default=0)
     status = models.CharField(max_length=20)

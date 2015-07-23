@@ -57,7 +57,7 @@
                 <div id="collapseOne" class="panel-collapse collapse in">
                     <div class="panel-body">
                         {% block content %}
-                        <form action="./get_studentFormData" method="post" class="form-horizontal user-form" onsubmit="return validateUserForm()" id="userForm" role="form">
+                        <form action="userAdmin/submitForm/" method="post" class="form-horizontal user-form" onsubmit="" id="userForm" role="form">
                             {% csrf_token %}
                             <div class="form-group">
                                 <!-- Title Input -->
@@ -105,7 +105,7 @@
                                 <!-- Student Number Input -->
                                 <label for="studentNumber" class="col-sm-2 control-label">Student Number:</label>
                                 <div class="col-sm-3">
-                                    {{ userForm.username }}
+                                    {{ userForm.userId }}
                                 </div>
 
                                 <!-- Status Input -->
@@ -193,18 +193,18 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for student in studentDetail %}
+                                    {% for user in users %}
                                         <tr>
-                                            <td contenteditable='true'>{{ student.student.username }}</td>
-                                            <td contenteditable='true'>{{ student.title }}</td>
-                                            <td contenteditable='true'>{{ student.initials }}</td>
-                                            <td contenteditable='true'>{{ student.name }}</td>
-                                            <td contenteditable='true'>{{ student.surname }}</td>
-                                            <td contenteditable='true'>{{ student.cell }}</td>
-                                            <td contenteditable='true'>{{ student.email }}</td>
-                                            <td><button type='submit' name="edit" class='btn btn-success btn-xs' id='edit' value="{{ student.student.username }}">E</button></td>
+                                            <td contenteditable='true'>{{ user.userId }}</td>
+                                            <td contenteditable='true'>{{ user.userDetail.title }}</td>
+                                            <td contenteditable='true'>{{ user.userDetail.initials }}</td>
+                                            <td contenteditable='true'>{{ user.userDetail.name }}</td>
+                                            <td contenteditable='true'>{{ user.userDetail.surname }}</td>
+                                            <td contenteditable='true'>{{ user.userDetail.cell }}</td>
+                                            <td contenteditable='true'>{{ user.userDetail.email }}</td>
+                                            <td><button type='submit' name="edit" class='btn btn-success btn-xs' id='edit' value="{{ user.userId }}">E</button></td>
                                             <td>
-                                                <form action="./delete/{{ student.student.username }}" method="post">
+                                                <form action="./delete/{{ user.userId }}" method="post">
                                                     {% csrf_token %}
                                                     <button type='submit' name="remove" class='btn btn-warning btn-xs' id='remove'>R</button>
                                                 </form>

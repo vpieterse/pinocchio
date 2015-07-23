@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from .models import Student, StudentDetail
 
 class DocumentForm(forms.Form):
     docfile = forms.FileField(
@@ -8,16 +7,16 @@ class DocumentForm(forms.Form):
     )
 
 class UserForm(forms.Form):
-	username = forms.CharField(
+	userId = forms.CharField(
 		label = "Username:",
 		max_length = 30,
-		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'username'}),
+		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'userId', 'value': '14035538'}),
 	)
 
 	password = forms.CharField(
 		label = "Password:",
 		max_length = 100,
-		widget = forms.PasswordInput(attrs={'class': 'form-control', 'id': 'password'}),
+		widget = forms.PasswordInput(attrs={'class': 'form-control', 'id': 'password', 'value': '123456'}),
 	)
 
 	status = forms.ChoiceField(
@@ -35,29 +34,29 @@ class UserForm(forms.Form):
 	initials = forms.CharField(
 		label = "Initials:",
 		max_length = 5,
-		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'initials'}),
+		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'initials', 'value': 'D'}),
 	)
 
 	name = forms.CharField(
 		label = "First Name:",
 		max_length = 50,
-		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'name'}),
+		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'name', 'value': 'Dillon'}),
 	)
 
 	surname = forms.CharField(
 		label = "Surname:",
 		max_length = 50,
-		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'surname'}),
+		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'surname', 'value': 'Heins'}),
 	)
 
 	cell = forms.CharField(
 		label = "Cell Number:",
 		max_length = 10,
-		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'cell'}),
+		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'cell', 'value': '0791234567'}),
 	)
 
 	email = forms.EmailField(
 		label = "Email:",
 		max_length = 100,
-		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'email'}),
+		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'email', 'value': 'd@gmail.com'}),
 	)
