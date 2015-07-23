@@ -4,12 +4,30 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.shortcuts import render
 from django.template import RequestContext
+from django.utils import timezone
+
+import datetime
 
 from .models import Document
-from .models import Question
+from .models import Question, QuestionType
 from .models import Student
 from .models import StudentDetail
 from .forms import DocumentForm, UserForm
+
+def createQuestion(request):
+    if 'question' in request.GET:
+        text = request.GET['question']
+        message = 'Inserting Question with text: %r' % text
+        qType = QuestionType.objects.get(name='Rank')
+        q = Question(questionText=text,
+                     pubDate=timezone.now() - datetime.timedelta(days=1),
+                     questionType=qType,
+                     questionGrouping=3        
+                     )
+        q.save()
+    else:
+        message = 'You submitted an empty form.'
+    return HttpResponse(message)
 
 def detail(request, question_id):
     return HttpResponse("You're looking at question %s." % question_id)
@@ -43,7 +61,8 @@ def fileUpload(request):
     )
 
 def questionAdmin(request):
-    return render(request, 'peer_review/questionAdmin.html')
+    context = {'questionTypes': QuestionType.objects.all()}
+    return render(request, 'peer_review/questionAdmin.html', context)
 
 def student_list(request):
     studentDetail = StudentDetail.objects.all
