@@ -11,5 +11,6 @@ urlpatterns = [
     # ex: /peer_review/5/
     url(r'^(?P<question_id>[0-9]+)/$', views.detail, name='detail'),
     url(r'^userAdmin', views.student_list),
+    url(r'^get_studentFormData', views.get_studentFormData),
 	url(r'^delete/(?P<user_id>[0-9]+)$', views.user_delete),
 ]

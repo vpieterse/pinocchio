@@ -9,7 +9,7 @@ from .models import Document
 from .models import Question
 from .models import Student
 from .models import StudentDetail
-from .forms import DocumentForm, StudentForm, StudentDetailForm
+from .forms import DocumentForm, UserForm
 
 def detail(request, question_id):
     return HttpResponse("You're looking at question %s." % question_id)
@@ -46,38 +46,39 @@ def questionAdmin(request):
     return render(request, 'peer_review/questionAdmin.html')
 
 def student_list(request):
-    students = Student.objects.all
+    studentDetail = StudentDetail.objects.all
+    userForm = UserForm()
+    return render(request, 'peer_review/userAdmin.html', {'studentDetail': studentDetail, 'userForm': userForm})
+
+def get_studentFormData(request):
     if request.method == "POST":
-        studentForm = StudentForm(request.post)
-        studentDetailForm = StudentDetailForm(request.post)
-        if studentForm.is_valid() and studentDetailForm.is_valid():
-            student = studentForm.save(commit = False)
-            StudentDetail = studentDetailForm.save(commit = False)
+        userForm = UserForm(request.POST)
+        if userForm.is_valid():
+            post_username = userForm.cleaned_data['username']
+            post_password = userForm.cleaned_data['password']
+            post_status = userForm.cleaned_data['status']
 
-            student.author = request.user
-            studentDetail.author = request.user
-
+            student = Student(username = post_username, password = post_password, status = post_status)
             student.save()
-            studentDetail.save()
-            return HttpResponseRedirect('.')
-    else:
-        studentForm = StudentForm()
-        studentDetailForm = StudentDetailForm()
-    return render(request, 'peer_review/user_list.html',{'students': students, 'studentForm': studentForm, 'studentDetailForm': studentDetailForm})
 
-    # users = Student.objects.filter(created_date__lte=timezone.now()).order_by('-created_date')
-    # if request.method == "POST":
-    #     form = UserForm(request.POST)
-    #     if form.is_valid():
-    #         user = form.save(commit = False)
-    #         user.author = request.user
-    #         user.created_date = timezone.now()
-    #         user.save()
-    #         return HttpResponseRedirect('.')
-    # else:
-    #     form = UserForm()
-    # return render(request, 'user/user_list.html', {'users': users, 'form': form})
+            post_title = userForm.cleaned_data['title']
+            post_initials = userForm.cleaned_data['initials']
+            post_name = userForm.cleaned_data['name']
+            post_surname = userForm.cleaned_data['surname']
+            post_cell = userForm.cleaned_data['cell']
+            post_email = userForm.cleaned_data['email']
+
+            studentDetail = StudentDetail(student = student, title = post_title, initials = post_initials, name = post_name, surname = post_surname, cell = post_cell, email = post_email)
+            studentDetail.save()
+            return HttpResponseRedirect('./userAdmin')
+    else:
+        userForm = UserForm()
+    return render(request, 'peer_review/userAdmin.html')
 
 def user_delete(request, user_id):
-    u = User.objects.get(pk = user_id).delete()
-    return HttpResponseRedirect('../')
+    studentDetail = StudentDetail.objects.get(student__username = user_id)
+    student = studentDetail.student
+
+    studentDetail.delete()
+    student.delete()
+    return HttpResponseRedirect('../userAdmin')

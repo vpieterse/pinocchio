@@ -52,6 +52,8 @@ class StudentDetail(models.Model):
     surname = models.CharField(max_length=50)
     cell = models.CharField(max_length=15)
     email = models.CharField(max_length=60)
+    def __str__(self):
+        return self.student.username + " - " + self.surname + " " + self.initials
 
 class Questionnaire(models.Model):
     intro = models.CharField(max_length=50)

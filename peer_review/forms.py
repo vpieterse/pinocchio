@@ -7,11 +7,7 @@ class DocumentForm(forms.Form):
         label='Select a file'
     )
 
-class StudentForm(forms.ModelForm):
-	class Meta:
-		model = Student
-		fields = ('username','password', 'status')
-
+class UserForm(forms.Form):
 	username = forms.CharField(
 		label = "Username:",
 		max_length = 30,
@@ -30,11 +26,6 @@ class StudentForm(forms.ModelForm):
 		widget = forms.Select(attrs={'class': 'form-control', 'id': 'status'}),
 	)
 
-class StudentDetailForm(forms.ModelForm):
-	class Meta:
-		model = StudentDetail
-		fields = ('student','title','initials','name','surname','cell','email')
-		
 	title = forms.ChoiceField(
 		label = "Title:",
 		choices = (('', '',), ('Mr', 'Mr',), ('Ms', 'Ms',), ('Miss', 'Miss',), ('Mrs', 'Mrs',), ('Dr', 'Dr',)),
@@ -50,19 +41,13 @@ class StudentDetailForm(forms.ModelForm):
 	name = forms.CharField(
 		label = "First Name:",
 		max_length = 50,
-		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'firstName'}),
+		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'name'}),
 	)
 
 	surname = forms.CharField(
 		label = "Surname:",
 		max_length = 50,
 		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'surname'}),
-	)
-
-	status = forms.ChoiceField(
-		label = "Status:",
-		choices = (('', '',), ('S', 'Student',), ('A', 'Admin',)),
-		widget = forms.Select(attrs={'class': 'form-control', 'id': 'status'}),
 	)
 
 	cell = forms.CharField(

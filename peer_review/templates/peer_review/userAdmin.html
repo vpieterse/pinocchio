@@ -31,7 +31,7 @@
             </div>
             <div class="collapse navbar-collapse navHeaderCollapse">
                 <ul class="nav navbar-nav navbar-right">
-                    <li class="active"><a href=".">User Admin</a></li>
+                    <li class="active"><a href="userAdmin.html">User Admin</a></li>
                     <li><a href="#">Round Admin</a></li>
                     <li><a href="#">Team Admin</a></li>
                     <li><a href="#">Question Admin</a></li>
@@ -57,19 +57,19 @@
                 <div id="collapseOne" class="panel-collapse collapse in">
                     <div class="panel-body">
                         {% block content %}
-                        <form action="" class="form-horizontal user-form" onsubmit="return validateUserForm()" id="userForm" role="form" method="post" action="#">
+                        <form action="./get_studentFormData" method="post" class="form-horizontal user-form" onsubmit="return validateUserForm()" id="userForm" role="form">
                             {% csrf_token %}
                             <div class="form-group">
                                 <!-- Title Input -->
                                 <label for="title" class="col-sm-2 control-label">Title:</label>
                                 <div class="col-sm-3">
-                                    {{ studentDetailForm.title }}
+                                    {{ userForm.title }}
                                 </div>
 
                                 <!-- Initials Input -->
                                 <label for="initials" class="col-sm-2 control-label">Initials:</label>
                                 <div class="col-sm-3">
-                                    {{ studentDetailForm.initials }}
+                                    {{ userForm.initials }}
                                 </div>
                             </div>
 
@@ -77,13 +77,13 @@
                                 <!-- Firsts Name Input -->
                                 <label for="firstName" class="col-sm-2 control-label">First Name:</label>
                                 <div class="col-sm-3">
-                                    {{ studentDetailForm.name }}
+                                    {{ userForm.name }}
                                 </div>
                                 
                                 <!-- Surname Input -->
                                 <label for="surname" class="col-sm-2 control-label">Surname:</label>
                                 <div class="col-sm-3">
-                                    {{ studentDetailForm.surname }}
+                                    {{ userForm.surname }}
                                 </div>
                             </div>
 
@@ -91,13 +91,13 @@
                                 <!-- Email Input -->
                                 <label for="email" class="col-sm-2 control-label">Email:</label>
                                 <div class="col-sm-3">
-                                    {{ studentDetailForm.email }}
+                                    {{ userForm.email }}
                                 </div>
 
                                 <!--Cell Number Input -->
                                 <label for="cellNumber" class="col-sm-2 control-label">Cell Number:</label>
                                 <div class="col-sm-3">
-                                    {{ studentDetailForm.cell }}
+                                    {{ userForm.cell }}
                                 </div>                                                              
                             </div>
 
@@ -105,13 +105,13 @@
                                 <!-- Student Number Input -->
                                 <label for="studentNumber" class="col-sm-2 control-label">Student Number:</label>
                                 <div class="col-sm-3">
-                                    {{ studentForm.username }}
+                                    {{ userForm.username }}
                                 </div>
 
                                 <!-- Status Input -->
                                 <label for="status" class="col-sm-2 control-label">Status:</label>
                                 <div class="col-sm-3">
-                                    {{ studentForm.status }}
+                                    {{ userForm.status }}
                                 </div>                                
                             </div>
 
@@ -119,7 +119,7 @@
                                 <!-- Password Input -->
                                 <label for="password" class="col-sm-2 control-label">Password:</label>
                                 <div class="col-sm-3">
-                                    {{ studentForm.password }}
+                                    {{ userForm.password }}
                                 </div>
 
                                 <label for="passwordConfirm" class="col-sm-2 control-label">Confirm Password:</label>
@@ -193,18 +193,18 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for student in students %}
+                                    {% for student in studentDetail %}
                                         <tr>
-                                            <td contenteditable='true'>{{ student.studentNumber }}</td>
+                                            <td contenteditable='true'>{{ student.student.username }}</td>
                                             <td contenteditable='true'>{{ student.title }}</td>
                                             <td contenteditable='true'>{{ student.initials }}</td>
-                                            <td contenteditable='true'>{{ student.firstName }}</td>
+                                            <td contenteditable='true'>{{ student.name }}</td>
                                             <td contenteditable='true'>{{ student.surname }}</td>
-                                            <td contenteditable='true'>{{ student.cellNumber }}</td>
+                                            <td contenteditable='true'>{{ student.cell }}</td>
                                             <td contenteditable='true'>{{ student.email }}</td>
-                                            <td><button type='submit' name="edit" class='btn btn-success btn-xs' id='edit' value="{{ student.id }}">E</button></td>
+                                            <td><button type='submit' name="edit" class='btn btn-success btn-xs' id='edit' value="{{ student.student.username }}">E</button></td>
                                             <td>
-                                                <form action="/delete/{{ user.id }}" method="post">
+                                                <form action="./delete/{{ student.student.username }}" method="post">
                                                     {% csrf_token %}
                                                     <button type='submit' name="remove" class='btn btn-warning btn-xs' id='remove'>R</button>
                                                 </form>
