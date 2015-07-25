@@ -93,12 +93,12 @@ def submitForm(request):
             return HttpResponseRedirect("../")
     else:
         userForm = UserForm()
-    return render(request, 'peer_review/userAdmin.html', {'userForm': userForm})
+    return HttpResponseRedirect("../")
 
-def user_delete(request, user_id):
-    studentDetail = StudentDetail.objects.get(student__username = user_id)
-    student = studentDetail.student
+def userDelete(request, userPk):
+    user = User.objects.get(pk = userPk)
+    userDetail = user.userDetail
 
-    studentDetail.delete()
-    student.delete()
-    return HttpResponseRedirect('../userAdmin')
+    userDetail.delete()
+    user.delete()
+    return HttpResponseRedirect('../')

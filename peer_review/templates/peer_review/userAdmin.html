@@ -4,6 +4,7 @@
 <head>
     <title>User Admin</title>
     <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="{% static "peer_review/jquery.min.js" %}"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
@@ -11,12 +12,16 @@
     <link rel="stylesheet" href="{% static "peer_review/bootstrap-sortable.css" %}">
     <link rel="icon" type="image/png" href="{% static "peer_review/favicon.png" %}">
 
-    <script src="{% static "peer_review/jquery.min.js" %}"></script>
     <script src="{% static "peer_review/js/bootstrap.js" %}"></script>
     <script src="{% static "peer_review/bootstrap-sortable.js" %}"></script>
     <script src="{% static "peer_review/search.js" %}"></script>
     <script src="{% static "peer_review/validation.js" %}"></script>
     <script src="{% static "peer_review/submit.js" %}"></script>
+    <script type="text/javascript">
+        $("#userForm").submit(function(){
+
+        })
+    </script>
 </head>
 <body>
     <nav class="navbar navbar-inverse navbar-static-top">
@@ -57,7 +62,7 @@
                 <div id="collapseOne" class="panel-collapse collapse in">
                     <div class="panel-body">
                         {% block content %}
-                        <form action="userAdmin/submitForm/" method="post" class="form-horizontal user-form" onsubmit="" id="userForm" role="form">
+                        <form action="/peer/userAdmin/submitForm/" method="post" class="form-horizontal user-form" onSubmit="return false;" id="userForm" role="form">
                             {% csrf_token %}
                             <div class="form-group">
                                 <!-- Title Input -->
@@ -131,7 +136,7 @@
                             <div class="form-group">
                                 <!-- Submit Button -->
                                 <div class="col-sm-offset-2 col-sm-10">
-                                    <button type="submit" class="save btn btn-info" id="submitUser">Submit</button>
+                                    <button type="submit" class="save btn btn-info" onclick="validateUserForm()" id="submitUser">Submit</button>
                                 </div>
                             </div>
                         </form>
@@ -194,7 +199,7 @@
                                 </thead>
                                 <tbody>
                                     {% for user in users %}
-                                        <tr>
+                                        <tr id="{{ user.pk }}">
                                             <td contenteditable='true'>{{ user.userId }}</td>
                                             <td contenteditable='true'>{{ user.userDetail.title }}</td>
                                             <td contenteditable='true'>{{ user.userDetail.initials }}</td>
@@ -204,7 +209,7 @@
                                             <td contenteditable='true'>{{ user.userDetail.email }}</td>
                                             <td><button type='submit' name="edit" class='btn btn-success btn-xs' id='edit' value="{{ user.userId }}">E</button></td>
                                             <td>
-                                                <form action="./delete/{{ user.userId }}" method="post">
+                                                <form action="/peer/userAdmin/delete/{{ user.pk }}" method="post">
                                                     {% csrf_token %}
                                                     <button type='submit' name="remove" class='btn btn-warning btn-xs' id='remove'>R</button>
                                                 </form>
