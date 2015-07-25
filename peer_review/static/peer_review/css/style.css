@@ -79,3 +79,7 @@ body{
     cursor: pointer;
     cursor: hand;
 }
+
+.noBorder {
+    border: 0;
+}

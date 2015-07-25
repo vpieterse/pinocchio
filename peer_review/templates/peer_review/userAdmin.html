@@ -18,9 +18,12 @@
     <script src="{% static "peer_review/validation.js" %}"></script>
     <script src="{% static "peer_review/submit.js" %}"></script>
     <script type="text/javascript">
-        $("#userForm").submit(function(){
-
-        })
+        $(document).ready(function(){
+            $('#users tr').each(function() {
+                $(this).find('input[type="text"]').each(function() {
+                    $(this).attr('size', $(this).val().length);
+            });
+        });
     </script>
 </head>
 <body>
@@ -200,19 +203,19 @@
                                 <tbody>
                                     {% for user in users %}
                                         <tr id="{{ user.pk }}">
-                                            <td contenteditable='true'>{{ user.userId }}</td>
-                                            <td contenteditable='true'>{{ user.userDetail.title }}</td>
-                                            <td contenteditable='true'>{{ user.userDetail.initials }}</td>
-                                            <td contenteditable='true'>{{ user.userDetail.name }}</td>
-                                            <td contenteditable='true'>{{ user.userDetail.surname }}</td>
-                                            <td contenteditable='true'>{{ user.userDetail.cell }}</td>
-                                            <td contenteditable='true'>{{ user.userDetail.email }}</td>
-                                            <td>
-                                                <form action="/peer/userAdmin/update/{{ user.pk }}" method="post">
-                                                    {% csrf_token %}
+                                            <form action="/peer/userAdmin/update/{{ user.pk }}" method="post">
+                                                {% csrf_token %}
+                                                <td><input type="text" class="noBorder" value="{{ user.userId }}"></input></td>
+                                                <td><input type="text" class="noBorder" value="{{ user.userDetail.title }}"></input></td>
+                                                <td><input type="text" class="noBorder" value="{{ user.userDetail.initials }}"></input></td>
+                                                <td><input type="text" class="noBorder" value="{{ user.userDetail.name }}"></input></td>
+                                                <td><input type="text" class="noBorder" value="{{ user.userDetail.surname }}"></input></td>
+                                                <td><input type="text" class="noBorder" value="{{ user.userDetail.cell }}"></input></td>
+                                                <td><input type="text" class="noBorder" value="{{ user.userDetail.email }}"></input></td>
+                                                <td>
                                                     <button type='submit' name="edit" class='btn btn-success btn-xs' id='edit' value="{{ user.userId }}">E</button>
-                                                </form>
-                                            </td>
+                                                </td>
+                                            </form>
                                             <td>
                                                 <form action="/peer/userAdmin/delete/{{ user.pk }}" method="post">
                                                     {% csrf_token %}
