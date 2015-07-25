@@ -102,3 +102,6 @@ def userDelete(request, userPk):
     userDetail.delete()
     user.delete()
     return HttpResponseRedirect('../')
+
+def userUpdate(request, userPk):
+    user = User.objects.get(pk = userPk)

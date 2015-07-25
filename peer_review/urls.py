@@ -13,5 +13,6 @@ urlpatterns = [
     url(r'^(?P<question_id>[0-9]+)/$', views.detail, name='detail'),
     url(r'^userAdmin/submitForm/?$', views.submitForm),
     url(r'^userAdmin/delete/(?P<userPk>[0-9]+)/?$', views.userDelete),
+    url(r'^userAdmin/update/(?P<userPk>[0-9]+)/?$', views.userUpdate),
     url(r'^userAdmin/$', views.userList),
 ]
