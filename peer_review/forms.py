@@ -60,3 +60,5 @@ class UserForm(forms.Form):
 		max_length = 100,
 		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'email', 'value': 'd@gmail.com'}),
 	)
+
+# class UserTableForm(forms.Form):

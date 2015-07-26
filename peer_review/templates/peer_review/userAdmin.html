@@ -22,6 +22,7 @@
             $('#users tr').each(function() {
                 $(this).find('input[type="text"]').each(function() {
                     $(this).attr('size', $(this).val().length);
+                });
             });
         });
     </script>
@@ -205,13 +206,13 @@
                                         <tr id="{{ user.pk }}">
                                             <form action="/peer/userAdmin/update/{{ user.pk }}" method="post">
                                                 {% csrf_token %}
-                                                <td><input type="text" class="noBorder" value="{{ user.userId }}"></input></td>
-                                                <td><input type="text" class="noBorder" value="{{ user.userDetail.title }}"></input></td>
-                                                <td><input type="text" class="noBorder" value="{{ user.userDetail.initials }}"></input></td>
-                                                <td><input type="text" class="noBorder" value="{{ user.userDetail.name }}"></input></td>
-                                                <td><input type="text" class="noBorder" value="{{ user.userDetail.surname }}"></input></td>
-                                                <td><input type="text" class="noBorder" value="{{ user.userDetail.cell }}"></input></td>
-                                                <td><input type="text" class="noBorder" value="{{ user.userDetail.email }}"></input></td>
+                                                <td><input type="text" class="noBorder" name="userId" value="{{ user.userId }}"></input></td>
+                                                <td><input type="text" class="noBorder" name="title" value="{{ user.userDetail.title }}"></input></td>
+                                                <td><input type="text" class="noBorder" name="initials" value="{{ user.userDetail.initials }}"></input></td>
+                                                <td><input type="text" class="noBorder" name="name" value="{{ user.userDetail.name }}"></input></td>
+                                                <td><input type="text" class="noBorder" name="surname" value="{{ user.userDetail.surname }}"></input></td>
+                                                <td><input type="text" class="noBorder" name="cell" value="{{ user.userDetail.cell }}"></input></td>
+                                                <td><input type="text" class="noBorder" name="email" value="{{ user.userDetail.email }}"></input></td>
                                                 <td>
                                                     <button type='submit' name="edit" class='btn btn-success btn-xs' id='edit' value="{{ user.userId }}">E</button>
                                                 </td>

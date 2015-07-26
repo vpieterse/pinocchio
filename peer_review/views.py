@@ -89,7 +89,6 @@ def submitForm(request):
             user = User(userId = post_userId, password = post_password, status = post_status, userDetail = userDetail)
             user.save()
 
-            message = "Success"
             return HttpResponseRedirect("../")
     else:
         userForm = UserForm()
@@ -104,4 +103,26 @@ def userDelete(request, userPk):
     return HttpResponseRedirect('../')
 
 def userUpdate(request, userPk):
-    user = User.objects.get(pk = userPk)
+    if request.method == "POST":
+        user = User.objects.get(pk = userPk)
+        userDetail = user.userDetail
+
+        post_userId = request.POST.get("userId")
+        post_title = request.POST.get("title")
+        post_initials = request.POST.get("initials")
+        post_name = request.POST.get("name")
+        post_surname = request.POST.get("surname")
+        post_cell = request.POST.get("cell")
+        post_email = request.POST.get("email")
+
+        user.userId = post_userId
+        userDetail.title = post_title
+        userDetail.initials = post_initials
+        userDetail.name = post_name
+        userDetail.surname = post_surname
+        userDetail.cell = post_cell
+        userDetail.email = post_email
+
+        user.save()
+        userDetail.save()
+    return HttpResponseRedirect('../')
