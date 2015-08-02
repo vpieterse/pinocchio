@@ -9,19 +9,20 @@ from django.utils import timezone
 import datetime
 
 from .models import Document
-from .models import Question, QuestionType
+from .models import Question, QuestionType, QuestionGrouping
 from .models import User, UserDetail
 from .forms import DocumentForm, UserForm
 
 def createQuestion(request):
-    if 'question' in request.GET:
-        text = request.GET['question']
+    if 'question' in request.POST:
+        text = request.POST['question']
         message = 'Inserting Question with text: %r' % text
-        qType = QuestionType.objects.get(name='Rank')
+        qType = QuestionType.objects.get(name=request.POST['questionType'])
+        qGrouping = QuestionGrouping.objects.get(grouping=request.POST['grouping'])
         q = Question(questionText=text,
                      pubDate=timezone.now() - datetime.timedelta(days=1),
                      questionType=qType,
-                     questionGrouping=3        
+                     questionGrouping=qGrouping      
                      )
         q.save()
     else:

@@ -16,12 +16,83 @@
             {
                 var value = document.getElementById("type").value;
                 document.getElementById("typeDisplay").innerHTML = document.getElementById(value).innerHTML;
+                choices = getChoices();
+                console.log(choices);
                 initialiseStacking();
             }
+            
+            function getAllRows()
+            {
+                var myObjects = [];
+            
+                $('#typeDisplay table tbody tr').each(function (index, value)
+                {
+                    var row = getRow(index);
+                    myObjects.push(row);
+                });
+            
+                return myObjects;
+            }
+            
+            function getChoices()
+            {
+                var choices = [];
+            
+                $('#typeDisplay table tbody tr').each(function (index, value)
+                {
+                    var choice = $('#typeDisplay table tbody tr').eq(index).find('td:eq(0)').text();
+                    choices.push(choice);
+                });
+            
+                return choices;
+            }
+            
+            // Read the row into an object
+            function getRow(rowNum)
+            {
+                var row = $('#typeDisplay table tbody tr').eq(rowNum);
+            
+                var myObject = {};
+            
+                myObject.ChangeType = row.find('td:eq(0)').text();
+                myObject.UpdateType = row.find('td:eq(1)').text();
+                myObject.three = row.find('td:eq(2)').text();
+            
+                return myObject;
+            }
+            
+            // AJAX for posting
+            function submit() {
+                console.log("create post is working!") // sanity check
+                $.ajax({
+                    url : "createQuestion/", // the endpoint
+                    type : "POST", // http method
+                    data : {
+                        question : $('#question').val(),
+                        questionType : $('$type').val(),
+                        grouping : $('#grouping').val(),
+                        choices : getChoices()                
+                        }, // data sent with the post request
+            
+                    // handle a successful response
+                    success : function(json) {
+                        //$('#post-text').val(''); // remove the value from the input
+                        console.log(json); // log the returned json to the console
+                        console.log("success"); // another sanity check
+                    },
+            
+                    // handle a non-successful response
+                    error : function(xhr,errmsg,err) {
+                        $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: "+errmsg+
+                            " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                        console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                    }
+                });
+            };
         </script>
     </head>
     
-    <body onload="initialiseStacking();">
+    <body onload="selected();">
         <nav class="navbar navbar-inverse navbar-static-top">
             <div class="container">
                 <div class="navbar-header">
@@ -79,13 +150,15 @@
                     </h4>
                 </div>
                 <div class="panel-body">
-                    <form role="form" action="/peer/createQuestion/" method="get">
+                    <form role="form" action="/peer/createQuestion/" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" id="tableData">
                         <div class="form-group">
                             <label for="question">Question</label>
                             <textarea class="form-control" cols="40" rows="3" style="resize:none;width:auto" id="question" name="question"></textarea>
                             <br />
                             <label>Type</label>
-                            <select id="type" class="form-control" style="width:auto" onchange="selected()">
+                            <select id="type" class="form-control" style="width:auto" onchange="selected()" name="type">
                                 {% if questionTypes %}
                                 {% for qt in questionTypes %}
                                 <option value="{{qt.name}}">{{ qt.name }}</option>
@@ -113,15 +186,15 @@
                                     </div>
                                     <div class="col-xs-5">
                                         <select class="form-control" id="grouping">
-                                            <option value="rest">Rest</option>
-                                            <option value="all">All</option>
+                                            <option value="Rest">Rest</option>
+                                            <option value="All">All</option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
                             <div>
                                 <br />
-                                <button type="submit">Save</button>
+                                <button class="btn btn-primary" onclick="submit();">Save</button>
                             </div>
                         </div>
                         <form>

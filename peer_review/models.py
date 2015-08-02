@@ -38,9 +38,8 @@ class Choice(models.Model):
     header = models.ForeignKey(Header)
     choiceText = models.CharField(max_length=200)
     num = models.IntegerField(default=1)
-    choiceText = models.CharField(max_length=200)
     def __str__(self):
-        return self.choiceText
+        return self.header
       
 class Rank(models.Model):
     question = models.ForeignKey(Question)
