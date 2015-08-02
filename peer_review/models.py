@@ -9,11 +9,16 @@ class QuestionType(models.Model):
     def __str__(self):
         return self.name
 
+class QuestionGrouping(models.Model):
+    grouping = models.CharField(max_length=10)
+    def __str__(self):
+        return self.grouping
+
 class Question(models.Model):
     questionText = models.CharField(max_length=300)
     pubDate = models.DateTimeField('date published')
     questionType = models.ForeignKey(QuestionType)
-    questionGrouping = models.IntegerField()
+    questionGrouping = models.ForeignKey(QuestionGrouping)
     def __str__(self):
         return self.questionText
     def was_published_recently(self):
