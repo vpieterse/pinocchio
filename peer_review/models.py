@@ -27,7 +27,7 @@ class Question(models.Model):
         output = open("dump",'w') # Point stdout at a file for dumping data to.
         call_command('dumpdata','Question',format='json',indent=4,stdout=output)
         output.close()
-
+    
 class Header(models.Model):
     text = models.CharField(max_length=200)
     def __str__(self):
@@ -37,11 +37,22 @@ class Choice(models.Model):
     question = models.ForeignKey(Question)
     header = models.ForeignKey(Header)
     choiceText = models.CharField(max_length=200)
-    num = models.IntegerField(default=0)
+    num = models.IntegerField(default=1)
     choiceText = models.CharField(max_length=200)
     def __str__(self):
         return self.choiceText
+      
+class Rank(models.Model):
+    question = models.ForeignKey(Question)
+    firstWord = models.ForeignKey(Header, related_name='RankFirstWord')    
+    secondWord = models.ForeignKey(Header, related_name='RankSecondWord')
 
+class Rate(models.Model):
+    header = models.ForeignKey(Header)
+    numberOfOptions = models.IntegerField(default=5)
+    optional = models.BooleanField(default=False)
+    num = models.IntegerField(default=0)
+    
 class UserDetail(models.Model):
     title = models.CharField(max_length=4)
     initials = models.CharField(max_length=10)
