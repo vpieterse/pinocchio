@@ -14,6 +14,11 @@ function validateUserForm() {
 	var password = $("#password").val();
 	var passwordConfirm = $("#passwordConfirm").val();
 	
+	if (title == null || title == "")
+	{
+		// $("#title").addClass
+	}
+
     if (title == null || title == "" ||
 		initials == null || initials == "" ||
 		name == null || name == "" ||
