@@ -12,6 +12,14 @@
         <link rel="stylesheet" href="{% static "peer_review/css/style.css" %}" />
         <script type="text/javascript" src="{% static "peer_review/js/stacking.js" %}" ></script>
         <script type="text/javascript">
+            function addOnSubmitHandler() {
+                $('#questionForm').on('submit', function(event){
+                    event.preventDefault();
+                    console.log("form submitted!")  // sanity check
+                    create_post();
+                });
+            }
+            
             function selected()
             {
                 var value = document.getElementById("type").value;
@@ -61,17 +69,19 @@
                 return myObject;
             }
             
+            
+            
             // AJAX for posting
-            function submit() {
+            function create_post() {
                 console.log("create post is working!") // sanity check
                 $.ajax({
-                    url : "createQuestion/", // the endpoint
-                    type : "POST", // http method
+                    url : "/peer/createQuestion/", // the endpoint
+                    type : "GET", // http method
                     data : {
                         question : $('#question').val(),
-                        questionType : $('$type').val(),
-                        grouping : $('#grouping').val(),
-                        choices : getChoices()                
+                        questionType : $('#type').val(),
+                        // grouping : $('#grouping').val(),
+                        //choices : getChoices()                
                         }, // data sent with the post request
             
                     // handle a successful response
@@ -83,16 +93,17 @@
             
                     // handle a non-successful response
                     error : function(xhr,errmsg,err) {
-                        $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: "+errmsg+
-                            " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
-                        console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                        alert("Error!");
+                        // $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: "+errmsg+
+                        //     " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                        // console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
                     }
                 });
             };
         </script>
     </head>
     
-    <body onload="selected();">
+    <body onload="selected(); addOnSubmitHandler();">
         <nav class="navbar navbar-inverse navbar-static-top">
             <div class="container">
                 <div class="navbar-header">
@@ -150,7 +161,7 @@
                     </h4>
                 </div>
                 <div class="panel-body">
-                    <form role="form" action="/peer/createQuestion/" method="POST">
+                    <form role="form" id="questionForm" action="/peer/createQuestion/" method="GET">
                     {% csrf_token %}
                     <input type="hidden" id="tableData">
                         <div class="form-group">
@@ -194,7 +205,7 @@
                             </div>
                             <div>
                                 <br />
-                                <button class="btn btn-primary" onclick="submit();">Save</button>
+                                <button class="btn btn-primary" type="submit">Save</button>
                             </div>
                         </div>
                         <form>
