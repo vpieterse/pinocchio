@@ -15,10 +15,9 @@ function tableSearch(value)
 		if(cells.length > 0)
 		{
 			var found = false;
-			cells.each(function(index, td)
-			{
+			$(this).find('input[type="text"]').each(function() {
 				var regExp = new RegExp(value, 'i');
-				if(regExp.test($(td).text()))
+				if(regExp.test($(this).val()))
 				{
 					found = true;
 					return false;

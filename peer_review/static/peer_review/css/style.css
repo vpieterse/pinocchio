@@ -83,7 +83,3 @@ body{
 .noBorder {
     border: 0;
 }
-
-#title {
-    border: 1px solid red;
-}
