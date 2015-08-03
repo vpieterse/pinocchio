@@ -16,16 +16,19 @@ from .forms import DocumentForm, UserForm
 def createQuestion(request):
     if 'question' in request.GET:
         text = request.GET['question']
-        # message = text
         message = 'Inserting Question with text: %r' % text
         qType = QuestionType.objects.get(name=request.GET['questionType'])
-        # qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
-        # q = Question(questionText=text,
-        #              pubDate=timezone.now() - datetime.timedelta(days=1),
-        #              questionType=qType,
-        #              questionGrouping=qGrouping      
-        #              )
-        # q.save()
+        qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
+        choices = request.GET.getlist('choices')
+        # message.join(choices)
+        # message += len(choices)
+        message += 'END'
+        q = Question(questionText=text,
+                     pubDate=timezone.now() - datetime.timedelta(days=1),
+                     questionType=qType,
+                     questionGrouping=qGrouping      
+                     )
+        q.save()
     else:
         message = 'You submitted an empty form.'
     return HttpResponse(message)
