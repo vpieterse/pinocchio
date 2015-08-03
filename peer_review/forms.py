@@ -10,13 +10,13 @@ class UserForm(forms.Form):
 	userId = forms.CharField(
 		label = "Username:",
 		max_length = 30,
-		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'userId', 'value': '14035538'}),
+		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'userId',}),
 	)
 
 	password = forms.CharField(
 		label = "Password:",
 		max_length = 100,
-		widget = forms.PasswordInput(attrs={'class': 'form-control', 'id': 'password', 'value': '123456'}),
+		widget = forms.PasswordInput(attrs={'class': 'form-control', 'id': 'password',}),
 	)
 
 	status = forms.ChoiceField(
@@ -34,31 +34,29 @@ class UserForm(forms.Form):
 	initials = forms.CharField(
 		label = "Initials:",
 		max_length = 5,
-		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'initials', 'value': 'D'}),
+		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'initials',}),
 	)
 
 	name = forms.CharField(
 		label = "First Name:",
 		max_length = 50,
-		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'name', 'value': 'Dillon'}),
+		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'name',}),
 	)
 
 	surname = forms.CharField(
 		label = "Surname:",
 		max_length = 50,
-		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'surname', 'value': 'Heins'}),
+		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'surname',}),
 	)
 
 	cell = forms.CharField(
 		label = "Cell Number:",
 		max_length = 10,
-		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'cell', 'value': '0791234567'}),
+		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'cell',}),
 	)
 
 	email = forms.EmailField(
 		label = "Email:",
 		max_length = 100,
-		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'email', 'value': 'd@gmail.com'}),
+		widget = forms.TextInput(attrs={'class': 'form-control', 'id': 'email',}),
 	)
-
-# class UserTableForm(forms.Form):
