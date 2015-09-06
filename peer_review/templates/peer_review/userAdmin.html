@@ -16,7 +16,6 @@
     <script src="{% static "peer_review/bootstrap-sortable.js" %}"></script>
     <script src="{% static "peer_review/search.js" %}"></script>
     <script src="{% static "peer_review/validation.js" %}"></script>
-    <script src="{% static "peer_review/submit.js" %}"></script>
     <script type="text/javascript">
         $(document).ready(function(){
             $('#users tr').each(function() {
@@ -160,13 +159,15 @@
 
                 <div id="collapseTwo" class="panel-collapse collapse">
                     <div class="panel-body">
-                        <form role="form" method="post" action="#">
+                        <form role="form" method="post" action="/peer/userAdmin/submitCSV/">
+                            {% csrf_token %}
                             <div class="form-group">
-                                <label for="inputfile">Upload CSV File:</label>
-                                <input type="file" id="inputfile">
+                                {{ csvForm.title }}
+                                <label for="csvFile">Upload CSV File:</label>
+                                {{ csvForm.csvFile }}
                                 <p class="help-block">Select a CSV file to register users</p>
                             </div>
-                            <button type="submit" class="btn btn-info" id="submitCSV" onclick="csvSubmit()">Submit</button>
+                            <button type="submit" class="btn btn-info" id="" onclick="">Submit</button>
                         </form>
                     </div>
                 </div>

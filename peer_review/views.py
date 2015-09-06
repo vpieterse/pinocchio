@@ -12,7 +12,7 @@ import csv
 from .models import Document
 from .models import Question, QuestionType, QuestionGrouping
 from .models import User, UserDetail
-from .forms import DocumentForm, UserForm
+from .forms import DocumentForm, UserForm, CSVForm
 
 def createQuestion(request):
     if 'question' in request.GET:
@@ -72,7 +72,8 @@ def questionAdmin(request):
 def userList(request):
     users = User.objects.all
     userForm = UserForm()
-    return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm})
+    csvForm = CSVForm()
+    return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'csvForm': csvForm})
 
 def submitForm(request):
     if request.method == "POST":
@@ -132,3 +133,10 @@ def userUpdate(request, userPk):
         user.save()
         userDetail.save()
     return HttpResponseRedirect('../')
+
+def submitCSV(request):
+    if request.method == 'POST':
+        csvForm = CSVForm(request.POST, request.FILES)
+        if csvForm.is_valid():
+            return HttpResponse('xxx')
+    return HttpResponse('hello2S')

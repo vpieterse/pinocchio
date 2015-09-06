@@ -1,2 +1,3 @@
-title,initials,firstName,surname,email,cell,user_id,status,password
-Mr,J,Jimmy,Jum,jm@jmail.com,0798023145,12345678,S,123456
+title;initials;firstName;surname;email;cell;user_id;status;password
+Mr;D;Dillon;Heins;dillonheins@gmail.com;0798023614;14035538;A;123456
+Mr;M;Matthias;Harvey;mharvey@gmail.com;0798011234;14015544;A;123458
