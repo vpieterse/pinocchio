@@ -15,7 +15,6 @@ from .models import User, UserDetail
 from .forms import DocumentForm, UserForm, CSVForm
 
 def createQuestion(request):
-    logger = logging.getLogger('views.createQuestion')
     if 'question' in request.GET:
         text = request.GET['question']
         message = 'Inserting Question with text: %r' % text
@@ -73,7 +72,7 @@ def createQuestion(request):
                 w1 = Header(text=firstWord)
                 w1.save()
 
-            #Temporary header creatione
+            #Temporary header creation
             headers = Header.objects.filter(text=secondWord);
             if len(headers) > 0:
                 w2 = headers[0];
@@ -195,4 +194,4 @@ def submitCSV(request):
         csvForm = CSVForm(request.POST, request.FILES)
         if csvForm.is_valid():
             return HttpResponse('xxx')
-    return HttpResponse('hello2S') 
+    return HttpResponse('hello2S')
