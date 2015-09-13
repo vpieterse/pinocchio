@@ -8,28 +8,87 @@ from django.utils import timezone
 
 import datetime
 import csv
+import logging
 
 from .models import Document
-from .models import Question, QuestionType, QuestionGrouping
+from .models import Question, QuestionType, QuestionGrouping, Choice, Header, Rank
 from .models import User, UserDetail
-from .forms import DocumentForm, UserForm, CSVForm
+from .forms import DocumentForm, UserForm
 
 def createQuestion(request):
+    logger = logging.getLogger('views.createQuestion')
     if 'question' in request.GET:
         text = request.GET['question']
         message = 'Inserting Question with text: %r' % text
         qType = QuestionType.objects.get(name=request.GET['questionType'])
-        qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
-        choices = request.GET.getlist('choices')
-        # message.join(choices)
-        # message += len(choices)
-        message += 'END'
-        q = Question(questionText=text,
-                     pubDate=timezone.now() - datetime.timedelta(days=1),
-                     questionType=qType,
-                     questionGrouping=qGrouping      
-                     )
-        q.save()
+        print('qType: %r' % str(qType)) #Check
+        if str(qType) == 'Choice':
+            print(qType)
+            qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
+            choices = request.GET.getlist('choices[]')
+
+            q = Question(questionText=text,
+                         pubDate=timezone.now() - datetime.timedelta(days=1),
+                         questionType=qType,
+                         questionGrouping=qGrouping      
+                        )  
+
+            q.save()
+
+            #Temporary header creation
+            headers = Header.objects.filter(text=text);
+            if len(headers) > 0:
+                h = headers[0];
+            else:
+                h = Header(text=text)
+                h.save()
+
+            rank = 0
+            for choice in choices:
+                c = Choice(header = h,
+                           question = q,
+                           choiceText = choice,
+                           num = rank)
+                rank = rank + 1
+                print('saving %r' % choice) #Check
+                print('as rank %r' % rank)  #Check
+                c.save()
+        elif str(qType) == 'Rank':
+            qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
+            firstWord = request.GET["firstWord"];
+            secondWord = request.GET["secondWord"];
+
+
+            q = Question(questionText=text,
+                         pubDate=timezone.now() - datetime.timedelta(days=1),
+                         questionType=qType,
+                         questionGrouping=qGrouping      
+                        )
+
+            q.save();
+
+            #Temporary header creation
+            headers = Header.objects.filter(text=firstWord);
+            if len(headers) > 0:
+                w1 = headers[0];
+            else:
+                w1 = Header(text=firstWord)
+                w1.save()
+
+            #Temporary header creatione
+            headers = Header.objects.filter(text=secondWord);
+            if len(headers) > 0:
+                w2 = headers[0];
+            else:
+                w2 = Header(text=secondWord)
+                w2.save()
+                
+            r = Rank(question = q,
+                    firstWord = w1,
+                    secondWord = w2)
+
+            r.save()
+
     else:
         message = 'You submitted an empty form.'
     return HttpResponse(message)
@@ -72,8 +131,7 @@ def questionAdmin(request):
 def userList(request):
     users = User.objects.all
     userForm = UserForm()
-    csvForm = CSVForm()
-    return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'csvForm': csvForm})
+    return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm})
 
 def submitForm(request):
     if request.method == "POST":
@@ -133,10 +191,3 @@ def userUpdate(request, userPk):
         user.save()
         userDetail.save()
     return HttpResponseRedirect('../')
-
-def submitCSV(request):
-    if request.method == 'POST':
-        csvForm = CSVForm(request.POST, request.FILES)
-        if csvForm.is_valid():
-            return HttpResponse('xxx')
-    return HttpResponse('hello2S')

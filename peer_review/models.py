@@ -39,12 +39,14 @@ class Choice(models.Model):
     choiceText = models.CharField(max_length=200)
     num = models.IntegerField(default=1)
     def __str__(self):
-        return self.header
+        return (self.header.text + ": " + self.choiceText)
       
 class Rank(models.Model):
     question = models.ForeignKey(Question)
     firstWord = models.ForeignKey(Header, related_name='RankFirstWord')    
     secondWord = models.ForeignKey(Header, related_name='RankSecondWord')
+    def __str__(self):
+        return (self.question.questionText)
 
 class Rate(models.Model):
     header = models.ForeignKey(Header)
