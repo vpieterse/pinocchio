@@ -40,7 +40,7 @@ $(window).load(function(){
 });
 
 function initialiseStacking() {
-    $('.table a.move').click(function () {
+    $('.table').on("click", '.move', function () {
         var row = $(this).closest('tr');
         if ($(this).hasClass('up'))
             row.prev().before(row);

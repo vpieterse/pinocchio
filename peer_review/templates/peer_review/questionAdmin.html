@@ -24,8 +24,8 @@
             {
                 var value = document.getElementById("type").value;
                 document.getElementById("typeDisplay").innerHTML = document.getElementById(value).innerHTML;
-                choices = getChoices();
-                console.log(choices);
+                //choices = getChoices();
+                //console.log(choices);
                 initialiseStacking();
             }
             
@@ -48,11 +48,32 @@
             
                 $('#typeDisplay table tbody tr').each(function (index, value)
                 {
-                    var choice = $('#typeDisplay table tbody tr').eq(index).find('td:eq(0)').text();
-                    choices.push(choice);
+                    var choice = $('#typeDisplay table tbody tr').eq(index).find('td:eq(0)').find('*').val();
+                    if (choice != '')
+                        choices.push(choice);
                 });
             
                 return choices;
+            }
+
+            function getRates()
+            {
+                var rates = [];
+
+                $('#typeDisplay table tbody tr').each(function (index, value)
+                {
+                    var $tr = $('#typeDisplay table tbody tr');
+                    var scale = $tr.eq(index).find('td:eq(0)').find('*').is(':checked');
+                    var optional = $tr.eq(index).find('td:eq(1)').find('*').is(':checked');
+                    var choice = $tr.eq(index).find('td:eq(2)').find('*').val();
+
+                    if (choice != '')
+                    {
+                        rates.push({scale : scale, optional : optional, choice: choice});
+                    }
+                });
+
+                return rates;
             }
             
             // Read the row into an object
@@ -69,20 +90,127 @@
                 return myObject;
             }
             
-            
-            
+            function addChoice()
+            {
+                switch ($('#type').val())
+                {
+                    case 'Choice':
+                        $('#table').append(
+                                           '<tr>' +
+                                               '<td style="text-align: center; ">' +
+                                                '<input type="text" class="noBorder" id="choice" value="-" style="text-align: center; "/>' +
+                                               '</td>' +
+                                               '<td style="text-align: center; width: 20px;">' +
+                                                   '<a class="move up" href="javascript:void(0)" title="move up">' +
+                                                       '<span class="glyphicon glyphicon-arrow-up"></span>' +
+                                                   '</a>' +
+                                               '</td>' +
+                                               '<td style="text-align: center; width: 20px; ">' +
+                                               '<a class="move down" href="javascript:void(0)" title="move down">' +
+                                                   '<span class="glyphicon glyphicon-arrow-down"></span>' +
+                                               '</a>' +
+                                               '</td>' +
+                                           '</tr>'
+                                           );
+                        break;
+                    case 'Rate':
+                        $('#table').append(
+                                           '<tr>' +
+                                               '<td style="text-align: center; width: 10px;">' +
+                                                   '<div class="checkbox">' +
+                                                       '<input type="checkbox">' +
+                                                   '</div>' +
+                                               '</td>' +
+                                               '<td style="text-align: center; width: 10px;">' +
+                                                   '<div class="checkbox">' +
+                                                       '<input type="checkbox">' +
+                                                   '</div>' +
+                                               '</td>' +
+                                               '<td style="text-align: center; ">' +
+                                                   '<input type="text" class="noBorder" id="choice" value="-" style="text-align: center; "/>' +
+                                               '</td>' +
+                                               '<td style="text-align: center; width: 20px; ">' +
+                                                   '<a class="move up" href="javascript:void(0)" title="move up">' +
+                                                       '<span class="glyphicon glyphicon-arrow-up"></span>' +
+                                                   '</a>' +
+                                               '</td>' +
+                                               '<td style="text-align: center; width: 20px; ">' +
+                                                   '<a class="move down" href="javascript:void(0)" title="move down">' +
+                                                       '<span class="glyphicon glyphicon-arrow-down"></span>' +
+                                                   '</a>' +
+                                               '</td>'+
+                                           '</tr>'
+                                           );
+                        break;
+                    case 'Freeform':
+                        $('#table').append(
+                                           '<tr>' +
+                                           '<td style="text-align: center; width: 10px;">' +
+                                               '<div class="checkbox">' +
+                                                   '<input type="checkbox">' +
+                                               '</div>' +
+                                           '</td>' +
+                                           '<td style="text-align: center; ">' +
+                                               '<input type="text" class="noBorder" id="choice" value="-" style="text-align: center; "/>' +
+                                           '</td>' +
+                                           '<td style="text-align: center; width: 20px; ">' +
+                                               '<a class="move up" href="javascript:void(0)" title="move up">' +
+                                                   '<span class="glyphicon glyphicon-arrow-up"></span>' +
+                                               '</a>' +
+                                           '</td>' +
+                                           '<td style="text-align: center; width: 20px; ">' +
+                                               '<a class="move down" href="javascript:void(0)" title="move down">' +
+                                                   '<span class="glyphicon glyphicon-arrow-down"></span>' +
+                                               '</a>' +
+                                           '</td>' +
+                                           '</tr>'
+                                           )
+
+
+                        break;
+                }//End switch
+            }
             // AJAX for posting
             function create_post() {
                 console.log("create post is working!") // sanity check
+
+                if ($('#question').val() == '')
+                {
+                    var r = confirm("No question entered. Save anyways?");
+                    if (!r)
+                        return;
+                };
+
+                var data = {
+                            question : $('#question').val(),
+                            questionType : $('#type').val(),
+                            };
+
+                switch ($('#type').val()) 
+                {
+                    case 'Choice':
+                        data.choices = getChoices()
+                        data.grouping = $('#grouping').val();
+                        break;
+                    case 'Rank':
+                        data.firstWord = $('#first').val();
+                        data.secondWord = $('#second').val();
+                        data.grouping = $('#grouping').val();
+                        break;
+                    case 'Label': break;
+                    case 'Rate': 
+                        data.rates = getRates();
+                        data.grouping = $('#grouping').val();
+                        break;
+                    case 'Freeform' : break;
+                }; //End switch
+
+
+                console.log(data); //Check
                 $.ajax({
                     url : "/peer/createQuestion/", // the endpoint
                     type : "GET", // http method
-                    data : {
-                        question : $('#question').val(),
-                        questionType : $('#type').val(),
-                        grouping : $('#grouping').val(),
-                        choices : getChoices()
-                        }, // data sent with the post request
+                    data : data, // data sent with the post request
             
                     // handle a successful response
                     success : function(json) {
@@ -218,7 +346,7 @@
                 <div class="row">
                     <div class="col-xs-4"></div>
                     <div class="col-xs-1">
-                        <button class="btn btn-primary" id="btn">+ Add</button>
+                        <button class="btn btn-primary" id="btn" type = "button" onclick = "addChoice()">+ Add</button>
                     </div>
                     <div class="col-xs-7">
                         <b>Grouping</b>
@@ -256,7 +384,9 @@
                                     </thead>
                                     <tbody>
                                         <tr data-index="0">
-                                            <td style="text-align: center; ">Chicken</td>
+                                            <td style="text-align: center; ">
+                                                <input type="text" class="noBorder" id="choice" value="Chicken" style="text-align: center; "/>
+                                            </td>
                                             <td style="text-align: center; width: 20px; ">
                                                 <a class="move up" href="javascript:void(0)" title="move up"><span
                 class="glyphicon glyphicon-arrow-up"></span></a>
@@ -267,7 +397,9 @@
                                             </td>
                                         </tr>
                                         <tr data-index="1">
-                                            <td style="text-align: center; ">Beef</td>
+                                            <td style="text-align: center; ">
+                                                <input type="text" class="noBorder" id="choice" value="Beef" style="text-align: center; "/>
+                                            </td>
                                             <td style="text-align: center; width: 20px; ">
                                                 <a class="move up" href="javascript:void(0)" title="move up"><span
                 class="glyphicon glyphicon-arrow-up"></span></a>
@@ -278,7 +410,9 @@
                                             </td>
                                         </tr>
                                         <tr data-index="2">
-                                            <td style="text-align: center; ">Fish</td>
+                                            <td style="text-align: center; ">
+                                                <input type="text" class="noBorder" id="choice" value="Fish" style="text-align: center; "/>
+                                            </td>
                                             <td style="text-align: center; width: 20px; ">
                                                 <a class="move up" href="javascript:void(0)" title="move up"><span
                 class="glyphicon glyphicon-arrow-up"></span></a>
@@ -289,7 +423,9 @@
                                             </td>
                                         </tr>
                                         <tr data-index="3">
-                                            <td style="text-align: center; ">Other</td>
+                                            <td style="text-align: center; ">
+                                                <input type="text" class="noBorder" id="choice" value="Other" style="text-align: center; "/>
+                                            </td>
                                             <td style="text-align: center; width: 20px; ">
                                                 <a class="move up" href="javascript:void(0)" title="move up"><span
                 class="glyphicon glyphicon-arrow-up"></span></a>
@@ -317,7 +453,7 @@
                 <div class="row">
                     <div class="col-xs-4"></div>
                     <div class="col-xs-1">
-                        <button class="btn btn-primary" id="btn">+ Add</button>
+                        <button class="btn btn-primary" id="btn" type = "button" onclick = "addChoice()">+ Add</button>
                     </div>
                     <div class="col-xs-7">
                         <b>Grouping</b>
@@ -379,7 +515,9 @@
                                                     <input type="checkbox">
                                                 </div>
                                             </td>
-                                            <td style="text-align: center; ">Chicken</td>
+                                            <td style="text-align: center; ">
+                                                <input type="text" class="noBorder" id="choice" value="Chicken" style="text-align: center; "/>
+                                            </td>
                                             <td style="text-align: center; width: 20px; ">
                                                 <a class="move up" href="javascript:void(0)" title="move up"><span
                 class="glyphicon glyphicon-arrow-up"></span></a>
@@ -400,7 +538,9 @@
                                                     <input type="checkbox">
                                                 </div>
                                             </td>
-                                            <td style="text-align: center; ">Beef</td>
+                                            <td style="text-align: center; ">
+                                                <input type="text" class="noBorder" id="choice" value="Beef" style="text-align: center; "/>
+                                            </td>
                                             <td style="text-align: center; width: 20px; ">
                                                 <a class="move up" href="javascript:void(0)" title="move up"><span
                 class="glyphicon glyphicon-arrow-up"></span></a>
@@ -421,7 +561,9 @@
                                                     <input type="checkbox">
                                                 </div>
                                             </td>
-                                            <td style="text-align: center; ">Fish</td>
+                                            <td style="text-align: center; ">
+                                                <input type="text" class="noBorder" id="choice" value="Fish" style="text-align: center; "/>
+                                            </td>
                                             <td style="text-align: center; width: 20px; ">
                                                 <a class="move up" href="javascript:void(0)" title="move up"><span
                 class="glyphicon glyphicon-arrow-up"></span></a>
@@ -442,7 +584,9 @@
                                                     <input type="checkbox">
                                                 </div>
                                             </td>
-                                            <td style="text-align: center; ">Other</td>
+                                            <td style="text-align: center; ">
+                                                <input type="text" class="noBorder" id="choice" value="Other" style="text-align: center; "/>
+                                            </td>
                                             <td style="text-align: center; width: 20px; ">
                                                 <a class="move up" href="javascript:void(0)" title="move up"><span
                 class="glyphicon glyphicon-arrow-up"></span></a>
@@ -498,7 +642,7 @@
                 <div class="row">
                     <div class="col-xs-4"></div>
                     <div class="col-xs-1">
-                        <button class="btn btn-primary" id="btn">+ Add</button>
+                        <button class="btn btn-primary" id="btn" type = "button" onclick = "addChoice()">+ Add</button>
                     </div>
                     <div class="col-xs-7">
                         <b>Grouping</b>
@@ -548,7 +692,9 @@
                                                     <input type="checkbox">
                                                 </div>
                                             </td>
-                                            <td style="text-align: center; ">Chicken</td>
+                                            <td style="text-align: center; ">
+                                                <input type="text" class="noBorder" id="choice" value="Chicken" style="text-align: center; "/>
+                                            </td>
                                             <td style="text-align: center; width: 20px; ">
                                                 <a class="move up" href="javascript:void(0)" title="move up"><span
                 class="glyphicon glyphicon-arrow-up"></span></a>
@@ -564,7 +710,9 @@
                                                     <input type="checkbox">
                                                 </div>
                                             </td>
-                                            <td style="text-align: center; ">Beef</td>
+                                            <td style="text-align: center; ">
+                                                <input type="text" class="noBorder" id="choice" value="Beef" style="text-align: center; "/>
+                                            </td>
                                             <td style="text-align: center; width: 20px; ">
                                                 <a class="move up" href="javascript:void(0)" title="move up"><span
                 class="glyphicon glyphicon-arrow-up"></span></a>
@@ -580,7 +728,9 @@
                                                     <input type="checkbox">
                                                 </div>
                                             </td>
-                                            <td style="text-align: center; ">Fish</td>
+                                            <td style="text-align: center; ">
+                                                <input type="text" class="noBorder" id="choice" value="Fish" style="text-align: center; "/>
+                                            </td>
                                             <td style="text-align: center; width: 20px; ">
                                                 <a class="move up" href="javascript:void(0)" title="move up"><span
                 class="glyphicon glyphicon-arrow-up"></span></a>
@@ -596,7 +746,9 @@
                                                     <input type="checkbox">
                                                 </div>
                                             </td>
-                                            <td style="text-align: center; ">Other</td>
+                                            <td style="text-align: center; ">
+                                                <input type="text" class="noBorder" id="choice" value="Other" style="text-align: center; "/>
+                                            </td>
                                             <td style="text-align: center; width: 20px; ">
                                                 <a class="move up" href="javascript:void(0)" title="move up"><span
                 class="glyphicon glyphicon-arrow-up"></span></a>

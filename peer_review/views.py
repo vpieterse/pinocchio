@@ -10,7 +10,7 @@ import datetime
 import csv
 
 from .models import Document
-from .models import Question, QuestionType, QuestionGrouping
+from .models import Question, QuestionType, QuestionGrouping, Choice, Header, Rank
 from .models import User, UserDetail
 from .forms import DocumentForm, UserForm, CSVForm
 
@@ -19,17 +19,72 @@ def createQuestion(request):
         text = request.GET['question']
         message = 'Inserting Question with text: %r' % text
         qType = QuestionType.objects.get(name=request.GET['questionType'])
-        qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
-        choices = request.GET.getlist('choices')
-        # message.join(choices)
-        # message += len(choices)
-        message += 'END'
-        q = Question(questionText=text,
-                     pubDate=timezone.now() - datetime.timedelta(days=1),
-                     questionType=qType,
-                     questionGrouping=qGrouping      
-                     )
-        q.save()
+        print('qType: %r' % str(qType)) #Check
+        if str(qType) == 'Choice':
+            qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
+            choices = request.GET.getlist('choices[]')
+
+            q = Question(questionText=text,
+                         pubDate=timezone.now() - datetime.timedelta(days=1),
+                         questionType=qType,
+                         questionGrouping=qGrouping      
+                        )  
+
+            q.save()
+
+            #Temporary header creation
+            headers = Header.objects.filter(text=text);
+            if len(headers) > 0:
+                h = headers[0];
+            else:
+                h = Header(text=text)
+                h.save()
+
+            rank = 0
+            for choice in choices:
+                c = Choice(header = h,
+                           question = q,
+                           choiceText = choice,
+                           num = rank)
+                rank = rank + 1
+                print('saving %r' % choice) #Check
+                print('as rank %r' % rank)  #Check
+                c.save()
+        elif str(qType) == 'Rank':
+            qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
+            firstWord = request.GET["firstWord"];
+            secondWord = request.GET["secondWord"];
+
+
+            q = Question(questionText=text,
+                         pubDate=timezone.now() - datetime.timedelta(days=1),
+                         questionType=qType,
+                         questionGrouping=qGrouping      
+                        )
+
+            q.save();
+
+            #Temporary header creation
+            headers = Header.objects.filter(text=firstWord);
+            if len(headers) > 0:
+                w1 = headers[0];
+            else:
+                w1 = Header(text=firstWord)
+                w1.save()
+
+            #Temporary header creation
+            headers = Header.objects.filter(text=secondWord);
+            if len(headers) > 0:
+                w2 = headers[0];
+            else:
+                w2 = Header(text=secondWord)
+                w2.save()
+                
+            r = Rank(question = q,
+                    firstWord = w1,
+                    secondWord = w2)
+
+            r.save()
     else:
         message = 'You submitted an empty form.'
     return HttpResponse(message)
