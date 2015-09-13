@@ -8,12 +8,11 @@ from django.utils import timezone
 
 import datetime
 import csv
-import logging
 
 from .models import Document
 from .models import Question, QuestionType, QuestionGrouping, Choice, Header, Rank
 from .models import User, UserDetail
-from .forms import DocumentForm, UserForm
+from .forms import DocumentForm, UserForm, CSVForm
 
 def createQuestion(request):
     logger = logging.getLogger('views.createQuestion')
@@ -23,7 +22,6 @@ def createQuestion(request):
         qType = QuestionType.objects.get(name=request.GET['questionType'])
         print('qType: %r' % str(qType)) #Check
         if str(qType) == 'Choice':
-            print(qType)
             qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
             choices = request.GET.getlist('choices[]')
 
@@ -88,7 +86,6 @@ def createQuestion(request):
                     secondWord = w2)
 
             r.save()
-
     else:
         message = 'You submitted an empty form.'
     return HttpResponse(message)
@@ -131,7 +128,8 @@ def questionAdmin(request):
 def userList(request):
     users = User.objects.all
     userForm = UserForm()
-    return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm})
+    csvForm = CSVForm()
+    return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'csvForm': csvForm})
 
 def submitForm(request):
     if request.method == "POST":
@@ -191,3 +189,10 @@ def userUpdate(request, userPk):
         user.save()
         userDetail.save()
     return HttpResponseRedirect('../')
+
+def submitCSV(request):
+    if request.method == 'POST':
+        csvForm = CSVForm(request.POST, request.FILES)
+        if csvForm.is_valid():
+            return HttpResponse('xxx')
+    return HttpResponse('hello2S') 
