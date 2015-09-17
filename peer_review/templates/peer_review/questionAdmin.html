@@ -69,7 +69,7 @@
 
                     if (choice != '')
                     {
-                        rates.push({scale : scale, optional : optional, choice: choice});
+                        rates.push({ scale : scale, optional : optional, choice: choice });
                     }
                 });
 
@@ -90,89 +90,57 @@
                 return myObject;
             }
             
+            var upArrow = '<td style="text-align: center; width: 20px;">' +
+                            '<a class="move up" href="javascript:void(0)" title="move up">' +
+                             '<span class="glyphicon glyphicon-arrow-up"></span>' +
+                          '</a>' +
+                          '</td>';
+
+            var downArrow = '<td style="text-align: center; width: 20px; ">' +
+                              '<a class="move down" href="javascript:void(0)" title="move down">' +
+                                '<span class="glyphicon glyphicon-arrow-down"></span>' +
+                              '</a>' +
+                            '</td>';
+
+            var textBox = '<td style="text-align: center; ">' +
+                              '<input type="text" class="noBorder" id="choice" value="-" style="text-align: center; "/>' +
+                            '</td>';
+
+            var numberBox = '<td style="text-align: center; width: 10px;">' +
+                                '<input type="number" class="noBorder" style="text-align: center; "/>' +
+                            '</td>';
+
+            var checkBox = '<td style="text-align: center; width: 10px;">' +
+                              '<div class="checkbox">' +
+                                '<input type="checkbox">' +
+                              '</div>' +
+                            '</td>';
+
+            var removeButton = '<td style="text-align: center; width: 20px; ">' +
+                                    '<a class="remove" href="javascript:void(0)">' +
+                                        '<span class="glyphicon glyphicon-minus"></span>' +
+                                    '</a>' +
+                                '</td>';
+
             function addChoice()
             {
                 switch ($('#type').val())
                 {
                     case 'Choice':
-                        $('#table').append(
-                                           '<tr>' +
-                                               '<td style="text-align: center; ">' +
-                                                '<input type="text" class="noBorder" id="choice" value="-" style="text-align: center; "/>' +
-                                               '</td>' +
-                                               '<td style="text-align: center; width: 20px;">' +
-                                                   '<a class="move up" href="javascript:void(0)" title="move up">' +
-                                                       '<span class="glyphicon glyphicon-arrow-up"></span>' +
-                                                   '</a>' +
-                                               '</td>' +
-                                               '<td style="text-align: center; width: 20px; ">' +
-                                               '<a class="move down" href="javascript:void(0)" title="move down">' +
-                                                   '<span class="glyphicon glyphicon-arrow-down"></span>' +
-                                               '</a>' +
-                                               '</td>' +
-                                           '</tr>'
-                                           );
+                        $('#table').append('<tr>' + textBox + upArrow + downArrow + removeButton + '</tr>');
                         break;
                     case 'Rate':
-                        $('#table').append(
-                                           '<tr>' +
-                                               '<td style="text-align: center; width: 10px;">' +
-                                                   '<div class="checkbox">' +
-                                                       '<input type="checkbox">' +
-                                                   '</div>' +
-                                               '</td>' +
-                                               '<td style="text-align: center; width: 10px;">' +
-                                                   '<div class="checkbox">' +
-                                                       '<input type="checkbox">' +
-                                                   '</div>' +
-                                               '</td>' +
-                                               '<td style="text-align: center; ">' +
-                                                   '<input type="text" class="noBorder" id="choice" value="-" style="text-align: center; "/>' +
-                                               '</td>' +
-                                               '<td style="text-align: center; width: 20px; ">' +
-                                                   '<a class="move up" href="javascript:void(0)" title="move up">' +
-                                                       '<span class="glyphicon glyphicon-arrow-up"></span>' +
-                                                   '</a>' +
-                                               '</td>' +
-                                               '<td style="text-align: center; width: 20px; ">' +
-                                                   '<a class="move down" href="javascript:void(0)" title="move down">' +
-                                                       '<span class="glyphicon glyphicon-arrow-down"></span>' +
-                                                   '</a>' +
-                                               '</td>'+
-                                           '</tr>'
-                                           );
+                        $('#table').append('<tr>' + numberBox + checkBox + textBox + upArrow + downArrow + removeButton + '</tr>');
                         break;
                     case 'Freeform':
-                        $('#table').append(
-                                           '<tr>' +
-                                           '<td style="text-align: center; width: 10px;">' +
-                                               '<div class="checkbox">' +
-                                                   '<input type="checkbox">' +
-                                               '</div>' +
-                                           '</td>' +
-                                           '<td style="text-align: center; ">' +
-                                               '<input type="text" class="noBorder" id="choice" value="-" style="text-align: center; "/>' +
-                                           '</td>' +
-                                           '<td style="text-align: center; width: 20px; ">' +
-                                               '<a class="move up" href="javascript:void(0)" title="move up">' +
-                                                   '<span class="glyphicon glyphicon-arrow-up"></span>' +
-                                               '</a>' +
-                                           '</td>' +
-                                           '<td style="text-align: center; width: 20px; ">' +
-                                               '<a class="move down" href="javascript:void(0)" title="move down">' +
-                                                   '<span class="glyphicon glyphicon-arrow-down"></span>' +
-                                               '</a>' +
-                                           '</td>' +
-                                           '</tr>'
-                                           )
-
-
+                        $('#table').append('<tr>' + checkBox + textBox + upArrow + downArrow + removeButton +'</tr>');
                         break;
                 }//End switch
             }
+
             // AJAX for posting
             function create_post() {
-                console.log("create post is working!") // sanity check
+                //console.log("create post is working!") // sanity check
 
                 if ($('#question').val() == '')
                 {
@@ -380,22 +348,37 @@
                                                     <div style="height: 34px;"></div>
                                                 </div>
                                             </th>
+                                            <th style="text-align: center; width: 20px; ">
+                                                <div class="th-inner "></div>
+                                                <div class="fht-cell"></div>
+                                                <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
+                                                    <div style="height: 34px;"></div>
+                                                </div>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr data-index="0">
+
+                                        <tr data-index="0"  ></a>
                                             <td style="text-align: center; ">
                                                 <input type="text" class="noBorder" id="choice" value="Chicken" style="text-align: center; "/>
                                             </td>
                                             <td style="text-align: center; width: 20px; ">
-                                                <a class="move up" href="javascript:void(0)" title="move up"><span
-                class="glyphicon glyphicon-arrow-up"></span></a>
+                                                <a class="move up" href="javascript:void(0)" title="move up">
+                                                    <span class="glyphicon glyphicon-arrow-up"></span>
+                                                </a>
                                             </td>
                                             <td style="text-align: center; width: 20px; ">
                                                 <a class="move down" href="javascript:void(0)" title="move down"><span
                 class="glyphicon glyphicon-arrow-down"></span></a>
                                             </td>
+                                            <td style="text-align: center; width: 20px; ">
+                                                <a class="remove" href="javascript:void(0)">
+                                                    <span class="glyphicon glyphicon-minus"></span>
+                                                </a>
+                                            </td>
                                         </tr>
+
                                         <tr data-index="1">
                                             <td style="text-align: center; ">
                                                 <input type="text" class="noBorder" id="choice" value="Beef" style="text-align: center; "/>
@@ -407,6 +390,11 @@
                                             <td style="text-align: center; width: 20px; ">
                                                 <a class="move down" href="javascript:void(0)" title="move down"><span
                 class="glyphicon glyphicon-arrow-down"></span></a>
+                                            </td>
+                                            <td style="text-align: center; width: 20px; ">
+                                                <a class="remove" href="javascript:void(0)">
+                                                    <span class="glyphicon glyphicon-minus"></span>
+                                                </a>
                                             </td>
                                         </tr>
                                         <tr data-index="2">
@@ -421,6 +409,11 @@
                                                 <a class="move down" href="javascript:void(0)" title="move down"><span
                 class="glyphicon glyphicon-arrow-down"></span></a>
                                             </td>
+                                            <td style="text-align: center; width: 20px; ">
+                                                <a class="remove" href="javascript:void(0)">
+                                                    <span class="glyphicon glyphicon-minus"></span>
+                                                </a>
+                                            </td>
                                         </tr>
                                         <tr data-index="3">
                                             <td style="text-align: center; ">
@@ -434,6 +427,11 @@
                                                 <a class="move down" href="javascript:void(0)" title="move down"><span
                 class="glyphicon glyphicon-arrow-down"></span></a>
                                             </td>
+                                            <td style="text-align: center; width: 20px; ">
+                                                <a class="remove" href="javascript:void(0)">
+                                                    <span class="glyphicon glyphicon-minus"></span>
+                                                </a>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -445,36 +443,37 @@
                             <option value="None">None</option>
                             <option value="Rest">Rest</option>
                             <option value="All">All</option>
+                            <option value="Label">Label</option>
                         </select>
                     </div>
                 </div>
             </div>
             <div id="Rate">
                 <div class="row">
-                    <div class="col-xs-4"></div>
+                    <div class="col-xs-6"></div>
                     <div class="col-xs-1">
                         <button class="btn btn-primary" id="btn" type = "button" onclick = "addChoice()">+ Add</button>
                     </div>
-                    <div class="col-xs-7">
+                    <div class="col-xs-5">
                         <b>Grouping</b>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-xs-5">
+                    <div class="col-xs-7">
                         <div class="panel panel-default">
                             <div class="panel-body">
                                 <table id="table" class="table table-striped table-condensed table-hover btable">
                                     <thead>
                                         <tr>
                                             <th style="text-align: center; ">
-                                                <div class="th-inner ">Scale</div>
+                                                <div class="th-inner ">Optional</div>
                                                 <div class="fht-cell"></div>
                                                 <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
                                                     <div style="height: 34px;"></div>
                                                 </div>
                                             </th>
                                             <th style="text-align: center; ">
-                                                <div class="th-inner ">Optional</div>
+                                                <div class="th-inner ">Scale</div>
                                                 <div class="fht-cell"></div>
                                                 <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
                                                     <div style="height: 34px;"></div>
@@ -501,14 +500,19 @@
                                                     <div style="height: 34px;"></div>
                                                 </div>
                                             </th>
+                                            <th style="text-align: center; width: 20px; ">
+                                                <div class="th-inner "></div>
+                                                <div class="fht-cell"></div>
+                                                <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
+                                                    <div style="height: 34px;"></div>
+                                                </div>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr data-index="0">
                                             <td style="text-align: center; width: 10px;">
-                                                <div class="checkbox">
-                                                    <input type="checkbox">
-                                                </div>
+                                                    <input type="number" class="noBorder" style="text-align: center; "/>
                                             </td>
                                             <td style="text-align: center; width: 10px;">
                                                 <div class="checkbox">
@@ -526,12 +530,15 @@
                                                 <a class="move down" href="javascript:void(0)" title="move down"><span
                 class="glyphicon glyphicon-arrow-down"></span></a>
                                             </td>
+                                            <td style="text-align: center; width: 20px; ">
+                                                <a class="remove" href="javascript:void(0)">
+                                                    <span class="glyphicon glyphicon-minus"></span>
+                                                </a>
+                                            </td>
                                         </tr>
                                         <tr data-index="1">
                                             <td style="text-align: center; width: 10px;">
-                                                <div class="checkbox">
-                                                    <input type="checkbox">
-                                                </div>
+                                                    <input type="number" class="noBorder" style="text-align: center; "/>
                                             </td>
                                             <td style="text-align: center; width: 10px;">
                                                 <div class="checkbox">
@@ -549,12 +556,15 @@
                                                 <a class="move down" href="javascript:void(0)" title="move down"><span
                 class="glyphicon glyphicon-arrow-down"></span></a>
                                             </td>
+                                            <td style="text-align: center; width: 20px; ">
+                                                <a class="remove" href="javascript:void(0)">
+                                                    <span class="glyphicon glyphicon-minus"></span>
+                                                </a>
+                                            </td>
                                         </tr>
                                         <tr data-index="2">
                                             <td style="text-align: center; width: 10px;">
-                                                <div class="checkbox">
-                                                    <input type="checkbox">
-                                                </div>
+                                                    <input type="number" class="noBorder" style="text-align: center; "/>
                                             </td>
                                             <td style="text-align: center; width: 10px;">
                                                 <div class="checkbox">
@@ -572,12 +582,15 @@
                                                 <a class="move down" href="javascript:void(0)" title="move down"><span
                 class="glyphicon glyphicon-arrow-down"></span></a>
                                             </td>
+                                            <td style="text-align: center; width: 20px; ">
+                                                <a class="remove" href="javascript:void(0)">
+                                                    <span class="glyphicon glyphicon-minus"></span>
+                                                </a>
+                                            </td>
                                         </tr>
                                         <tr data-index="3">
                                             <td style="text-align: center; width: 10px;">
-                                                <div class="checkbox">
-                                                    <input type="checkbox">
-                                                </div>
+                                                    <input type="number" class="noBorder" style="text-align: center; "/>
                                             </td>
                                             <td style="text-align: center; width: 10px;">
                                                 <div class="checkbox">
@@ -595,6 +608,11 @@
                                                 <a class="move down" href="javascript:void(0)" title="move down"><span
                 class="glyphicon glyphicon-arrow-down"></span></a>
                                             </td>
+                                            <td style="text-align: center; width: 20px; ">
+                                                <a class="remove" href="javascript:void(0)">
+                                                    <span class="glyphicon glyphicon-minus"></span>
+                                                </a>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -605,6 +623,7 @@
                         <select class="form-control" id="grouping">
                             <option value="Rest">Rest</option>
                             <option value="All">All</option>
+                            <option value="Label">Label</option>
                         </select>
                     </div>
                 </div>
@@ -633,6 +652,7 @@
                             <select class='form-control' id='grouping'>
                                 <option value='Rest'>Rest</option>
                                 <option value='All'>All</option>
+                                <option value="Label">Label</option>
                             </select>
                         </div>
                     </div>
@@ -683,6 +703,13 @@
                                                     <div style="height: 34px;"></div>
                                                 </div>
                                             </th>
+                                            <th style="text-align: center; width: 20px; ">
+                                                <div class="th-inner "></div>
+                                                <div class="fht-cell"></div>
+                                                <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
+                                                    <div style="height: 34px;"></div>
+                                                </div>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -703,6 +730,11 @@
                                                 <a class="move down" href="javascript:void(0)" title="move down"><span
                 class="glyphicon glyphicon-arrow-down"></span></a>
                                             </td>
+                                            <td style="text-align: center; width: 20px; ">
+                                                <a class="remove" href="javascript:void(0)">
+                                                    <span class="glyphicon glyphicon-minus"></span>
+                                                </a>
+                                            </td>
                                         </tr>
                                         <tr data-index="1">
                                             <td style="text-align: center; width: 10px;">
@@ -720,6 +752,11 @@
                                             <td style="text-align: center; width: 20px; ">
                                                 <a class="move down" href="javascript:void(0)" title="move down"><span
                 class="glyphicon glyphicon-arrow-down"></span></a>
+                                            </td>
+                                            <td style="text-align: center; width: 20px; ">
+                                                <a class="remove" href="javascript:void(0)">
+                                                    <span class="glyphicon glyphicon-minus"></span>
+                                                </a>
                                             </td>
                                         </tr>
                                         <tr data-index="2">
@@ -739,6 +776,11 @@
                                                 <a class="move down" href="javascript:void(0)" title="move down"><span
                 class="glyphicon glyphicon-arrow-down"></span></a>
                                             </td>
+                                            <td style="text-align: center; width: 20px; ">
+                                                <a class="remove" href="javascript:void(0)">
+                                                    <span class="glyphicon glyphicon-minus"></span>
+                                                </a>
+                                            </td>
                                         </tr>
                                         <tr data-index="3">
                                             <td style="text-align: center; width: 10px;">
@@ -756,6 +798,11 @@
                                             <td style="text-align: center; width: 20px; ">
                                                 <a class="move down" href="javascript:void(0)" title="move down"><span
                 class="glyphicon glyphicon-arrow-down"></span></a>
+                                            </td>
+                                            <td style="text-align: center; width: 20px; ">
+                                                <a class="remove" href="javascript:void(0)">
+                                                    <span class="glyphicon glyphicon-minus"></span>
+                                                </a>
                                             </td>
                                         </tr>
                                     </tbody>

@@ -47,4 +47,12 @@ function initialiseStacking() {
         else
             row.next().after(row);
     });
+
+    //Remove row from table
+    $('table').on('click', '.remove', function ()
+    {
+       var row = $(this).closest('tr');
+       row.remove(); 
+
+    });
 };
