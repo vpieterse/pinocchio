@@ -27,6 +27,10 @@
                 //choices = getChoices();
                 //console.log(choices);
                 initialiseStacking();
+                addChoice('Chicken');
+                addChoice('Beef');
+                addChoice('Fish');
+                addChoice('Other');
             }
             
             function getAllRows()
@@ -102,9 +106,12 @@
                               '</a>' +
                             '</td>';
 
-            var textBox = '<td style="text-align: center; ">' +
-                              '<input type="text" class="noBorder" id="choice" value="-" style="text-align: center; "/>' +
-                            '</td>';
+            var textBox1 = '<td style="text-align: center; ">' +
+                              '<input type="text" class="noBorder" id="choice" value="';
+
+            var textBox2 =  '" style="text-align: center; "/>' + '</td>';
+
+             
 
             var numberBox = '<td style="text-align: center; width: 10px;">' +
                                 '<input type="number" class="noBorder" style="text-align: center; "/>' +
@@ -122,19 +129,20 @@
                                     '</a>' +
                                 '</td>';
 
-            function addChoice()
+            function addChoice(text)
             {
                 switch ($('#type').val())
                 {
                     case 'Choice':
-                        $('#table').append('<tr>' + textBox + upArrow + downArrow + removeButton + '</tr>');
+                        $('#table').append('<tr>' + textBox1 + text + textBox2 + upArrow + downArrow + removeButton + '</tr>');
                         break;
                     case 'Rate':
-                        $('#table').append('<tr>' + numberBox + checkBox + textBox + upArrow + downArrow + removeButton + '</tr>');
+                        $('#table').append('<tr>' + numberBox + checkBox + textBox1 + text + textBox2 + upArrow + downArrow + removeButton + '</tr>');
                         break;
                     case 'Freeform':
-                        $('#table').append('<tr>' + checkBox + textBox + upArrow + downArrow + removeButton +'</tr>');
+                        $('#table').append('<tr>' + checkBox + textBox1 + text + textBox2 + upArrow + downArrow + removeButton +'</tr>');
                         break;
+                    default: break;
                 }//End switch
             }
 
@@ -357,83 +365,6 @@
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-
-                                        <tr data-index="0"  ></a>
-                                            <td style="text-align: center; ">
-                                                <input type="text" class="noBorder" id="choice" value="Chicken" style="text-align: center; "/>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move up" href="javascript:void(0)" title="move up">
-                                                    <span class="glyphicon glyphicon-arrow-up"></span>
-                                                </a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move down" href="javascript:void(0)" title="move down"><span
-                class="glyphicon glyphicon-arrow-down"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="remove" href="javascript:void(0)">
-                                                    <span class="glyphicon glyphicon-minus"></span>
-                                                </a>
-                                            </td>
-                                        </tr>
-
-                                        <tr data-index="1">
-                                            <td style="text-align: center; ">
-                                                <input type="text" class="noBorder" id="choice" value="Beef" style="text-align: center; "/>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move up" href="javascript:void(0)" title="move up"><span
-                class="glyphicon glyphicon-arrow-up"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move down" href="javascript:void(0)" title="move down"><span
-                class="glyphicon glyphicon-arrow-down"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="remove" href="javascript:void(0)">
-                                                    <span class="glyphicon glyphicon-minus"></span>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        <tr data-index="2">
-                                            <td style="text-align: center; ">
-                                                <input type="text" class="noBorder" id="choice" value="Fish" style="text-align: center; "/>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move up" href="javascript:void(0)" title="move up"><span
-                class="glyphicon glyphicon-arrow-up"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move down" href="javascript:void(0)" title="move down"><span
-                class="glyphicon glyphicon-arrow-down"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="remove" href="javascript:void(0)">
-                                                    <span class="glyphicon glyphicon-minus"></span>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        <tr data-index="3">
-                                            <td style="text-align: center; ">
-                                                <input type="text" class="noBorder" id="choice" value="Other" style="text-align: center; "/>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move up" href="javascript:void(0)" title="move up"><span
-                class="glyphicon glyphicon-arrow-up"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move down" href="javascript:void(0)" title="move down"><span
-                class="glyphicon glyphicon-arrow-down"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="remove" href="javascript:void(0)">
-                                                    <span class="glyphicon glyphicon-minus"></span>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -509,112 +440,6 @@
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr data-index="0">
-                                            <td style="text-align: center; width: 10px;">
-                                                    <input type="number" class="noBorder" style="text-align: center; "/>
-                                            </td>
-                                            <td style="text-align: center; width: 10px;">
-                                                <div class="checkbox">
-                                                    <input type="checkbox">
-                                                </div>
-                                            </td>
-                                            <td style="text-align: center; ">
-                                                <input type="text" class="noBorder" id="choice" value="Chicken" style="text-align: center; "/>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move up" href="javascript:void(0)" title="move up"><span
-                class="glyphicon glyphicon-arrow-up"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move down" href="javascript:void(0)" title="move down"><span
-                class="glyphicon glyphicon-arrow-down"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="remove" href="javascript:void(0)">
-                                                    <span class="glyphicon glyphicon-minus"></span>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        <tr data-index="1">
-                                            <td style="text-align: center; width: 10px;">
-                                                    <input type="number" class="noBorder" style="text-align: center; "/>
-                                            </td>
-                                            <td style="text-align: center; width: 10px;">
-                                                <div class="checkbox">
-                                                    <input type="checkbox">
-                                                </div>
-                                            </td>
-                                            <td style="text-align: center; ">
-                                                <input type="text" class="noBorder" id="choice" value="Beef" style="text-align: center; "/>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move up" href="javascript:void(0)" title="move up"><span
-                class="glyphicon glyphicon-arrow-up"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move down" href="javascript:void(0)" title="move down"><span
-                class="glyphicon glyphicon-arrow-down"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="remove" href="javascript:void(0)">
-                                                    <span class="glyphicon glyphicon-minus"></span>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        <tr data-index="2">
-                                            <td style="text-align: center; width: 10px;">
-                                                    <input type="number" class="noBorder" style="text-align: center; "/>
-                                            </td>
-                                            <td style="text-align: center; width: 10px;">
-                                                <div class="checkbox">
-                                                    <input type="checkbox">
-                                                </div>
-                                            </td>
-                                            <td style="text-align: center; ">
-                                                <input type="text" class="noBorder" id="choice" value="Fish" style="text-align: center; "/>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move up" href="javascript:void(0)" title="move up"><span
-                class="glyphicon glyphicon-arrow-up"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move down" href="javascript:void(0)" title="move down"><span
-                class="glyphicon glyphicon-arrow-down"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="remove" href="javascript:void(0)">
-                                                    <span class="glyphicon glyphicon-minus"></span>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        <tr data-index="3">
-                                            <td style="text-align: center; width: 10px;">
-                                                    <input type="number" class="noBorder" style="text-align: center; "/>
-                                            </td>
-                                            <td style="text-align: center; width: 10px;">
-                                                <div class="checkbox">
-                                                    <input type="checkbox">
-                                                </div>
-                                            </td>
-                                            <td style="text-align: center; ">
-                                                <input type="text" class="noBorder" id="choice" value="Other" style="text-align: center; "/>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move up" href="javascript:void(0)" title="move up"><span
-                class="glyphicon glyphicon-arrow-up"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move down" href="javascript:void(0)" title="move down"><span
-                class="glyphicon glyphicon-arrow-down"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="remove" href="javascript:void(0)">
-                                                    <span class="glyphicon glyphicon-minus"></span>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -712,100 +537,6 @@
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr data-index="0">
-                                            <td style="text-align: center; width: 10px;">
-                                                <div class="checkbox">
-                                                    <input type="checkbox">
-                                                </div>
-                                            </td>
-                                            <td style="text-align: center; ">
-                                                <input type="text" class="noBorder" id="choice" value="Chicken" style="text-align: center; "/>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move up" href="javascript:void(0)" title="move up"><span
-                class="glyphicon glyphicon-arrow-up"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move down" href="javascript:void(0)" title="move down"><span
-                class="glyphicon glyphicon-arrow-down"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="remove" href="javascript:void(0)">
-                                                    <span class="glyphicon glyphicon-minus"></span>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        <tr data-index="1">
-                                            <td style="text-align: center; width: 10px;">
-                                                <div class="checkbox">
-                                                    <input type="checkbox">
-                                                </div>
-                                            </td>
-                                            <td style="text-align: center; ">
-                                                <input type="text" class="noBorder" id="choice" value="Beef" style="text-align: center; "/>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move up" href="javascript:void(0)" title="move up"><span
-                class="glyphicon glyphicon-arrow-up"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move down" href="javascript:void(0)" title="move down"><span
-                class="glyphicon glyphicon-arrow-down"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="remove" href="javascript:void(0)">
-                                                    <span class="glyphicon glyphicon-minus"></span>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        <tr data-index="2">
-                                            <td style="text-align: center; width: 10px;">
-                                                <div class="checkbox">
-                                                    <input type="checkbox">
-                                                </div>
-                                            </td>
-                                            <td style="text-align: center; ">
-                                                <input type="text" class="noBorder" id="choice" value="Fish" style="text-align: center; "/>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move up" href="javascript:void(0)" title="move up"><span
-                class="glyphicon glyphicon-arrow-up"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move down" href="javascript:void(0)" title="move down"><span
-                class="glyphicon glyphicon-arrow-down"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="remove" href="javascript:void(0)">
-                                                    <span class="glyphicon glyphicon-minus"></span>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        <tr data-index="3">
-                                            <td style="text-align: center; width: 10px;">
-                                                <div class="checkbox">
-                                                    <input type="checkbox">
-                                                </div>
-                                            </td>
-                                            <td style="text-align: center; ">
-                                                <input type="text" class="noBorder" id="choice" value="Other" style="text-align: center; "/>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move up" href="javascript:void(0)" title="move up"><span
-                class="glyphicon glyphicon-arrow-up"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="move down" href="javascript:void(0)" title="move down"><span
-                class="glyphicon glyphicon-arrow-down"></span></a>
-                                            </td>
-                                            <td style="text-align: center; width: 20px; ">
-                                                <a class="remove" href="javascript:void(0)">
-                                                    <span class="glyphicon glyphicon-minus"></span>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    </tbody>
                                 </table>
                             </div>
                         </div>
