@@ -191,7 +191,23 @@ def userUpdate(request, userPk):
 
 def submitCSV(request):
     if request.method == 'POST':
-        csvForm = CSVForm(request.POST, request.FILES)
-        if csvForm.is_valid():
-            return HttpResponse('xxx')
-    return HttpResponse('hello2S')
+        with open('peer_review/csv/users.csv') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                title = row['title']
+                initials = row['initials']
+                name = row['name']
+                surname = row['surname']
+                cell = row['cell']
+                email = row['email']
+
+                userDetail = UserDetail(title = title, initials = initials, name = name, surname = surname, cell = cell, email = email)
+                userDetail.save()
+
+                userId = row['user_id']
+                status = row['status']
+                password = row['password']
+
+                user = User(userId = userId, password = password, status = status, userDetail = userDetail)
+                user.save()
+    return HttpResponseRedirect('../')
