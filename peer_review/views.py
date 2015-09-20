@@ -191,23 +191,42 @@ def userUpdate(request, userPk):
 
 def submitCSV(request):
     if request.method == 'POST':
+        count = 0
         with open('peer_review/csv/users.csv') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-                title = row['title']
-                initials = row['initials']
-                name = row['name']
-                surname = row['surname']
-                cell = row['cell']
-                email = row['email']
+                count += 1
+                if validate(row):
+                    title = row['title']
+                    initials = row['initials']
+                    name = row['name']
+                    surname = row['surname']
+                    cell = row['cell']
+                    email = row['email']
 
-                userDetail = UserDetail(title = title, initials = initials, name = name, surname = surname, cell = cell, email = email)
-                userDetail.save()
+                    # userDetail = UserDetail(title = title, initials = initials, name = name, surname = surname, cell = cell, email = email)
+                    # userDetail.save()
 
-                userId = row['user_id']
-                status = row['status']
-                password = row['password']
+                    userId = row['user_id']
+                    status = row['status']
+                    password = row['password']
 
-                user = User(userId = userId, password = password, status = status, userDetail = userDetail)
-                user.save()
+                    # user = User(userId = userId, password = password, status = status, userDetail = userDetail)
+                    # user.save()
+                else:
+                    rowlist = list()
+                    for key, value in row.items():
+                        temp = [key, value]
+                        rowlist.append(temp)
+                    message = "Oops! Something seems to be wrong with the CSV file at row " + str(count)
+                    return render(request, 'peer_review/csvError.html', {'message': message, 'row': rowlist})
     return HttpResponseRedirect('../')
+
+def validate(row):
+    if len(row) < 9:
+        return False
+
+    for key, value in row.items():
+        if value == None:
+            return False
+    return True
