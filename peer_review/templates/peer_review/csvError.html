@@ -64,41 +64,73 @@
 
                 <div id="collapseOne" class="panel-collapse collapse in">
                     <div class="panel-body">
-                        {{ message }}
-                        {{ row }}
-                        <div class='table-responsive'>
-                            <table class='table sortable' id='users'>
-                                <thead>
+                        <h3>
+                            {{ message }}<br>
+                            <b>Error: </b>{{ error }}
+                        </h3>
+                        {% if row %}
+                            <h4>
+                                This is how we interpreted the CSV file at this row:
+                            </h4>
+                            <div class='table-responsive'>
+                                <table class='table sortable' id='users'>
+                                    <thead>
+                                        <tr>
+                                            <th>title</th>
+                                            <th>initials</th>
+                                            <th>name</th>
+                                            <th>surname</th>
+                                            <th>email</th>
+                                            <th>cell</th>
+                                            <th>user_id</th>
+                                            <th>status</th>
+                                            <th>password</th>
+                                    </thead>
                                     <tr>
-                                        <th>Student Number</th>
-                                        <th>Title</th>
-                                        <th>Initials</th>
-                                        <th>First Name</th>
-                                        <th>Surname</th>
-                                        <th>Cell</th>
-                                        <th>Email</th>
-                                </thead>
-                                <tr>
-                                    <td>
-                                        {{ row.5.1 }}
-                                    </td>
-                                    <td>
-                                        {{ row.7.1 }}
-                                    </td>
-                                    <td>
-                                        {{ row.4.1 }}
-                                    </td>
-                                    <td>
-                                        {{ row.2.1 }}
-                                    </td>
-                                    <td>
-                                        {{ row.0.1 }}
-                                    </td>
-                                    <td>
-                                        {{ row.6.1 }}
-                                    </td>
-                                </tr>                            
-                        </table>
+                                        <td>
+                                            {{ row.0}}
+                                        </td>
+                                        <td>
+                                            {{ row.1 }}
+                                        </td>
+                                        <td>
+                                            {{ row.2 }}
+                                        </td>
+                                        <td>
+                                            {{ row.3 }}
+                                        </td>
+                                        <td>
+                                            {{ row.4 }}
+                                        </td>
+                                        <td>
+                                            {{ row.5 }}
+                                        </td>
+                                        <td>
+                                            {{ row.6 }}
+                                        </td>
+                                        <td>
+                                            {{ row.7 }}
+                                        </td>
+                                        <td>
+                                            {{ row.8 }}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h4>Please take note of the format we use to interpret a CSV:</h4>
+                            <div>
+                                "title","initials","name","surname","email","cell","user_id","status","password"<br>
+                                "Mr","D","Dillon","Heins","dillonheins@gmail.com","0798016454","14035547","A","123456"<br>
+                                "Mr","M","Matthias","Harvey","m@gmail.com","0751457814","14578841","A","password125"<br>
+                                "Mr","M","Matthew","Botha","mb@gmail.com","0781245487","15671148","S","178415"<br>
+                            </div>
+                            <div>
+                                <br>
+                                <a href="#">Template</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
