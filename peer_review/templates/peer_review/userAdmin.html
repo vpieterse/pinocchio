@@ -159,15 +159,15 @@
 
                 <div id="collapseTwo" class="panel-collapse collapse">
                     <div class="panel-body">
-                        <form role="form" method="post" action="/peer/userAdmin/submitCSV/">
+                        <form action="{% url 'submitCSV' %}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
-                            <div class="form-group">
-                                {{ csvForm.title }}
-                                <label for="csvFile">Upload CSV File:</label>
-                                {{ csvForm.csvFile }}
-                                <p class="help-block">Select a CSV file to register users</p>
-                            </div>
-                            <button type="submit" class="btn btn-info" id="" onclick="">Submit</button>
+                            <p>{{ docForm.non_field_errors }}</p>
+                            <p>{{ docForm.docfile.label_tag }} {{ docForm.docfile.help_text }}</p>
+                            <p>
+                                {{ docForm.docfile.errors }}
+                                {{ docForm.docfile }}
+                            </p>
+                            <p><input type="submit" value="Upload" /></p>
                         </form>
                     </div>
                 </div>
