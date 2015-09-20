@@ -213,7 +213,7 @@ def submitCSV(request):
 
                     user = User(userId = userId, password = password, status = status, userDetail = userDetail)
                     user.save()
-                    # ToDo check if user already exists
+                    # ToDo check for errors in multiple rows
                 else:
                     if validate(row) == 0:
                         message = "Oops! Something seems to be wrong with the CSV file."
@@ -233,11 +233,12 @@ def submitCSV(request):
                         rowlist.append(row['status'])
                         rowlist.append(row['password'])
 
-
                     if validate(row) == 2:
                         errortype = "Not all fields contain values."
                     if validate(row) == 3:
                         errortype = "Cell or user ID is not a number."
+                    if validate(row) == 4:
+                        errortype = "User already exists."
 
                     return render(request, 'peer_review/csvError.html', {'message': message, 'row': rowlist, 'error': errortype})
     return HttpResponseRedirect('../')
@@ -247,6 +248,8 @@ def validate(row):
     # 1 = correct
     # 2 = missing value/s
     # 3 = incorrect format
+    # 4 = user already exists
+
     if len(row) < 9:
         return 0
 
@@ -259,6 +262,11 @@ def validate(row):
             try:
                 int(value)
             except ValueError:
-                print (key, value)
                 return 3
+
+    user = User.objects.filter(userId = row['user_id'])
+    
+    if user.count != 1:
+        return 4
+
     return 1
