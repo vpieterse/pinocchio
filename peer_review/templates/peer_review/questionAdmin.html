@@ -27,10 +27,10 @@
                 //choices = getChoices();
                 //console.log(choices);
                 initialiseStacking();
-                addChoice('Chicken');
-                addChoice('Beef');
-                addChoice('Fish');
-                addChoice('Other');
+                addRow('Chicken');
+                addRow('Beef');
+                addRow('Fish');
+                addRow('Other');
             }
             
             function getAllRows()
@@ -104,14 +104,7 @@
                               '<a class="move down" href="javascript:void(0)" title="move down">' +
                                 '<span class="glyphicon glyphicon-arrow-down"></span>' +
                               '</a>' +
-                            '</td>';
-
-            var textBox1 = '<td style="text-align: center; ">' +
-                              '<input type="text" class="noBorder" id="choice" value="';
-
-            var textBox2 =  '" style="text-align: center; "/>' + '</td>';
-
-             
+                            '</td>';             
 
             var numberBox = '<td style="text-align: center; width: 10px;">' +
                                 '<input type="number" class="noBorder" style="text-align: center; "/>' +
@@ -129,18 +122,37 @@
                                     '</a>' +
                                 '</td>';
 
-            function addChoice(text)
+            var dropDown = '<td>' +
+                                '<select class="form-control" id = "type">' +
+                                    '<option value="Word">Word</option>' +
+                                    '<option value="Paragraph">Paragraph</option>' +
+                                    '<option value="Integer">Integer</option>' +
+                                    '<option value="Real">Real</option>' +
+                                '</select>' +
+                            '</td>';
+
+            function textBox(text)
+            {
+                var textBox1 = '<td style="text-align: center; ">' +
+                              '<input type="text" class="noBorder" id="choice" value="';
+
+                var textBox2 =  '" style="text-align: center; "/>' + '</td>';
+
+                return textBox1 + text + textBox2;
+            }
+
+            function addRow(text)
             {
                 switch ($('#type').val())
                 {
                     case 'Choice':
-                        $('#table').append('<tr>' + textBox1 + text + textBox2 + upArrow + downArrow + removeButton + '</tr>');
+                        $('#table').append('<tr>' + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
                         break;
                     case 'Rate':
-                        $('#table').append('<tr>' + numberBox + checkBox + textBox1 + text + textBox2 + upArrow + downArrow + removeButton + '</tr>');
+                        $('#table').append('<tr>' + checkBox + numberBox+ textBox1 + text + textBox2 + upArrow + downArrow + removeButton + '</tr>');
                         break;
                     case 'Freeform':
-                        $('#table').append('<tr>' + checkBox + textBox1 + text + textBox2 + upArrow + downArrow + removeButton +'</tr>');
+                        $('#table').append('<tr>' + dropDown + textBox1 + text + textBox2 + upArrow + downArrow + removeButton +'</tr>');
                         break;
                     default: break;
                 }//End switch
@@ -322,7 +334,7 @@
                 <div class="row">
                     <div class="col-xs-4"></div>
                     <div class="col-xs-1">
-                        <button class="btn btn-primary" id="btn" type = "button" onclick = "addChoice()">+ Add</button>
+                        <button class="btn btn-primary" id="btn" type = "button" onclick = "addRow('-')">+ Add</button>
                     </div>
                     <div class="col-xs-7">
                         <b>Grouping</b>
@@ -383,7 +395,7 @@
                 <div class="row">
                     <div class="col-xs-6"></div>
                     <div class="col-xs-1">
-                        <button class="btn btn-primary" id="btn" type = "button" onclick = "addChoice()">+ Add</button>
+                        <button class="btn btn-primary" id="btn" type = "button" onclick = "addRow('-')">+ Add</button>
                     </div>
                     <div class="col-xs-5">
                         <b>Grouping</b>
@@ -487,7 +499,7 @@
                 <div class="row">
                     <div class="col-xs-4"></div>
                     <div class="col-xs-1">
-                        <button class="btn btn-primary" id="btn" type = "button" onclick = "addChoice()">+ Add</button>
+                        <button class="btn btn-primary" id="btn" type = "button" onclick = "addRow('-')">+ Add</button>
                     </div>
                     <div class="col-xs-7">
                         <b>Grouping</b>
@@ -508,7 +520,7 @@
                                                 </div>
                                             </th>
                                             <th style="text-align: center; ">
-                                                <div class="th-inner ">Choice</div>
+                                                <div class="th-inner ">Value</div>
                                                 <div class="fht-cell"></div>
                                                 <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
                                                     <div style="height: 34px;"></div>
