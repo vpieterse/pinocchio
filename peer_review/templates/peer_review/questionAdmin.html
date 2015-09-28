@@ -133,12 +133,11 @@
 
             function textBox(text)
             {
-                var textBox1 = '<td style="text-align: center; ">' +
-                              '<input type="text" class="noBorder" id="choice" value="';
-
-                var textBox2 =  '" style="text-align: center; "/>' + '</td>';
-
-                return textBox1 + text + textBox2;
+                return '<td style="text-align: center; ">' +
+                            '<input type="text" class="noBorder" id="choice" value="' +
+                            text +
+                            '" style="text-align: center; "/>' +
+                        '</td>';
             }
 
             function addRow(text)
@@ -149,10 +148,10 @@
                         $('#table').append('<tr>' + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
                         break;
                     case 'Rate':
-                        $('#table').append('<tr>' + checkBox + numberBox+ textBox1 + text + textBox2 + upArrow + downArrow + removeButton + '</tr>');
+                        $('#table').append('<tr>' + checkBox + numberBox+ textBox(text) + upArrow + downArrow + removeButton + '</tr>');
                         break;
                     case 'Freeform':
-                        $('#table').append('<tr>' + dropDown + textBox1 + text + textBox2 + upArrow + downArrow + removeButton +'</tr>');
+                        $('#table').append('<tr>' + dropDown + textBox(text) + upArrow + downArrow + removeButton +'</tr>');
                         break;
                     default: break;
                 }//End switch

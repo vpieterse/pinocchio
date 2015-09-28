@@ -51,8 +51,7 @@ function initialiseStacking() {
     //Remove row from table
     $('table').on('click', '.remove', function ()
     {
-       var row = $(this).closest('tr');
-       row.remove(); 
+       $(this).closest('tr').remove(); 
 
     });
 
