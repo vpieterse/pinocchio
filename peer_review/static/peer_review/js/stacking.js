@@ -47,4 +47,29 @@ function initialiseStacking() {
         else
             row.next().after(row);
     });
+
+    //Remove row from table
+    $('table').on('click', '.remove', function ()
+    {
+       $(this).closest('tr').remove(); 
+
+    });
+
+    $('table').on('change', '#type', function()
+    {
+        inputBox =  $(this).parents('tr').find('input');
+        //console.log($(this).parents('tr').find('select').val());
+        switch ($(this).parents('tr').find('select').val())
+        {
+            case 'Real':
+            case 'Integer':
+                inputBox.attr('type', 'number');
+                break;
+            case 'Paragraph':
+            case 'Default':
+            case 'Word':
+                inputBox.attr('type', 'text');
+                break;
+        }
+    });
 };
