@@ -74,3 +74,15 @@ function validateUserForm() {
 		}
 	}
 }
+
+
+/* Nigel
+	Delete Confirmation function for form submission
+*/
+function confirmDeletion() {
+	if(confirm('Are you sure you wish to delete this?')){
+		return true;
+	} else {
+		return false;
+	}
+}

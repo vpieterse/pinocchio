@@ -1,7 +1,12 @@
 <!DOCTYPE html>
+<!--
+    Changelog(Nigel)
+    -Change Page Title    
+    -Resized question textbox
+-->
 <html lang="en">
     <head>
-        <title>Pinocchio</title>
+        <title>Create Question</title>
         <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
         {% load staticfiles %}
         <script type="text/javascript" src="{% static "peer_review/js/jquery.min.js" %}"></script>
@@ -281,7 +286,7 @@
                     <input type="hidden" id="tableData">
                         <div class="form-group">
                             <label for="question">Question</label>
-                            <textarea class="form-control" cols="40" rows="3" style="resize:none;width:auto" id="question" name="question"></textarea>
+                            <textarea class="form-control" cols="152" rows="3" style="resize:none;width:auto" id="question" name="question"></textarea>
                             <br />
                             <label>Type</label>
                             <select id="type" class="form-control" style="width:auto" onchange="selected()" name="type">

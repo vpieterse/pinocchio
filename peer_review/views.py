@@ -285,3 +285,73 @@ def validate(row):
         return 4
 
     return 1
+    
+def questionList(request):
+    context = {'questions': Question.objects.all()}
+    return render(request, 'peer_review/questionList.html', context)
+    
+#Nigel Start#  
+def getTypeID(questionType):
+    # -1 = Error
+    # 1 = Choice
+    # 2 = Rank
+    # 3 = Label
+    # 4 = Rate
+    # 5 = Freeform
+    
+    if questionType == "Choice":
+        return 1
+    elif questionType == "Rank":
+        return 2
+    elif questionType == "Label":
+        return 3
+    elif questionType == "Rate":
+        return 4
+    elif questionType == "Freeform":
+        return 5
+    else:
+        return -1
+        
+def getGroupID(questionGroup):
+    # -1 = Error
+    # 1 = None
+    # 2 = Rest
+    # 3 = All
+    
+    if questionGroup == "None":
+        return 1
+    elif questionGroup == "Rest":
+        return 2
+    elif questionGroup == "All":
+        return 3
+    else:
+        return -1
+
+def questionUpdate(request, questionPk):
+    if request.method == "POST":
+        question = Question.objects.get(pk = questionPk)
+        
+        post_questionText = request.POST.get("questionText")
+        post_questionType_id = getTypeID(request.POST.get("questionType"))
+        post_questionGrouping_id = getGroupID(request.POST.get("questionGroup"))
+        
+        question.questionID = questionPk
+        question.questionText = post_questionText
+        question.pubDate = timezone.now() - datetime.timedelta(days=1)
+        
+        if post_questionType_id == -1:
+            return HttpResponse("<script>alert('Invalid Question Type');window.location.href='../';</script>")
+        elif post_questionGrouping_id == -1:
+            return HttpResponse("<script>alert('Invalid Question Grouping');window.location.href='../';</script>")
+        else:
+            question.questionType_id = post_questionType_id
+            question.questionGrouping_id = post_questionGrouping_id
+            question.save()
+            return HttpResponseRedirect('../')
+    
+def questionDelete(request, questionPk):
+    question = Question.objects.get(pk = questionPk)
+    question.delete()
+    return HttpResponseRedirect('../')
+
+#Nigel End#

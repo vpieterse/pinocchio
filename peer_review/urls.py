@@ -16,4 +16,7 @@ urlpatterns = [
     url(r'^userAdmin/delete/(?P<userPk>[0-9]+)/?$', views.userDelete),
     url(r'^userAdmin/update/(?P<userPk>[0-9]+)/?$', views.userUpdate),
     url(r'^userAdmin/$', views.userList),
+    url(r'^questionList/$', views.questionList), #Added this -Jason
+    url(r'^questionList/delete/(?P<questionPk>[0-9]+)/?$', views.questionDelete), #Nigel
+    url(r'^questionList/update/(?P<questionPk>[0-9]+)/?$', views.questionUpdate), #Nigel
 ]
