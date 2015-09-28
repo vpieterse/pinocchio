@@ -1,4 +1,10 @@
 ﻿{% load staticfiles %}
+<!--
+    Changelog (Nigel)
+    -Added Delete confirmation
+    -Removed "clicky" alert message on delete
+    -Renamed Edit and Delete buttons
+ -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -217,13 +223,13 @@
                                                 <td><input type="text" class="noBorder" name="cell" value="{{ user.userDetail.cell }}"></input></td>
                                                 <td><input type="text" class="noBorder" name="email" value="{{ user.userDetail.email }}"></input></td>
                                                 <td>
-                                                    <button type='submit' name="edit" class='btn btn-success btn-xs' id='edit' value="{{ user.userId }}">E</button>
+                                                    <button type='submit' name="edit" class='btn btn-success btn-xs' id='edit' value="{{ user.userId }}">Edit</button>
                                                 </td>
                                             </form>
                                             <td>
-                                                <form action="/peer/userAdmin/delete/{{ user.pk }}" method="post">
+                                                <form action="/peer/userAdmin/delete/{{ user.pk }}" method="post" onsubmit="return confirmDeletion()">
                                                     {% csrf_token %}
-                                                    <button type='submit' name="remove" onclick="validateUserDelete()" class='btn btn-warning btn-xs' id='remove'>R</button>
+                                                    <button type='submit' name="remove" class='btn btn-warning btn-xs' id='remove'>Delete</button>
                                                 </form>
                                             </td>
                                         </tr>
