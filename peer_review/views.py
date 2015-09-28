@@ -12,7 +12,7 @@ import csv
 from .models import Document
 from .models import Question, QuestionType, QuestionGrouping, Choice, Header, Rank
 from .models import User, UserDetail
-from .forms import DocumentForm, UserForm, CSVForm
+from .forms import DocumentForm, UserForm
 
 def createQuestion(request):
     if 'question' in request.GET:
@@ -127,8 +127,8 @@ def questionAdmin(request):
 def userList(request):
     users = User.objects.all
     userForm = UserForm()
-    csvForm = CSVForm()
-    return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'csvForm': csvForm})
+    docForm = DocumentForm()
+    return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'docForm': docForm})
 
 def submitForm(request):
     if request.method == "POST":
@@ -191,7 +191,97 @@ def userUpdate(request, userPk):
 
 def submitCSV(request):
     if request.method == 'POST':
-        csvForm = CSVForm(request.POST, request.FILES)
-        if csvForm.is_valid():
-            return HttpResponse('xxx')
-    return HttpResponse('hello2S')
+        form = DocumentForm(request.POST, request.FILES)
+        if form.is_valid():
+            newdoc = Document(docfile = request.FILES['docfile'])
+            newdoc.save()
+
+            filePath = newdoc.docfile.url
+            filePath = filePath[1:]
+
+            documents = Document.objects.all()
+
+            count = 0
+            with open(filePath) as csvfile:
+                reader = csv.DictReader(csvfile)
+                for row in reader:
+                    count += 1
+                    if validate(row) == 1:
+                        title = row['title']
+                        initials = row['initials']
+                        name = row['name']
+                        surname = row['surname']
+                        email = row['email']
+                        cell = row['cell']
+
+                        userDetail = UserDetail(title = title, initials = initials, name = name, surname = surname, cell = cell, email = email)
+                        userDetail.save()
+
+                        userId = row['user_id']
+                        status = row['status']
+                        password = row['password']
+
+                        user = User(userId = userId, password = password, status = status, userDetail = userDetail)
+                        user.save()
+                        # ToDo check for errors in multiple rows
+                    else:
+                        if validate(row) == 0:
+                            message = "Oops! Something seems to be wrong with the CSV file."
+                            errortype = "Incorrect number of fields."
+                            return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
+                        else:
+                            message = "Oops! Something seems to be wrong with the CSV file at row " + str(count) + "."
+
+                            rowlist = list()
+                            rowlist.append(row['title'])
+                            rowlist.append(row['initials'])
+                            rowlist.append(row['name'])
+                            rowlist.append(row['surname'])
+                            rowlist.append(row['email'])
+                            rowlist.append(row['cell'])
+                            rowlist.append(row['user_id'])
+                            rowlist.append(row['status'])
+                            rowlist.append(row['password'])
+
+                        if validate(row) == 2:
+                            errortype = "Not all fields contain values."
+                        if validate(row) == 3:
+                            errortype = "Cell or user ID is not a number."
+                        if validate(row) == 4:
+                            errortype = "User already exists."
+
+                        return render(request, 'peer_review/csvError.html', {'message': message, 'row': rowlist, 'error': errortype})
+        else:
+            form = DocumentForm()
+            message = "Oops! Something seems to be wrong with the CSV file."
+            errortype = "No file selected."
+            return render(request, 'peer_review/csvError.html', {'message': message, 'row': rowlist})
+    return HttpResponseRedirect('../')
+
+def validate(row):
+    # 0 = incorrect number of fields
+    # 1 = correct
+    # 2 = missing value/s
+    # 3 = incorrect format
+    # 4 = user already exists
+
+    if len(row) < 9:
+        return 0
+
+    for key, value in row.items():
+        if value == None:
+            return 2
+
+    for key, value in row.items():
+        if key == "cell" or key == "user_id":
+            try:
+                int(value)
+            except ValueError:
+                return 3
+
+    user = User.objects.filter(userId = row['user_id'])
+    
+    if user.count() > 0:
+        return 4
+
+    return 1

@@ -39,10 +39,10 @@
             </div>
             <div class="collapse navbar-collapse navHeaderCollapse">
                 <ul class="nav navbar-nav navbar-right">
-                    <li class="active"><a href="userAdmin.html">User Admin</a></li>
+                    <li class="active"><a href=".">User Admin</a></li>
                     <li><a href="#">Round Admin</a></li>
                     <li><a href="#">Team Admin</a></li>
-                    <li><a href="#">Question Admin</a></li>
+                    <li><a href="/peer/questionAdmin">Question Admin</a></li>
                     <li><a href="#">Questionnaire Admin</a></li>
                     <li><a href="#">File Manager</a></li>
                     <li><a href="#">Server Manager</a></li>
@@ -159,15 +159,15 @@
 
                 <div id="collapseTwo" class="panel-collapse collapse">
                     <div class="panel-body">
-                        <form role="form" method="post" action="/peer/userAdmin/submitCSV/">
+                        <form action="{% url 'submitCSV' %}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
-                            <div class="form-group">
-                                {{ csvForm.title }}
-                                <label for="csvFile">Upload CSV File:</label>
-                                {{ csvForm.csvFile }}
-                                <p class="help-block">Select a CSV file to register users</p>
-                            </div>
-                            <button type="submit" class="btn btn-info" id="" onclick="">Submit</button>
+                            <p>{{ docForm.non_field_errors }}</p>
+                            <p>{{ docForm.docfile.label_tag }} {{ docForm.docfile.help_text }}</p>
+                            <p>
+                                {{ docForm.docfile.errors }}
+                                {{ docForm.docfile }}
+                            </p>
+                            <p><input type="submit" value="Upload" /></p>
                         </form>
                     </div>
                 </div>
@@ -188,6 +188,8 @@
                         <input type="text" class="form-control" id="search" placeholder="Search" onkeyup="showResult(this.value)">
 
                         <div class='table-responsive'>
+                            <!-- ToDo fix sortable -->
+                            <!-- ToDo implement delete confirmation -->
                             <table class='table sortable' id='users'>
                                 <thead>
                                     <tr>
