@@ -6,6 +6,7 @@ urlpatterns = [
     url(r'^fileUpload', views.fileUpload, name='fileUpload'),
     url(r'^questionAdmin', views.questionAdmin, name='questionAdmin'),
     url(r'^createQuestion/$', views.createQuestion, name='createQuestion'),
+    url(r'^maintainRound/$', views.maintainRound, name='maintainRound'),
     
     # ex: /peer_review/
     url(r'^$', views.index, name='index'),
