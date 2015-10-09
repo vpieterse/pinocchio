@@ -58,7 +58,32 @@
 
 </script>
 end-->
+<!--Function to add row-->
+    <script>
+    function deleteRow(row) {
+        var table = document.getElementById('round');
+     //   var rowCount = table.rows.length;   
+           // var row = table.insertRow(1);
+             
 
+            if(table.rows.length >4)
+                {table.deleteRow(row.parentNode.parentNode.rowIndex);}
+            else
+                {alert("Last row!" );}
+/*var p=row.parentNode.parentNode;
+         p.parentNode.removeChild(p);*/
+     //    document.getElementById("myTable").deleteRow(0);
+          // alert(row);
+           
+
+           // var colCount = table.rows[0].cells.length;
+            //for(var i=0; i<7; i++) {
+               // table.row.deleteRow();
+             //   newcell.innerHTML = table.rows[2].cells[i].innerHTML;
+           // }
+    }
+    </script>
+<!--end-->
 <!--Function to add row-->
     <script>
     function addRow(tableID) {
@@ -160,7 +185,7 @@ end-->
                                     </td>
             <!--delete row -->
                                     <td>
-                                        <button type='button' class='btn btn-warning btn-xs' id='delete' onclick="deleteRow(row)">&#10008;
+                                        <button type='button' class='btn btn-warning btn-xs' id='delete' onclick="deleteRow(this)">&#10008;
                                         </button>
                                     </td>
                                 </tr>
