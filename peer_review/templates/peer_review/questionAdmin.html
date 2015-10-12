@@ -18,6 +18,12 @@
         <script type="text/javascript" src="{% static "peer_review/js/stacking.js" %}" ></script>
         <script type="text/javascript">
 
+            $(document).ready(function () {
+                addRow(' ', '#labelTable');
+                addOnSubmitHandler();
+                selected(); 
+            })
+
             function addOnSubmitHandler() {
                 $('#questionForm').on('submit', function(event){
                     event.preventDefault();
@@ -41,17 +47,33 @@
                 $('#question').val([]);
             }
 
+            function changeGrouping()
+            {
+                console.log($('#grouping').val());
+                if ($('#grouping').val() === 'Label')
+                {
+                    $('#labelTable').parent().parent().fadeIn();
+                    $('.labelTable').fadeIn();
+                } else
+                {
+                    $('#labelTable').parent().parent().fadeOut();
+                    $('.labelTable').fadeOut();
+                }
+
+            }
+
             function selected()
             {
                 var value = document.getElementById("type").value;
                 document.getElementById("typeDisplay").innerHTML = document.getElementById(value).innerHTML;
                 initialiseStacking();
-                addRow('Empty');
+                changeGrouping();
+                addRow(' ', '#table');
 
                 //Hide type box if question has been set
                 //Todo: Make this better, it doesnt work.
-                if ($('#question').val() != '')
-                    $("#type").attr("disabled", "disabled");
+                //if ($('#question').val() != '')
+                //    $("#type").attr("disabled", "disabled");
 
                 if ($('#type').val() == 'Label')
                     $('.hide_in_label').hide();
@@ -172,21 +194,29 @@
                         '</td>';
             }
 
-            function addRow(text)
+            function addRow(text, selector)
             {
-                switch ($('#type').val())
+                console.log(selector);
+                $table = $(selector);
+                if (selector != '#labelTable')
                 {
-                    case 'Choice':
-                        $('#table').append('<tr>' + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
-                        break;
-                    case 'Rate':
-                        $('#table').append('<tr>' + checkBox + numberBox+ textBox(text) + upArrow + downArrow + removeButton + '</tr>');
-                        break;
-                    case 'Freeform':
-                        $('#table').append('<tr>' + dropDown + textBox(text) + upArrow + downArrow + removeButton +'</tr>');
-                        break;
-                    default: break;
-                }//End switch
+                    switch ($('#type').val())
+                    {
+                        case 'Choice':
+                            $table.append('<tr>' + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
+                            break;
+                        case 'Rate':
+                            $table.append('<tr>' + checkBox + numberBox+ textBox(text) + upArrow + downArrow + removeButton + '</tr>');
+                            break;
+                        case 'Freeform':
+                            $table.append('<tr>' + dropDown + textBox(text) + upArrow + downArrow + removeButton +'</tr>');
+                            break;
+                        default: break;
+                    }//End switch
+                } else
+                {
+                    $table.append('<tr>' + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
+                }
             }
 
             // AJAX for posting
@@ -246,7 +276,7 @@
         </script>
     </head>
     
-    <body onload="selected(); addOnSubmitHandler();">
+    <body >
         <nav class="navbar navbar-inverse navbar-static-top">
             <div class="container">
                 <div class="navbar-header">
@@ -337,7 +367,7 @@
                                     </select>
                                 </div>
                                 <div class = "col-xs-5">
-                                    <select class="form-control hide_in_label" id="grouping" style="width:auto">
+                                    <select class="form-control hide_in_label" id="grouping" style="width:auto" onchange="changeGrouping()">
                                         <option value="None">None</option>
                                         <option value="Rest">Rest</option>
                                         <option value="All">All</option>
@@ -346,11 +376,6 @@
                                 </div>
                             </div>
                             <br />
-                            <div class="row hide_in_label">
-                                <div class="col-xs-1">
-                                    <button class="btn btn-primary" id="btn" type = "button" onclick = "addRow('')">+ Add</button>
-                                </div>
-                            </div>
                             <div id="typeDisplay">
                                 <div class="row">
                                     <div class="col-xs-5">
@@ -374,6 +399,16 @@
         <div id="hidden" class="hidden">
             <div id="Label"></div>
             <div id="Choice">
+                <div class = "row hide_in_label">
+                    <div class="col-xs-1">
+                        <button class="btn btn-primary" id="btn" type = "button" onclick = "addRow('', '#table')">+ Add</button>
+                    </div>                
+                    <div class="col-xs-8">
+                    </div>
+                    <div class="col-xs-1">
+                        <button class="btn btn-primary labelTable" id="btn" type = "button" onclick = "addRow('', '#labelTable')">+ Add</button>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-xs-5">
                         <div class="panel panel-default">
@@ -415,9 +450,38 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-xs-5">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <table id="labelTable" class="table table-striped table-condensed table-hover btable labelTable">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align: center; ">
+                                                <div class="th-inner ">Label</div>
+                                                <div class="fht-cell"></div>
+                                                <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
+                                                    <div style="height: 34px;"></div>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div id="Rate">
+                <div class = "row hide_in_label">
+                    <div class="col-xs-1">
+                        <button class="btn btn-primary" id="btn" type = "button" onclick = "addRow('', '#table')">+ Add</button>
+                    </div>                
+                    <div class="col-xs-10">
+                    </div>
+                    <div class="col-xs-1">
+                        <button class="btn btn-primary labelTable" id="btn" type = "button" onclick = "addRow('', '#labelTable')">+ Add</button>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-xs-7">
                         <div class="panel panel-default">
@@ -473,10 +537,28 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-xs-5">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <table id="labelTable" class="table table-striped table-condensed table-hover btable labelTable">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align: center; ">
+                                                <div class="th-inner ">Label</div>
+                                                <div class="fht-cell"></div>
+                                                <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
+                                                    <div style="height: 34px;"></div>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div id="Rank">
-                <table>
                     <div class="row">
                         <div class="col-xs-4">
                             <label for='first'>First Word</label>
@@ -495,9 +577,45 @@
                         <div class="col-xs-4">
                         </div>
                     </div>
-                </table>
+                    <br>
+                <div class = "row hide_in_label">
+                    <div class="col-xs-1">
+                        <button class="btn btn-primary labelTable" id="btn" type = "button" onclick = "addRow('', '#labelTable')">+ Add</button>
+                    </div>
+                </div>            
+                    <div class = "row">
+                        <div class="col-xs-5">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <table id="labelTable" class="table table-striped table-condensed table-hover btable labelTable">
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align: center; ">
+                                                    <div class="th-inner ">Label</div>
+                                                    <div class="fht-cell"></div>
+                                                    <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
+                                                        <div style="height: 34px;"></div>
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
             </div>
             <div id="Freeform">
+                <div class = "row hide_in_label">
+                    <div class="col-xs-1">
+                        <button class="btn btn-primary" id="btn" type = "button" onclick = "addRow('', '#table')">+ Add</button>
+                    </div>                
+                    <div class="col-xs-8">
+                    </div>
+                    <div class="col-xs-1">
+                        <button class="btn btn-primary labelTable" id="btn" type = "button" onclick = "addRow('', '#labelTable')">+ Add</button>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-xs-5">
                         <div class="panel panel-default">
@@ -535,6 +653,25 @@
                                             </th>
                                             <th style="text-align: center; width: 20px; ">
                                                 <div class="th-inner "></div>
+                                                <div class="fht-cell"></div>
+                                                <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
+                                                    <div style="height: 34px;"></div>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-5">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <table id="labelTable" class="table table-striped table-condensed table-hover btable labelTable">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align: center; ">
+                                                <div class="th-inner ">Label</div>
                                                 <div class="fht-cell"></div>
                                                 <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
                                                     <div style="height: 34px;"></div>

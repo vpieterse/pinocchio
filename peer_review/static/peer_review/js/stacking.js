@@ -1,4 +1,4 @@
-$(window).load(function(){
+/*$(window).load(function(){
     window.actionEvents = {
         'click .up': function (e, value, row, index) {
             var source = JSON.stringify($('#table').bootstrapTable('getData')[index]);
@@ -37,7 +37,7 @@ $(window).load(function(){
         var tableData = $('#table').bootstrapTable('getData');
         console.log(tableData);    
     });
-});
+});*/
 
 function initialiseStacking() {
     $('.table').on("click", '.move', function () {
@@ -72,4 +72,5 @@ function initialiseStacking() {
                 break;
         }
     });
+
 };
