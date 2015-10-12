@@ -24,63 +24,14 @@
             });
         });
     </script>
-<!--AJAX write to db
-
-<script type="text/javascript">
- function create_post() {
-                console.log("create post is working!") // sanity check
-                $.ajax({
-                    url : "/peer/createQuestion/", // the endpoint
-                    type : "GET", // http method
-                    data : {
-                        question : $('#question').val(),
-                        questionType : $('#type').val(),
-                        grouping : $('#grouping').val(),
-                        choices : getChoices()
-                        }, // data sent with the post request
-            
-                    // handle a successful response
-                    success : function(json) {
-                        //$('#post-text').val(''); // remove the value from the input
-                        console.log(json); // log the returned json to the console
-                        console.log("success"); // another sanity check
-                    },
-            
-                    // handle a non-successful response
-                    error : function(xhr,errmsg,err) {
-                        alert("Error!");
-                        // $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: "+errmsg+
-                        //     " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
-                        // console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-                    }
-                });
-            };
-
-</script>
-end-->
 <!--Function to add row-->
     <script>
     function deleteRow(row) {
         var table = document.getElementById('round');
-     //   var rowCount = table.rows.length;   
-           // var row = table.insertRow(1);
-             
-
             if(table.rows.length >4)
                 {table.deleteRow(row.parentNode.parentNode.rowIndex);}
             else
                 {alert("Last row!" );}
-/*var p=row.parentNode.parentNode;
-         p.parentNode.removeChild(p);*/
-     //    document.getElementById("myTable").deleteRow(0);
-          // alert(row);
-           
-
-           // var colCount = table.rows[0].cells.length;
-            //for(var i=0; i<7; i++) {
-               // table.row.deleteRow();
-             //   newcell.innerHTML = table.rows[2].cells[i].innerHTML;
-           // }
     }
     </script>
 <!--end-->
@@ -162,7 +113,7 @@ end-->
                                             <option value="Second">Second</option>
                                             <option value="Third">Third</option>
                                         </select>
-                                          <input type="button" value="+" class="btn btn-info btn-xs plus" field="" onClick="location.href='http://127.0.0.1:8080/peer/questionAdmin/'"  /> 
+                                          <input type="button" value="+" class="btn btn-info btn-xs plus" field="" onClick="location.href='http://127.0.0.1:8000/peer/questionAdmin/'"  /> 
                                     </td>
 
         <!--Starting date-->
