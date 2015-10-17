@@ -1,0 +1,27 @@
+{% extends "peer_review/base.html" %}
+
+{% block extrahead %}
+    <title>Pinocchio</title>
+{% endblock %}
+
+{% block context %}
+    <div class="container">
+        <h3>File Manager</h3>
+
+        <form action="{% url "fileUpload" %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <p>{{ form.non_field_errors }}</p>
+
+            <p>{{ form.docfile.label_tag }} {{ form.docfile.help_text }}</p>
+
+            <p>
+                {{ form.docfile.errors }}
+                {{ form.docfile }}
+            </p>
+
+            <p><input type="submit" value="Upload"/></p>
+        </form>
+    </div>
+    <button onclick="{{ Question.makeDump }}">Test</button>
+
+{% endblock %}
