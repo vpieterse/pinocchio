@@ -10,7 +10,7 @@ from django.template import RequestContext
 from django.utils import timezone
 
 from .models import Document
-from .models import Question, QuestionType, QuestionGrouping, Choice, Header, Rank
+from .models import Question, QuestionType, QuestionGrouping, Choice, Rank
 from .models import User, UserDetail
 from .forms import DocumentForm, UserForm
 
