@@ -7,6 +7,7 @@
     <script type="text/javascript" src="{% static "peer_review/js/stacking.js" %}"></script>
     <script type="text/javascript">
 
+        var editing = true;
         $(document).ready(function () {
             addRow(' ', '#labelTable');
             addOnSubmitHandler();
@@ -156,6 +157,11 @@
                 '</select>' +
                 '</td>';
 
+        function editQuestion(pk)
+        {
+            editing = true;
+        }
+
         function textBox(text) {
             return '<td style="text-align: center; ">' +
                     '<input type="text" class="noBorder" id="choice" value="' +
@@ -186,60 +192,75 @@
         }
 
         // AJAX for posting
-        function create_post() {
-            if ($('#question').val() == '') {
-                var r = confirm("No question entered. Save anyways?");
-                if (!r)
-                    return;
-            }
+        function create_post(pk) {
 
-            var data = {
-                question: $('#question').val(),
-                questionType: $('#type').val()
-            };
-
-            //Add the relevant information to the data object
-            switch ($('#type').val()) {
-                case 'Choice':
-                    data.choices = getChoices()
-                    data.grouping = $('#grouping').val();
-                    break;
-                case 'Rank':
-                    data.firstWord = $('#first').val();
-                    data.secondWord = $('#second').val();
-                    data.grouping = $('#grouping').val();
-                    break;
-                case 'Label':
-                    //Todo: Implement
-                    break;
-                case 'Rate':
-                    data.rates = getRates();
-                    data.grouping = $('#grouping').val();
-                    break;
-                case 'Freeform' :
-                    //Todo: Implement
-                    break;
-            }
-
-            console.log(data); //Check
-
-            //Send the data to the createQuestion view
-            $.ajax({
-                url: "/createQuestion/", // the endpoint
-                type: "GET", // http method
+            if (editing)
+            {
+                $.ajax({
+                url: "/questionAdmin/update/" + pk, // the endpoint
+                type: "POST", // http method
                 data: data, // data sent with the post request
 
                 // handle a successful response
-                success: saveSuccess(),
+                success: saveSuccess()
+                });
+            } else
+            {
 
-                // handle a non-successful response
-                error: function (xhr, errmsg, err) {
-                    alert("Error!");
-                    // $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: "+errmsg+
-                    //     " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
-                    // console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                if ($('#question').val() == '') {
+                    var r = confirm("No question entered. Save anyways?");
+                    if (!r)
+                        return;
                 }
-            });
+
+                var data = {
+                    question: $('#question').val(),
+                    questionType: $('#type').val()
+                };
+
+                //Add the relevant information to the data object
+                switch ($('#type').val()) {
+                    case 'Choice':
+                        data.choices = getChoices()
+                        data.grouping = $('#grouping').val();
+                        break;
+                    case 'Rank':
+                        data.firstWord = $('#first').val();
+                        data.secondWord = $('#second').val();
+                        data.grouping = $('#grouping').val();
+                        break;
+                    case 'Label':
+                        //Todo: Implement
+                        break;
+                    case 'Rate':
+                        data.rates = getRates();
+                        data.grouping = $('#grouping').val();
+                        break;
+                    case 'Freeform' :
+                        //Todo: Implement
+                        break;
+                }
+
+                console.log(data); //Check
+
+                //Send the data to the createQuestion view
+                $.ajax({
+                    url: "/createQuestion/", // the endpoint
+                    type: "GET", // http method
+                    data: data, // data sent with the post request
+
+                    // handle a successful response
+                    success: saveSuccess(),
+
+                    // handle a non-successful response
+                    error: function (xhr, errmsg, err) {
+                        alert("Error!");
+                        // $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: "+errmsg+
+                        //     " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                        // console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                    }
+                });
+            }
         };
     </script>
     <script src="{% static "peer_review/search.js" %}"></script>
@@ -332,7 +353,7 @@
                         <div>
                             <br/>
                             <button class="btn btn-primary" type="submit">Save</button>
-                        </div>
+                            <div>
                     </div>
                     <form>
             </div>
@@ -675,7 +696,8 @@
                                     <tbody>
                                     {% for question in questions %}
                                         <tr id="{{ question.pk }}">
-                                            <form action="/questionList/update/{{ question.pk }}" method="post">
+                                            <!--<form action="return create_post({{ question.pk }})"-->
+
                                                 {% csrf_token %}
                                                 <td><input type="text" style="width: 250px" class="noBorder"
                                                            name="questionText"
@@ -690,7 +712,7 @@
                                                            value="{{ question.questionGrouping.grouping }}"></input>
                                                 </td>
                                                 <td>
-                                                    <button name="edit" class='btn btn-success btn-xs' id='edit'>Edit
+                                                    <button name="edit" class='btn btn-success btn-xs'>Edit
                                                     </button>
                                                 </td>
                                             </form>
