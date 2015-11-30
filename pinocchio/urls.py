@@ -11,6 +11,7 @@ urlpatterns = [
                   url(r'^questionAdmin', views.questionAdmin, name='questionAdmin'),
                   url(r'^createQuestion/$', views.createQuestion, name='createQuestion'),
                   url(r'^maintainRound/$', views.maintainRound, name='maintainRound'),
+                  url(r'^questionnaireAdmin/$', views.questionnaireAdmin, name='questionnaireAdmin'),
 
                   url(r'^$', views.index, name='index'),
                   url(r'^(?P<question_id>[0-9]+)/$', views.detail, name='detail'),
