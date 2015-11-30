@@ -11,7 +11,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 
 from .models import Document
-from .models import Question, QuestionType, QuestionGrouping, Choice, Rank
+from .models import Question, QuestionType, QuestionGrouping, Choice, Rank, RoundDetail
 from .models import User, UserDetail
 from .forms import DocumentForm, UserForm
 
@@ -55,14 +55,18 @@ def maintainRound(request):
     return render(request, 'peer_review/maintainRound.html')
 
 
+def maintainTeam(request):
+    return render(request, 'peer_review/maintainTeam.html')
+
+
 def questionAdmin(request):
     context = {'questionTypes': QuestionType.objects.all(), 'questions': Question.objects.all()}
     return render(request, 'peer_review/questionAdmin.html', context)
 
-def questionList(request):
-    context = {'questions': Question.objects.all()}
-    return render(request, 'questionAdmin.html', context)
-
+def questionnaireAdmin(request):
+    context = {'rounds': RoundDetail.objects.all(),
+               'questions': Question.objects.all()}
+    return render(request, 'peer_review/questionnaireAdmin.html', context)
 
 def userList(request):
     users = User.objects.all
