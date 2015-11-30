@@ -3,52 +3,6 @@
 
 {% block extrahead %}
     <title>Team Admin</title>
-    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="css/bootstrap.min.css" />
-    <link rel="stylesheet" href="style.css" />
-    <script src="jquery.min.js"></script>
-    <script src="js/bootstrap.js"></script>
-    <!--Select rows-->
-    <script>
-        $(function() {
-    
-            /* Get all rows from your 'table' but not the first one 
-             * that includes headers. */
-            var rows = $('tr').not(':first');
-            
-            /* Create 'click' event handler for rows */
-            rows.on('click', function(e) {
-                
-                /* Get current row */
-                var row = $(this);
-                
-                /* Check if 'Ctrl', 'cmd' or 'Shift' keyboard key was pressed
-                 * 'Ctrl' => is represented by 'e.ctrlKey' or 'e.metaKey'
-                 * 'Shift' => is represented by 'e.shiftKey' */
-                if ((e.ctrlKey || e.metaKey) || e.shiftKey) {
-                    /* If pressed highlight the other row that was clicked */
-                    row.addClass('highlight');
-                } else {
-                    /* Otherwise just highlight one row and clean others */
-                    rows.removeClass('highlight');
-                    row.addClass('highlight');
-                }
-                
-            });
-            
-            /* This 'event' is used just to avoid that the table text 
-             * gets selected (just for styling). 
-             * For example, when pressing 'Shift' keyboard key and clicking 
-             * (without this 'event') the text of the 'table' will be selected.
-             * You can remove it if you want, I just tested this in 
-             * Chrome v30.0.1599.69 */
-            $(document).bind('selectstart dragstart', function(e) { 
-                e.preventDefault(); return false; 
-            });
-            
-        });
-    </script>
-    <!--end-->
     <!--Edit navbar active-->
     <script>
         title = "maintainTeam";
@@ -89,30 +43,36 @@
                                             <h4 class="panel-title"><b>Class List</b></h4>
                                         </div>
                                         <div class="panel-body">
-                                            <input type="text" class="form-control" id="search" placeholder="Search" onkeyup="showResult(this.value)">
                                             <div class='table-responsive'>
-                                                <table class='table selectable sortable' id='users'>
+                                                <table class='table moveable sortable' id='users'>
                                                     <thead>
                                                         <tr>
                                                             <th>Student Number</th>
                                                             <th>Name</th>
                                                             <th>Surname</th>
+                                                            <th></th>
                                                         </tr>
                                                     </thead>
-                                                    <tr>
-                                                        <td>14020202</td>
-                                                        <td>Matthias</td>
-                                                        <td>Harvey</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>140206202</td>
-                                                        <td>Piet</td>
-                                                        <td>Somesurname</td>
-                                                    </tr>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>14020202</td>
+                                                            <td>Matthias</td>
+                                                            <td>Harvey</td>
+                                                            <td></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>140206202</td>
+                                                            <td>Piet</td>
+                                                            <td>Somesurname</td>
+                                                            <td></td>
+                                                        </tr>
+                                                    </tbody>
                                                 </table>
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="col-xs-1">
                                 </div>
                                 <div class="col-xs-6">
                                     <div class="panel panel-default">
@@ -125,26 +85,30 @@
                                                     <h4 class="panel-title"><input type="button" value="-" class="btn btn-info btn-xs minus" field=""/><b> Team X</b></h4>
                                                 </div>
                                                 <div class="panel-body">
-                                                    <table class='table sortable' id='users'>
+                                                    <table class='table sortable moveable' id='teams'>
                                                         <thead>
                                                             <tr>
                                                                 <th>Student Number</th>
                                                                 <th>Name</th>
                                                                 <th>Surname</th>
+                                                                <th>/th>
                                                             </tr>
                                                         </thead>
-                                                    
-                                                        <tr>
-                                                            <td>13020202</td>
-                                                            <td>Hatthias</td>
-                                                            <td>Marvey</td>
-                                                        </tr>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>13020202</td>
+                                                                <td>Hatthias</td>
+                                                                <td>Marvey</td>
+                                                                <td></td>
+                                                            </tr>
 
-                                                        <tr>
-                                                            <td>140206202</td>
-                                                            <td>Hillon</td>
-                                                            <td>Deins</td>
-                                                        </tr>
+                                                            <tr>
+                                                                <td>140206202</td>
+                                                                <td>Hillon</td>
+                                                                <td>Deins</td>
+                                                                <td></td>
+                                                            </tr>
+                                                        </tbody>
                                                     </table>
                                                 </div>
                                             </div>
@@ -208,4 +172,41 @@
             </div>
         </div>
     </div>
+    <script>
+        $(document).ready(function () {
+            var users = $("#users").DataTable({
+                "orderClasses": false,
+                    "columnDefs": [{
+                    "orderable": false,
+                        "searchable": false,
+                        "render": function (data, type, full, meta) {
+                            return "<div class=\"addUser button\" '><span class=\"glyphicon glyphicon-chevron-right\"></span></div>"
+                        },
+                        "targets": [3]
+                }]
+            });
+            var teams = $("#teams").DataTable({
+                "orderClasses": false,
+                    "columnDefs": [{
+                    "orderable": false,
+                        "searchable": false,
+                        "render": function (data, type, full, meta) {
+                            return "<div class=\"removeUser button\" '><span class=\"glyphicon glyphicon-remove-circle\"></span></div>"
+                        },
+                        "targets": [3]
+                }]
+            });
+            $('.moveable tbody').on('click', 'div.addUser', function () {
+                var tr = $(this).closest('tr');
+                users.row(tr).remove().draw();
+                teams.row.add(tr).draw();
+            });
+            $('.moveable tbody').on('click', 'div.removeUser', function () {
+                var tr = $(this).closest('tr');
+                teams.row(tr).remove().draw();
+                users.row.add(tr).draw();
+            });
+
+        });
+    </script>
 {% endblock context %}
