@@ -8,9 +8,9 @@ from peer_review import views
 urlpatterns = [
                   url(r'^admin/', include(admin.site.urls)),
                   url(r'^fileUpload', views.fileUpload, name='fileUpload'),
-                  url(r'^questionAdmin', views.questionAdmin, name='questionAdmin'),
                   url(r'^createQuestion/$', views.createQuestion, name='createQuestion'),
                   url(r'^maintainRound/$', views.maintainRound, name='maintainRound'),
+                  
 
                   url(r'^$', views.index, name='index'),
                   url(r'^(?P<question_id>[0-9]+)/$', views.detail, name='detail'),
@@ -19,8 +19,11 @@ urlpatterns = [
                   url(r'^userAdmin/delete/(?P<userPk>[0-9]+)/?$', views.userDelete),
                   url(r'^userAdmin/update/(?P<userPk>[0-9]+)/?$', views.userUpdate),
                   url(r'^userAdmin/$', views.userList),
-                  url(r'^questionList/$', views.questionList),
-                  url(r'^questionList/delete/(?P<questionPk>[0-9]+)/?$', views.questionDelete),
-                  url(r'^questionList/update/(?P<questionPk>[0-9]+)/?$', views.questionUpdate),
+                  url(r'^questionAdmin/update/$', views.questionUpdate, name='questionUpdate'),
+                  url(r'^questionAdmin/delete/(?P<questionPk>[0-9]+)/?$', views.questionDelete),
+                  url(r'^questionAdmin/getQuestion/(?P<questionPk>[0-9]+)/?$', views.getQuestion),
+                  url(r'^questionAdmin/getChoices/(?P<questionPk>[0-9]+)/?$', views.getChoices),
+                  url(r'^questionAdmin', views.questionAdmin, name='questionAdmin'),
+
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

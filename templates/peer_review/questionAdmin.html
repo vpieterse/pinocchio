@@ -1,3 +1,5 @@
+
+
 {% extends "peer_review/base.html" %}
 {% load staticfiles %}
 
@@ -6,10 +8,23 @@
 
     <script type="text/javascript" src="{% static "peer_review/js/stacking.js" %}"></script>
     <script type="text/javascript">
+        /**Todo**
+        Implement saving label type and freeform type
+        Fix saving of rank type
+        Delete using Ajax
+        Add an 'editSuccess' function (Or use the old one, with a parameter?)
+        Update the question list using Ajax, after insertion or deletion
+        Fix the label table
+        Save the labels to the DB when label grouping is selected
+        Stop the random empty table row being saved sometimes
+        Refactor: Clean up the create_post ajax call
+        Refactor: Move js code to a seperate file
+        */
 
-        var editing = true;
+
+        var isEditing = false;
+        var questionPk;
         $(document).ready(function () {
-            addRow(' ', '#labelTable');
             addOnSubmitHandler();
             selected();
         });
@@ -17,7 +32,7 @@
         function addOnSubmitHandler() {
             $('#questionForm').on('submit', function (event) {
                 event.preventDefault();
-                create_post();
+                //create_post();
             });
         }
 
@@ -32,8 +47,9 @@
                 });
             }, 5000);
 
+            //This clear the box even when editing, for some reason
             //Clear question inputbox
-            $('#question').val([]);
+            //$('#question').val([]);
         }
 
         function changeGrouping() {
@@ -53,7 +69,6 @@
             document.getElementById("typeDisplay").innerHTML = document.getElementById(value).innerHTML;
             initialiseStacking();
             changeGrouping();
-            addRow(' ', '#table');
 
             if ($('#type').val() == 'Label')
                 $('.hide_in_label').hide();
@@ -159,8 +174,39 @@
 
         function editQuestion(pk)
         {
-            editing = true;
-            
+            isEditing = true;
+            questionPk = pk;
+
+            $.ajax({
+                url: '/questionAdmin/getQuestion/' + pk,
+                type: 'get',
+                success: function(data) {
+                    console.log(data);
+                    $('#question').val(data.questionText);
+                    $('#type').val(data.questionType);
+                    $('#grouping').val(data.questionGrouping);
+                    selected();
+                },
+                failure: function(data) { 
+                    alert('Error');
+                }
+            });//End ajax
+
+            if ($('#type').val() == "Choice")
+            {
+                $.ajax({
+                url: '/questionAdmin/getChoices/' + pk,
+                    type: 'get',
+                    success: function(data) {
+                        console.log(data);
+                        for (var c in data)
+                            if (data.hasOwnProperty(c))
+                            {
+                                addRow(data[c], '#table');
+                            }
+                    },
+                });//End ajax
+            }
         }
 
         function textBox(text) {
@@ -192,55 +238,62 @@
             }
         }
 
+        function createJson() {
+            var data = {
+                    question: $('#question').val(),
+                    questionType: $('#type').val()
+            };
+
+            switch ($('#type').val()) {
+                case 'Choice':
+                    data.choices = getChoices()
+                    data.grouping = $('#grouping').val();
+                    break;
+                case 'Rank':
+                    data.firstWord = $('#first').val();
+                    data.secondWord = $('#second').val();
+                    data.grouping = $('#grouping').val();
+                    break;
+                case 'Label':
+                    //Todo: Implement
+                    break;
+                case 'Rate':
+                    data.rates = getRates();
+                    data.grouping = $('#grouping').val();
+                    break;
+                case 'Freeform' :
+                    //Todo: Implement
+                    break;
+            }
+
+            return data;
+        }
+
         // AJAX for posting
-        function create_post(pk) {
+        function create_post() {
 
-            if (editing)
-            {
+            if (isEditing) {
+                var data = createJson();
+                data.pk = questionPk;
                 $.ajax({
-                url: "/questionAdmin/update/" + pk, // the endpoint
-                type: "POST", // http method
-                data: data, // data sent with the post request
+                    url: "questionAdmin/update", // the endpoint
+                    type: "GET", // http method
+                    data: data, // data sent with the post request
 
-                // handle a successful response
-                success: saveSuccess()
+                    // handle a successful response
+                    success: saveSuccess()
                 });
-            } else
-            {
 
+            } else {
+
+            
                 if ($('#question').val() == '') {
                     var r = confirm("No question entered. Save anyways?");
                     if (!r)
                         return;
                 }
 
-                var data = {
-                    question: $('#question').val(),
-                    questionType: $('#type').val()
-                };
-
-                //Add the relevant information to the data object
-                switch ($('#type').val()) {
-                    case 'Choice':
-                        data.choices = getChoices()
-                        data.grouping = $('#grouping').val();
-                        break;
-                    case 'Rank':
-                        data.firstWord = $('#first').val();
-                        data.secondWord = $('#second').val();
-                        data.grouping = $('#grouping').val();
-                        break;
-                    case 'Label':
-                        //Todo: Implement
-                        break;
-                    case 'Rate':
-                        data.rates = getRates();
-                        data.grouping = $('#grouping').val();
-                        break;
-                    case 'Freeform' :
-                        //Todo: Implement
-                        break;
-                }
+                var data = createJson();
 
                 console.log(data); //Check
 
@@ -253,7 +306,7 @@
                     // handle a successful response
                     success: saveSuccess()
                 });
-            };
+            }
         };
     </script>
     <script src="{% static "peer_review/search.js" %}"></script>
@@ -293,7 +346,7 @@
                     <div class="form-group">
                         <label for="question">Question</label>
                         <textarea class="form-control" cols="152" rows="3" style="resize:none;width:auto" id="question"
-                                  name="question"></textarea>
+                                  name="question">{{ questionText }}</textarea>
                         <br/>
 
                         <div class="row">
@@ -307,17 +360,16 @@
                         <div class="row">
                             <div class="col-xs-5">
                                 <select id="type" class="form-control" style="width:auto" onchange="selected()"
-                                        name="type">
+                                        name="type" value = {{ questionType }}>
                                     {% if questionTypes %}
                                         {% for qt in questionTypes %}
-                                            <!--<option value="{{qt.name}}">{{ qt.name }}</option>-->
+                                            {% if qt = questionType %}
+                                                <option selected value="{{qt.name}}">{{ qt.name }}</option>
+                                            {% else %}
+                                                <option value="{{qt.name}}">{{ qt.name }}</option>
+                                            {% endif %}
                                         {% endfor %}
                                     {% endif %}
-                                    <option selected value="Label">Label</option>
-                                    <option value="Choice">Choice</option>
-                                    <option value="Rank">Rank</option>
-                                    <option value="Rate">Rate</option>
-                                    <option value="Freeform">Freeform</option>
                                 </select>
                             </div>
                             <div class="col-xs-5">
@@ -345,10 +397,10 @@
                         </div>
                         <div>
                             <br/>
-                            <button class="btn btn-primary" type="submit">Save</button>
+                            <button class="btn btn-primary" type="submit" onclick = "create_post()">Save</button>
                         </div>
                     </div>
-                    <form>
+                    </form>
             </div>
         </div>
     </div>
@@ -404,6 +456,30 @@
                                     </th>
                                 </tr>
                                 </thead>
+                                {% for c in choices %}
+                                    <tr>
+                                        <td style="text-align: center; ">
+                                            <input type="text" class="noBorder" id="choice" value= "{{ c }}" style="text-align: center; "/>
+                                        </td>
+                                        <td style="text-align: center; width: 20px;">
+                                            <a class="move up" href="javascript:void(0)" title="move up">
+                                                <span class="glyphicon glyphicon-arrow-up"></span>
+                                            </a>
+                                        </td>
+
+                                        <td style="text-align: center; width: 20px; ">
+                                            <a class="move down" href="javascript:void(0)" title="move down">
+                                                <span class="glyphicon glyphicon-arrow-down"></span>
+                                            </a>
+                                        </td>
+
+                                        <td style="text-align: center; width: 20px; ">
+                                            <a class="remove" href="javascript:void(0)">
+                                                <span class="glyphicon glyphicon-minus"></span>
+                                            </a>
+                                        </td>
+                                    <tr>
+                                {% endfor %}
                             </table>
                         </div>
                     </div>
@@ -531,7 +607,7 @@
             </div>
             <div class="row">
                 <div class="col-xs-4">
-                    <input class='form-control' type='text' id='first'/>
+                    <input class='form-control' type='text' id='first'/ value = {{ firstWord }}>
                 </div>
                 <div class="col-xs-4">
                     <input class='form-control' type='text' id='second'/>
@@ -689,7 +765,8 @@
                                     <tbody>
                                     {% for question in questions %}
                                         <tr id="{{ question.pk }}">
-                                            <form action="return create_post({{ question.pk }})"
+                                            <!--<form action = "/questionAdmin/update/{{ question.pk }}" method = "post">-->
+                                            <form>
                                                 {% csrf_token %}
                                                 <td><input type="text" style="width: 250px" class="noBorder"
                                                            name="questionText"
@@ -704,12 +781,12 @@
                                                            value="{{ question.questionGrouping.grouping }}"></input>
                                                 </td>
                                                 <td>
-                                                    <button name="edit" class='btn btn-success btn-xs' id='edit'>Edit
+                                                    <button class='btn btn-success btn-xs' type = "button" onclick = "editQuestion({{ question.pk }})">Edit
                                                     </button>
                                                 </td>
                                             </form>
                                             <td>
-                                                <form action="/questionList/delete/{{ question.pk }}" method="post"
+                                                <form action="/questionAdmin/delete/{{ question.pk }}" method="post"
                                                       onsubmit="return confirmDeletion()">
                                                     {% csrf_token %}
                                                     <button type='submit' name="remove" class='btn btn-warning btn-xs'
