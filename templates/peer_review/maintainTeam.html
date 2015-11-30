@@ -8,6 +8,12 @@
         title = "maintainTeam";
     </script>
     <!--end-->
+    <!--Select correct table-->
+    <script>
+        var numTeams = 2;
+        var selected = "";
+    </script>
+    <!--end-->
 {% endblock extrahead %}
 {% block context %}
 <div class="container">
@@ -80,43 +86,77 @@
                                             <h4 class="panel-title"><b>Teams</b></h4>
                                         </div>
                                         <div class="panel-body">
+
+                                        <div class="panel-group" id="teams">
+
                                             <div class="panel panel-default">
                                                 <div class="panel-heading">
-                                                    <h4 class="panel-title"><input type="button" value="-" class="btn btn-info btn-xs minus" field=""/><b> Team X</b></h4>
+                                                    <h4 class="panel-title">
+                                                        <input type="button" value="-" class="btn btn-info btn-xs minus" field=""/>
+                                                        <a data-toggle="collapse" data-parent="#teams" href="#team1">
+                                                            Team X<b class="caret"></b>
+                                                        </a>
+                                                    </h4>
                                                 </div>
-                                                <div class="panel-body">
-                                                    <table class='table sortable moveable' id='teams'>
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Student Number</th>
-                                                                <th>Name</th>
-                                                                <th>Surname</th>
-                                                                <th>/th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr>
-                                                                <td>13020202</td>
-                                                                <td>Hatthias</td>
-                                                                <td>Marvey</td>
-                                                                <td></td>
-                                                            </tr>
-
-                                                            <tr>
+                                                <div id="team1" class="panel-collapse collapse  panel-team">
+                                                    <div class="panel-body">
+                                                        <table class='table sortable moveable teamTable'>
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Student Number</th>
+                                                                    <th>Name</th>
+                                                                    <th>Surname</th>
+                                                                    <th></th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
                                                                 <td>140206202</td>
-                                                                <td>Hillon</td>
-                                                                <td>Deins</td>
+                                                                <td>Piet</td>
+                                                                <td>Somesurname</td>
                                                                 <td></td>
                                                             </tr>
-                                                        </tbody>
-                                                    </table>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="panel panel-default">
                                                 <div class="panel-heading">
-                                                    <h4 class="panel-title"><input type="button" value="+" class="btn btn-info btn-xs plus" field=""/><b> Add</b></h4>
+                                                    <h4 class="panel-title">
+                                                        <input type="button" value="-" class="btn btn-info btn-xs minus" field=""/>
+                                                        <a data-toggle="collapse" data-parent="#teams" href="#team2">
+                                                            Team Y<b class="caret"></b>
+                                                        </a>
+                                                    </h4>
                                                 </div>
-
+                                                <div id="team2" class="panel-collapse collapse panel-team">
+                                                    <div class="panel-body ">
+                                                        <table class='table sortable moveable teamTable'>
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Student Number</th>
+                                                                    <th>Name</th>
+                                                                    <th>Surname</th>
+                                                                    <th></th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                <td>140206202</td>
+                                                                <td>Piet</td>
+                                                                <td>Somesurname</td>
+                                                                <td></td>
+                                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title"><input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="addTeam()"/><b> Add</b></h4>
                                             </div>
                                         </div>
                                     </div>
@@ -173,33 +213,86 @@
         </div>
     </div>
     <script>
+        function addTeam()
+        {
+            numTeams++;
+            var newTeam = '<div class="panel panel-default">'+
+                          '      <div class="panel-heading">'+
+                          '          <h4 class="panel-title">'+
+                          '              <input type="button" value="-" class="btn btn-info btn-xs minus" field=""/>'+
+                          '              <a data-toggle="collapse" data-parent="#teams" href="#team'+numTeams+'">'+
+                          '                  Team '+numTeams+'<b class="caret"></b>'+
+                          '              </a>'+
+                          '          </h4>'+
+                          '      </div>'+
+                          '      <div id="team'+numTeams+'" class="panel-collapse collapse  panel-team">'+
+                          '          <div class="panel-body">'+
+                          '              <table class="table sortable moveable teamTable">'+
+                          '                  <thead>'+
+                          '                      <tr>'+
+                          '                          <th>Student Number</th>'+
+                          '                          <th>Name</th>'+
+                          '                          <th>Surname</th>'+
+                          '                          <th></th>'+
+                          '                      </tr>'+
+                          '                  </thead>'+
+                          '                  <tbody>'+
+                          '                      <tr>'+
+                          '                      <td>140206202</td>'+
+                          '                      <td>Piet</td>'+
+                          '                      <td>Somesurname</td>'+
+                          '                      <td></td>'+
+                          '                  </tr>'+
+                          '                  </tbody>'+
+                          '              </table>'+
+                          '          </div>'+
+                          '      </div>'+
+                          '  </div>';
+            $("#teams").append(newTeam);
+        }
+
         $(document).ready(function () {
             var users = $("#users").DataTable({
                 "orderClasses": false,
                     "columnDefs": [{
-                    "orderable": false,
+                        "orderable": false,
                         "searchable": false,
                         "render": function (data, type, full, meta) {
                             return "<div class=\"addUser button\" '><span class=\"glyphicon glyphicon-chevron-right\"></span></div>"
                         },
-                        "targets": [3]
-                }]
+                        "targets": [3]}]
             });
-            var teams = $("#teams").DataTable({
+            var teams = $(".teamTable").DataTable({
                 "orderClasses": false,
                     "columnDefs": [{
-                    "orderable": false,
+                        "orderable": false,
                         "searchable": false,
                         "render": function (data, type, full, meta) {
                             return "<div class=\"removeUser button\" '><span class=\"glyphicon glyphicon-remove-circle\"></span></div>"
                         },
-                        "targets": [3]
-                }]
+                        "targets": [3]}]
             });
+
+
+            $('.panel-team').on('hide.bs.collapse', function(e) {
+                selected = "";
+            });
+
+            $('.panel-team').on('shown.bs.collapse', function(e) {
+                selected = e.currentTarget.id;
+            });
+
             $('.moveable tbody').on('click', 'div.addUser', function () {
-                var tr = $(this).closest('tr');
-                users.row(tr).remove().draw();
-                teams.row.add(tr).draw();
+                if(selected != "" && $("#"+selected+" .in") != null)
+                {
+                    var teamTable = $("#"+selected).find(".teamTable").DataTable();
+                    if(teamTable != null)
+                    {
+                        var tr = $(this).closest('tr');
+                        users.row(tr).remove().draw();
+                        teamTable.row.add(tr).draw();
+                    }
+                }
             });
             $('.moveable tbody').on('click', 'div.removeUser', function () {
                 var tr = $(this).closest('tr');
