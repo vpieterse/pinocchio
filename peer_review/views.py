@@ -10,7 +10,7 @@ from django.template import RequestContext
 from django.utils import timezone
 
 from .models import Document
-from .models import Question, QuestionType, QuestionGrouping, Choice, Rank
+from .models import Question, QuestionType, QuestionGrouping, Choice, Rank, RoundDetail
 from .models import User, UserDetail
 from .forms import DocumentForm, UserForm
 
@@ -137,6 +137,9 @@ def questionAdmin(request):
     context = {'questionTypes': QuestionType.objects.all()}
     return render(request, 'peer_review/questionAdmin.html', context)
 
+def questionnaireAdmin(request):
+    context = {'rounds': RoundDetail.objects.all()}
+    return render(request, 'peer_review/questionnaireAdmin.html', context)
 
 def userList(request):
     users = User.objects.all

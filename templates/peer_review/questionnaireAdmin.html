@@ -1,0 +1,85 @@
+{% extends "peer_review/base.html" %}
+{% load staticfiles %}
+{% block extrahead %}
+    <title>Questionnaire Admin</title>
+
+    <script src="{% static "peer_review/search.js" %}"></script>
+    <script src="{% static "peer_review/validation.js" %}"></script>
+    <!--<script src="{% static "peer_review/submit.js" %}"></script>-->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#users tr').each(function () {
+                $(this).find('input[type="text"]').each(function () {
+                    $(this).attr('size', $(this).val().length);
+                });
+            });
+        });
+    </script>
+    <!--Edit navbar active-->
+    <script>
+        title = "questionnaireAdmin";
+    </script>
+    <!--end-->
+{% endblock %}
+{% block context %}
+    <div class="container">
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel panel-default">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
+                         data-target="#collapseOne">
+                        <h4 class="panel-title">
+                            <a>
+                                1. Choose a round <b class="caret"></b>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div id="collapseOne" class="panel-collapse collapse">
+                        <div class="panel-body">
+
+                            <input type="text" class="form-control" id="search" placeholder="Search"
+                                   onkeyup="showResult(this.value)">
+
+                            <div class='table-responsive'>
+                                <table class='table sortable' id='users'>
+                                    <thead>
+                                    <tr>
+                                        <th>Introduction</th>
+                                        <th>Starting Date</th>
+                                        <th>Ending Date</th>
+                                        <th>Description</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for round in rounds %}
+                                        <tr class='clickable-row' data-href='url://' id="{{ question.pk }}">
+                                            {% csrf_token %}
+                                            <td><div type="text" style="width: 250px" class="noBorder" name="intro">
+                                                {{ round.questionnaire.intro }}</div></td>
+                                            <td><div type="text" style="width: 200px" class="noBorder" name="startingDate">
+                                                {{ round.startingDate }} </div></td>
+                                            <td><div type="text" style="width: 200px" class="noBorder" name="endingDate">
+                                                {{ round.endingDate }} </div></td>
+                                            <td><div type="text" style="width: 200px" class="noBorder" name="description">
+                                                {{ round.description }}</div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="navbar navbar-default navbar-fixed-bottom">
+            <div class="container">
+                <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
+                <a class="navbar-btn btn-danger btn pull-right" href="/admin/logout">Log Out</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
