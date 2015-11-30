@@ -1,18 +1,35 @@
 {% extends "peer_review/base.html" %}
 {% load staticfiles %}
 {% block extrahead %}
-    <title>Questionnaire Admin</title>
+    <title xmlns="http://www.w3.org/1999/html">Questionnaire Admin</title>
 
     <script src="{% static "peer_review/search.js" %}"></script>
     <script src="{% static "peer_review/validation.js" %}"></script>
-    <!--<script src="{% static "peer_review/submit.js" %}"></script>-->
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#users tr').each(function () {
+            var roundTable = $('#roundTable');
+            roundTable.find('tr').each(function () {
                 $(this).find('input[type="text"]').each(function () {
                     $(this).attr('size', $(this).val().length);
                 });
             });
+
+            var table = roundTable.DataTable();
+
+            roundTable.find('tbody').on('click', 'tr', function () {
+                if ($(this).hasClass('selected')) {
+                    $(this).removeClass('selected');
+                }
+                else {
+                    table.$('tr.selected').removeClass('selected');
+                    $(this).addClass('selected');
+                }
+            });
+
+            {#            $('#button').click( function () {#}
+            {#                alert( table.rows('.selected').data().length +' row(s) selected' );#}
+            {#            } );#}
+
         });
     </script>
     <!--Edit navbar active-->
@@ -38,11 +55,8 @@
                     <div id="collapseOne" class="panel-collapse collapse">
                         <div class="panel-body">
 
-                            <input type="text" class="form-control" id="search" placeholder="Search"
-                                   onkeyup="showResult(this.value)">
-
                             <div class='table-responsive'>
-                                <table class='table sortable' id='users'>
+                                <table class='table sortable' id='roundTable'>
                                     <thead>
                                     <tr>
                                         <th>Introduction</th>
@@ -55,20 +69,46 @@
                                     {% for round in rounds %}
                                         <tr class='clickable-row' data-href='url://' id="{{ question.pk }}">
                                             {% csrf_token %}
-                                            <td><div type="text" style="width: 250px" class="noBorder" name="intro">
-                                                {{ round.questionnaire.intro }}</div></td>
-                                            <td><div type="text" style="width: 200px" class="noBorder" name="startingDate">
-                                                {{ round.startingDate }} </div></td>
-                                            <td><div type="text" style="width: 200px" class="noBorder" name="endingDate">
-                                                {{ round.endingDate }} </div></td>
-                                            <td><div type="text" style="width: 200px" class="noBorder" name="description">
-                                                {{ round.description }}</div>
+                                            <td>
+                                                <div style="width: 250px" class="noBorder">
+                                                    {{ round.questionnaire.intro }}</div>
+                                            </td>
+                                            <td>
+                                                <div style="width: 200px" class="noBorder">
+                                                    {{ round.startingDate }} </div>
+                                            </td>
+                                            <td>
+                                                <div style="width: 200px" class="noBorder">
+                                                    {{ round.endingDate }} </div>
+                                            </td>
+                                            <td>
+                                                <div style="width: 200px" class="noBorder">
+                                                    {{ round.description }}</div>
                                             </td>
                                         </tr>
                                     {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel panel-default">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
+                         data-target="#collapseTwo">
+                        <h4 class="panel-title">
+                            <a>
+                                2. Make a header/introduction <b class="caret"></b>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div id="collapseTwo" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <label for="intro">Introduction</label>
+                            <input id="intro" value="">
                         </div>
                     </div>
                 </div>
