@@ -6,25 +6,37 @@
     <script src="{% static "peer_review/search.js" %}"></script>
     <script src="{% static "peer_review/validation.js" %}"></script>
     <script type="text/javascript">
-        $(document).ready(function () {
-            var roundTable = $('#roundTable');
-            roundTable.find('tr').each(function () {
-                $(this).find('input[type="text"]').each(function () {
-                    $(this).attr('size', $(this).val().length);
-                });
-            });
+        function makeDataTableWithOneRowSelectable(table) {
+            var dTable = table.DataTable();
 
-            var table = roundTable.DataTable();
-
-            roundTable.find('tbody').on('click', 'tr', function () {
+            table.find('tbody').on('click', 'tr', function () {
                 if ($(this).hasClass('selected')) {
                     $(this).removeClass('selected');
                 }
                 else {
-                    table.$('tr.selected').removeClass('selected');
+                    dTable.$('tr.selected').removeClass('selected');
                     $(this).addClass('selected');
                 }
             });
+        }
+
+        function resizeTableColumns(table) {
+            table.find('tr').each(function () {
+                $(this).find('input[type="text"]').each(function () {
+                    $(this).attr('size', $(this).val().length);
+                });
+            });
+        }
+
+        $(document).ready(function () {
+            var roundTable = $("#roundTable");
+            resizeTableColumns(roundTable);
+            var questionTable = $("#questionTable");
+            resizeTableColumns(questionTable);
+
+            makeDataTableWithOneRowSelectable(roundTable);
+            makeDataTableWithOneRowSelectable(questionTable);
+
 
             {#            $('#button').click( function () {#}
             {#                alert( table.rows('.selected').data().length +' row(s) selected' );#}
@@ -67,7 +79,7 @@
                                     </thead>
                                     <tbody>
                                     {% for round in rounds %}
-                                        <tr class='clickable-row' data-href='url://' id="{{ question.pk }}">
+                                        <tr id="{{ round.pk }}">
                                             {% csrf_token %}
                                             <td>
                                                 <div style="width: 250px" class="noBorder">
@@ -115,11 +127,58 @@
             </div>
         </div>
 
-        <div class="navbar navbar-default navbar-fixed-bottom">
-            <div class="container">
-                <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
-                <a class="navbar-btn btn-danger btn pull-right" href="/admin/logout">Log Out</a>
+        <div class="panel panel-default">
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
+                     data-target="#collapseThree">
+                    <h4 class="panel-title">
+                        <a>
+                            3. Choose questions<b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapseThree" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class='table sortable' id='questionTable'>
+                                    <thead>
+                                    <tr>
+                                        <th>Question</th>
+                                        <th>Publish Date</th>
+                                        <th>Question Type</th>
+                                        <th>Grouping</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for question in questions %}
+                                        <tr id="{{ question.pk }}">
+                                            {% csrf_token %}
+                                            <td>{{ question.questionText }}</td>
+                                            <td>{{ question.pubDate }}</td>
+                                            <td>{{ question.questionType.name }}</td>
+                                            <td>{{ question.questionGrouping.grouping }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
+
+    <div class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container">
+            <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
+            <a class="navbar-btn btn-danger btn pull-right" href="/admin/logout">Log Out</a>
+        </div>
+    </div>
     </div>
 {% endblock %}

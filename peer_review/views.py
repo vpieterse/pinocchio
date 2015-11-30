@@ -138,7 +138,8 @@ def questionAdmin(request):
     return render(request, 'peer_review/questionAdmin.html', context)
 
 def questionnaireAdmin(request):
-    context = {'rounds': RoundDetail.objects.all()}
+    context = {'rounds': RoundDetail.objects.all(),
+               'questions': Question.objects.all()}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
 def userList(request):
