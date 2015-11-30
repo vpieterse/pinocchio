@@ -110,7 +110,7 @@ def maintainRound(request):
 
 
 def questionAdmin(request):
-    context = {'questionTypes': QuestionType.objects.all(), 'qhuestions': Question.objects.all()}
+    context = {'questionTypes': QuestionType.objects.all(), 'questions': Question.objects.all()}
     return render(request, 'peer_review/questionAdmin.html', context)
 
 def questionList(request):
