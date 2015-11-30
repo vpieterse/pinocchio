@@ -129,6 +129,10 @@ def maintainRound(request):
     return render(request, 'peer_review/maintainRound.html')
 
 
+def maintainTeam(request):
+    return render(request, 'peer_review/maintainTeam.html')
+
+
 def questionAdmin(request):
     context = {'questionTypes': QuestionType.objects.all()}
     return render(request, 'peer_review/questionAdmin.html', context)

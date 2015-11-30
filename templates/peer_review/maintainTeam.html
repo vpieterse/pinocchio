@@ -1,0 +1,211 @@
+{% extends "peer_review/base.html" %}
+{% load staticfiles %}
+
+{% block extrahead %}
+    <title>Team Admin</title>
+    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="jquery.min.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <!--Select rows-->
+    <script>
+        $(function() {
+    
+            /* Get all rows from your 'table' but not the first one 
+             * that includes headers. */
+            var rows = $('tr').not(':first');
+            
+            /* Create 'click' event handler for rows */
+            rows.on('click', function(e) {
+                
+                /* Get current row */
+                var row = $(this);
+                
+                /* Check if 'Ctrl', 'cmd' or 'Shift' keyboard key was pressed
+                 * 'Ctrl' => is represented by 'e.ctrlKey' or 'e.metaKey'
+                 * 'Shift' => is represented by 'e.shiftKey' */
+                if ((e.ctrlKey || e.metaKey) || e.shiftKey) {
+                    /* If pressed highlight the other row that was clicked */
+                    row.addClass('highlight');
+                } else {
+                    /* Otherwise just highlight one row and clean others */
+                    rows.removeClass('highlight');
+                    row.addClass('highlight');
+                }
+                
+            });
+            
+            /* This 'event' is used just to avoid that the table text 
+             * gets selected (just for styling). 
+             * For example, when pressing 'Shift' keyboard key and clicking 
+             * (without this 'event') the text of the 'table' will be selected.
+             * You can remove it if you want, I just tested this in 
+             * Chrome v30.0.1599.69 */
+            $(document).bind('selectstart dragstart', function(e) { 
+                e.preventDefault(); return false; 
+            });
+            
+        });
+    </script>
+    <!--end-->
+    <!--Edit navbar active-->
+    <script>
+        title = "maintainTeam";
+    </script>
+    <!--end-->
+{% endblock extrahead %}
+{% block context %}
+<div class="container">
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                            Team Builder<b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <div>
+                            <h4>Select Round</h4>
+                            <form role="form" method="post" action="#">
+                                <div class="form-group">
+                                    <div class="col-sm-3">
+                                        <select class="form-control">
+                                            <option>Round name 1</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <br/><br/><br/>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-xs-5">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title"><b>Class List</b></h4>
+                                        </div>
+                                        <div class="panel-body">
+                                            <input type="text" class="form-control" id="search" placeholder="Search" onkeyup="showResult(this.value)">
+                                            <div class='table-responsive'>
+                                                <table class='table selectable sortable' id='users'>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Student Number</th>
+                                                            <th>Name</th>
+                                                            <th>Surname</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tr>
+                                                        <td>14020202</td>
+                                                        <td>Matthias</td>
+                                                        <td>Harvey</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>140206202</td>
+                                                        <td>Piet</td>
+                                                        <td>Somesurname</td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-6">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title"><b>Teams</b></h4>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div class="panel panel-default">
+                                                <div class="panel-heading">
+                                                    <h4 class="panel-title"><input type="button" value="-" class="btn btn-info btn-xs minus" field=""/><b> Team X</b></h4>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <table class='table sortable' id='users'>
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Student Number</th>
+                                                                <th>Name</th>
+                                                                <th>Surname</th>
+                                                            </tr>
+                                                        </thead>
+                                                    
+                                                        <tr>
+                                                            <td>13020202</td>
+                                                            <td>Hatthias</td>
+                                                            <td>Marvey</td>
+                                                        </tr>
+
+                                                        <tr>
+                                                            <td>140206202</td>
+                                                            <td>Hillon</td>
+                                                            <td>Deins</td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="panel panel-default">
+                                                <div class="panel-heading">
+                                                    <h4 class="panel-title"><input type="button" value="+" class="btn btn-info btn-xs plus" field=""/><b> Add</b></h4>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                            Create Teams Via CSV File <b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseTwo" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <form role="form" method="post" action="#">
+                            <div class="form-group">
+                                <label for="inputfile">Upload CSV File:</label>
+                                <input type="file" id="inputfile">
+                                <p class="help-block">Select a CSV file to create teams</p>
+                            </div>
+                            <button type="submit" class="btn btn-info">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+                            Maintain Teams <b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseThree" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <p>Please select the round number for the teams you wish to maintain</p>
+
+                        <form role="form" method="post" action="#">
+                            <div class="form-group">
+                                <div class="col-sm-3">
+                                    <select class="form-control"></select>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-info">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock context %}

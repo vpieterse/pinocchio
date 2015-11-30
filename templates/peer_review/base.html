@@ -12,6 +12,9 @@
 
     <script src="{% static "peer_review/js/bootstrap.js" %}"></script>
     <script src="{% static "peer_review/bootstrap-sortable.js" %}"></script>
+
+    <link rel="stylesheet" href="{% static "peer_review/css/datatables.min.css" %}"/>
+    <script src="{% static "peer_review/js/datatables.min.js" %}"></script>
     <!--Edit navbar active-->
     <script>
         var title = "userAdmin";
@@ -35,7 +38,7 @@
             <ul class="nav navbar-nav navbar-right">
                 <li id="userAdmin"><a href="/userAdmin">User Admin</a></li>
                 <li id="maintainRound"><a href="/maintainRound">Rounds</a></li>
-                <li id="teamAdmin"><a href="#">Team Admin</a></li>
+                <li id="maintainTeam"><a href="/maintainTeam">Team Admin</a></li>
                 <li id="questionAdmin"><a href="/questionAdmin">Question Admin</a></li>
                 <li id="questionList"><a href="/questionList">Question List</a></li>
                 <li id="questionnaireAdmin"><a href="#">Questionnaire Admin</a></li>

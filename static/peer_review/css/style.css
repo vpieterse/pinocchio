@@ -83,3 +83,10 @@ body{
 .noBorder {
     border: 0;
 }
+
+tr .selectable {
+    cursor: default;
+}
+.selectable .highlight {
+    background: grey;
+}
