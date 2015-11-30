@@ -1,18 +1,47 @@
 {% extends "peer_review/base.html" %}
 {% load staticfiles %}
 {% block extrahead %}
-    <title>Questionnaire Admin</title>
+    <title xmlns="http://www.w3.org/1999/html">Questionnaire Admin</title>
 
     <script src="{% static "peer_review/search.js" %}"></script>
     <script src="{% static "peer_review/validation.js" %}"></script>
-    <!--<script src="{% static "peer_review/submit.js" %}"></script>-->
     <script type="text/javascript">
-        $(document).ready(function () {
-            $('#users tr').each(function () {
+        function makeDataTableWithOneRowSelectable(table) {
+            var dTable = table.DataTable();
+
+            table.find('tbody').on('click', 'tr', function () {
+                if ($(this).hasClass('selected')) {
+                    $(this).removeClass('selected');
+                }
+                else {
+                    dTable.$('tr.selected').removeClass('selected');
+                    $(this).addClass('selected');
+                }
+            });
+        }
+
+        function resizeTableColumns(table) {
+            table.find('tr').each(function () {
                 $(this).find('input[type="text"]').each(function () {
                     $(this).attr('size', $(this).val().length);
                 });
             });
+        }
+
+        $(document).ready(function () {
+            var roundTable = $("#roundTable");
+            resizeTableColumns(roundTable);
+            var questionTable = $("#questionTable");
+            resizeTableColumns(questionTable);
+
+            makeDataTableWithOneRowSelectable(roundTable);
+            makeDataTableWithOneRowSelectable(questionTable);
+
+
+            {#            $('#button').click( function () {#}
+            {#                alert( table.rows('.selected').data().length +' row(s) selected' );#}
+            {#            } );#}
+
         });
     </script>
     <!--Edit navbar active-->
@@ -38,11 +67,8 @@
                     <div id="collapseOne" class="panel-collapse collapse">
                         <div class="panel-body">
 
-                            <input type="text" class="form-control" id="search" placeholder="Search"
-                                   onkeyup="showResult(this.value)">
-
                             <div class='table-responsive'>
-                                <table class='table sortable' id='users'>
+                                <table class='table sortable' id='roundTable'>
                                     <thead>
                                     <tr>
                                         <th>Introduction</th>
@@ -53,16 +79,23 @@
                                     </thead>
                                     <tbody>
                                     {% for round in rounds %}
-                                        <tr class='clickable-row' data-href='url://' id="{{ question.pk }}">
+                                        <tr id="{{ round.pk }}">
                                             {% csrf_token %}
-                                            <td><div type="text" style="width: 250px" class="noBorder" name="intro">
-                                                {{ round.questionnaire.intro }}</div></td>
-                                            <td><div type="text" style="width: 200px" class="noBorder" name="startingDate">
-                                                {{ round.startingDate }} </div></td>
-                                            <td><div type="text" style="width: 200px" class="noBorder" name="endingDate">
-                                                {{ round.endingDate }} </div></td>
-                                            <td><div type="text" style="width: 200px" class="noBorder" name="description">
-                                                {{ round.description }}</div>
+                                            <td>
+                                                <div style="width: 250px" class="noBorder">
+                                                    {{ round.questionnaire.intro }}</div>
+                                            </td>
+                                            <td>
+                                                <div style="width: 200px" class="noBorder">
+                                                    {{ round.startingDate }} </div>
+                                            </td>
+                                            <td>
+                                                <div style="width: 200px" class="noBorder">
+                                                    {{ round.endingDate }} </div>
+                                            </td>
+                                            <td>
+                                                <div style="width: 200px" class="noBorder">
+                                                    {{ round.description }}</div>
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -73,13 +106,79 @@
                     </div>
                 </div>
             </div>
-        </div>
+            <div class="panel panel-default">
+                <div class="panel panel-default">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
+                         data-target="#collapseTwo">
+                        <h4 class="panel-title">
+                            <a>
+                                2. Make a header/introduction <b class="caret"></b>
+                            </a>
+                        </h4>
+                    </div>
 
-        <div class="navbar navbar-default navbar-fixed-bottom">
-            <div class="container">
-                <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
-                <a class="navbar-btn btn-danger btn pull-right" href="/admin/logout">Log Out</a>
+                    <div id="collapseTwo" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <label for="intro">Introduction</label>
+                            <input id="intro" value="">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <div class="panel panel-default">
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
+                     data-target="#collapseThree">
+                    <h4 class="panel-title">
+                        <a>
+                            3. Choose questions<b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapseThree" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class='table sortable' id='questionTable'>
+                                    <thead>
+                                    <tr>
+                                        <th>Question</th>
+                                        <th>Publish Date</th>
+                                        <th>Question Type</th>
+                                        <th>Grouping</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for question in questions %}
+                                        <tr id="{{ question.pk }}">
+                                            {% csrf_token %}
+                                            <td>{{ question.questionText }}</td>
+                                            <td>{{ question.pubDate }}</td>
+                                            <td>{{ question.questionType.name }}</td>
+                                            <td>{{ question.questionGrouping.grouping }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container">
+            <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
+            <a class="navbar-btn btn-danger btn pull-right" href="/admin/logout">Log Out</a>
+        </div>
+    </div>
     </div>
 {% endblock %}
