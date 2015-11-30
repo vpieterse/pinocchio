@@ -36,7 +36,7 @@
         }
 
         function changeGrouping() {
-            console.log($('#grouping').val());
+            //Shows the label table if the grouping is changed to 'label'
             if ($('#grouping').val() === 'Label') {
                 $('#labelTable').parent().parent().fadeIn();
                 $('.labelTable').fadeIn();
@@ -53,11 +53,6 @@
             initialiseStacking();
             changeGrouping();
             addRow(' ', '#table');
-
-            //Hide type box if question has been set
-            //Todo: Make this better, it doesnt work.
-            //if ($('#question').val() != '')
-            //    $("#type").attr("disabled", "disabled");
 
             if ($('#type').val() == 'Label')
                 $('.hide_in_label').hide();
@@ -170,7 +165,6 @@
         }
 
         function addRow(text, selector) {
-            console.log(selector);
             $table = $(selector);
             if (selector != '#labelTable') {
                 switch ($('#type').val()) {
@@ -185,7 +179,7 @@
                         break;
                     default:
                         break;
-                }//End switch
+                }
             } else {
                 $table.append('<tr>' + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
             }
@@ -193,8 +187,6 @@
 
         // AJAX for posting
         function create_post() {
-            //console.log("create post is working!") // sanity check
-
             if ($('#question').val() == '') {
                 var r = confirm("No question entered. Save anyways?");
                 if (!r)
@@ -206,6 +198,7 @@
                 questionType: $('#type').val()
             };
 
+            //Add the relevant information to the data object
             switch ($('#type').val()) {
                 case 'Choice':
                     data.choices = getChoices()
@@ -217,18 +210,20 @@
                     data.grouping = $('#grouping').val();
                     break;
                 case 'Label':
+                    //Todo: Implement
                     break;
                 case 'Rate':
                     data.rates = getRates();
                     data.grouping = $('#grouping').val();
                     break;
                 case 'Freeform' :
+                    //Todo: Implement
                     break;
             }
-            ; //End switch
-
 
             console.log(data); //Check
+
+            //Send the data to the createQuestion view
             $.ajax({
                 url: "/createQuestion/", // the endpoint
                 type: "GET", // http method
@@ -245,8 +240,19 @@
                     // console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
                 }
             });
-        }
-        ;
+        };
+    </script>
+    <script src="{% static "peer_review/search.js" %}"></script>
+    <script src="{% static "peer_review/validation.js" %}"></script>
+    <!--<script src="{% static "peer_review/submit.js" %}"></script>-->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#users tr').each(function () {
+                $(this).find('input[type="text"]').each(function () {
+                    $(this).attr('size', $(this).val().length);
+                });
+            });
+        });
     </script>
 {% endblock %}
 
@@ -630,4 +636,76 @@
             </div>
         </div>
     </div>
+
+    <div class="container">
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel panel-default">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
+                         data-target="#collapseOne">
+                        <h4 class="panel-title">
+                            <a>
+                                Maintain Questions <b class="caret"></b>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div id="collapseOne" class="panel-collapse collapse">
+                        <div class="panel-body">
+
+                            <input type="text" class="form-control" id="search" placeholder="Search"
+                                   onkeyup="showResult(this.value)">
+
+                            <div class='table-responsive'>
+                                <table class='table sortable' id='users'>
+                                    <thead>
+                                    <tr>
+                                        <th>Question</th>
+                                        <th>Publish Date</th>
+                                        <th>Question Type</th>
+                                        <th>Grouping</th>
+                                        <!--<th>Edit</th>-->
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for question in questions %}
+                                        <tr id="{{ question.pk }}">
+                                            <form action="/questionList/update/{{ question.pk }}" method="post">
+                                                {% csrf_token %}
+                                                <td><input type="text" style="width: 250px" class="noBorder"
+                                                           name="questionText"
+                                                           value="{{ question.questionText }}"></input></td>
+                                                <td><input type="text" style="width: 200px" class="noBorder"
+                                                           name="pubDate" value="{{ question.pubDate }}"></input></td>
+                                                <td><input type="text" style="width: 200px" class="noBorder"
+                                                           name="questionType"
+                                                           value="{{ question.questionType.name }}"></input></td>
+                                                <td><input type="text" style="width: 200px" class="noBorder"
+                                                           name="questionGroup"
+                                                           value="{{ question.questionGrouping.grouping }}"></input>
+                                                </td>
+                                                <td>
+                                                    <button name="edit" class='btn btn-success btn-xs' id='edit'>Edit
+                                                    </button>
+                                                </td>
+                                            </form>
+                                            <td>
+                                                <form action="/questionList/delete/{{ question.pk }}" method="post"
+                                                      onsubmit="return confirmDeletion()">
+                                                    {% csrf_token %}
+                                                    <button type='submit' name="remove" class='btn btn-warning btn-xs'
+                                                            id='remove'>Delete
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 {% endblock %}

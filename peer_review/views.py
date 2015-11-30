@@ -21,70 +21,50 @@ def createQuestion(request):
         message = 'Inserting Question with text: %r' % text
         qType = QuestionType.objects.get(name=request.GET['questionType'])
         print('qType: %r' % str(qType))  # Check
+
+        #Choice
         if str(qType) == 'Choice':
             qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
             choices = request.GET.getlist('choices[]')
 
-            q = Question(questionText=text,
-                         pubDate=timezone.now() - datetime.timedelta(days=1),
-                         questionType=qType,
-                         questionGrouping=qGrouping
+            #Save the question
+            q = Question(questionText = text,
+                         pubDate = timezone.now() - datetime.timedelta(days=1),
+                         questionType = qType,
+                         questionGrouping = qGrouping
                          )
-
             q.save()
 
-            # Temporary header creation
-            headers = Header.objects.filter(text=text)
-            if len(headers) > 0:
-                h = headers[0]
-            else:
-                h = Header(text=text)
-                h.save()
-
+            #Save the choices
             rank = 0
             for choice in choices:
-                c = Choice(header=h,
-                           question=q,
-                           choiceText=choice,
-                           num=rank)
+                c = Choice(question = q,
+                           choiceText = choice,
+                           num = rank)
                 rank += 1
-                print('saving %r' % choice)  # Check
-                print('as rank %r' % rank)  # Check
                 c.save()
+                print('test2');
+
+        #Rank
         elif str(qType) == 'Rank':
             qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
-            firstWord = request.GET["firstWord"]
-            secondWord = request.GET["secondWord"]
+            wordOne = request.GET["firstWord"]
+            wordTwo = request.GET["secondWord"]
 
+            #Save the question
             q = Question(questionText=text,
                          pubDate=timezone.now() - datetime.timedelta(days=1),
                          questionType=qType,
                          questionGrouping=qGrouping
                          )
-
             q.save()
 
-            # Temporary header creation
-            headers = Header.objects.filter(text=firstWord)
-            if len(headers) > 0:
-                w1 = headers[0]
-            else:
-                w1 = Header(text=firstWord)
-                w1.save()
-
-            # Temporary header creation
-            headers = Header.objects.filter(text=secondWord)
-            if len(headers) > 0:
-                w2 = headers[0]
-            else:
-                w2 = Header(text=secondWord)
-                w2.save()
-
+            #Save the rank
             r = Rank(question=q,
-                     firstWord=w1,
-                     secondWord=w2)
-
+                     firstWord=wordOne,
+                     secondWord=wordTwo)
             r.save()
+        #Todo: Implement the other types
     else:
         message = 'You submitted an empty form.'
     return HttpResponse(message)
@@ -130,8 +110,12 @@ def maintainRound(request):
 
 
 def questionAdmin(request):
-    context = {'questionTypes': QuestionType.objects.all()}
+    context = {'questionTypes': QuestionType.objects.all(), 'questions': Question.objects.all()}
     return render(request, 'peer_review/questionAdmin.html', context)
+
+def questionList(request):
+    context = {'questions': Question.objects.all()}
+    return render(request, 'questionAdmin.html', context)
 
 
 def userList(request):
@@ -307,9 +291,7 @@ def validate(row):
     return 1
 
 
-def questionList(request):
-    context = {'questions': Question.objects.all()}
-    return render(request, 'peer_review/questionList.html', context)
+
 
 
 def getTypeID(questionType):
