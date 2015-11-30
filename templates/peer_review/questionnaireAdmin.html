@@ -6,15 +6,13 @@
     <script src="{% static "peer_review/search.js" %}"></script>
     <script src="{% static "peer_review/validation.js" %}"></script>
     <script type="text/javascript">
-        function makeDataTableWithOneRowSelectable(table) {
-            var dTable = table.DataTable();
-
+        function makeOneRowSelectable(table, dataTable) {
             table.find('tbody').on('click', 'tr', function () {
                 if ($(this).hasClass('selected')) {
                     $(this).removeClass('selected');
                 }
                 else {
-                    dTable.$('tr.selected').removeClass('selected');
+                    dataTable.$('tr.selected').removeClass('selected');
                     $(this).addClass('selected');
                 }
             });
@@ -28,20 +26,76 @@
             });
         }
 
+        // @todo refactor or something
+        var upArrow = '<td style="text-align: center; width: 20px;">' +
+                '<a class="move up" href="javascript:void(0)" title="move up">' +
+                '<span class="glyphicon glyphicon-arrow-up"></span>' +
+                '</a>' +
+                '</td>';
+
+        var downArrow = '<td style="text-align: center; width: 20px; ">' +
+                '<a class="move down" href="javascript:void(0)" title="move down">' +
+                '<span class="glyphicon glyphicon-arrow-down"></span>' +
+                '</a>' +
+                '</td>';
+
         $(document).ready(function () {
-            var roundTable = $("#roundTable");
-            resizeTableColumns(roundTable);
             var questionTable = $("#questionTable");
             resizeTableColumns(questionTable);
 
-            makeDataTableWithOneRowSelectable(roundTable);
-            makeDataTableWithOneRowSelectable(questionTable);
+            var dTableQuestion = questionTable.DataTable({
+                "orderClasses": false,
+                "columnDefs": [{
+                    "orderable": false,
+                    "searchable": false,
+                    "render": function (data, type, full, meta) {
+                        return "<div class=\"addQuestion button\" '><span class=\"glyphicon glyphicon-chevron-right\"></span></div>"
+                    },
+                    "targets": [4]
+                }]
+            });
+
+            var questionnaireTable = $("#questionnaireTable");
+            var dTableQuestionnaire = questionnaireTable.DataTable({
+                "orderClasses": false,
+                "order": [], // No initial sorting
+                "columnDefs": [
+                    {
+                        "orderable": false,
+                        "searchable": false,
+                        "render": function (data, type, full, meta) {
+                            return "<div class=\"removeQuestion button\" '><span class=\"glyphicon glyphicon-remove-circle\"></span></div>"
+                        },
+                        "targets": [4]
+                    },
+                    {
+                        "orderable": false,
+                        "searchable": false,
+                        "targets": [0, 1, 2, 3]
+                    }
+                ]
+            });
+            dTableQuestionnaire.columns.orderable = false;
+
+            makeOneRowSelectable(questionTable, dTableQuestion);
+            makeOneRowSelectable(questionnaireTable, dTableQuestionnaire);
 
 
             {#            $('#button').click( function () {#}
             {#                alert( table.rows('.selected').data().length +' row(s) selected' );#}
             {#            } );#}
 
+            var moveable = $(".moveable tbody");
+            moveable.on('click', 'div.addQuestion', function () {
+                var tr = $(this).closest('tr').clone(); // Deep copy
+                dTableQuestionnaire.row.add(tr).draw();
+            });
+
+            moveable.on('click', 'div.removeQuestion', function () {
+                var tr = $(this).closest('tr');
+                dTableQuestionnaire.row(tr).remove().draw();
+                {#                users.row.add(tr).draw();#}
+            });
         });
     </script>
     <!--Edit navbar active-->
@@ -56,63 +110,10 @@
             <div class="panel panel-default">
                 <div class="panel panel-default">
                     <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
-                         data-target="#collapseOne">
-                        <h4 class="panel-title">
-                            <a>
-                                1. Choose a round <b class="caret"></b>
-                            </a>
-                        </h4>
-                    </div>
-
-                    <div id="collapseOne" class="panel-collapse collapse">
-                        <div class="panel-body">
-
-                            <div class='table-responsive'>
-                                <table class='table sortable' id='roundTable'>
-                                    <thead>
-                                    <tr>
-                                        <th>Introduction</th>
-                                        <th>Starting Date</th>
-                                        <th>Ending Date</th>
-                                        <th>Description</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for round in rounds %}
-                                        <tr id="{{ round.pk }}">
-                                            {% csrf_token %}
-                                            <td>
-                                                <div style="width: 250px" class="noBorder">
-                                                    {{ round.questionnaire.intro }}</div>
-                                            </td>
-                                            <td>
-                                                <div style="width: 200px" class="noBorder">
-                                                    {{ round.startingDate }} </div>
-                                            </td>
-                                            <td>
-                                                <div style="width: 200px" class="noBorder">
-                                                    {{ round.endingDate }} </div>
-                                            </td>
-                                            <td>
-                                                <div style="width: 200px" class="noBorder">
-                                                    {{ round.description }}</div>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="panel panel-default">
-                <div class="panel panel-default">
-                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
                          data-target="#collapseTwo">
                         <h4 class="panel-title">
                             <a>
-                                2. Make a header/introduction <b class="caret"></b>
+                                1. Make a header/introduction <b class="caret"></b>
                             </a>
                         </h4>
                     </div>
@@ -133,7 +134,7 @@
                      data-target="#collapseThree">
                     <h4 class="panel-title">
                         <a>
-                            3. Choose questions<b class="caret"></b>
+                            2. Choose questions<b class="caret"></b>
                         </a>
                     </h4>
                 </div>
@@ -142,13 +143,14 @@
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-md-6">
-                                <table class='table sortable' id='questionTable'>
+                                <table class='table moveable' id='questionTable'>
                                     <thead>
                                     <tr>
                                         <th>Question</th>
                                         <th>Publish Date</th>
                                         <th>Question Type</th>
                                         <th>Grouping</th>
+                                        <th></th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -159,13 +161,27 @@
                                             <td>{{ question.pubDate }}</td>
                                             <td>{{ question.questionType.name }}</td>
                                             <td>{{ question.questionGrouping.grouping }}</td>
+                                            <td></td>
                                         </tr>
                                     {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
                             <div class="col-md-6">
-                                
+                                <table id="questionnaireTable" class="table moveable">
+                                    <thead>
+                                    <tr>
+                                        <th>Question</th>
+                                        <th>Publish Date</th>
+                                        <th>Question Type</th>
+                                        <th>Grouping</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
