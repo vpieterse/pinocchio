@@ -6,6 +6,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.shortcuts import render
 from django.template import RequestContext
+from django.http import JsonResponse
 
 from django.utils import timezone
 
@@ -13,81 +14,6 @@ from .models import Document
 from .models import Question, QuestionType, QuestionGrouping, Choice, Rank, RoundDetail
 from .models import User, UserDetail
 from .forms import DocumentForm, UserForm
-
-
-def createQuestion(request):
-    if 'question' in request.GET:
-        text = request.GET['question']
-        message = 'Inserting Question with text: %r' % text
-        qType = QuestionType.objects.get(name=request.GET['questionType'])
-        print('qType: %r' % str(qType))  # Check
-        if str(qType) == 'Choice':
-            qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
-            choices = request.GET.getlist('choices[]')
-
-            q = Question(questionText=text,
-                         pubDate=timezone.now() - datetime.timedelta(days=1),
-                         questionType=qType,
-                         questionGrouping=qGrouping
-                         )
-
-            q.save()
-
-            # Temporary header creation
-            headers = Header.objects.filter(text=text)
-            if len(headers) > 0:
-                h = headers[0]
-            else:
-                h = Header(text=text)
-                h.save()
-
-            rank = 0
-            for choice in choices:
-                c = Choice(header=h,
-                           question=q,
-                           choiceText=choice,
-                           num=rank)
-                rank += 1
-                print('saving %r' % choice)  # Check
-                print('as rank %r' % rank)  # Check
-                c.save()
-        elif str(qType) == 'Rank':
-            qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
-            firstWord = request.GET["firstWord"]
-            secondWord = request.GET["secondWord"]
-
-            q = Question(questionText=text,
-                         pubDate=timezone.now() - datetime.timedelta(days=1),
-                         questionType=qType,
-                         questionGrouping=qGrouping
-                         )
-
-            q.save()
-
-            # Temporary header creation
-            headers = Header.objects.filter(text=firstWord)
-            if len(headers) > 0:
-                w1 = headers[0]
-            else:
-                w1 = Header(text=firstWord)
-                w1.save()
-
-            # Temporary header creation
-            headers = Header.objects.filter(text=secondWord)
-            if len(headers) > 0:
-                w2 = headers[0]
-            else:
-                w2 = Header(text=secondWord)
-                w2.save()
-
-            r = Rank(question=q,
-                     firstWord=w1,
-                     secondWord=w2)
-
-            r.save()
-    else:
-        message = 'You submitted an empty form.'
-    return HttpResponse(message)
 
 
 def detail(request, question_id):
@@ -134,7 +60,7 @@ def maintainTeam(request):
 
 
 def questionAdmin(request):
-    context = {'questionTypes': QuestionType.objects.all()}
+    context = {'questionTypes': QuestionType.objects.all(), 'questions': Question.objects.all()}
     return render(request, 'peer_review/questionAdmin.html', context)
 
 def questionnaireAdmin(request):
@@ -315,9 +241,7 @@ def validate(row):
     return 1
 
 
-def questionList(request):
-    context = {'questions': Question.objects.all()}
-    return render(request, 'peer_review/questionList.html', context)
+
 
 
 def getTypeID(questionType):
@@ -357,31 +281,129 @@ def getGroupID(questionGroup):
     else:
         return -1
 
+#QuestionAdmin stuff
+#Todo: Merge the questionUpdate and createQuestion functions
+#Todo: Implement saving of freeform type and label type
+#Todo: Fix saving of rank type
+#Todo: Save labels to DB when label grouping is selected
 
-def questionUpdate(request, questionPk):
-    if request.method == "POST":
-        question = Question.objects.get(pk=questionPk)
+def questionUpdate(request):
+    questionPk = request.GET['pk']
+    question = Question.get(pk=questionPk)
+    text = request.GET['question']
+    qType = QuestionType.objects.get(name=request.GET['questionType'])
 
-        post_questionText = request.POST.get("questionText")
-        post_questionType_id = getTypeID(request.POST.get("questionType"))
-        post_questionGrouping_id = getGroupID(request.POST.get("questionGroup"))
+    #Choice
+    if str(qType) == 'Choice':
+        qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
+        choices = request.GET.getlist('choices[]')
+        #Save the question
+        question.questionText=text
+        question.pubDate=timezone.now() - datetime.timedelta(days=1)
+        questionGrouping.questionGrouping=qGrouping
+        question.save()
 
-        question.questionID = questionPk
-        question.questionText = post_questionText
-        question.pubDate = timezone.now() - datetime.timedelta(days=1)
+        #Save the choices
+        rank = 0
+        for choice in choices:
+            c = Choice(question = q,
+                       choiceText = choice,
+                       num = rank,
+                       header_id = 0)
+            rank += 1
+            c.save()
 
-        if post_questionType_id == -1:
-            return HttpResponse("<script>alert('Invalid Question Type');window.location.href='../';</script>")
-        elif post_questionGrouping_id == -1:
-            return HttpResponse("<script>alert('Invalid Question Grouping');window.location.href='../';</script>")
-        else:
-            question.questionType_id = post_questionType_id
-            question.questionGrouping_id = post_questionGrouping_id
-            question.save()
-            return HttpResponseRedirect('../')
+    #Rank
+    elif str(qType) == 'Rank':
+        qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
+        wordOne = request.GET["firstWord"]
+        wordTwo = request.GET["secondWord"]
+        #Save the question
+        question.questionText=text
+        question.pubDate=timezone.now() - datetime.timedelta(days=1)
+        questionGrouping.questionGrouping=qGrouping
+
+        question.save()
+
+        #Save the rank
+        r = Rank(question=q,
+                 firstWord=wordOne,
+                 secondWord=wordTwo)
+        r.save()
+
+
+def getQuestion(request, questionPk):
+    question = Question.objects.get(pk=questionPk)
+    return JsonResponse({'questionText': question.questionText, 
+                        'questionType': question.questionType.name,
+                        'questionGrouping': question.questionGrouping.grouping,
+                        })
+
+def getChoices(request, questionPk):
+    question = Question.objects.get(pk=questionPk)
+    choices = Choice.objects.filter(question=question)
+    response = {};
+    for choice in choices:
+        response[choice.num] = choice.choiceText
+    print(response)
+    return JsonResponse(response)
+
 
 
 def questionDelete(request, questionPk):
     question = Question.objects.get(pk=questionPk)
     question.delete()
     return HttpResponseRedirect('../')
+
+
+def createQuestion(request):
+    if 'question' in request.GET:
+        text = request.GET['question']
+        qType = QuestionType.objects.get(name=request.GET['questionType'])
+
+        #Choice
+        if str(qType) == 'Choice':
+            qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
+            choices = request.GET.getlist('choices[]')
+
+            #Save the question
+            q = Question(questionText = text,
+                         pubDate = timezone.now() - datetime.timedelta(days=1),
+                         questionType = qType,
+                         questionGrouping = qGrouping
+                         )
+            q.save()
+
+            #Save the choices
+            rank = 0
+            for choice in choices:
+                c = Choice(question = q,
+                           choiceText = choice,
+                           num = rank,
+                           header_id = 0)
+                rank += 1
+                print(c)
+                c.save()
+
+        #Rank
+        elif str(qType) == 'Rank':
+            qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
+            wordOne = request.GET["firstWord"]
+            wordTwo = request.GET["secondWord"]
+
+            #Save the question
+            q = Question(questionText=text,
+                         pubDate=timezone.now() - datetime.timedelta(days=1),
+                         QuestionType=qType,
+                         questionGrouping=qGrouping
+                         )
+            q.save()
+
+            #Save the rank
+            r = Rank(question=q,
+                     firstWord=wordOne,
+                     secondWord=wordTwo)
+            r.save()
+    else:
+        message = 'You submitted an empty form.'
+    return HttpResponse()
