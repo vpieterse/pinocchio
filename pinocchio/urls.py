@@ -27,6 +27,7 @@ urlpatterns = [
                   url(r'^questionAdmin/getChoices/(?P<questionPk>[0-9]+)/?$', views.getChoices),
                   url(r'^questionAdmin', views.questionAdmin, name='questionAdmin'),
                   url(r'^maintainRound/delete/(?P<roundPk>[0-9]+)/?$', views.roundDelete),
+                  url(r'^maintainRound/update/(?P<roundPk>[0-9]+)/?$', views.roundUpdate),
 
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
