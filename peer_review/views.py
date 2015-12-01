@@ -409,6 +409,6 @@ def createQuestion(request):
     return HttpResponse()
 
 def roundDelete(request, roundPk):
-    round = RoundDetail.objects.get(pk = Pk)
+    round = RoundDetail.objects.get(pk = roundPk)
     round.delete()
     return HttpResponseRedirect('../')
