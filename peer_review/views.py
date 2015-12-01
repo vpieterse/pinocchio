@@ -353,7 +353,12 @@ def getChoices(request, questionPk):
         response[choice.num] = choice.choiceText
     return JsonResponse(response)
 
-
+def getRank(request, questionPk):
+    q = Question.objects.get(pk=questionPk)
+    print(Rank.objects.all()) 
+    rank = Rank.objects.get(question = q)
+    # return JsonResponse()
+    return JsonResponse({'firstWord': rank.firstWord, 'secondWord': rank.secondWord})
 
 def questionDelete(request):
     print('delete!')

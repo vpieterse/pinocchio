@@ -212,28 +212,39 @@
                     $('#type').val(data.questionType);
                     $('#grouping').val(data.questionGrouping);
                     selected();
+
+                    if (data.questionType == "Choice")
+                    {
+                        $.ajax({
+                            url: '/questionAdmin/getChoices/' + pk,
+                            type: 'get',
+                            success: function(data) {
+                                console.log(data);
+                                for (var c in data)
+                                    if (data.hasOwnProperty(c))
+                                {
+                                    addRow(data[c], '#table');
+                                }
+                            }
+                        });//End choice ajax
+                    } else
+                    if (data.questionType == "Rank")
+                    {
+                        $.ajax({
+                            url: '/questionAdmin/getRank/' + pk,
+                            type: 'get',
+                            success: function(data) {
+                                console.log(data);
+                                $('#first').val(data.firstWord);
+                                $('#second').val(data.secondWord);
+                            }
+                        });//End rank ajax   
+                    }
                 },
                 failure: function(data) { 
                     alert('Error');
                 }
-            });//End ajax
-
-            //Query choices from db
-            if ($('#type').val() == "Choice")
-            {
-                $.ajax({
-                url: '/questionAdmin/getChoices/' + pk,
-                    type: 'get',
-                    success: function(data) {
-                        console.log(data);
-                        for (var c in data)
-                            if (data.hasOwnProperty(c))
-                            {
-                                addRow(data[c], '#table');
-                            }
-                    },
-                });//End ajax
-            }
+            });//End question details ajax
 
             //Go to top of page
             window.scrollTo(0, 0);
@@ -313,7 +324,7 @@
                 return;
 
             $.ajax({
-                    url: "questionAdmin/delete/", // the endpoint
+                    url: "/questionAdmin/delete/", // the endpoint
                     type: "GET", // http method
                     data: {'questionPk': pk}, // data sent with the post request
 
@@ -817,7 +828,6 @@
                                     <tbody>
                                     {% for question in questions %}
                                         <tr id="{{ question.pk }}">
-                                            <!--<form action = "/questionAdmin/update/{{ question.pk }}" method = "post">-->
                                             <form>
                                                 {% csrf_token %}
                                                 <td><input type="text" style="width: 250px" class="noBorder"
