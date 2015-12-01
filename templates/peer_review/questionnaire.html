@@ -1,4 +1,4 @@
-{% extends "peer_review/base.html" %}
+{% extends "peer_review/baseUser.html" %}
 {% load staticfiles %}
 {% block extrahead %}
     <title xmlns="http://www.w3.org/1999/html">Questionnaire</title>
@@ -100,100 +100,23 @@
     </script>
     <!--Edit navbar active-->
     <script>
-        title = "questionnaireAdmin";
+        title = "questionnaire";
     </script>
     <!--end-->
 {% endblock %}
 {% block context %}
-    <div class="container">
-        <div class="panel-group" id="accordion">
-            <div class="panel panel-default">
-                <div class="panel panel-default">
-                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
-                         data-target="#collapseTwo">
-                        <h4 class="panel-title">
-                            <a>
-                                1. Make a header/introduction <b class="caret"></b>
-                            </a>
-                        </h4>
-                    </div>
+    
 
-                    <div id="collapseTwo" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <label for="intro">Introduction</label>
-                            <input id="intro" value="">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="panel panel-default">
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
-                     data-target="#collapseThree">
-                    <h4 class="panel-title">
-                        <a>
-                            2. Choose questions<b class="caret"></b>
-                        </a>
-                    </h4>
-                </div>
 
-                <div id="collapseThree" class="panel-collapse collapse">
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <table class='table moveable' id='questionTable'>
-                                    <thead>
-                                    <tr>
-                                        <th>Question</th>
-                                        <th>Publish Date</th>
-                                        <th>Question Type</th>
-                                        <th>Grouping</th>
-                                        <th></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for question in questions %}
-                                        <tr id="{{ question.pk }}">
-                                            {% csrf_token %}
-                                            <td>{{ question.questionText }}</td>
-                                            <td>{{ question.pubDate }}</td>
-                                            <td>{{ question.questionType.name }}</td>
-                                            <td>{{ question.questionGrouping.grouping }}</td>
-                                            <td></td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="col-md-6">
-                                <table id="questionnaireTable" class="table moveable">
-                                    <thead>
-                                    <tr>
-                                        <th>Question</th>
-                                        <th>Publish Date</th>
-                                        <th>Question Type</th>
-                                        <th>Grouping</th>
-                                        <th></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
 
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+
+
 
     <div class="navbar navbar-default navbar-fixed-bottom">
         <div class="container">
             <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
-            <a class="navbar-btn btn-danger btn pull-right" href="/admin/logout">Log Out</a>
+            <a class="navbar-btn btn-danger btn pull-right" href="/logout">Log Out</a>
         </div>
     </div>
     </div>
