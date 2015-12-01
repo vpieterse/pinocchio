@@ -68,6 +68,10 @@ def questionnaireAdmin(request):
                'questions': Question.objects.all()}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
+def questionnaire(request):
+	context = {'intro':Questionnaire.intro()}
+	return render(request, 'peer_review/questionnaire.html', context)
+
 def userList(request):
     users = User.objects.all
     userForm = UserForm()
