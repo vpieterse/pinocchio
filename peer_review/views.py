@@ -13,7 +13,7 @@ from django.utils import timezone
 from .models import Document
 from .models import Question, QuestionType, QuestionGrouping, Choice, Rank,Questionnaire, RoundDetail, TeamDetail
 from .models import User, UserDetail
-from .models import Questionnaire
+from .models import Questionnaire, QuestionOrder
 from .forms import DocumentForm, UserForm
 
 
@@ -74,7 +74,9 @@ def questionnaireAdmin(request):
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
 def questionnaire(request):
-	context = {'questionnaire': Questionnaire.objects.all()}
+	context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
+		    'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
+		    'questionGrouping' : QuestionGrouping.objects.all()}
 	return render(request, 'peer_review/questionnaire.html', context)
 
 def userList(request):
