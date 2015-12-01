@@ -153,6 +153,10 @@
         function addTeam()
         {
             var teamID = prompt('Team name:', 'Team'+(numTeams+1));
+            while($("#"+teamID).length != 0)
+            {
+                teamID = prompt('Team name already in use:', teamID);
+            }
             if(teamID != null)
             {
                 numTeams++;
@@ -200,7 +204,7 @@
         function removeTeam(teamID)
         {
             $("#"+teamID).find('div.removeUser').click();
-            
+            $("#"+teamID).parent(1).remove();
         }
 
         $(document).ready(function () {
@@ -240,17 +244,20 @@
                     var teamTable = $("#"+selected).find(".teamTable").DataTable();
                     if(teamTable != null)
                     {
-                        var tr = $(this).closest('tr');
-                        users.row(tr).remove().draw();
-                        teamTable.row.add(tr).draw();
+                        var tr = users.row($(this).parents('tr'));
+                        var node = tr.node();
+                        tr.remove();
+                        teamTable.row.add(node).draw();
                     }
                 }
             });
 
             $(document).on('click', 'div.removeUser', function() {
-                var tr = $(this).closest('tr');
-                teams.row(tr).remove().draw();
-                users.row.add(tr).draw();
+                var teamTable = $(this).parents("table").DataTable();
+                var tr = teamTable.row($(this).parents('tr'));
+                var node = tr.node();
+                users.row.add(node).draw();
+                tr.remove();
             });
         });
     </script>
