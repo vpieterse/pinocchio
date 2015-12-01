@@ -48,7 +48,7 @@ class Choice(models.Model):
     num = models.IntegerField(default=1)
 
     def __str__(self):
-        return self.question.questionText + ": " + self.choiceText
+        return self.choiceText
 
 
 class Rank(models.Model):
@@ -57,7 +57,7 @@ class Rank(models.Model):
     secondWord = models.CharField(max_length=200)
 
     def __str__(self):
-        return self.question.questionText + ". First word: " + self.firstWord + ". Second word: " + self.secondWord
+        return self.firstWord + " - " + self.secondWord
 
 
 class Rate(models.Model):
