@@ -125,7 +125,28 @@
                             
                             <div class='table-responsive'>
                                 <table class='table unsortable' id='questions'>
-                                    
+                                    <tbody>
+                                    	{% for question in questions %}
+                                        <tr id="{{ question.pk }}">
+                                            <form action="/questionList/update/{{ question.pk }}" method="post">
+                                                {% csrf_token %}
+                                                <td><input type="text" style="width: 250px" class="noBorder"
+                                                           name="questionText"
+                                                           value="{{ question.questionText }}"></input></td>
+                                              
+                                                <td><input type="text" style="width: 200px" class="noBorder"
+                                                           name="questionType"
+                                                           value="{{ question.questionType.name }}"></input></td>
+                                                <td><input type="text" style="width: 200px" class="noBorder"
+                                                           name="questionGroup"
+                                                           value="{{ question.questionGrouping.grouping }}"></input>
+                                                </td>
+                                              
+                                            </form>
+                                            
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
  				  	
                                 </table>
                             </div>
