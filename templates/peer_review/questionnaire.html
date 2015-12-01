@@ -106,10 +106,42 @@
 {% endblock %}
 {% block context %}
     
+		<div class="container">
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel panel-default">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
+                         data-target="#collapseOne">
+                        <h4 class="panel-title">
+                            <a>
+                                Questions <b class="caret"></b>
+                            </a>
+                        </h4>
+                    </div>
 
+                    <!--<div id="collapseOne" class="panel-collapse collapse in">-->
+                        <div class="panel-body">
 
+                            
+                            <div class='table-responsive'>
+                                <table class='table unsortable' id='questions'>
+                                    
+ 				  	
+                                </table>
+                            </div>
 
-
+                        </div>
+                    </div>
+                </div>
+            </div>
+	<div class="btn-group col-xs-5" style="margin: 7px 0;">
+	<button type='submit' name="create" class='btn btn-primary btn-md' id='saveProgress'
+                    			onclick="window.location.href='/questionnaire/save'">Save Progress
+            		      </button>
+				<button type='submit' name="create" class='btn btn-primary btn-md' id='submitQuestionnaire'
+                    			onclick="window.location.href='/questionnaire/submit'">Submit
+            		      </button>
+	</div>
 
 
 
