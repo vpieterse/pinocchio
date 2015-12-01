@@ -10,7 +10,7 @@ import datetime
 import csv
 
 from .models import Document
-from .models import Question, QuestionType, QuestionGrouping
+from .models import Question, QuestionType, QuestionGrouping,RoundDetail
 from .models import User, UserDetail
 from .forms import DocumentForm, UserForm, CSVForm
 
@@ -65,12 +65,12 @@ def fileUpload(request):
         ,context_instance=RequestContext(request)
     )
 def maintainRound(request):  
-    return render(request, 'peer_review/maintainRound.html')
+    context = {'roundDetail': RoundDetail.objects.all()}
+    return render(request, 'peer_review/maintainRound.html',context)
 
 def questionAdmin(request):
     context = {'questionTypes': QuestionType.objects.all()}
     return render(request, 'peer_review/questionAdmin.html', context)
-
 def userList(request):
     users = User.objects.all
     userForm = UserForm()
@@ -142,3 +142,8 @@ def submitCSV(request):
         if csvForm.is_valid():
             return HttpResponse('xxx')
     return HttpResponse('hello2S')
+
+def roundDelete(request, roundPk):
+    round = RoundDetail.objects.get(pk = Pk)
+    round.delete()
+    return HttpResponseRedirect('../')

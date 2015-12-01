@@ -24,7 +24,7 @@
             });
         });
     </script>
-<!--Function to add row-->
+<!--Function to delete row-->
     <script>
     function deleteRow(row) {
         var table = document.getElementById('round');
@@ -48,9 +48,21 @@
             }
     }
     </script>
+
+        <!--end
+
+questionnaire = models.ForeignKey(Questionnaire)
+    startingDate = models.DateTimeField('starting date')
+    endingDate = models.DateTimeField('ending date')
+    description = models.CharField(max_length=200)
+
+        -->
+
+
 <!--end-->
 </head>
     <body>
+
 
 
         <nav class="navbar navbar-inverse navbar-static-top">
@@ -104,46 +116,49 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                <!--<td contenteditable=true>-->
-                                    <td ><input type="text" value="This is a round" style="border:none"></td>
-                                    <td>
-                                        <select>
-                                            <option value="First">First</option>
-                                            <option value="Second">Second</option>
-                                            <option value="Third">Third</option>
-                                        </select>
+                            {% for round in roundDetail %}
+                                <tr id="{{ round.pk }}">
+                                            <form action="/maintainRound/update/{{ round.pk }}" method="post">
+                                                {% csrf_token %}
+                                                <td><input type="text" style="width: 150px" class="noBorder"
+                                                           name="description"
+                                                           value="{{ round.description }}">
+                                                    </input ></td>
+
+
+                                     <td>
+                                        <select id="type" class="form-control" style="width:auto" onchange="selected()" name="type">
+                            </select>
                                           <input type="button" value="+" class="btn btn-info btn-xs plus" field="" onClick="location.href='http://127.0.0.1:8000/peer/questionAdmin/'"  /> 
                                     </td>
+                                                <td><input type="text" style="width: 200px" class="noBorder"
+                                                           name="startingDate" value="{{ round.startingDate }}"></input></td>
+                                                <td><input type="text" style="width: 200px" class="noBorder"
+                                                           name="endingDate"
+                                                           value="{{ round.endingDate }}"></input></td>
 
-        <!--Starting date-->
+                                                 <td><button type='button' class='btn btn-default btn-xs' id='maintain'  onclick='#'><a href="teamBuilder.html"><span class="glyphicon glyphicon-wrench"></span></button></button></a></button></td>
                                     <td>
-                                        <form action="action_page.php">
-                                          <input type="datetime-local" name="startingDate" class = "icon-bar" style="width: 175px;">
-                                        </form>
+                                                <td>
+                                                    <button name="edit" class='btn btn-success btn-xs' id='edit' onclick="window.location.href='/questionAdmin'">Edit
+                                                    </button>
+                                                </td>
 
-                                    </td>
-        <!--Ending date-->
-                                    <td>
-                                        <form action="action_page.php">
-                                          <input type="datetime-local" name="endingDate" style="width: 175px;">
-                                        </form>
-                                    </td>
-                            
-                                    <td><button type='button' class='btn btn-default btn-xs' id='maintain' onclick='#'><a href="teamBuilder.html"><span class="glyphicon glyphicon-wrench"></span></button></button></a></button></td>
-                                    <td>
-                                        <button type='button' class='btn btn-success btn-xs' id='accept' onclick='#'>&#10004;</button>
-                                    </td>
-            <!--delete row -->
-                                    <td>
-                                        <button type='button' class='btn btn-warning btn-xs' id='delete' onclick="deleteRow(this)">&#10008;
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
 
-            <!--add row-->
-                                </tr>
+                                            </form>
+                                            <td>
+                                                <form action="/maintainRound/delete/{{ round.pk }}" method="post"
+                                                      onsubmit="return confirmDeletion()">
+                                                    {% csrf_token %}
+                                                    <button type='submit' name="remove" class='btn btn-warning btn-xs'
+                                                            id='remove'>Delete
+                                                    </button>
+                                                </form>
+                                            </td>
+
+                                        </tr>
+                                    {% endfor %}
+                                    </tr>
 
                                     <td><input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="addRow('round')" /></td>
                                 </tr>
@@ -153,7 +168,6 @@
                 </div>
             </div>
         </div>
-
         <div class="navbar navbar-default navbar-fixed-bottom">
             <div class="container">
                 <p class="navbar-text pull-left">&copy; Dillon Heins</p>

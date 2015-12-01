@@ -7,6 +7,8 @@ urlpatterns = [
     url(r'^questionAdmin', views.questionAdmin, name='questionAdmin'),
     url(r'^createQuestion/$', views.createQuestion, name='createQuestion'),
     url(r'^maintainRound/$', views.maintainRound, name='maintainRound'),
+    url(r'^maintainRound/delete/(?P<roundPk>[0-9]+)/?$', views.roundDelete),
+    url(r'^maintainRound/update/(?P<roundPk>[0-9]+)/?$', views.roundUpdate),
     
     # ex: /peer_review/
     url(r'^$', views.index, name='index'),
