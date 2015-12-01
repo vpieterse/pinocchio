@@ -1,0 +1,107 @@
+{% extends "peer_review/base.html" %}
+{% load staticfiles %}
+{% block extrahead %}
+    <title xmlns="http://www.w3.org/1999/html">Question Admin</title>
+
+    <script src="{% static "peer_review/search.js" %}"></script>
+    <script src="{% static "peer_review/validation.js" %}"></script>
+    <!--<script src="{% static "peer_review/submit.js" %}"></script>-->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#users tr').each(function () {
+                $(this).find('input[type="text"]').each(function () {
+                    $(this).attr('size', $(this).val().length);
+                });
+            });
+        });
+    </script>
+    <!--Edit navbar active-->
+    <script>
+        title = "questionList";
+    </script>
+    <!--end-->
+{% endblock %}
+{% block context %}
+    <div class="container">
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel panel-default">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
+                         data-target="#collapseOne">
+                        <h4 class="panel-title">
+                            <a>
+                                Maintain Questions <b class="caret"></b>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div id="collapseOne" class="panel-collapse collapse">
+                        <div class="panel-body">
+
+                            <input type="text" class="form-control" id="search" placeholder="Search"
+                                   onkeyup="showResult(this.value)">
+
+                            <div class='table-responsive'>
+                                <table class='table sortable' id='users'>
+                                    <thead>
+                                    <tr>
+                                        <th>Question</th>
+                                        <th>Publish Date</th>
+                                        <th>Question Type</th>
+                                        <th>Grouping</th>
+                                        <!--<th>Edit</th>-->
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for question in questions %}
+                                        <tr id="{{ question.pk }}">
+                                            <form action="/questionList/update/{{ question.pk }}" method="post">
+                                                {% csrf_token %}
+                                                <td><input type="text" style="width: 250px" class="noBorder"
+                                                           name="questionText"
+                                                           value="{{ question.questionText }}"></input></td>
+                                                <td><input type="text" style="width: 200px" class="noBorder"
+                                                           name="pubDate" value="{{ question.pubDate }}"></input></td>
+                                                <td><input type="text" style="width: 200px" class="noBorder"
+                                                           name="questionType"
+                                                           value="{{ question.questionType.name }}"></input></td>
+                                                <td><input type="text" style="width: 200px" class="noBorder"
+                                                           name="questionGroup"
+                                                           value="{{ question.questionGrouping.grouping }}"></input>
+                                                </td>
+                                                <td>
+                                                    <button name="edit" class='btn btn-success btn-xs' id='edit'>Edit
+                                                    </button>
+                                                </td>
+                                            </form>
+                                            <td>
+                                                <form action="/questionList/delete/{{ question.pk }}" method="post"
+                                                      onsubmit="return confirmDeletion()">
+                                                    {% csrf_token %}
+                                                    <button type='submit' name="remove" class='btn btn-warning btn-xs'
+                                                            id='remove'>Delete
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button type='submit' name="create" class='btn btn-primary btn-block btn-lg' id='create'
+                    onclick="window.location.href='/questionAdmin'">Create New Question
+            </button>
+        </div>
+
+        <div class="navbar navbar-default navbar-fixed-bottom">
+            <div class="container">
+                <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
+                <a class="navbar-btn btn-danger btn pull-right" href="/admin/logout">Log Out</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

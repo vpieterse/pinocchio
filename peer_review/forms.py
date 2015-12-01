@@ -6,12 +6,6 @@ class DocumentForm(forms.Form):
         label='Select a file'
     )
 
-class CSVForm(forms.Form):
-	title = forms.CharField(max_length=50)
-	csvFile = forms.FileField(
-		label = 'Choose file'
-	)
-
 class UserForm(forms.Form):
 	userId = forms.CharField(
 		label = "Username:",
