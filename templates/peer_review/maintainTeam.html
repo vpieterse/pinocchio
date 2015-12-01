@@ -79,8 +79,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-xs-1">
-                                    </div>
                                     <div class="col-xs-6">
                                         <div class="panel panel-default">
                                             <div class="panel-heading">
@@ -203,8 +201,12 @@
 
         function removeTeam(teamID)
         {
+            if(confirm("You are about to delete team " + teamID +". Do you want to do this?"))
+            {
+
             $("#"+teamID).find('div.removeUser').click();
             $("#"+teamID).parent(1).remove();
+            }
         }
 
         $(document).ready(function () {
