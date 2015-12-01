@@ -96,7 +96,13 @@ class User(models.Model):
 
 class Questionnaire(models.Model):
     intro = models.CharField(max_length=50)
+    questionOrders = models.ManyToManyField(Question, through='QuestionOrder')
 
+
+class QuestionOrder(models.Model):
+    questionnaire = models.ForeignKey(Questionnaire)
+    question = models.ForeignKey(Question)
+    order = models.IntegerField(default=1)
 
 class RoundDetail(models.Model):
     questionnaire = models.ForeignKey(Questionnaire)
