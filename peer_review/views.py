@@ -11,7 +11,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 
 from .models import Document
-from .models import Question, QuestionType, QuestionGrouping, Choice, Rank, RoundDetail
+from .models import Question, QuestionType, QuestionGrouping, Choice, Rank,Questionnaire, RoundDetail
 from .models import User, UserDetail
 from .forms import DocumentForm, UserForm
 
@@ -50,9 +50,10 @@ def fileUpload(request):
         , context_instance=RequestContext(request)
     )
 
-
-def maintainRound(request):
-    return render(request, 'peer_review/maintainRound.html')
+def maintainRound(request):  
+    context = {'roundDetail': RoundDetail.objects.all(),
+                'questionnaires': Questionnaire.objects.all()}
+    return render(request, 'peer_review/maintainRound.html',context)
 
 
 def maintainTeam(request):
@@ -67,10 +68,6 @@ def questionnaireAdmin(request):
     context = {'rounds': RoundDetail.objects.all(),
                'questions': Question.objects.all()}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
-
-def questionnaire(request):
-	context = {'intro':Questionnaire.intro()}
-	return render(request, 'peer_review/questionnaire.html', context)
 
 def userList(request):
     users = User.objects.all
@@ -411,3 +408,25 @@ def createQuestion(request):
     else:
         message = 'You submitted an empty form.'
     return HttpResponse()
+
+def roundDelete(request, roundPk):
+    round = RoundDetail.objects.get(pk = roundPk)
+    round.delete()
+    return HttpResponseRedirect('../')
+
+def roundUpdate(request, roundPk):
+    if request.method == "POST":
+        round = RoundDetail.objects.get(pk=roundPk)
+
+        post_description = request.POST.get("description")
+        post_questionnaire = request.POST.get("questionnaire")
+        post_startingDate = request.POST.get("startingDate")
+        post_endingDate = request.POST.get("endingDate")
+
+        round.description = post_description
+        round.questionnaire = post_questionnaire
+        round.startingDate = post_startingDate
+        round.endingDate = post_endingDate
+
+        round.save()
+    return HttpResponseRedirect('../')
