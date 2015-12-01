@@ -22,7 +22,7 @@ urlpatterns = [
                   url(r'^userAdmin/update/(?P<userPk>[0-9]+)/?$', views.userUpdate),
                   url(r'^userAdmin/$', views.userList),
                   url(r'^questionAdmin/update/$', views.questionUpdate, name='questionUpdate'),
-                  url(r'^questionAdmin/delete/(?P<questionPk>[0-9]+)/?$', views.questionDelete),
+                  url(r'^questionAdmin/delete/$', views.questionDelete, name='questionDelete'),
                   url(r'^questionAdmin/getQuestion/(?P<questionPk>[0-9]+)/?$', views.getQuestion),
                   url(r'^questionAdmin/getChoices/(?P<questionPk>[0-9]+)/?$', views.getChoices),
                   url(r'^questionAdmin', views.questionAdmin, name='questionAdmin'),

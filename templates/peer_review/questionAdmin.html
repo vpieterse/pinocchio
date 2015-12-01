@@ -9,14 +9,12 @@
     <script type="text/javascript" src="{% static "peer_review/js/stacking.js" %}"></script>
     <script type="text/javascript">
         /**Todo**
-        Implement saving label type and freeform type
+        Implement freeform type
         Fix saving of rank type
         Delete using Ajax
-        Add an 'editSuccess' function (Or use the old one, with a parameter?)
         Update the question list using Ajax, after insertion or deletion
         Fix the label table
         Save the labels to the DB when label grouping is selected
-        Stop the random empty table row being saved sometimes
         Refactor: Clean up the create_post ajax call
         Refactor: Move js code to a seperate file
         */
@@ -36,9 +34,10 @@
             });
         }
 
-        function saveSuccess() {
+        function saveSuccess(message) {
+            console.log(message);
             //Show success alertbox thingy
-            $('#results').html('<div class="alert alert-success">Success! Question saved to database.</div>');
+            $('#results').html('<div class="alert alert-success">' + message + '</div>');
 
             //Make the alert box disappear after 5 seconds
             window.setTimeout(function () {
@@ -50,6 +49,11 @@
             //This clear the box even when editing, for some reason
             //Clear question inputbox
             //$('#question').val([]);
+
+            editing = false;
+            questionPk = 0;
+            clearPage();
+            updateQuestionList();
         }
 
         function changeGrouping() {
@@ -82,6 +86,17 @@
 
         }
 
+        function clearPage()
+        {
+            $('#table tr').remove();
+            $('#question').val([]);
+            $('#type').val('Label');
+            $('#grouping').val('None');
+            editing = false;
+            questionPk = -1;
+            selected();
+        }
+
         function getAllRows() {
             var myObjects = [];
 
@@ -103,6 +118,16 @@
             });
 
             return choices;
+        }
+
+        function getFreeformItems() {
+            var items = [];
+            $('#typeDisplay table tbody tr').each(function (index, value) {
+                var type = $('#typeDisplay table tbody tr').eq(index).find('td:eq(0)').find('*').val();
+                var item = $('#typeDisplay table tbody tr').eq(index).find('td:eq(0)').find('*').val();
+                items.push([type, item]);
+            });
+            return items;            
         }
 
         function getRates() {
@@ -177,6 +202,7 @@
             isEditing = true;
             questionPk = pk;
 
+            //Query question details from db
             $.ajax({
                 url: '/questionAdmin/getQuestion/' + pk,
                 type: 'get',
@@ -192,6 +218,7 @@
                 }
             });//End ajax
 
+            //Query choices from db
             if ($('#type').val() == "Choice")
             {
                 $.ajax({
@@ -207,6 +234,14 @@
                     },
                 });//End ajax
             }
+
+            //Go to top of page
+            window.scrollTo(0, 0);
+        }
+
+        function updateQuestionList()
+        {
+            location.reload();
         }
 
         function textBox(text) {
@@ -255,33 +290,50 @@
                     data.grouping = $('#grouping').val();
                     break;
                 case 'Label':
-                    //Todo: Implement
+                    data.grouping = 'None'
                     break;
                 case 'Rate':
                     data.rates = getRates();
                     data.grouping = $('#grouping').val();
                     break;
                 case 'Freeform' :
-                    //Todo: Implement
+                    data.items = getFreeformItems();
+                    data.grouping = $('#grouping').val();
                     break;
             }
 
+            console.log(data);
             return data;
+        }
+
+        function deleteQuestion(pk)
+        {
+            var r = confirm("Delete this question?");
+            if (!r)
+                return;
+
+            $.ajax({
+                    url: "questionAdmin/delete/", // the endpoint
+                    type: "GET", // http method
+                    data: {'questionPk': pk}, // data sent with the post request
+
+                    // handle a successful response
+                    success: saveSuccess('Question was deleted successfully.')
+                });
         }
 
         // AJAX for posting
         function create_post() {
-
             if (isEditing) {
                 var data = createJson();
                 data.pk = questionPk;
                 $.ajax({
-                    url: "questionAdmin/update", // the endpoint
+                    url: "questionAdmin/update/", // the endpoint
                     type: "GET", // http method
                     data: data, // data sent with the post request
 
                     // handle a successful response
-                    success: saveSuccess()
+                    success: saveSuccess('Question was edited successfully.')
                 });
 
             } else {
@@ -304,7 +356,7 @@
                     data: data, // data sent with the post request
 
                     // handle a successful response
-                    success: saveSuccess()
+                    success: saveSuccess('Question was created successfully.')
                 });
             }
         };
@@ -781,16 +833,16 @@
                                                            value="{{ question.questionGrouping.grouping }}"></input>
                                                 </td>
                                                 <td>
-                                                    <button class='btn btn-success btn-xs' type = "button" onclick = "editQuestion({{ question.pk }})">Edit
+                                                    <button class='btn btn-success btn-xs' type = "button" onclick = "editQuestion({{ question.pk }})">
+                                                        Edit
                                                     </button>
                                                 </td>
                                             </form>
                                             <td>
-                                                <form action="/questionAdmin/delete/{{ question.pk }}" method="post"
-                                                      onsubmit="return confirmDeletion()">
+                                                <form>
                                                     {% csrf_token %}
-                                                    <button type='submit' name="remove" class='btn btn-warning btn-xs'
-                                                            id='remove'>Delete
+                                                    <button type='button'class='btn btn-warning btn-xs' onclick = 'deleteQuestion({{ question.pk }})'>
+                                                        Delete
                                                     </button>
                                                 </form>
                                             </td>

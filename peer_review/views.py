@@ -282,47 +282,47 @@ def getGroupID(questionGroup):
         return -1
 
 #QuestionAdmin stuff
-#Todo: Merge the questionUpdate and createQuestion functions
-#Todo: Implement saving of freeform type and label type
+#Todo: Implement saving of freeform type
 #Todo: Fix saving of rank type
 #Todo: Save labels to DB when label grouping is selected
 
 def questionUpdate(request):
+    print('update')
     questionPk = request.GET['pk']
-    question = Question.get(pk=questionPk)
-    text = request.GET['question']
+    question = Question.objects.get(pk=questionPk)
+    qText = request.GET['question']
     qType = QuestionType.objects.get(name=request.GET['questionType'])
+    qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
+    questio.questionText = qText
+    question.pubDate=timezone.now() - datetime.timedelta(days=1)
 
     #Choice
     if str(qType) == 'Choice':
         qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
         choices = request.GET.getlist('choices[]')
         #Save the question
-        question.questionText=text
-        question.pubDate=timezone.now() - datetime.timedelta(days=1)
-        questionGrouping.questionGrouping=qGrouping
         question.save()
 
-        #Save the choices
+        #Delete the old choices
+        oldChoices = Choice.objects.filter(question = question);
+        for c in oldChoices:
+            c.delete()
+
+        #Save the new choices
         rank = 0
         for choice in choices:
-            c = Choice(question = q,
+            c = Choice(question = question,
                        choiceText = choice,
-                       num = rank,
-                       header_id = 0)
+                       num = rank)
             rank += 1
+            print(c)
             c.save()
 
     #Rank
     elif str(qType) == 'Rank':
-        qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
         wordOne = request.GET["firstWord"]
         wordTwo = request.GET["secondWord"]
         #Save the question
-        question.questionText=text
-        question.pubDate=timezone.now() - datetime.timedelta(days=1)
-        questionGrouping.questionGrouping=qGrouping
-
         question.save()
 
         #Save the rank
@@ -330,6 +330,12 @@ def questionUpdate(request):
                  firstWord=wordOne,
                  secondWord=wordTwo)
         r.save()
+
+        #Label
+    elif str(qType) == 'Label':
+        question.save()
+
+    return HttpResponse('Success! Question was saved succesfully.')
 
 
 def getQuestion(request, questionPk):
@@ -345,15 +351,16 @@ def getChoices(request, questionPk):
     response = {};
     for choice in choices:
         response[choice.num] = choice.choiceText
-    print(response)
     return JsonResponse(response)
 
 
 
-def questionDelete(request, questionPk):
+def questionDelete(request):
+    print('delete!')
+    questionPk = request.GET['questionPk']
     question = Question.objects.get(pk=questionPk)
     question.delete()
-    return HttpResponseRedirect('../')
+    return HttpResponseRedirect('Success! Question was deleted successfully.')
 
 
 def createQuestion(request):
@@ -394,7 +401,7 @@ def createQuestion(request):
             #Save the question
             q = Question(questionText=text,
                          pubDate=timezone.now() - datetime.timedelta(days=1),
-                         QuestionType=qType,
+                         questionType=qType,
                          questionGrouping=qGrouping
                          )
             q.save()
@@ -404,6 +411,21 @@ def createQuestion(request):
                      firstWord=wordOne,
                      secondWord=wordTwo)
             r.save()
+
+        #Freeform
+        elif str(qType) == 'Freeform':
+            qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
+
+        #Label
+        elif str(qType) == 'Label':
+            qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
+            q = Question(questionText = text,
+                         pubDate=timezone.now() - datetime.timedelta(days=1),
+                         questionType=qType,
+                         questionGrouping=qGrouping
+                         )
+            q.save()
+
     else:
         message = 'You submitted an empty form.'
-    return HttpResponse()
+    return HttpResponse('Success! Question was created successfully.')
