@@ -46,7 +46,6 @@ class Choice(models.Model):
     question = models.ForeignKey(Question)
     choiceText = models.CharField(max_length=200)
     num = models.IntegerField(default=1)
-    header_id = models.IntegerField(default=1)
 
     def __str__(self):
         return self.choiceText
@@ -97,7 +96,13 @@ class User(models.Model):
 
 class Questionnaire(models.Model):
     intro = models.CharField(max_length=50)
+    questionOrders = models.ManyToManyField(Question, through='QuestionOrder')
 
+
+class QuestionOrder(models.Model):
+    questionnaire = models.ForeignKey(Questionnaire)
+    question = models.ForeignKey(Question)
+    order = models.IntegerField(default=1)
 
 class RoundDetail(models.Model):
     questionnaire = models.ForeignKey(Questionnaire)
