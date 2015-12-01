@@ -9,17 +9,17 @@
     <script type="text/javascript" src="{% static "peer_review/js/stacking.js" %}"></script>
     <script type="text/javascript">
         /**Todo**
-        Implement saving label type and freeform type
-        Fix saving of rank type
-        Delete using Ajax
-        Add an 'editSuccess' function (Or use the old one, with a parameter?)
-        Update the question list using Ajax, after insertion or deletion
-        Fix the label table
-        Save the labels to the DB when label grouping is selected
-        Stop the random empty table row being saved sometimes
-        Refactor: Clean up the create_post ajax call
-        Refactor: Move js code to a seperate file
-        */
+         Implement saving label type and freeform type
+         Fix saving of rank type
+         Delete using Ajax
+         Add an 'editSuccess' function (Or use the old one, with a parameter?)
+         Update the question list using Ajax, after insertion or deletion
+         Fix the label table
+         Save the labels to the DB when label grouping is selected
+         Stop the random empty table row being saved sometimes
+         Refactor: Clean up the create_post ajax call
+         Refactor: Move js code to a seperate file
+         */
 
 
         var isEditing = false;
@@ -172,36 +172,33 @@
                 '</select>' +
                 '</td>';
 
-        function editQuestion(pk)
-        {
+        function editQuestion(pk) {
             isEditing = true;
             questionPk = pk;
 
             $.ajax({
                 url: '/questionAdmin/getQuestion/' + pk,
                 type: 'get',
-                success: function(data) {
+                success: function (data) {
                     console.log(data);
                     $('#question').val(data.questionText);
                     $('#type').val(data.questionType);
                     $('#grouping').val(data.questionGrouping);
                     selected();
                 },
-                failure: function(data) { 
+                failure: function (data) {
                     alert('Error');
                 }
             });//End ajax
 
-            if ($('#type').val() == "Choice")
-            {
+            if ($('#type').val() == "Choice") {
                 $.ajax({
-                url: '/questionAdmin/getChoices/' + pk,
+                    url: '/questionAdmin/getChoices/' + pk,
                     type: 'get',
-                    success: function(data) {
+                    success: function (data) {
                         console.log(data);
                         for (var c in data)
-                            if (data.hasOwnProperty(c))
-                            {
+                            if (data.hasOwnProperty(c)) {
                                 addRow(data[c], '#table');
                             }
                     },
@@ -240,8 +237,8 @@
 
         function createJson() {
             var data = {
-                    question: $('#question').val(),
-                    questionType: $('#type').val()
+                question: $('#question').val(),
+                questionType: $('#type').val()
             };
 
             switch ($('#type').val()) {
@@ -286,7 +283,7 @@
 
             } else {
 
-            
+
                 if ($('#question').val() == '') {
                     var r = confirm("No question entered. Save anyways?");
                     if (!r)
@@ -307,7 +304,8 @@
                     success: saveSuccess()
                 });
             }
-        };
+        }
+        ;
     </script>
     <script src="{% static "peer_review/search.js" %}"></script>
     <script src="{% static "peer_review/validation.js" %}"></script>
@@ -360,13 +358,13 @@
                         <div class="row">
                             <div class="col-xs-5">
                                 <select id="type" class="form-control" style="width:auto" onchange="selected()"
-                                        name="type" value = {{ questionType }}>
+                                        name="type" value= {{ questionType }}>
                                     {% if questionTypes %}
                                         {% for qt in questionTypes %}
                                             {% if qt = questionType %}
-                                                <option selected value="{{qt.name}}">{{ qt.name }}</option>
+                                                <option selected value="{{ qt.name }}">{{ qt.name }}</option>
                                             {% else %}
-                                                <option value="{{qt.name}}">{{ qt.name }}</option>
+                                                <option value="{{ qt.name }}">{{ qt.name }}</option>
                                             {% endif %}
                                         {% endfor %}
                                     {% endif %}
@@ -397,10 +395,10 @@
                         </div>
                         <div>
                             <br/>
-                            <button class="btn btn-primary" type="submit" onclick = "create_post()">Save</button>
+                            <button class="btn btn-primary" type="submit" onclick="create_post()">Save</button>
                         </div>
                     </div>
-                    </form>
+                </form>
             </div>
         </div>
     </div>
@@ -459,7 +457,8 @@
                                 {% for c in choices %}
                                     <tr>
                                         <td style="text-align: center; ">
-                                            <input type="text" class="noBorder" id="choice" value= "{{ c }}" style="text-align: center; "/>
+                                            <input type="text" class="noBorder" id="choice" value="{{ c }}"
+                                                   style="text-align: center; "/>
                                         </td>
                                         <td style="text-align: center; width: 20px;">
                                             <a class="move up" href="javascript:void(0)" title="move up">
@@ -733,75 +732,76 @@
     </div>
 
     <div class="container">
-        <div class="panel-group" id="accordion">
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
             <div class="panel panel-default">
-                <div class="panel panel-default">
-                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
-                         data-target="#collapseOne">
-                        <h4 class="panel-title">
-                            <a>
-                                Maintain Questions <b class="caret"></b>
-                            </a>
-                        </h4>
-                    </div>
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
+                     data-target="#collapseOne">
+                    <h4 class="panel-title">
+                        <a>
+                            Maintain Questions <b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
 
-                    <div id="collapseOne" class="panel-collapse collapse">
-                        <div class="panel-body">
+                <div id="collapseOne" class="panel-collapse collapse">
+                    <div class="panel-body">
 
-                            <input type="text" class="form-control" id="search" placeholder="Search"
-                                   onkeyup="showResult(this.value)">
+                        <input type="text" class="form-control" id="search" placeholder="Search"
+                               onkeyup="showResult(this.value)">
 
-                            <div class='table-responsive'>
-                                <table class='table sortable' id='users'>
-                                    <thead>
-                                    <tr>
-                                        <th>Question</th>
-                                        <th>Publish Date</th>
-                                        <th>Question Type</th>
-                                        <th>Grouping</th>
-                                        <!--<th>Edit</th>-->
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for question in questions %}
-                                        <tr id="{{ question.pk }}">
-                                            <!--<form action = "/questionAdmin/update/{{ question.pk }}" method = "post">-->
-                                            <form>
-                                                {% csrf_token %}
-                                                <td><input type="text" style="width: 250px" class="noBorder"
-                                                           name="questionText"
-                                                           value="{{ question.questionText }}"></input></td>
-                                                <td><input type="text" style="width: 200px" class="noBorder"
-                                                           name="pubDate" value="{{ question.pubDate }}"></input></td>
-                                                <td><input type="text" style="width: 200px" class="noBorder"
-                                                           name="QuestionType"
-                                                           value="{{ question.QuestionType.name }}"></input></td>
-                                                <td><input type="text" style="width: 200px" class="noBorder"
-                                                           name="questionGroup"
-                                                           value="{{ question.questionGrouping.grouping }}"></input>
-                                                </td>
-                                                <td>
-                                                    <button class='btn btn-success btn-xs' type = "button" onclick = "editQuestion({{ question.pk }})">Edit
-                                                    </button>
-                                                </td>
-                                            </form>
-                                            <td>
-                                                <form action="/questionAdmin/delete/{{ question.pk }}" method="post"
-                                                      onsubmit="return confirmDeletion()">
-                                                    {% csrf_token %}
-                                                    <button type='submit' name="remove" class='btn btn-warning btn-xs'
-                                                            id='remove'>Delete
-                                                    </button>
-                                                </form>
+                        <div class='table-responsive'>
+                            <table class='table sortable' id='users'>
+                                <thead>
+                                <tr>
+                                    <th>Question</th>
+                                    <th>Publish Date</th>
+                                    <th>Question Type</th>
+                                    <th>Grouping</th>
+                                    <!--<th>Edit</th>-->
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for question in questions %}
+                                    <tr id="{{ question.pk }}">
+                                        <!--<form action = "/questionAdmin/update/{{ question.pk }}" method = "post">-->
+                                        <form>
+                                            {% csrf_token %}
+                                            <td><input type="text" style="width: 250px" class="noBorder"
+                                                       name="questionText"
+                                                       value="{{ question.questionText }}"></td>
+                                            <td><input type="text" style="width: 200px" class="noBorder"
+                                                       name="pubDate" value="{{ question.pubDate }}"></td>
+                                            <td><input type="text" style="width: 200px" class="noBorder"
+                                                       name="QuestionType"
+                                                       value="{{ question.QuestionType.name }}"></td>
+                                            <td><input type="text" style="width: 200px" class="noBorder"
+                                                       name="questionGroup"
+                                                       value="{{ question.questionGrouping.grouping }}">
                                             </td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
+                                            <td>
+                                                <button class='btn btn-success btn-xs' type="button"
+                                                        onclick="editQuestion({{ question.pk }})">Edit
+                                                </button>
+                                            </td>
+                                        </form>
+                                        <td>
+                                            <form action="/questionAdmin/delete/{{ question.pk }}" method="post"
+                                                  onsubmit="return confirmDeletion()">
+                                                {% csrf_token %}
+                                                <button type='submit' name="remove" class='btn btn-warning btn-xs'
+                                                        id='remove'>Delete
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 {% endblock %}
