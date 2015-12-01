@@ -11,9 +11,9 @@ from django.http import JsonResponse
 from django.utils import timezone
 
 from .models import Document
-from .models import Question, QuestionType, QuestionGrouping, Choice, Rank,Questionnaire, RoundDetail
+from .models import Question, QuestionType, QuestionGrouping, Choice, Rank,Questionnaire, RoundDetail, TeamDetail
 from .models import User, UserDetail
-from .models import Questionnaire
+from .models import Questionnaire, QuestionOrder
 from .forms import DocumentForm, UserForm
 
 
@@ -58,7 +58,9 @@ def maintainRound(request):
 
 
 def maintainTeam(request):
-    context = {'users':User.objects.all}
+    context = {'users': User.objects.all(),
+                'rounds': RoundDetail.objects.all(),
+                'teams': TeamDetail.objects.all()}
     return render(request, 'peer_review/maintainTeam.html', context)
 
 
@@ -72,7 +74,9 @@ def questionnaireAdmin(request):
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
 def questionnaire(request):
-	context = {'questionnaire': Questionnaire.objects.all()}
+	context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
+		    'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
+		    'questionGrouping' : QuestionGrouping.objects.all()}
 	return render(request, 'peer_review/questionnaire.html', context)
 
 def userList(request):
@@ -81,6 +85,17 @@ def userList(request):
     docForm = DocumentForm()
     return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'docForm': docForm})
 
+def getTeamsForRound(request, roundPk):
+    teams = TeamDetail.objects.filter(roundDetail_id=roundPk)
+    response = {}
+    for team in teams:
+        response[team.pk] = {
+            'userId': team.userDetail.pk,
+            'teamNumber': team.teamNumber,
+            'status': team.status
+            }
+    print(response)
+    return JsonResponse(response)
 
 def submitForm(request):
     if request.method == "POST":

@@ -29,6 +29,7 @@ urlpatterns = [
                   url(r'^questionAdmin', views.questionAdmin, name='questionAdmin'),
                   url(r'^maintainRound/delete/(?P<roundPk>[0-9]+)/?$', views.roundDelete),
                   url(r'^maintainRound/update/(?P<roundPk>[0-9]+)/?$', views.roundUpdate),
+                  url(r'^maintainTeam/getTeamsForRound/(?P<roundPk>[0-9]+)/?$', views.getTeamsForRound),
 
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -86,3 +86,11 @@ function confirmDeletion() {
 		return false;
 	}
 }
+
+function confirmSubmit() {
+	if(confirm('Are you sure you wish to submit this?')){
+		return true;
+	} else {
+		return false;
+	}
+}
