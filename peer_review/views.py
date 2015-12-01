@@ -56,7 +56,8 @@ def maintainRound(request):
 
 
 def maintainTeam(request):
-    return render(request, 'peer_review/maintainTeam.html')
+    context = {'users':User.objects.all}
+    return render(request, 'peer_review/maintainTeam.html', context)
 
 
 def questionAdmin(request):

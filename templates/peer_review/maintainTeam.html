@@ -61,18 +61,15 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            <tr>
-                                                                <td>14020202</td>
-                                                                <td>Matthias</td>
-                                                                <td>Harvey</td>
-                                                                <td></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>140206202</td>
-                                                                <td>Piet</td>
-                                                                <td>Somesurname</td>
-                                                                <td></td>
-                                                            </tr>
+                                                            {% for user in users %}
+                                                                {% csrf_token %}
+                                                                <tr id="{{ user.pk }}">
+                                                                    <td>{{ user.userId }}</td>
+                                                                    <td>{{ user.userDetail.name }}</td>
+                                                                    <td>{{ user.userDetail.surname }}</td>
+                                                                    <td></td>
+                                                                </tr>
+                                                            {% endfor %}
                                                         </tbody>
                                                     </table>
                                                 </div>
