@@ -46,7 +46,6 @@ class Choice(models.Model):
     question = models.ForeignKey(Question)
     choiceText = models.CharField(max_length=200)
     num = models.IntegerField(default=1)
-    header_id = models.IntegerField(default=1)
 
     def __str__(self):
         return self.choiceText
