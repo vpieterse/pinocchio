@@ -78,7 +78,7 @@
                                                                 <script>
                                                                     console.log({{ user.pk }})
                                                                 </script>
-                                                                <tr id="{{ user.pk }}">
+                                                                <tr id="{{ user.userDetail.pk }}">
                                                                     <td>{{ user.userId }}</td>
                                                                     <td>{{ user.userDetail.name }}</td>
                                                                     <td>{{ user.userDetail.surname }}</td>
@@ -162,14 +162,17 @@
     <script>
         function addTeam()
         {
-            var teamID = prompt('Team name:', 'Team'+(numTeams+1));
-            while($("#"+teamID).length != 0)
+            if(roundId != '')
             {
-                teamID = prompt('Team name already in use:', teamID);
-            }
-            if(teamID != null)
-            {
-                addTeamCont(teamID);
+                var teamID = prompt('Team name:', 'Team'+(numTeams+1));
+                while($("#"+teamID).length != 0)
+                {
+                    teamID = prompt('Team name already in use:', teamID);
+                }
+                if(teamID != null)
+                {
+                    addTeamCont(teamID);
+                }
             }
         }
 
@@ -266,10 +269,30 @@
                 selected = e.currentTarget.id;
             });
 
+            function changeTeam(userId, roundId, newTeam)
+            {
+                $.ajax({
+                    url: '/maintainTeam/changeUserTeamForRound/'+roundId+'/'+userId+'/'+newTeam+'/',
+                    type: 'GET',
+                    success: function(data) {
+                        if(data["success"] == true)
+                        {
+                            console.log("Changed user: "+userId+" to team: "+newTeam+" for round: "+roundId);
+                        }
+                        else
+                        {
+                            console.log("ERROR: Could not change user: "+userId+" to team: "+newTeam+" for round: "+roundId)
+                        }
+                    },
+                    failure: function(data) {
+                        console.log("ERROR: Could not change user: "+userId+" to team: "+newTeam+" for round: "+roundId)
+                    }
+                });
+            }
+
             $('.moveable tbody').on('click', 'div.addUser', function() {
                 if(selected != "" && $("#"+selected+" .in") != null)
                 {
-                    alert("CLICK!");
                     var teamTable = $("#"+selected).find(".teamTable").DataTable();
                     if(teamTable != null)
                     {
@@ -278,18 +301,7 @@
                         {
                             var userId=row[0].id;
                             var newTeam = selected;
-                            console.log('/maintainTeam/changeUserTeamForRound/'+roundId+'/'+userId+'/');
-                            $.ajax({
-                                url: '/maintainTeam/changeUserTeamForRound/'+roundId+'/'+userId+'/', //+newTeam+'/',
-                                type: 'GET',
-                                success: function(data) {
-                                    console.log("Changed user: "+userId+" to team: "+newTeam+" for round: "+roundId);
-                                },
-                                failure: function(data) {
-                                    console.log("ERROR: Could not change user: "+userId+" to team: "+newTeam+" for round: "+roundId)
-                                }
-                            });
-                            
+                            changeTeam(userId, roundId, newTeam);
                         }
                         moveUser(users, teamTable, row);
                     }
@@ -298,11 +310,19 @@
 
             $(document).on('click', 'div.removeUser', function() {
                 var teamTable = $(this).parents("table").DataTable();
-                moveUser(teamTable, users, $(this).parents('tr'));
+                var row = $(this).parents('tr');
+                moveUser(teamTable, users, row);
+
+                if(!loading)
+                {
+                    var userId = row[0].id;
+                    changeTeam(userId, roundId, "emptyTeam");
+                }
             });
 
             
             $('#selectedRound').on('change', function() {
+                loading = true;
                 $("#teams").find("div.removeUser").click();
                 $("#teams").html("");
                 roundId = this.value;
@@ -312,11 +332,10 @@
                         url: '/maintainTeam/getTeamsForRound/' + roundId,
                         type: 'GET',
                         success: function(data) {
-                            loading = true;
                             for(var team in data)
                             {
                                 team = data[team];
-                                if(team["teamNumber"] != 0)
+                                if(team["teamName"] != "emptyTeam")
                                 {
                                     if($("#"+team["teamName"]).length == 0)
                                     {
@@ -332,13 +351,13 @@
                                     selected = "";
                                 }
                             }
-                            loading = false;
                         },
                         failure: function(data) {
                             console.log('Error: getTeamsForRound');
                         }
                     }); 
                 }
+                loading = false;
             });
             
         });
