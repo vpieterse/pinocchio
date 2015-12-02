@@ -1,7 +1,14 @@
-{% extends "peer_review/base.html" %}
+{% extends "peer_review/baseUser.html" %}
 {% load staticfiles %}
 {% block extrahead %}
     <title xmlns="http://www.w3.org/1999/html">Questionnaire</title>
+	<style type="text/css">
+		label {
+  		font-weight: bold;
+  		padding: 12px;
+		}
+  </style>
+
 
     <script src="{% static "peer_review/search.js" %}"></script>
     <script src="{% static "peer_review/validation.js" %}"></script>
@@ -100,100 +107,91 @@
     </script>
     <!--Edit navbar active-->
     <script>
-        title = "questionnaireAdmin";
+        title = "questionnaire";
     </script>
     <!--end-->
 {% endblock %}
 {% block context %}
-    <div class="container">
+    
+		<div class="container">
         <div class="panel-group" id="accordion">
             <div class="panel panel-default">
                 <div class="panel panel-default">
                     <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
-                         data-target="#collapseTwo">
+                         data-target="#collapseOne">
                         <h4 class="panel-title">
                             <a>
-                                1. Make a header/introduction <b class="caret"></b>
+                                Questions <b class="caret"></b>
                             </a>
                         </h4>
                     </div>
 
-                    <div id="collapseTwo" class="panel-collapse collapse">
+                    <!--<div id="collapseOne" class="panel-collapse collapse in">-->
                         <div class="panel-body">
-                            <label for="intro">Introduction</label>
-                            <input id="intro" value="">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="panel panel-default">
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
-                     data-target="#collapseThree">
-                    <h4 class="panel-title">
-                        <a>
-                            2. Choose questions<b class="caret"></b>
-                        </a>
-                    </h4>
-                </div>
-
-                <div id="collapseThree" class="panel-collapse collapse">
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <table class='table moveable' id='questionTable'>
-                                    <thead>
-                                    <tr>
-                                        <th>Question</th>
-                                        <th>Publish Date</th>
-                                        <th>Question Type</th>
-                                        <th>Grouping</th>
-                                        <th></th>
-                                    </tr>
-                                    </thead>
+                            
+                            <div class='table-responsive'>
+                                
                                     <tbody>
-                                    {% for question in questions %}
+                                    	{% for question in questions %}
                                         <tr id="{{ question.pk }}">
-                                            {% csrf_token %}
-                                            <td>{{ question.questionText }}</td>
-                                            <td>{{ question.pubDate }}</td>
-                                            <td>{{ question.questionType.name }}</td>
-                                            <td>{{ question.questionGrouping.grouping }}</td>
-                                            <td></td>
+                                            
+                                                {% csrf_token %}
+                                                <br><!--<td><input type="text" readonly style="width: 250px" class="noBorder"
+                                                           name="questionText"
+                                                           value="{{ question.questionText }}"></input>-->
+						<label for="questionText">{{ question.questionText }}</label>
+                                              
+                                               <!-- <input type="text" style="width: 200px" class="noBorder"
+                                                           name="questionType"
+                                                           value="{{ question.questionType.name }}"></input></td> --></br>
+						{% if question.questionType.name = "Choice" %}
+							<input type="text" style="width: 200px"
+                                                           name="questionGroup"></input>
+						{% else %}
+							<br>Else condition</br>
+						{% endif %}
+						<p>skip a line</p>
+                                                <td><input type="text" style="width: 200px" class="noBorder"
+                                                           name="questionGroup"
+                                                           value="{{ question.questionGrouping.grouping }}"></input>
+                                                </td>
+                                              
+                                            </form>
+                                            
                                         </tr>
                                     {% endfor %}
                                     </tbody>
-                                </table>
+ 				  	
+                                
                             </div>
-                            <div class="col-md-6">
-                                <table id="questionnaireTable" class="table moveable">
-                                    <thead>
-                                    <tr>
-                                        <th>Question</th>
-                                        <th>Publish Date</th>
-                                        <th>Question Type</th>
-                                        <th>Grouping</th>
-                                        <th></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
 
-                                    </tbody>
-                                </table>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+	<div class="btn-group col-xs-5" style="margin: 7px 0;">
+	<button type='submit' name="create" class='btn btn-primary btn-md' id='saveProgress'
+                    			onclick="window.location.href='/questionnaire/save'">Save Progress
+            		      </button>
+				<script>
+					function submitConfirm()
+					{
+						if(confirmSubmit())
+							window.location.href='/questionnaire/submit';
+					}
+				</script>
+				<button type='submit' name="create" class='btn btn-success btn-md' id='submitQuestionnaire'
+                    			onclick="return submitConfirm()">Submit
+            		      </button>
+	</div>
+
+
 
     <div class="navbar navbar-default navbar-fixed-bottom">
         <div class="container">
             <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
-            <a class="navbar-btn btn-danger btn pull-right" href="/admin/logout">Log Out</a>
+            <a class="navbar-btn btn-danger btn pull-right" href="/logout">Log Out</a>
         </div>
     </div>
     </div>

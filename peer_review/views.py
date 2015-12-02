@@ -11,8 +11,9 @@ from django.http import JsonResponse
 from django.utils import timezone
 
 from .models import Document
-from .models import Question, QuestionType, QuestionGrouping, Choice, Rank,Questionnaire, RoundDetail
+from .models import Question, QuestionType, QuestionGrouping, Choice, Rank,Questionnaire, RoundDetail, TeamDetail
 from .models import User, UserDetail
+from .models import Questionnaire, QuestionOrder
 from .forms import DocumentForm, UserForm
 
 
@@ -50,14 +51,17 @@ def fileUpload(request):
         , context_instance=RequestContext(request)
     )
 
-def maintainRound(request):  
+def maintainRound(request):
     context = {'roundDetail': RoundDetail.objects.all(),
                 'questionnaires': Questionnaire.objects.all()}
     return render(request, 'peer_review/maintainRound.html',context)
 
 
 def maintainTeam(request):
-    return render(request, 'peer_review/maintainTeam.html')
+    context = {'users': User.objects.all(),
+                'rounds': RoundDetail.objects.all(),
+                'teams': TeamDetail.objects.all()}
+    return render(request, 'peer_review/maintainTeam.html', context)
 
 
 def questionAdmin(request):
@@ -69,12 +73,29 @@ def questionnaireAdmin(request):
                'questions': Question.objects.all()}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
+def questionnaire(request):
+	context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
+		    'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
+		    'questionGrouping' : QuestionGrouping.objects.all()}
+	return render(request, 'peer_review/questionnaire.html', context)
+
 def userList(request):
     users = User.objects.all
     userForm = UserForm()
     docForm = DocumentForm()
     return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'docForm': docForm})
 
+def getTeamsForRound(request, roundPk):
+    teams = TeamDetail.objects.filter(roundDetail_id=roundPk)
+    response = {}
+    for team in teams:
+        response[team.pk] = {
+            'userId': team.userDetail.pk,
+            'teamNumber': team.teamNumber,
+            'status': team.status
+            }
+    print(response)
+    return JsonResponse(response)
 
 def submitForm(request):
     if request.method == "POST":
@@ -151,6 +172,8 @@ def submitCSV(request):
             filePath = filePath[1:]
 
             documents = Document.objects.all()
+
+            # ToDo possibly delete older files
 
             count = 0
             with open(filePath) as csvfile:
@@ -431,7 +454,9 @@ def roundUpdate(request, roundPk):
         round.save()
     return HttpResponseRedirect('../')
 
+
 def getRound(request, roundPk):
     round = RoundDetail.objects.get(pk=roundPk)
     return JsonResponse({'roundDetail': RoundDetail.objects.all(),
                 'questionnaires': Questionnaire.objects.all()})
+

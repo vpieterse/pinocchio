@@ -1,10 +1,11 @@
 from django.contrib import admin
 
 from .models import QuestionType, QuestionGrouping, Question, Choice, Rank, Rate, User, UserDetail, Questionnaire, \
-    RoundDetail, TeamDetail, Label
+    RoundDetail, TeamDetail, Label, QuestionOrder
 
 admin.site.register(QuestionType)
 admin.site.register(QuestionGrouping)
+admin.site.register(QuestionOrder)
 admin.site.register(Question)
 admin.site.register(Rank)
 admin.site.register(Rate)
