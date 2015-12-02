@@ -101,7 +101,7 @@ def getTeamsForRound(request, roundPk):
     for team in teams:
         response[team.pk] = {
             'userId': team.userDetail.pk,
-            'teamNumber': team.teamNumber,
+            'teamName': team.teamName,
             'status': team.status
             }
     # print(response)
@@ -109,8 +109,10 @@ def getTeamsForRound(request, roundPk):
 
 def changeUserTeamForRound(request, roundPk, userPk, teamName):
     team = TeamDetail.objects.filter(roundDetail_id=roundPk).filter(userDetail_id=userPk)
-    team.teamNumber = teamName
+    team.teamName = teamName
+    team.save()
     return JsonResponse({})
+
 def generate_OTP():
     N = random.randint(4, 10)
     OTP = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits + string.ascii_lowercase)
@@ -155,6 +157,10 @@ def submitForm(request):
 
             user = User(userId=post_userId, password=post_password, status=post_status, userDetail=userDetail)
             user.save()
+
+            for roundObj in RoundDetail.objects.all():
+                team = TeamDetail(userDetail=userDetail, roundDetail=roundObj)
+                team.save()
 
             return HttpResponseRedirect("../")
     else:

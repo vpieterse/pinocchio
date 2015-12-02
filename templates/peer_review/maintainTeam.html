@@ -318,17 +318,17 @@
                                 team = data[team];
                                 if(team["teamNumber"] != 0)
                                 {
-                                    if($("#"+team["status"]).length == 0)
+                                    if($("#"+team["teamName"]).length == 0)
                                     {
-                                        addTeamCont(team["status"]);
+                                        addTeamCont(team["teamName"]);
                                     }
 
-                                    selected = team["status"];
-                                    $("#"+team["status"]).addClass("in");
+                                    selected = team["teamName"];
+                                    $("#"+team["teamName"]).addClass("in");
                                 
                                     $("#users").find("#"+team["userId"]).find('div.addUser').click();
 
-                                    $("#"+team["status"]).removeClass("in");
+                                    $("#"+team["teamName"]).removeClass("in");
                                     selected = "";
                                 }
                             }
