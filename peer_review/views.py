@@ -201,6 +201,8 @@ def submitCSV(request):
 
             documents = Document.objects.all()
 
+            # ToDo possibly delete older files
+
             count = 0
             with open(filePath) as csvfile:
                 reader = csv.DictReader(csvfile)
