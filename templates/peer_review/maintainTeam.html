@@ -159,11 +159,11 @@
             }
             if(teamID != null)
             {
-                addTeam(teamID);
+                addTeamCont(teamID);
             }
         }
 
-        function addTeam(teamID)
+        function addTeamCont(teamID)
         {
             numTeams++;
             var newTeam = '<div class="panel panel-default">'+
@@ -215,6 +215,14 @@
             }
         }
 
+        function moveUser(fromTable, toTable, row)
+        {
+            var tr = fromTable.row(row);
+            var node = tr.node();
+            tr.remove();
+            toTable.row.add(node).draw();
+        }
+
         $(document).ready(function () {
             var users = $("#users").DataTable({
                 "orderClasses": false,
@@ -252,23 +260,20 @@
                     var teamTable = $("#"+selected).find(".teamTable").DataTable();
                     if(teamTable != null)
                     {
-                        var tr = users.row($(this).parents('tr'));
-                        var node = tr.node();
-                        tr.remove();
-                        teamTable.row.add(node).draw();
+                        moveUser(users, teamTable, $(this).parents('tr'));
                     }
                 }
             });
 
             $(document).on('click', 'div.removeUser', function() {
                 var teamTable = $(this).parents("table").DataTable();
-                var tr = teamTable.row($(this).parents('tr'));
-                var node = tr.node();
-                users.row.add(node).draw();
-                tr.remove();
+                moveUser(teamTable, users, $(this).parents('tr'));
             });
 
+            
             $('#selectedRound').on('change', function() {
+                $("#teams").find("div.removeUser").click();
+                $("#teams").html("");
                 if(this.value != '')
                 {
                     $.ajax({
@@ -277,18 +282,26 @@
                         success: function(data) {
                             console.log(data);
                             
-                            for(team in data)
+                            for(var team in data)
                             {
+                                team = data[team];
+                                console.log("Team: " + team);
                                 if(team["teamNumber"] != 0)
                                 {
+                                    console.log("Status: " + team["status"]);
                                     if($("#"+team["status"]).length == 0)
                                     {
-                                        addTeam(team["status"]);
+                                        addTeamCont(team["status"]);
                                     }
 
-                                    $("#"+team["status"]).show();
+                                    selected = team["status"];
+                                    $("#"+team["status"]).addClass("in");
                                 
                                     $("#users").find("#"+team["userId"]).find('div.addUser').click();
+                                    //console.log($("#users").find("#"+team["userId"]).find('div.addUser'));
+
+                                    $("#"+team["status"]).removeClass("in");
+                                    selected = "";
                                 }
                             }
                         },
@@ -302,6 +315,7 @@
                     // TODO: clear all the tables
                 }
             });
+            
         });
     </script>
 {% endblock context %}
