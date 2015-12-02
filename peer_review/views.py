@@ -385,7 +385,7 @@ def questionUpdate(request):
         #Save the question
         question.questionText=text
         question.pubDate=timezone.now() - datetime.timedelta(days=1)
-        questionGrouping.questionGrouping=qGrouping
+        question.questionGrouping=qGrouping
         question.save()
 
         #Save the choices
@@ -406,7 +406,7 @@ def questionUpdate(request):
         #Save the question
         question.questionText=text
         question.pubDate=timezone.now() - datetime.timedelta(days=1)
-        questionGrouping.questionGrouping=qGrouping
+        question.questionGrouping=qGrouping
 
         question.save()
 
