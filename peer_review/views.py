@@ -190,8 +190,10 @@ def userUpdate(request, userPk):
         post_surname = request.POST.get("surname")
         post_cell = request.POST.get("cell")
         post_email = request.POST.get("email")
+        post_status = request.POST.get("status")
 
         user.userId = post_userId
+        user.status = post_status
         userDetail.title = post_title
         userDetail.initials = post_initials
         userDetail.name = post_name
@@ -202,6 +204,24 @@ def userUpdate(request, userPk):
         user.save()
         userDetail.save()
     return HttpResponseRedirect('../')
+
+def resetPassword(request, userPk):
+    if request.method == "POST":
+        user = User.objects.get(pk=userPk)
+        userDetail = user.userDetail
+
+        OTP = generate_OTP()
+        generate_email(OTP, userDetail.name, userDetail.surname)
+        password = hash_password(OTP)
+
+        user.password = password
+        user.save()
+        userDetail.save()
+
+        print(OTP)
+        print(password)
+        print(check_password(password, OTP))
+        return HttpResponseRedirect('../')
 
 def addCSVInfo(userList):
     for row in userList:
@@ -383,7 +403,7 @@ def questionUpdate(request):
         #Save the question
         question.questionText=text
         question.pubDate=timezone.now() - datetime.timedelta(days=1)
-        questionGrouping.questionGrouping=qGrouping
+        question.questionGrouping=qGrouping
         question.save()
 
         #Save the choices
@@ -404,7 +424,7 @@ def questionUpdate(request):
         #Save the question
         question.questionText=text
         question.pubDate=timezone.now() - datetime.timedelta(days=1)
-        questionGrouping.questionGrouping=qGrouping
+        question.questionGrouping=qGrouping
 
         question.save()
 
