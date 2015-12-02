@@ -77,11 +77,17 @@ def questionnaireAdmin(request):
                'questions': Question.objects.all()}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
-def questionnaire(request):
-	context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
-		    'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
-		    'questionGrouping' : QuestionGrouping.objects.all()}
-	return render(request, 'peer_review/questionnaire.html', context)
+def questionnaire(request, questionnairePk):
+	if request.method == "POST":
+		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
+				'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
+				'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : questionnairePk}
+		return render(request, 'peer_review/questionnaire.html', context)
+	else:
+		return render(request, 'peer_review/userError.html')
+
+def userError(request):
+	return render(request, 'peer_review/userError.html')
 
 def userList(request):
     users = User.objects.all
@@ -169,7 +175,6 @@ def userDelete(request, userPk):
     user.delete()
     return HttpResponseRedirect('../')
 
-
 def userUpdate(request, userPk):
     if request.method == "POST":
         user = User.objects.get(pk=userPk)
@@ -195,6 +200,18 @@ def userUpdate(request, userPk):
         userDetail.save()
     return HttpResponseRedirect('../')
 
+def addCSVInfo(userList):
+    for row in userList:
+        OTP = generate_OTP()
+        generate_email(OTP, row['name'], row['surname'])
+        password = hash_password(OTP)
+
+        userDetail = UserDetail(title=row['title'], initials=row['initials'], name=row['name'], surname=row['surname'],
+                                cell=row['cell'], email=row['email'])
+        userDetail.save()
+
+        user = User(userId=row['user_id'], password=password, status=row['status'], userDetail=userDetail)
+        user.save()
 
 def submitCSV(request):
     global errortype
@@ -207,6 +224,9 @@ def submitCSV(request):
             filePath = newdoc.docfile.url
             filePath = filePath[1:]
 
+            userList = list()
+            error = False
+
             documents = Document.objects.all()
 
             # ToDo delete older files
@@ -217,25 +237,23 @@ def submitCSV(request):
                 for row in reader:
                     count += 1
                     if validate(row) == 1:
-                        title = row['title']
-                        initials = row['initials']
-                        name = row['name']
-                        surname = row['surname']
-                        email = row['email']
-                        cell = row['cell']
+                        # title = row['title']
+                        # initials = row['initials']
+                        # name = row['name']
+                        # surname = row['surname']
+                        # email = row['email']
+                        # cell = row['cell']
+                        #
+                        # userId = row['user_id']
+                        # status = row['status']
+                        # OTP = generate_OTP()
+                        # generate_email(OTP, name, surname)
+                        # password = hash_password(OTP)
 
-                        userDetail = UserDetail(title=title, initials=initials, name=name, surname=surname, cell=cell,
-                                                email=email)
-                        userDetail.save()
-
-                        userId = row['user_id']
-                        status = row['status']
-                        password = row['password']
-
-                        user = User(userId=userId, password=password, status=status, userDetail=userDetail)
-                        user.save()
+                        userList.append(row)
                         # ToDo check for errors in multiple rows
                     else:
+                        error = True
                         if validate(row) == 0:
                             message = "Oops! Something seems to be wrong with the CSV file."
                             errortype = "Incorrect number of fields."
@@ -253,7 +271,6 @@ def submitCSV(request):
                             rowlist.append(row['cell'])
                             rowlist.append(row['user_id'])
                             rowlist.append(row['status'])
-                            rowlist.append(row['password'])
 
                         if validate(row) == 2:
                             errortype = "Not all fields contain values."
@@ -268,7 +285,10 @@ def submitCSV(request):
             form = DocumentForm()
             message = "Oops! Something seems to be wrong with the CSV file."
             errortype = "No file selected."
-            return render(request, 'peer_review/csvError.html', {'message': message, 'row': rowlist})
+            return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
+
+        if not(error):
+            addCSVInfo(userList)
     return HttpResponseRedirect('../')
 
 
@@ -279,7 +299,7 @@ def validate(row):
     # 3 = incorrect format
     # 4 = user already exists
 
-    if len(row) < 9:
+    if len(row) < 8:
         return 0
 
     for key, value in row.items():
