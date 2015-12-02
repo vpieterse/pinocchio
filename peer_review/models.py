@@ -113,6 +113,8 @@ class RoundDetail(models.Model):
     endingDate = models.DateTimeField('ending date')
     description = models.CharField(max_length=200)
 
+    def __str__(self):
+        return self.description
 
 class TeamDetail(models.Model):
     userDetail = models.ForeignKey(UserDetail, null=True)
