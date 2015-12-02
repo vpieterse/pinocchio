@@ -3,17 +3,6 @@
 
 {% block extrahead %}
     <title>User Admin</title>
-    <script src="{% static "peer_review/search.js" %}"></script>
-    <script src="{% static "peer_review/validation.js" %}"></script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#users tr').each(function () {
-                $(this).find('input[type="text"]').each(function () {
-                    $(this).attr('size', $(this).val().length);
-                });
-            });
-        });
-    </script>
 {% endblock extrahead %}
 
 {% block context %}
@@ -177,19 +166,19 @@
                                         <form action="/userAdmin/update/{{ user.pk }}" method="post">
                                             {% csrf_token %}
                                             <td><input type="text" class="noBorder" name="userId"
-                                                       value="{{ user.userId }}"></input></td>
+                                                       value="{{ user.userId }}"></td>
                                             <td><input type="text" class="noBorder" name="title"
-                                                       value="{{ user.userDetail.title }}"></input></td>
+                                                       value="{{ user.userDetail.title }}"></td>
                                             <td><input type="text" class="noBorder" name="initials"
-                                                       value="{{ user.userDetail.initials }}"></input></td>
+                                                       value="{{ user.userDetail.initials }}"></td>
                                             <td><input type="text" class="noBorder" name="name"
-                                                       value="{{ user.userDetail.name }}"></input></td>
+                                                       value="{{ user.userDetail.name }}"></td>
                                             <td><input type="text" class="noBorder" name="surname"
-                                                       value="{{ user.userDetail.surname }}"></input></td>
+                                                       value="{{ user.userDetail.surname }}"></td>
                                             <td><input type="text" class="noBorder" name="cell"
-                                                       value="{{ user.userDetail.cell }}"></input></td>
+                                                       value="{{ user.userDetail.cell }}"></td>
                                             <td><input type="text" class="noBorder" name="email"
-                                                       value="{{ user.userDetail.email }}"></input></td>
+                                                       value="{{ user.userDetail.email }}"></td>
                                             <td>
                                                 <button type='submit' name="edit" class='btn btn-success btn-xs'
                                                         id='edit' value="{{ user.userId }}">Edit
@@ -197,13 +186,8 @@
                                             </td>
                                         </form>
                                         <td>
-                                            <form action="/userAdmin/delete/{{ user.pk }}" method="post"
-                                                  onsubmit="return confirmDeletion()">
-                                                {% csrf_token %}
-                                                <button type='submit' name="remove" class='btn btn-warning btn-xs'
-                                                        id='remove'>Delete
-                                                </button>
-                                            </form>
+                                            <button name="remove" class='btn btn-warning btn-xs remove' data-id="{{ user.userId }}" data-pk="{{ user.pk }}">Delete
+                                            </button>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -215,6 +199,29 @@
             </div>
         </div>
     </div>
+    <script src="{% static "peer_review/search.js" %}"></script>
+    <script src="{% static "peer_review/validation.js" %}"></script>
+    <script type="text/javascript">
+        $('#users tr').each(function () {
+            $(this).find('input[type="text"]').each(function () {
+                $(this).attr('size', $(this).val().length);
+            });
+        });
 
+        $(".remove").on("click", function () {
+            var pk = $(this).data("pk");
+            var userId = $(this).data("id");
+
+            if(confirm("Are you sure you want to delete this user (" + userId + ")?")) {
+                $.ajax({
+                   type: 'GET',
+                    url: '/userAdmin/delete/' + pk,
+                    success: function() {
+                        $("#users > tbody > tr#" + pk).fadeOut(500);
+                    }
+                });
+            }
+        });
+    </script>
 
 {% endblock context %}
