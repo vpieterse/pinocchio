@@ -140,8 +140,8 @@
                 <div id="collapseThree" class="panel-collapse collapse">
                     <div class="panel-body">
 
-                        <input type="text" class="form-control" id="search" placeholder="Search"
-                               onkeyup="showResult(this.value)">
+                        <!-- <input type="text" class="form-control" id="search" placeholder="Search"
+                               onkeyup="showResult(this.value)"> -->
 
                         <div class='table-responsive'>
                             <!-- ToDo fix sortable -->
@@ -259,6 +259,10 @@
     <script src="{% static "peer_review/search.js" %}"></script>
     <script src="{% static "peer_review/validation.js" %}"></script>
     <script type="text/javascript">
+        $(document).ready(function() {
+           $("#users").DataTable();
+        });
+
         $(".remove").on("click", function () {
             var pk = $(this).data("pk");
             var userId = $(this).data("id");
