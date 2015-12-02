@@ -84,7 +84,9 @@
                 <div class="panel-body">
 
                     <input type="text" class="form-control" id="search" placeholder="Search" onkeyup="showResult(this.value)">
+
                     <div class='table-responsive'>
+
                         <table class='table sortable' id='round'>
                             <thead>
                                 <tr>
@@ -97,94 +99,130 @@
                                     <th>Remove</th>
                                 </tr>
                             </thead>
-
-                           
-
-
-
                             <tbody>
                             {% for round in roundDetail %}
                                 <tr id="{{ round.pk }}">
-                                            <form action="/maintainRound/update/{{ round.pk }}" method="post">
+                                    <form action="/maintainRound/update/{{ round.pk }}" method="post">
                                                 {% csrf_token %}
-                                                <td><input type="text" style="width: 150px" class="noBorder"
-                                                           id ="desc"
-                                                           name="desc"
-                                                           value="{{ round.description }}">
-                                                    </input ></td>
+
+<!--ROUND DESCRIPTION-->
+                                        <td><input type="text" style="width: 150px" class="noBorder"
+                                                 name="desc"
+                                                value="{{ round.description }}">
+                                            </input ></td>
+                                      
+
+<!--SELECT FOR QUESTIONNARE-->
+                  <!--                     
+                                   <td> <input type="text" class="noBorder" name="questionn"
+                                                       value="{{ round.questionnaire}}"></input>-->
+
+                        <!--   <td>
+                                <select id="type" class="form-control" style="width:auto" 
+                                        name="type" value= {{ Questionnaire }}>
+                                    {% if Questionnaire %}
+                                        {% for qt in Questionnaire %}
+                                            {% if qt == questionType %}
+                                                <option selected value="{{ qt.name }}">{{ qt.name }}</option>
+                                            {% else %}
+                                                <option value="{{ qt.name }}">{{ qt.name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </select>
+                            
+                            </td>-->
+
+
                                         <td>
-                                        <select id="quest" name=="quest" class="form-control" 
-                                style="width:auto" value = "{{ Questionnaire }}">
+                                       <select id="questionn" name=="questionn" class="form-control" 
+                                style="width:auto" onchange="selected()" >
 
                                 <option selected value="{{round.questionnaire.intro}}">{{ round.questionnaire.intro}}</option>
                             {% for quest in questionnaires %}
                                     {% if round.questionnaire.intro = quest.intro %}
                                             {% else %}
-                                                <option value="{{quest.intro}}">{{ quest.intro }}</option>     
+                                                <option value="{{quest.pk}}">{{ quest.intro }}</option>     
                                     {% endif %}
                             {% endfor %}
 
                                         </select>
+<!--Plus sign to go create a questionnaire-->
                                           <input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="window.location.href='/questionnaireAdmin'"  /> 
                                     </td>
 
 
 
+<!--STARTING DATE-->
 
+                                                <td><input type="text" class="noBorder" name="startinDate"
+                                                       value="{{ round.startingDate }}"></input></td>
 <!--
 
                                                 <td><input type="datetime" style="width: 200px" class="noBorder"
                                                            name="startingDate" value="{{ round.startingDate }}"></input></td>
 
 -->
-<td>
+                             <!-- HERE      <td>
                                         <form action="action_page.php">
                                           <input type="datetime" name="starting" id="starting" value="{{ round.startingDate }}">
                                         </form>
-                                    </td>
+                                    </td>-->
+
+<!--ENDINGDATE-->
     <!--                                            <td><input type="datetime" style="width: 200px" class="noBorder"
                                                            name="endingDate"
                                                            value="{{ round.endingDate }}"></input></td>
 -->
+                                    <td><input type="text" class="noBorder" name="endingDate"
+                                                       value="{{ round.endingDate }}"></input></td>
+
+<!--HERE
 <td>
                                         <form action="action_page.php">
                                           <input type="datetime" name="ending" id = ="ending" value="{{ round.endingDate }}">
                                         </form>
-                                    </td>
+                                    </td>-->
 
 
-
+<!--SPANNER-->
                                                  <td><button type='button' class='btn btn-default btn-xs' id='maintain'  onclick='#'><a href="teamBuilder.html"><span class="glyphicon glyphicon-wrench"></span></button></button></a></button></td>
 
+<!--EDIT-->
+                <!--
+                               <td>
+                                    <button type='submit' name="edit" class='btn btn-success btn-xs'
+                                    id='edit' value="{{ round.pk }}">Edit
+                                    </button>
+                                </td>-->
 
-<!--
-               <td>
-                    <button type='submit' name="edit" class='btn btn-success btn-xs'
-                    id='edit' value="{{ round.pk }}">Edit
-                    </button>
-                </td>-->
-
- 
-<td>
+                 <!--
+                    <td>
                                                     <button class='btn btn-success btn-xs' type = "button" onclick = "editRound({{ round.pk }})">Edit
                                                     </button>
-                                                </td>
+                                                </td>-->
                                              <!--update function??-->
                                          <!--       <td>
                                                     <button name="edit" class='btn btn-success btn-xs' id='edit' onclick="window.location.href='/maintainRound/'">Edit
                                                     </button>
                                                 </td>-->
-                                                <!--
-<td>
+                         <!--                                               
+                        <td>
                                                 <form action="/maintainRound/update/{{ round.pk }}" method="post">
                                                     {% csrf_token %}
                                                     <button type='submit' name="edit" class='btn btn-success btn-xs'
                                                             id='edit'>Edit
                                                     </button>
                                                 </form>
+                                            </td>-->
+ <td>
+                                                <button type='submit' name="edit" class='btn btn-success btn-xs'
+                                                        id='edit' value="{{ round.description }}">Edit
+                                                </button>
                                             </td>
--->
                                             </form>
+
+<!--DELETE-->
                                             <td>
                                                 <form action="/maintainRound/delete/{{ round.pk }}" method="post"
                                                       onsubmit="return confirmDeletion()">

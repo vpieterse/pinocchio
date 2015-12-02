@@ -441,15 +441,15 @@ def roundUpdate(request, roundPk):
     if request.method == "POST":
         round = RoundDetail.objects.get(pk=roundPk)
 
-        post_description = request.POST.get("description")
-        #post_questionnaire = request.POST.get("questionnaire")
-        post_startingDate = request.POST.get("startingDate")
-        post_endingDate = request.POST.get("endingDate")
+        post_description = request.POST.get("desc")
+        post_questionnaire = request.POST.get("questionn")
+        post_startingDate = request.POST.get("starting")
+        post_endingDate = request.POST.get("ending")
 
         round.description = post_description
-        #round.questionnaire = post_questionnaire
-        round.startingDate = post_startingDate
-        round.endingDate = post_endingDate
+        round.questionnaire = post_questionnaire
+       # round.startingDate = post_startingDate
+       # round.endingDate = post_endingDate
 
         round.save()
     return HttpResponseRedirect('../')
