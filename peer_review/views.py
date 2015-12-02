@@ -97,6 +97,12 @@ def getTeamsForRound(request, roundPk):
     print(response)
     return JsonResponse(response)
 
+def changeUserTeamForRound(request, roundPk, userPk, teamName):
+    team = TeamDetail.objects.filter(roundDetail_id=roundPk).filter(userDetail_id=userPk)
+    team.teamNumber = teamName
+    return JsonResponse({})
+
+
 def submitForm(request):
     if request.method == "POST":
         userForm = UserForm(request.POST)
