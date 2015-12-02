@@ -2,7 +2,7 @@
 {% load staticfiles %}
 
 {% block extrahead %}
-    <title>User Admin</title>
+    <title>Rounds</title>
     <script src="{% static "peer_review/search.js" %}"></script>
     <script src="{% static "peer_review/validation.js" %}"></script>
     <script type="text/javascript">
@@ -14,35 +14,63 @@
             });
         });
     </script>
-{% endblock extrahead %}
+
+    <script>
+        title = "maintainRound";
+    </script>
+{% endblock%}
 
 {% block context %}
-<!--Function to delete row-->
-    <script>
-    function deleteRow(row) {
-        var table = document.getElementById('round');
-            if(table.rows.length >4)
-                {table.deleteRow(row.parentNode.parentNode.rowIndex);}
-            else
-                {alert("Last row!" );}
-    }
-    </script>
-<!--end-->
+
 <!--Function to add row-->
-    <script>
-    function addRow(tableID) {
-        var table = document.getElementById(tableID);
-        var rowCount = table.rows.length;   
-            var row = table.insertRow(1);
-            var colCount = table.rows[0].cells.length;
-            for(var i=0; i<colCount; i++) {
-                var newcell = row.insertCell(i);
-                newcell.innerHTML = table.rows[2].cells[i].innerHTML;
-            }
-    }
+<script type="text/javascript">
+    function textBox(text) {
+            return '<td style="text-align: center; ">' +
+                    '<input type="text" class="noBorder" id="choice" value="' +
+                    text +
+                    '" style="text-align: center; "/>' +
+                    '</td>';
+        }
+     function addRow(text, selector) {
+
+            $table = $(selector);
+            $('#round tr:last').after('<tr>' + '<td style="text-align: center; width: 10px;">' +
+                '<input type="number" class="noBorder" style="text-align: center; "/>' +
+                '</td>'+'</tr>');
+/*$('#myTable tr:last').after('<tr>...</tr><tr>...</tr>');*/
+           
+        
+        }
     </script>
 
+<script type="text/javascript">
+    
+    function editRound(pk)
+        {
+            isEditing = true;
+            roundPk = pk;
 
+            $.ajax({
+                url: '/maintainRound/getRound/' + pk,
+                type: 'get',
+                success: function(data) {
+                    console.log(data);
+                    $('#desc').val(data.description);
+                    $('#quest').val(data.questionnaire);
+                    $('#start').val(data.startingDate);
+                    $('#end').val(data.endingDate);
+                    selected();
+                },
+                failure: function(data) { 
+                    alert('Error');
+                }
+            });//End ajax
+            
+        }
+
+
+
+</script>
 
 <!--end-->
 
@@ -80,33 +108,20 @@
                                             <form action="/maintainRound/update/{{ round.pk }}" method="post">
                                                 {% csrf_token %}
                                                 <td><input type="text" style="width: 150px" class="noBorder"
-                                                           name="description"
+                                                           id ="desc"
+                                                           name="desc"
                                                            value="{{ round.description }}">
                                                     </input ></td>
-
-
-                                   
-<!--THIS ONE?
-
-                                    <td>
-                                        <select id="quetionniare" class="form-control" 
-                                style="width:auto">
-                                              <option value="{{round.questionnaire.intro}}">{{ round.questionnaire.intro }}</option>
-                                        </select>
-
-                                          <input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="window.location.href='/questionnaireAdmin'"  /> 
-                                    </td>
-
-
- -->
-                                   
                                         <td>
-                                        <select id="type" class="form-control" 
-                                style="width:auto">
+                                        <select id="quest" name=="quest" class="form-control" 
+                                style="width:auto" value = "{{ Questionnaire }}">
 
-
+                                <option selected value="{{round.questionnaire.intro}}">{{ round.questionnaire.intro}}</option>
                             {% for quest in questionnaires %}
-                                              <option value="{{quest.intro}}">{{ quest.intro }}</option>
+                                    {% if round.questionnaire.intro = quest.intro %}
+                                            {% else %}
+                                                <option value="{{quest.intro}}">{{ quest.intro }}</option>     
+                                    {% endif %}
                             {% endfor %}
 
                                         </select>
@@ -116,39 +131,65 @@
 
 
 
-
-
+<!--
 
                                                 <td><input type="datetime" style="width: 200px" class="noBorder"
                                                            name="startingDate" value="{{ round.startingDate }}"></input></td>
 
-
-
-                                                <td><input type="datetime" style="width: 200px" class="noBorder"
+-->
+<td>
+                                        <form action="action_page.php">
+                                          <input type="datetime" name="starting" id="starting" value="{{ round.startingDate }}">
+                                        </form>
+                                    </td>
+    <!--                                            <td><input type="datetime" style="width: 200px" class="noBorder"
                                                            name="endingDate"
                                                            value="{{ round.endingDate }}"></input></td>
-
-<!--<td>
+-->
+<td>
                                         <form action="action_page.php">
-                                          <input type="datetime-local" name="endingDate">
+                                          <input type="datetime" name="ending" id = ="ending" value="{{ round.endingDate }}">
                                         </form>
-                                    </td>-->
+                                    </td>
 
 
 
                                                  <td><button type='button' class='btn btn-default btn-xs' id='maintain'  onclick='#'><a href="teamBuilder.html"><span class="glyphicon glyphicon-wrench"></span></button></button></a></button></td>
-                                                <td>
-                                                    <button name="edit" class='btn btn-success btn-xs' id='edit' onclick="window.location.href='/maintainRound'">Edit
+
+
+<!--
+               <td>
+                    <button type='submit' name="edit" class='btn btn-success btn-xs'
+                    id='edit' value="{{ round.pk }}">Edit
+                    </button>
+                </td>-->
+
+ 
+<td>
+                                                    <button class='btn btn-success btn-xs' type = "button" onclick = "editRound({{ round.pk }})">Edit
                                                     </button>
                                                 </td>
-
-
+                                             <!--update function??-->
+                                         <!--       <td>
+                                                    <button name="edit" class='btn btn-success btn-xs' id='edit' onclick="window.location.href='/maintainRound/'">Edit
+                                                    </button>
+                                                </td>-->
+                                                <!--
+<td>
+                                                <form action="/maintainRound/update/{{ round.pk }}" method="post">
+                                                    {% csrf_token %}
+                                                    <button type='submit' name="edit" class='btn btn-success btn-xs'
+                                                            id='edit'>Edit
+                                                    </button>
+                                                </form>
+                                            </td>
+-->
                                             </form>
                                             <td>
                                                 <form action="/maintainRound/delete/{{ round.pk }}" method="post"
                                                       onsubmit="return confirmDeletion()">
                                                     {% csrf_token %}
-                                                    <button type='submit' name="remove" class='btn btn-warning btn-xs'
+                                                    <button type='submit' name="delete" class='btn btn-warning btn-xs'
                                                             id='remove'>Delete
                                                     </button>
                                                 </form>
@@ -158,7 +199,7 @@
                                     {% endfor %}
                                     </tr>
 
-                                    <td><input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="addRow('round')" /></td>
+                                    <td><input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="addRow('', '#round')" /></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -172,7 +213,4 @@
                 <a class="navbar-btn btn-danger btn pull-right">Log Out</a>
             </div>
         </div>
-
-
-
 {% endblock context %}

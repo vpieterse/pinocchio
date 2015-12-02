@@ -419,14 +419,19 @@ def roundUpdate(request, roundPk):
         round = RoundDetail.objects.get(pk=roundPk)
 
         post_description = request.POST.get("description")
-        post_questionnaire = request.POST.get("questionnaire")
+        #post_questionnaire = request.POST.get("questionnaire")
         post_startingDate = request.POST.get("startingDate")
         post_endingDate = request.POST.get("endingDate")
 
         round.description = post_description
-        round.questionnaire = post_questionnaire
+        #round.questionnaire = post_questionnaire
         round.startingDate = post_startingDate
         round.endingDate = post_endingDate
 
         round.save()
     return HttpResponseRedirect('../')
+
+def getRound(request, roundPk):
+    round = RoundDetail.objects.get(pk=roundPk)
+    return JsonResponse({'roundDetail': RoundDetail.objects.all(),
+                'questionnaires': Questionnaire.objects.all()})

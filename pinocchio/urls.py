@@ -13,7 +13,6 @@ urlpatterns = [
                   
                   url(r'^maintainTeam/$', views.maintainTeam, name='maintainTeam'),
                   url(r'^questionnaireAdmin/$', views.questionnaireAdmin, name='questionnaireAdmin'),
-		  url(r'^questionnaire/$', views.questionnaire, name='questionnaire'),
 
                   url(r'^$', views.index, name='index'),
                   url(r'^(?P<question_id>[0-9]+)/$', views.detail, name='detail'),
@@ -29,6 +28,7 @@ urlpatterns = [
                   url(r'^questionAdmin', views.questionAdmin, name='questionAdmin'),
                   url(r'^maintainRound/delete/(?P<roundPk>[0-9]+)/?$', views.roundDelete),
                   url(r'^maintainRound/update/(?P<roundPk>[0-9]+)/?$', views.roundUpdate),
+                  url(r'^maintainRound/getRound/(?P<roundPk>[0-9]+)/?$', views.getRound),
 
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
