@@ -24,7 +24,8 @@ class QuestionGrouping(models.Model):
 
 
 class Question(models.Model):
-    questionText = models.CharField(max_length=300)
+    questionText = models.CharField(max_length=1000)
+    questionLabel = models.CharField(max_length=300)
     pubDate = models.DateTimeField('date published')
     questionType = models.ForeignKey(QuestionType)
     questionGrouping = models.ForeignKey(QuestionGrouping)
@@ -87,6 +88,7 @@ class UserDetail(models.Model):
 class User(models.Model):
     userId = models.CharField(max_length=8)
     password = models.CharField(max_length=100)
+    OTP = models.BooleanField(default=True)
     status = models.CharField(max_length=1)
     userDetail = models.ForeignKey(UserDetail)
 
@@ -95,7 +97,8 @@ class User(models.Model):
 
 
 class Questionnaire(models.Model):
-    intro = models.CharField(max_length=50)
+    intro = models.CharField(max_length=1000)
+    label = models.CharField(max_length=300)
     questionOrders = models.ManyToManyField(Question, through='QuestionOrder')
 
 
@@ -114,5 +117,13 @@ class RoundDetail(models.Model):
 class TeamDetail(models.Model):
     userDetail = models.ForeignKey(UserDetail, null=True)
     roundDetail = models.ForeignKey(RoundDetail)
-    teamNumber = models.IntegerField(default=0)
-    status = models.CharField(max_length=20)
+    teamName = models.CharField(max_length=200, default="emptyTeam")
+    NOT_ATTEMPTED = "NA"
+    IN_PROGRESS = "IP"
+    COMPLETED = "C"
+    STATUS_CHOICES = (
+        (NOT_ATTEMPTED, "Not attempted"),
+        (IN_PROGRESS, "In progress"),
+        (COMPLETED, "Completed")
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Not attempted")

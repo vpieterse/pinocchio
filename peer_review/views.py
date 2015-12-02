@@ -7,6 +7,10 @@ from django.shortcuts import render_to_response
 from django.shortcuts import render
 from django.template import RequestContext
 from django.http import JsonResponse
+import random
+import string
+import hashlib
+import uuid
 
 from django.utils import timezone
 
@@ -73,11 +77,17 @@ def questionnaireAdmin(request):
                'questions': Question.objects.all()}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
-def questionnaire(request):
-	context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
-		    'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
-		    'questionGrouping' : QuestionGrouping.objects.all()}
-	return render(request, 'peer_review/questionnaire.html', context)
+def questionnaire(request, questionnairePk):
+	if request.method == "POST":
+		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
+				'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
+				'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : questionnairePk}
+		return render(request, 'peer_review/questionnaire.html', context)
+	else:
+		return render(request, 'peer_review/userError.html')
+
+def userError(request):
+	return render(request, 'peer_review/userError.html')
 
 def userList(request):
     users = User.objects.all
@@ -94,8 +104,31 @@ def getTeamsForRound(request, roundPk):
             'teamNumber': team.teamNumber,
             'status': team.status
             }
-    print(response)
+    # print(response)
     return JsonResponse(response)
+
+def changeUserTeamForRound(request, roundPk, userPk, teamName):
+    team = TeamDetail.objects.filter(roundDetail_id=roundPk).filter(userDetail_id=userPk)
+    team.teamNumber = teamName
+    return JsonResponse({})
+def generate_OTP():
+    N = random.randint(4, 10)
+    OTP = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits + string.ascii_lowercase)
+                  for _ in range(N))
+    return OTP
+
+def hash_password(password):
+    salt = uuid.uuid4().hex
+    return hashlib.sha256(salt.encode() + password.encode()).hexdigest() + ':' + salt
+
+def check_password(hashed_password, user_password):
+    password, salt = hashed_password.split(':')
+    return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
+
+def generate_email(OTP, post_name, post_surname):
+    email = "Welcome to Pinocchio " + post_name + " " + post_surname + "\n\nYour one time password is: " + OTP + \
+        "\n\nKind regards,\nThe Pinocchio Team"
+    # ToDo implement email notification
 
 def submitForm(request):
     if request.method == "POST":
@@ -113,7 +146,11 @@ def submitForm(request):
             userDetail.save()
 
             post_userId = userForm.cleaned_data['userId']
-            post_password = userForm.cleaned_data['password']
+
+            OTP = generate_OTP()
+            generate_email(OTP, post_name, post_surname)
+            post_password = hash_password(OTP)
+
             post_status = userForm.cleaned_data['status']
 
             user = User(userId=post_userId, password=post_password, status=post_status, userDetail=userDetail)
@@ -124,7 +161,6 @@ def submitForm(request):
         userForm = UserForm()
     return HttpResponseRedirect("../")
 
-
 def userDelete(request, userPk):
     user = User.objects.get(pk=userPk)
     userDetail = user.userDetail
@@ -132,7 +168,6 @@ def userDelete(request, userPk):
     userDetail.delete()
     user.delete()
     return HttpResponseRedirect('../')
-
 
 def userUpdate(request, userPk):
     if request.method == "POST":
@@ -159,6 +194,18 @@ def userUpdate(request, userPk):
         userDetail.save()
     return HttpResponseRedirect('../')
 
+def addCSVInfo(userList):
+    for row in userList:
+        OTP = generate_OTP()
+        generate_email(OTP, row['name'], row['surname'])
+        password = hash_password(OTP)
+
+        userDetail = UserDetail(title=row['title'], initials=row['initials'], name=row['name'], surname=row['surname'],
+                                cell=row['cell'], email=row['email'])
+        userDetail.save()
+
+        user = User(userId=row['user_id'], password=password, status=row['status'], userDetail=userDetail)
+        user.save()
 
 def submitCSV(request):
     global errortype
@@ -171,9 +218,12 @@ def submitCSV(request):
             filePath = newdoc.docfile.url
             filePath = filePath[1:]
 
+            userList = list()
+            error = False
+
             documents = Document.objects.all()
 
-            # ToDo possibly delete older files
+            # ToDo delete older files
 
             count = 0
             with open(filePath) as csvfile:
@@ -181,25 +231,23 @@ def submitCSV(request):
                 for row in reader:
                     count += 1
                     if validate(row) == 1:
-                        title = row['title']
-                        initials = row['initials']
-                        name = row['name']
-                        surname = row['surname']
-                        email = row['email']
-                        cell = row['cell']
+                        # title = row['title']
+                        # initials = row['initials']
+                        # name = row['name']
+                        # surname = row['surname']
+                        # email = row['email']
+                        # cell = row['cell']
+                        #
+                        # userId = row['user_id']
+                        # status = row['status']
+                        # OTP = generate_OTP()
+                        # generate_email(OTP, name, surname)
+                        # password = hash_password(OTP)
 
-                        userDetail = UserDetail(title=title, initials=initials, name=name, surname=surname, cell=cell,
-                                                email=email)
-                        userDetail.save()
-
-                        userId = row['user_id']
-                        status = row['status']
-                        password = row['password']
-
-                        user = User(userId=userId, password=password, status=status, userDetail=userDetail)
-                        user.save()
+                        userList.append(row)
                         # ToDo check for errors in multiple rows
                     else:
+                        error = True
                         if validate(row) == 0:
                             message = "Oops! Something seems to be wrong with the CSV file."
                             errortype = "Incorrect number of fields."
@@ -217,7 +265,6 @@ def submitCSV(request):
                             rowlist.append(row['cell'])
                             rowlist.append(row['user_id'])
                             rowlist.append(row['status'])
-                            rowlist.append(row['password'])
 
                         if validate(row) == 2:
                             errortype = "Not all fields contain values."
@@ -232,7 +279,10 @@ def submitCSV(request):
             form = DocumentForm()
             message = "Oops! Something seems to be wrong with the CSV file."
             errortype = "No file selected."
-            return render(request, 'peer_review/csvError.html', {'message': message, 'row': rowlist})
+            return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
+
+        if not(error):
+            addCSVInfo(userList)
     return HttpResponseRedirect('../')
 
 
@@ -243,7 +293,7 @@ def validate(row):
     # 3 = incorrect format
     # 4 = user already exists
 
-    if len(row) < 9:
+    if len(row) < 8:
         return 0
 
     for key, value in row.items():
@@ -369,7 +419,7 @@ def getChoices(request, questionPk):
     response = {};
     for choice in choices:
         response[choice.num] = choice.choiceText
-    print(response)
+    # print(response)
     return JsonResponse(response)
 
 
@@ -406,7 +456,7 @@ def createQuestion(request):
                            num = rank,
                            header_id = 0)
                 rank += 1
-                print(c)
+                # print(c)
                 c.save()
 
         #Rank

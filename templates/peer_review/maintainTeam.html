@@ -11,7 +11,14 @@
     <!--Select correct table-->
     <script>
         var numTeams = 0;
+
+        // Currently active round
+        var roundId = "";
+        // Currently active team
         var selected = "";
+
+        // Loading table
+        var loading = false;
     </script>
     <!--end-->
 {% endblock extrahead %}
@@ -68,6 +75,9 @@
                                                         <tbody>
                                                             {% for user in users %}
                                                                 {% csrf_token %}
+                                                                <script>
+                                                                    console.log({{ user.pk }})
+                                                                </script>
                                                                 <tr id="{{ user.pk }}">
                                                                     <td>{{ user.userId }}</td>
                                                                     <td>{{ user.userDetail.name }}</td>
@@ -234,6 +244,8 @@
                         },
                         "targets": [3]}]
             });
+
+            // Depricated?
             var teams = $(".teamTable").DataTable({
                 "orderClasses": false,
                     "columnDefs": [{
@@ -257,10 +269,29 @@
             $('.moveable tbody').on('click', 'div.addUser', function() {
                 if(selected != "" && $("#"+selected+" .in") != null)
                 {
+                    alert("CLICK!");
                     var teamTable = $("#"+selected).find(".teamTable").DataTable();
                     if(teamTable != null)
                     {
-                        moveUser(users, teamTable, $(this).parents('tr'));
+                        var row = $(this).parents('tr');
+                        if (!loading)
+                        {
+                            var userId=row[0].id;
+                            var newTeam = selected;
+                            console.log('/maintainTeam/changeUserTeamForRound/'+roundId+'/'+userId+'/');
+                            $.ajax({
+                                url: '/maintainTeam/changeUserTeamForRound/'+roundId+'/'+userId+'/', //+newTeam+'/',
+                                type: 'GET',
+                                success: function(data) {
+                                    console.log("Changed user: "+userId+" to team: "+newTeam+" for round: "+roundId);
+                                },
+                                failure: function(data) {
+                                    console.log("ERROR: Could not change user: "+userId+" to team: "+newTeam+" for round: "+roundId)
+                                }
+                            });
+                            
+                        }
+                        moveUser(users, teamTable, row);
                     }
                 }
             });
@@ -274,21 +305,19 @@
             $('#selectedRound').on('change', function() {
                 $("#teams").find("div.removeUser").click();
                 $("#teams").html("");
-                if(this.value != '')
+                roundId = this.value;
+                if(roundId != '')
                 {
                     $.ajax({
-                        url: '/maintainTeam/getTeamsForRound/' + this.value,
+                        url: '/maintainTeam/getTeamsForRound/' + roundId,
                         type: 'GET',
                         success: function(data) {
-                            console.log(data);
-                            
+                            loading = true;
                             for(var team in data)
                             {
                                 team = data[team];
-                                console.log("Team: " + team);
                                 if(team["teamNumber"] != 0)
                                 {
-                                    console.log("Status: " + team["status"]);
                                     if($("#"+team["status"]).length == 0)
                                     {
                                         addTeamCont(team["status"]);
@@ -298,21 +327,17 @@
                                     $("#"+team["status"]).addClass("in");
                                 
                                     $("#users").find("#"+team["userId"]).find('div.addUser').click();
-                                    //console.log($("#users").find("#"+team["userId"]).find('div.addUser'));
 
                                     $("#"+team["status"]).removeClass("in");
                                     selected = "";
                                 }
                             }
+                            loading = false;
                         },
                         failure: function(data) {
                             console.log('Error: getTeamsForRound');
                         }
                     }); 
-                }
-                else
-                {
-                    // TODO: clear all the tables
                 }
             });
             
