@@ -15,12 +15,6 @@ class UserForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'userId', }),
     )
 
-    password = forms.CharField(
-        label="Password:",
-        max_length=100,
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'id': 'password', }),
-    )
-
     status = forms.ChoiceField(
         label="Status:",
         choices=(('', '',), ('S', 'Student',), ('A', 'Admin',)),

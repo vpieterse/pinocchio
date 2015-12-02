@@ -87,6 +87,7 @@ class UserDetail(models.Model):
 class User(models.Model):
     userId = models.CharField(max_length=8)
     password = models.CharField(max_length=100)
+    OTP = models.BooleanField(default=True)
     status = models.CharField(max_length=1)
     userDetail = models.ForeignKey(UserDetail)
 
