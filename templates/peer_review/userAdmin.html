@@ -249,6 +249,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-warning pull-left" id="resetPassword">Reset Password</button>
                     <button type="button" class="btn btn-success" id="updateConfirm" data-dismiss="modal">Update</button>
                 </div>
             </div>
@@ -337,6 +338,21 @@
                         status.text(uStatus);
                     }
                 });
+            });
+
+            $("#resetPassword").on("click", function () {
+                if (confirm("Are you sure you want to reset the password for this user?")) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/userAdmin/resetPassword/' + pk,
+                        data: {
+                            'csrfmiddlewaretoken': token
+                        },
+                        success: function() {
+                            alert("Password reset");
+                        }
+                    });
+                }
             });
         });
     </script>
