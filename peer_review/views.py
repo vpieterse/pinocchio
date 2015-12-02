@@ -205,6 +205,24 @@ def userUpdate(request, userPk):
         userDetail.save()
     return HttpResponseRedirect('../')
 
+def resetPassword(request, userPk):
+    if request.method == "POST":
+        user = User.objects.get(pk=userPk)
+        userDetail = user.userDetail
+
+        OTP = generate_OTP()
+        generate_email(OTP, userDetail.name, userDetail.surname)
+        password = hash_password(OTP)
+
+        user.password = password
+        user.save()
+        userDetail.save()
+
+        print(OTP)
+        print(password)
+        print(check_password(password, OTP))
+        return HttpResponseRedirect('../')
+
 def addCSVInfo(userList):
     for row in userList:
         OTP = generate_OTP()
