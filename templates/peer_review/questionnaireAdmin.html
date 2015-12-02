@@ -1,0 +1,200 @@
+{% extends "peer_review/base.html" %}
+{% load staticfiles %}
+{% block extrahead %}
+    <title xmlns="http://www.w3.org/1999/html">Questionnaire Admin</title>
+
+    <script src="{% static "peer_review/search.js" %}"></script>
+    <script src="{% static "peer_review/validation.js" %}"></script>
+    <script type="text/javascript">
+        function makeOneRowSelectable(table, dataTable) {
+            table.find('tbody').on('click', 'tr', function () {
+                if ($(this).hasClass('selected')) {
+                    $(this).removeClass('selected');
+                }
+                else {
+                    dataTable.$('tr.selected').removeClass('selected');
+                    $(this).addClass('selected');
+                }
+            });
+        }
+
+        function resizeTableColumns(table) {
+            table.find('tr').each(function () {
+                $(this).find('input[type="text"]').each(function () {
+                    $(this).attr('size', $(this).val().length);
+                });
+            });
+        }
+
+        // @todo refactor or something
+        var upArrow = '<td style="text-align: center; width: 20px;">' +
+                '<a class="move up" href="javascript:void(0)" title="move up">' +
+                '<span class="glyphicon glyphicon-arrow-up"></span>' +
+                '</a>' +
+                '</td>';
+
+        var downArrow = '<td style="text-align: center; width: 20px; ">' +
+                '<a class="move down" href="javascript:void(0)" title="move down">' +
+                '<span class="glyphicon glyphicon-arrow-down"></span>' +
+                '</a>' +
+                '</td>';
+
+        $(document).ready(function () {
+            var questionTable = $("#questionTable");
+            resizeTableColumns(questionTable);
+
+            var dTableQuestion = questionTable.DataTable({
+                "orderClasses": false,
+                "columnDefs": [{
+                    "orderable": false,
+                    "searchable": false,
+                    "render": function (data, type, full, meta) {
+                        return "<div class=\"addQuestion button\" '><span class=\"glyphicon glyphicon-chevron-right\"></span></div>"
+                    },
+                    "targets": [4]
+                }]
+            });
+
+            var questionnaireTable = $("#questionnaireTable");
+            var dTableQuestionnaire = questionnaireTable.DataTable({
+                "orderClasses": false,
+                "order": [], // No initial sorting
+                "columnDefs": [
+                    {
+                        "orderable": false,
+                        "searchable": false,
+                        "render": function (data, type, full, meta) {
+                            return "<div class=\"removeQuestion button\" '><span class=\"glyphicon glyphicon-remove-circle\"></span></div>"
+                        },
+                        "targets": [4]
+                    },
+                    {
+                        "orderable": false,
+                        "searchable": false,
+                        "targets": [0, 1, 2, 3]
+                    }
+                ]
+            });
+            dTableQuestionnaire.columns.orderable = false;
+
+            makeOneRowSelectable(questionTable, dTableQuestion);
+            makeOneRowSelectable(questionnaireTable, dTableQuestionnaire);
+
+
+            {#            $('#button').click( function () {#}
+            {#                alert( table.rows('.selected').data().length +' row(s) selected' );#}
+            {#            } );#}
+
+            var moveable = $(".moveable tbody");
+            moveable.on('click', 'div.addQuestion', function () {
+                var tr = $(this).closest('tr').clone(); // Deep copy
+                dTableQuestionnaire.row.add(tr).draw();
+            });
+
+            moveable.on('click', 'div.removeQuestion', function () {
+                var tr = $(this).closest('tr');
+                dTableQuestionnaire.row(tr).remove().draw();
+                {#                users.row.add(tr).draw();#}
+            });
+        });
+    </script>
+    <!--Edit navbar active-->
+    <script>
+        title = "questionnaireAdmin";
+    </script>
+    <!--end-->
+{% endblock %}
+{% block context %}
+    <div class="container">
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel panel-default">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
+                         data-target="#collapseTwo">
+                        <h4 class="panel-title">
+                            <a>
+                                1. Make a header/introduction <b class="caret"></b>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div id="collapseTwo" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <label for="intro">Introduction</label>
+                            <input id="intro" value="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
+                     data-target="#collapseThree">
+                    <h4 class="panel-title">
+                        <a>
+                            2. Choose questions<b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapseThree" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class='table moveable' id='questionTable'>
+                                    <thead>
+                                    <tr>
+                                        <th>Question</th>
+                                        <th>Publish Date</th>
+                                        <th>Question Type</th>
+                                        <th>Grouping</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for question in questions %}
+                                        <tr id="{{ question.pk }}">
+                                            {% csrf_token %}
+                                            <td>{{ question.questionText }}</td>
+                                            <td>{{ question.pubDate }}</td>
+                                            <td>{{ question.questionType.name }}</td>
+                                            <td>{{ question.questionGrouping.grouping }}</td>
+                                            <td></td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <table id="questionnaireTable" class="table moveable">
+                                    <thead>
+                                    <tr>
+                                        <th>Question</th>
+                                        <th>Publish Date</th>
+                                        <th>Question Type</th>
+                                        <th>Grouping</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container">
+            <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
+            <a class="navbar-btn btn-danger btn pull-right" href="/admin/logout">Log Out</a>
+        </div>
+    </div>
+    </div>
+{% endblock %}

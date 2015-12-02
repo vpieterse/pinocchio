@@ -1,0 +1,92 @@
+﻿#header {
+    height: 30px;
+    padding-left: 50px;
+    margin-top: -5px;
+}
+
+.navbar-brand{
+    color : white !important;
+}
+
+.navbar{
+    background-color: #044242;
+    border-bottom-color: white;
+}
+
+.jumbotron{
+    background-color: #c7c7c7;
+}
+
+.btn-info{
+    background-color: #808080;
+    border-color: none;
+}
+
+.btn-info:hover{
+    background-color: #044242;
+    border-color: #fff;
+}
+
+.mid{
+    color: #ff6a00 !important;
+}
+
+.btn-danger{
+    background-color: #ff6a00;
+    border-color: none;
+}
+
+.btn-danger:hover{
+    background-color: #ff6a00;
+    border-color: #fff;
+}
+
+.btn-warning{
+    background-color: #d9534f;
+    border-color: none;
+}
+
+.btn-warning:hover{
+    background-color: #d9534f;
+    border-color: #fff;
+}
+
+.btn-warning:focus{
+    background-color: #d9534f;
+    border-color: #fff;
+}
+
+body{
+    padding-bottom: 60px;
+}
+
+#wizard{
+    background-color: #ff6a00;
+    border-color: none;
+}
+
+.navbar-nav > li.active > a{
+    background-color: #ff6a00 !important;
+}
+
+.panel-title > a:hover, .panel-title > a{
+    font-weight: bold;
+    color: black;
+    text-decoration: none;
+}
+
+.panel-heading {
+    cursor: pointer;
+    cursor: hand;
+}
+
+.noBorder {
+    border: 0;
+}
+
+tr .selectable {
+    cursor: default;
+}
+.selectable .highlight {
+    background: grey;
+}

@@ -1,0 +1,64 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script src="{% static "peer_review/jquery.min.js" %}"></script>
+    <link rel="stylesheet" href="{% static "peer_review/css/bootstrap.min.css" %}">
+    <script src="{% static "peer_review/js/bootstrap.min.js" %}"></script>
+    <link rel="stylesheet" href="{% static "peer_review/css/style.css" %}">
+    <link rel="stylesheet" href="{% static "peer_review/bootstrap-sortable.css" %}">
+    <link rel="icon" type="image/png" href="{% static "peer_review/favicon.png" %}">
+
+    <script src="{% static "peer_review/js/bootstrap.js" %}"></script>
+    <script src="{% static "peer_review/bootstrap-sortable.js" %}"></script>
+
+    <link rel="stylesheet" href="{% static "peer_review/css/datatables.min.css" %}"/>
+    <script src="{% static "peer_review/js/datatables.min.js" %}"></script>
+    <!--Edit navbar active-->
+    <script>
+        var title = "userAdmin";
+    </script>
+    <!--end-->
+
+    {% block extrahead %} {% endblock %}
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container">
+        <div class="navbar-header">
+            <a href="." class="navbar-brand"><img src="{% static "peer_review/header.png" %}" id="header"/></a>
+            <button class="navbar-toggle" data-toggle="collapse" data-target=".navHeaderCollapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse navHeaderCollapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li id="userAdmin"><a href="/userAdmin">User Admin</a></li>
+                <li id="maintainRound"><a href="/maintainRound">Rounds</a></li>
+                <li id="maintainTeam"><a href="/maintainTeam">Team Admin</a></li>
+                <li id="questionAdmin"><a href="/questionAdmin">Question Admin</a></li>
+                <li id="questionnaireAdmin"><a href="/questionnaireAdmin">Questionnaire Admin</a></li>
+                <li id="fileManager"><a href="/fileUpload#">File Manager</a></li>
+                <li id="serverManager"><a href="#">Server Manager</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% block context %}
+{% endblock %}
+<div class="navbar navbar-default navbar-fixed-bottom">
+    <div class="container">
+        <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
+        <a class="navbar-btn btn-danger btn pull-right">Log Out</a>
+    </div>
+</div>
+ <!--Edit navbar active-->
+<script>
+    $("#"+title).addClass("active");
+</script>
+<!--end-->
+</body>
+</html>
