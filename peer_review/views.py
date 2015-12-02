@@ -190,7 +190,16 @@ def userUpdate(request, userPk):
 
 def addCSVInfo(userList):
     for row in userList:
-        print(userList[0]['name'])
+        OTP = generate_OTP()
+        generate_email(OTP, row['name'], row['surname'])
+        password = hash_password(OTP)
+
+        userDetail = UserDetail(title=row['title'], initials=row['initials'], name=row['name'], surname=row['surname'],
+                                cell=row['cell'], email=row['email'])
+        userDetail.save()
+
+        user = User(userId=row['user_id'], password=password, status=row['status'], userDetail=userDetail)
+        user.save()
 
 def submitCSV(request):
     global errortype
@@ -216,25 +225,19 @@ def submitCSV(request):
                 for row in reader:
                     count += 1
                     if validate(row) == 1:
-                        title = row['title']
-                        initials = row['initials']
-                        name = row['name']
-                        surname = row['surname']
-                        email = row['email']
-                        cell = row['cell']
+                        # title = row['title']
+                        # initials = row['initials']
+                        # name = row['name']
+                        # surname = row['surname']
+                        # email = row['email']
+                        # cell = row['cell']
+                        #
+                        # userId = row['user_id']
+                        # status = row['status']
+                        # OTP = generate_OTP()
+                        # generate_email(OTP, name, surname)
+                        # password = hash_password(OTP)
 
-                        # userDetail = UserDetail(title=title, initials=initials, name=name, surname=surname, cell=cell,
-                        #                         email=email)
-                        # userDetail.save()
-
-                        userId = row['user_id']
-                        status = row['status']
-                        OTP = generate_OTP()
-                        generate_email(OTP, name, surname)
-                        password = hash_password(OTP)
-
-                        # user = User(userId=userId, password=password, status=status, userDetail=userDetail)
-                        # user.save()
                         userList.append(row)
                         # ToDo check for errors in multiple rows
                     else:
