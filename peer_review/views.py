@@ -7,6 +7,10 @@ from django.shortcuts import render_to_response
 from django.shortcuts import render
 from django.template import RequestContext
 from django.http import JsonResponse
+import random
+import string
+import hashlib
+import uuid
 
 from django.utils import timezone
 
@@ -94,14 +98,31 @@ def getTeamsForRound(request, roundPk):
             'teamNumber': team.teamNumber,
             'status': team.status
             }
-    print(response)
+    # print(response)
     return JsonResponse(response)
 
 def changeUserTeamForRound(request, roundPk, userPk, teamName):
     team = TeamDetail.objects.filter(roundDetail_id=roundPk).filter(userDetail_id=userPk)
     team.teamNumber = teamName
     return JsonResponse({})
+def generate_OTP():
+    N = random.randint(4, 10)
+    OTP = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits + string.ascii_lowercase)
+                  for _ in range(N))
+    return OTP
 
+def hash_password(password):
+    salt = uuid.uuid4().hex
+    return hashlib.sha256(salt.encode() + password.encode()).hexdigest() + ':' + salt
+
+def check_password(hashed_password, user_password):
+    password, salt = hashed_password.split(':')
+    return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
+
+def generate_email(OTP, post_name, post_surname):
+    email = "Welcome to Pinocchio " + post_name + " " + post_surname + "\n\nYour one time password is: " + OTP + \
+        "\n\nKind regards,\nThe Pinocchio Team"
+    # ToDo implement email notification
 
 def submitForm(request):
     if request.method == "POST":
@@ -119,7 +140,11 @@ def submitForm(request):
             userDetail.save()
 
             post_userId = userForm.cleaned_data['userId']
-            post_password = userForm.cleaned_data['password']
+
+            OTP = generate_OTP()
+            generate_email(OTP, post_name, post_surname)
+            post_password = hash_password(OTP)
+
             post_status = userForm.cleaned_data['status']
 
             user = User(userId=post_userId, password=post_password, status=post_status, userDetail=userDetail)
@@ -129,7 +154,6 @@ def submitForm(request):
     else:
         userForm = UserForm()
     return HttpResponseRedirect("../")
-
 
 def userDelete(request, userPk):
     user = User.objects.get(pk=userPk)
@@ -179,7 +203,7 @@ def submitCSV(request):
 
             documents = Document.objects.all()
 
-            # ToDo possibly delete older files
+            # ToDo delete older files
 
             count = 0
             with open(filePath) as csvfile:
@@ -375,7 +399,7 @@ def getChoices(request, questionPk):
     response = {};
     for choice in choices:
         response[choice.num] = choice.choiceText
-    print(response)
+    # print(response)
     return JsonResponse(response)
 
 
@@ -412,7 +436,7 @@ def createQuestion(request):
                            num = rank,
                            header_id = 0)
                 rank += 1
-                print(c)
+                # print(c)
                 c.save()
 
         #Rank
