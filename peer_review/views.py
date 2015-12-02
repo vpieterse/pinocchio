@@ -95,6 +95,22 @@ def userList(request):
     docForm = DocumentForm()
     return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'docForm': docForm})
 
+def getTeams(request):
+    teams = TeamDetail.objects.all()
+    response={}
+    for team in teams:
+        user = User.objects.get(userDetail=team.userDetail)
+        response[team.pk] = {
+            'userId': user.userId,
+            'initials': team.userDetail.initials,
+            'surname': team.userDetail.surname,
+            'round': team.roundDetail.description,
+            'team': team.teamName,
+            'status': team.status,
+            'teamId': team.pk
+        }
+    return JsonResponse(response)
+
 def getTeamsForRound(request, roundPk):
     teams = TeamDetail.objects.filter(roundDetail_id=roundPk)
     response = {}
@@ -109,10 +125,15 @@ def getTeamsForRound(request, roundPk):
 
 def changeUserTeamForRound(request, roundPk, userPk, teamName):
     team = TeamDetail.objects.filter(userDetail_id=userPk).get(roundDetail_id=roundPk)
-    print(team)
     print(RoundDetail.objects.filter(id=roundPk))
     print(UserDetail.objects.filter(id=userPk))
     team.teamName = teamName
+    team.save()
+    return JsonResponse({'success': True})
+
+def changeTeamStatus(request, teamPk, status):
+    team = TeamDetail.objects.get(pk=teamPk)
+    team.status = status
     team.save()
     return JsonResponse({'success': True})
 

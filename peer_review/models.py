@@ -128,7 +128,7 @@ class TeamDetail(models.Model):
         (IN_PROGRESS, "In progress"),
         (COMPLETED, "Completed")
     )
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Not attempted")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=NOT_ATTEMPTED)
 
     def __str__(self):
         return self.roundDetail.description + " " + self.teamName + " (" + self.userDetail.surname + ", " +self.userDetail.initials + ")"
