@@ -75,11 +75,17 @@ def questionnaireAdmin(request):
                'questions': Question.objects.all()}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
-def questionnaire(request):
-	context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
-		    'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
-		    'questionGrouping' : QuestionGrouping.objects.all()}
-	return render(request, 'peer_review/questionnaire.html', context)
+def questionnaire(request, questionnairePk):
+	if request.method == "POST":
+		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
+				'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
+				'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : questionnairePk}
+		return render(request, 'peer_review/questionnaire.html', context)
+	else:
+		return render(request, 'peer_review/userError.html')
+
+def userError(request):
+	return render(request, 'peer_review/userError.html')
 
 def userList(request):
     users = User.objects.all
