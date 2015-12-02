@@ -115,5 +115,5 @@ class RoundDetail(models.Model):
 class TeamDetail(models.Model):
     userDetail = models.ForeignKey(UserDetail, null=True)
     roundDetail = models.ForeignKey(RoundDetail)
-    teamNumber = models.IntegerField(default=0)
+    teamName = models.CharField(max_length=200)
     status = models.CharField(max_length=20)
