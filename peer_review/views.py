@@ -108,10 +108,13 @@ def getTeamsForRound(request, roundPk):
     return JsonResponse(response)
 
 def changeUserTeamForRound(request, roundPk, userPk, teamName):
-    team = TeamDetail.objects.filter(roundDetail_id=roundPk).filter(userDetail_id=userPk)
+    team = TeamDetail.objects.filter(userDetail_id=userPk).get(roundDetail_id=roundPk)
+    print(team)
+    print(RoundDetail.objects.filter(id=roundPk))
+    print(UserDetail.objects.filter(id=userPk))
     team.teamName = teamName
     team.save()
-    return JsonResponse({})
+    return JsonResponse({'success': True})
 
 def generate_OTP():
     N = random.randint(4, 10)
