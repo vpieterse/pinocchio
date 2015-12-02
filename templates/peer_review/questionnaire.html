@@ -132,15 +132,15 @@
                             
                             <div class='table-responsive'>
                                 
-                                    <!--<tbody>
-                                    	{% for question in questions %}
+                                   <!-- <tbody>
+                                    	{% for question in questionnaire %}
                                         <tr id="{{ question.pk }}">
                                             
                                                 {% csrf_token %}
-                                                <br><!--<td><input type="text" readonly style="width: 250px" class="noBorder"
+                                                <br><td><input type="text" readonly style="width: 250px" class="noBorder"
                                                            name="questionText"
-                                                           value="{{ question.questionText }}"></input>***
-						<label for="questionText">{{ question.questionText }}</label>
+                                                           value="{{ question.questionText }}"></input>
+						<label for="questionText">{{ question.intro }}</label>
                                               
                                                <!-- <input type="text" style="width: 200px" class="noBorder"
                                                            name="questionType"
@@ -161,9 +161,15 @@
                                             
                                         </tr>
                                     {% endfor %}
-                                    </tbody>  Replace *** with end annotation-->
+                                    </tbody>  Replace *** with end annotation -->
+					
 					<tbody>
-						
+						{% for questionnaires in questionnaire %}
+							<p>{{questionnaires.id}} {{questionnairePk}}</p>
+							{% ifequal questionnaires.id questionnairePk %}
+								<h>{{ questionnaires.intro }}</h>
+							{% endifequal %}
+						{% endfor %}
 					</tbody>
  				  	
                                 
