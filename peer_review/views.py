@@ -80,8 +80,8 @@ def questionnaireAdmin(request):
 def questionnaire(request, questionnairePk):
 	if request.method == "POST":
 		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
-				'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
-				'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk)}
+			   'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
+			   'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk)}
 		return render(request, 'peer_review/questionnaire.html', context)
 	else:
 		return render(request, 'peer_review/userError.html')
