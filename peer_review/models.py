@@ -115,5 +115,13 @@ class RoundDetail(models.Model):
 class TeamDetail(models.Model):
     userDetail = models.ForeignKey(UserDetail, null=True)
     roundDetail = models.ForeignKey(RoundDetail)
-    teamNumber = models.IntegerField(default=0)
-    status = models.CharField(max_length=20)
+    teamName = models.CharField(max_length=200, default="emptyTeam")
+    NOT_ATTEMPTED = "NA"
+    IN_PROGRESS = "IP"
+    COMPLETED = "C"
+    STATUS_CHOICES = (
+        (NOT_ATTEMPTED, "Not attempted"),
+        (IN_PROGRESS, "In progress"),
+        (COMPLETED, "Completed")
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Not attempted")
