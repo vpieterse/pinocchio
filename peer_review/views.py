@@ -190,8 +190,10 @@ def userUpdate(request, userPk):
         post_surname = request.POST.get("surname")
         post_cell = request.POST.get("cell")
         post_email = request.POST.get("email")
+        post_status = request.POST.get("status")
 
         user.userId = post_userId
+        user.status = post_status
         userDetail.title = post_title
         userDetail.initials = post_initials
         userDetail.name = post_name

@@ -156,6 +156,7 @@
                                     <th>Surname</th>
                                     <th data-defaultsort='disabled'>Cell</th>
                                     <th>Email</th>
+                                    <th>Status</th>
                                     <th>Edit</th>
                                     <th>Remove</th>
                                 </tr>
@@ -170,13 +171,15 @@
                                         <td data-id="surname">{{ user.userDetail.surname }}</td>
                                         <td data-id="cell">{{ user.userDetail.cell }}</td>
                                         <td data-id="email">{{ user.userDetail.email }}</td>
+                                        <td data-id="status">{{ user.status }}</td>
                                         <td>
-                                            <button name="edit" class='btn btn-success btn-xs edit' data-id="{{ user.userId }}" data-pk="{{ user.pk }}">
+                                            <button type="button" name="edit" class='btn btn-success btn-xs edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ user.userId }}" data-pk="{{ user.pk }}">
                                                 &#9998;
                                             </button>
                                         </td>
+
                                         <td>
-                                            <button name="remove" class='btn btn-warning btn-xs remove' data-id="{{ user.userId }}" data-pk="{{ user.pk }}">
+                                            <button type="button" name="remove" class='btn btn-warning btn-xs remove' data-id="{{ user.userId }}" data-pk="{{ user.pk }}">
                                                 &#10008;
                                             </button>
                                         </td>
@@ -190,6 +193,68 @@
             </div>
         </div>
     </div>
+
+    <div id="editModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Edit User</h4>
+                </div>
+                <div class="modal-body">
+                    <form role="form" id="modalForm">
+                        <div class="form-group">
+                            <label for="userId">User ID:</label>
+                            <input type="text" class="form-control" id="e_userId">
+                        </div>
+                        <div class="form-group">
+                            <label for="title">Title:</label>
+                            <select class="form-control" id="e_title">
+                                <option></option>
+                                <option>Mr</option>
+                                <option>Ms</option>
+                                <option>Miss</option>
+                                <option>Mrs</option>
+                                <option>Dr</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="initials">Initials:</label>
+                            <input type="text" class="form-control" id="e_initials">
+                        </div>
+                        <div class="form-group">
+                            <label for="name">First Name:</label>
+                            <input type="text" class="form-control" id="e_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="surname">Surname:</label>
+                            <input type="text" class="form-control" id="e_surname">
+                        </div>
+                        <div class="form-group">
+                            <label for="cell">Cell:</label>
+                            <input type="text" class="form-control" id="e_cell">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="text" class="form-control" id="e_email">
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status:</label>
+                            <select class="form-control" id="e_status">
+                                <option></option>
+                                <option>Student</option>
+                                <option>Admin</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="updateConfirm">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="{% static "peer_review/search.js" %}"></script>
     <script src="{% static "peer_review/validation.js" %}"></script>
     <script type="text/javascript">
@@ -203,7 +268,6 @@
                     url: '/userAdmin/delete/' + pk,
                     success: function() {
                         $("#users > tbody > tr#" + pk).fadeOut(500);
-
                     }
                 });
             }
@@ -211,6 +275,7 @@
 
         $(".edit").on("click", function() {
             var pk = $(this).data("pk");
+            var token = $(this).data("csrf");
             var row = $("#users > tbody > tr#" + pk);
 
             var userId = row.children("[data-id='userId']").text();
@@ -220,13 +285,43 @@
             var surname = row.children("[data-id='surname']").text();
             var cell = row.children("[data-id='cell']").text();
             var email = row.children("[data-id='email']").text();
+            var status = row.children("[data-id='status']").text();
 
-            $.ajax({
-                type: 'POST',
-                url: '/userAdmin/update/' + pk,
-                success: function() {
+            $("#e_userId").val(userId);
+            $("#e_title").val(title);
+            $("#e_initials").val(initials);
+            $("#e_name").val(name);
+            $("#e_surname").val(surname);
+            $("#e_cell").val(cell);
+            $("#e_email").val(email);
 
+            if (status == "S") {
+                $("#e_status").val("Student");
+            } else if (status == "A") {
+                $("#e_status").val("Admin");
+            }
+
+            $("#updateConfirm").on("click", function () {
+                var data = {
+                    'userId': $("#e_userId").val(),
+                    'title': $("#e_title").val(),
+                    'initials': $("#e_initials").val(),
+                    'name': $("#e_name").val(),
+                    'surname': $("#e_surname").val(),
+                    'cell': $("#e_cell").val(),
+                    'email': $("#e_email").val(),
+                    'status': $("#e_status").val(),
+                    'csrfmiddlewaretoken': token
                 }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/userAdmin/update/' + pk,
+                    data: data,
+                    success: function() {
+                        alert("xxx");
+                    }
+                });
             });
         });
     </script>
