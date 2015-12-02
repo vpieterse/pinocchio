@@ -7,6 +7,8 @@ from django.shortcuts import render_to_response
 from django.shortcuts import render
 from django.template import RequestContext
 from django.http import JsonResponse
+import random
+import string
 
 from django.utils import timezone
 
@@ -83,6 +85,7 @@ def userList(request):
     users = User.objects.all
     userForm = UserForm()
     docForm = DocumentForm()
+    generateOTP()
     return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'docForm': docForm})
 
 def getTeamsForRound(request, roundPk):
@@ -94,8 +97,15 @@ def getTeamsForRound(request, roundPk):
             'teamNumber': team.teamNumber,
             'status': team.status
             }
-    print(response)
+    # print(response)
     return JsonResponse(response)
+
+def generateOTP():
+    N = random.randint(4, 10)
+    OTP = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits + string.ascii_lowercase)
+                  for _ in range(N))
+    return OTP
+
 
 def submitForm(request):
     if request.method == "POST":
@@ -369,7 +379,7 @@ def getChoices(request, questionPk):
     response = {};
     for choice in choices:
         response[choice.num] = choice.choiceText
-    print(response)
+    # print(response)
     return JsonResponse(response)
 
 
@@ -406,7 +416,7 @@ def createQuestion(request):
                            num = rank,
                            header_id = 0)
                 rank += 1
-                print(c)
+                # print(c)
                 c.save()
 
         #Rank
