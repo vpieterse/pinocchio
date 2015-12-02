@@ -123,7 +123,7 @@ def submitForm(request):
             userDetail.save()
 
             post_userId = userForm.cleaned_data['userId']
-            post_password = userForm.cleaned_data['password']
+            post_password = generateOTP()
             post_status = userForm.cleaned_data['status']
 
             user = User(userId=post_userId, password=post_password, status=post_status, userDetail=userDetail)
@@ -133,7 +133,6 @@ def submitForm(request):
     else:
         userForm = UserForm()
     return HttpResponseRedirect("../")
-
 
 def userDelete(request, userPk):
     user = User.objects.get(pk=userPk)
@@ -183,7 +182,7 @@ def submitCSV(request):
 
             documents = Document.objects.all()
 
-            # ToDo possibly delete older files
+            # ToDo delete older files
 
             count = 0
             with open(filePath) as csvfile:
