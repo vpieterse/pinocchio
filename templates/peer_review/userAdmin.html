@@ -156,37 +156,28 @@
                                     <th>Surname</th>
                                     <th data-defaultsort='disabled'>Cell</th>
                                     <th>Email</th>
-                                    <th>Accept Edit</th>
+                                    <th>Edit</th>
                                     <th>Remove</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 {% for user in users %}
                                     <tr id="{{ user.pk }}">
-                                        <form action="/userAdmin/update/{{ user.pk }}" method="post">
-                                            {% csrf_token %}
-                                            <td><input type="text" class="noBorder" name="userId"
-                                                       value="{{ user.userId }}"></td>
-                                            <td><input type="text" class="noBorder" name="title"
-                                                       value="{{ user.userDetail.title }}"></td>
-                                            <td><input type="text" class="noBorder" name="initials"
-                                                       value="{{ user.userDetail.initials }}"></td>
-                                            <td><input type="text" class="noBorder" name="name"
-                                                       value="{{ user.userDetail.name }}"></td>
-                                            <td><input type="text" class="noBorder" name="surname"
-                                                       value="{{ user.userDetail.surname }}"></td>
-                                            <td><input type="text" class="noBorder" name="cell"
-                                                       value="{{ user.userDetail.cell }}"></td>
-                                            <td><input type="text" class="noBorder" name="email"
-                                                       value="{{ user.userDetail.email }}"></td>
-                                            <td>
-                                                <button type='submit' name="edit" class='btn btn-success btn-xs'
-                                                        id='edit' value="{{ user.userId }}">Edit
-                                                </button>
-                                            </td>
-                                        </form>
+                                        <td data-id="userId">{{ user.userId }}</td>
+                                        <td data-id="title">{{ user.userDetail.title }}</td>
+                                        <td data-id="initials">{{ user.userDetail.initials }}</td>
+                                        <td data-id="name">{{ user.userDetail.name }}</td>
+                                        <td data-id="surname">{{ user.userDetail.surname }}</td>
+                                        <td data-id="cell">{{ user.userDetail.cell }}</td>
+                                        <td data-id="email">{{ user.userDetail.email }}</td>
                                         <td>
-                                            <button name="remove" class='btn btn-warning btn-xs remove' data-id="{{ user.userId }}" data-pk="{{ user.pk }}">Delete
+                                            <button name="edit" class='btn btn-success btn-xs edit' data-id="{{ user.userId }}" data-pk="{{ user.pk }}">
+                                                &#9998;
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <button name="remove" class='btn btn-warning btn-xs remove' data-id="{{ user.userId }}" data-pk="{{ user.pk }}">
+                                                &#10008;
                                             </button>
                                         </td>
                                     </tr>
@@ -202,12 +193,6 @@
     <script src="{% static "peer_review/search.js" %}"></script>
     <script src="{% static "peer_review/validation.js" %}"></script>
     <script type="text/javascript">
-        $('#users tr').each(function () {
-            $(this).find('input[type="text"]').each(function () {
-                $(this).attr('size', $(this).val().length);
-            });
-        });
-
         $(".remove").on("click", function () {
             var pk = $(this).data("pk");
             var userId = $(this).data("id");
@@ -218,9 +203,31 @@
                     url: '/userAdmin/delete/' + pk,
                     success: function() {
                         $("#users > tbody > tr#" + pk).fadeOut(500);
+
                     }
                 });
             }
+        });
+
+        $(".edit").on("click", function() {
+            var pk = $(this).data("pk");
+            var row = $("#users > tbody > tr#" + pk);
+
+            var userId = row.children("[data-id='userId']").text();
+            var title = row.children("[data-id='title']").text();
+            var initials = row.children("[data-id='initials']").text();
+            var name = row.children("[data-id='name']").text();
+            var surname = row.children("[data-id='surname']").text();
+            var cell = row.children("[data-id='cell']").text();
+            var email = row.children("[data-id='email']").text();
+
+            $.ajax({
+                type: 'POST',
+                url: '/userAdmin/update/' + pk,
+                success: function() {
+
+                }
+            });
         });
     </script>
 
