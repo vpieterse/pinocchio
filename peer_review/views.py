@@ -124,9 +124,13 @@ def getTeamsForRound(request, roundPk):
     return JsonResponse(response)
 
 def changeUserTeamForRound(request, roundPk, userPk, teamName):
-    team = TeamDetail.objects.filter(userDetail_id=userPk).get(roundDetail_id=roundPk)
-    print(RoundDetail.objects.filter(id=roundPk))
-    print(UserDetail.objects.filter(id=userPk))
+    try:
+        team = TeamDetail.objects.filter(userDetail_id=userPk).get(roundDetail_id=roundPk)
+    except TeamDetail.DoesNotExist:
+        team = TeamDetail(
+            userDetail = UserDetail.objects.get(pk=userPk),
+            roundDetail = RoundDetail.objects.get(pk=roundPk)
+        )
     team.teamName = teamName
     team.save()
     return JsonResponse({'success': True})
