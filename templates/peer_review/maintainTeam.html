@@ -161,7 +161,11 @@
     <script>
         function addTeam()
         {
-            if(roundId != '')
+            if(roundId == '')
+            {
+                alert("Please select a round");
+            }
+            else
             {
                 var teamID = prompt('Team name:', 'Team'+(numTeams+1));
                 while($("#"+teamID).length != 0 || teamID == "emptyTeam")
