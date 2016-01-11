@@ -9,6 +9,7 @@
     <script type="text/javascript" src="{% static "peer_review/js/stacking.js" %}"></script>
     <script type="text/javascript">
         /**Todo**
+<<<<<<< HEAD
         Implement freeform type
         Fix saving of rank type
         Delete using Ajax
@@ -18,6 +19,19 @@
         Refactor: Clean up the create_post ajax call
         Refactor: Move js code to a seperate file
         */
+=======
+         Implement saving label type and freeform type
+         Fix saving of rank type
+         Delete using Ajax
+         Add an 'editSuccess' function (Or use the old one, with a parameter?)
+         Update the question list using Ajax, after insertion or deletion
+         Fix the label table
+         Save the labels to the DB when label grouping is selected
+         Stop the random empty table row being saved sometimes
+         Refactor: Clean up the create_post ajax call
+         Refactor: Move js code to a seperate file
+         */
+>>>>>>> 6220d7dde70eea20087066296d59d87da8efa241
 
 
         var isEditing = false;
@@ -197,8 +211,7 @@
                 '</select>' +
                 '</td>';
 
-        function editQuestion(pk)
-        {
+        function editQuestion(pk) {
             isEditing = true;
             questionPk = pk;
 
@@ -206,7 +219,7 @@
             $.ajax({
                 url: '/questionAdmin/getQuestion/' + pk,
                 type: 'get',
-                success: function(data) {
+                success: function (data) {
                     console.log(data);
                     $('#question').val(data.questionText);
                     $('#type').val(data.questionType);
@@ -241,7 +254,7 @@
                         });//End rank ajax   
                     }
                 },
-                failure: function(data) { 
+                failure: function (data) {
                     alert('Error');
                 }
             });//End question details ajax
@@ -252,7 +265,7 @@
 
         function updateQuestionList()
         {
-            location.reload();
+            //Implement
         }
 
         function textBox(text) {
@@ -286,8 +299,8 @@
 
         function createJson() {
             var data = {
-                    question: $('#question').val(),
-                    questionType: $('#type').val()
+                question: $('#question').val(),
+                questionType: $('#type').val()
             };
 
             switch ($('#type').val()) {
@@ -349,7 +362,7 @@
 
             } else {
 
-            
+
                 if ($('#question').val() == '') {
                     var r = confirm("No question entered. Save anyways?");
                     if (!r)
@@ -370,7 +383,8 @@
                     success: saveSuccess('Question was created successfully.')
                 });
             }
-        };
+        }
+        ;
     </script>
     <script src="{% static "peer_review/search.js" %}"></script>
     <script src="{% static "peer_review/validation.js" %}"></script>
@@ -423,13 +437,13 @@
                         <div class="row">
                             <div class="col-xs-5">
                                 <select id="type" class="form-control" style="width:auto" onchange="selected()"
-                                        name="type" value = {{ questionType }}>
+                                        name="type" value= {{ questionType }}>
                                     {% if questionTypes %}
                                         {% for qt in questionTypes %}
-                                            {% if qt = questionType %}
-                                                <option selected value="{{qt.name}}">{{ qt.name }}</option>
+                                            {% if qt == questionType %}
+                                                <option selected value="{{ qt.name }}">{{ qt.name }}</option>
                                             {% else %}
-                                                <option value="{{qt.name}}">{{ qt.name }}</option>
+                                                <option value="{{ qt.name }}">{{ qt.name }}</option>
                                             {% endif %}
                                         {% endfor %}
                                     {% endif %}
@@ -460,10 +474,10 @@
                         </div>
                         <div>
                             <br/>
-                            <button class="btn btn-primary" type="submit" onclick = "create_post()">Save</button>
+                            <button class="btn btn-primary" type="submit" onclick="create_post()">Save</button>
                         </div>
                     </div>
-                    </form>
+                </form>
             </div>
         </div>
     </div>
@@ -522,7 +536,8 @@
                                 {% for c in choices %}
                                     <tr>
                                         <td style="text-align: center; ">
-                                            <input type="text" class="noBorder" id="choice" value= "{{ c }}" style="text-align: center; "/>
+                                            <input type="text" class="noBorder" id="choice" value="{{ c }}"
+                                                   style="text-align: center; "/>
                                         </td>
                                         <td style="text-align: center; width: 20px;">
                                             <a class="move up" href="javascript:void(0)" title="move up">
@@ -670,7 +685,7 @@
             </div>
             <div class="row">
                 <div class="col-xs-4">
-                    <input class='form-control' type='text' id='first'/ value = {{ firstWord }}>
+                    <input class='form-control' type='text' id='first' value='{{ firstWord }}'/>
                 </div>
                 <div class="col-xs-4">
                     <input class='form-control' type='text' id='second'/>
@@ -832,19 +847,24 @@
                                                 {% csrf_token %}
                                                 <td><input type="text" style="width: 250px" class="noBorder"
                                                            name="questionText"
-                                                           value="{{ question.questionText }}"></input></td>
+                                                           value="{{ question.questionText }}"></td>
                                                 <td><input type="text" style="width: 200px" class="noBorder"
-                                                           name="pubDate" value="{{ question.pubDate }}"></input></td>
+                                                           name="pubDate" value="{{ question.pubDate }}"></td>
                                                 <td><input type="text" style="width: 200px" class="noBorder"
                                                            name="QuestionType"
-                                                           value="{{ question.QuestionType.name }}"></input></td>
+                                                           value="{{ question.QuestionType.name }}"></td>
                                                 <td><input type="text" style="width: 200px" class="noBorder"
                                                            name="questionGroup"
-                                                           value="{{ question.questionGrouping.grouping }}"></input>
+                                                           value="{{ question.questionGrouping.grouping }}">
                                                 </td>
                                                 <td>
+<<<<<<< HEAD
                                                     <button class='btn btn-success btn-xs' type = "button" onclick = "editQuestion({{ question.pk }})">
                                                         Edit
+=======
+                                                    <button class='btn btn-success btn-xs' type="button"
+                                                            onclick="editQuestion({{ question.pk }})">Edit
+>>>>>>> 6220d7dde70eea20087066296d59d87da8efa241
                                                     </button>
                                                 </td>
                                             </form>
@@ -866,4 +886,5 @@
                 </div>
             </div>
         </div>
+    </div>
 {% endblock %}

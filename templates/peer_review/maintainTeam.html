@@ -11,7 +11,14 @@
     <!--Select correct table-->
     <script>
         var numTeams = 0;
+
+        // Currently active round
+        var roundId = "";
+        // Currently active team
         var selected = "";
+
+        // Loading table
+        var loading = false;
     </script>
     <!--end-->
 {% endblock extrahead %}
@@ -19,80 +26,78 @@
 <div class="container">
         <div class="panel-group" id="accordion">
             <div class="panel panel-default">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                                Team Builder<b class="caret"></b>
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="collapseOne" class="panel-collapse collapse in">
-                        <div class="panel-body">
-                            <div>
-                                <h4>Select Round</h4>
-                                <form role="form" method="post" action="#">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                            Team Builder<b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <div>
+                            <h4>Select Round</h4>
+                            <form role="form" method="post" action="#">
+                                <div class="form-inline">
                                     <div class="form-group">
-                                        <div class="col-sm-3">
-                                            <select class="form-control">
-                                                <option>Round name 1</option>
-                                            </select>
-                                        </div>
+                                        <select id='selectedRound' class="form-control" style="width:auto"
+                                    name="type">
+                                            <option selected value=""></option>
+                                            {% for round in rounds %}
+                                                <option value="{{ round.pk }}">{{ round.description }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <a href="/maintainRound" class="btn btn-info btn-xs plus">+</a>
                                     </div>
-                                </form>
-                            </div>
-                            <br/><br/><br/>
-                            <div class="container">
-                                <div class="row">
-                                    <div class="col-xs-5">
-                                        <div class="panel panel-default">
-                                            <div class="panel-heading">
-                                                <h4 class="panel-title"><b>Class List</b></h4>
-                                            </div>
-                                            <div class="panel-body">
-                                                <div class='table-responsive'>
-                                                    <table class='table moveable sortable' id='users'>
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Student Number</th>
-                                                                <th>Name</th>
-                                                                <th>Surname</th>
-                                                                <th></th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr>
-                                                                <td>14020202</td>
-                                                                <td>Matthias</td>
-                                                                <td>Harvey</td>
+                                </div>
+                            </form>
+                        </div>
+                        <br/><br/><br/>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-xs-5">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title"><b>Class List</b></h4>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div class='table-responsive'>
+                                                <table class='table moveable sortable' id='users'>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Student Number</th>
+                                                            <th>Name</th>
+                                                            <th>Surname</th>
+                                                            <th></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for user in users %}
+                                                            {% csrf_token %}
+                                                            <tr id="{{ user.userDetail.pk }}">
+                                                                <td>{{ user.userId }}</td>
+                                                                <td>{{ user.userDetail.name }}</td>
+                                                                <td>{{ user.userDetail.surname }}</td>
                                                                 <td></td>
                                                             </tr>
-                                                            <tr>
-                                                                <td>140206202</td>
-                                                                <td>Piet</td>
-                                                                <td>Somesurname</td>
-                                                                <td></td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-xs-1">
-                                    </div>
-                                    <div class="col-xs-6">
-                                        <div class="panel panel-default">
-                                            <div class="panel-heading">
-                                                <h4 class="panel-title"><b>Teams</b></h4>
+                                </div>
+                                <div class="col-xs-6">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title"><b>Teams</b></h4>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div class="panel-group" id="teams">
                                             </div>
-                                            <div class="panel-body">
-                                                <div class="panel-group" id="teams">
-                                                </div>
-                                                <div class="panel panel-default">
-                                                    <div class="panel-heading">
-                                                        <h4 class="panel-title"><input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="addTeam()"/><b> Add</b></h4>
-                                                    </div>
+                                            <div class="panel panel-default">
+                                                <div class="panel-heading">
+                                                    <h4 class="panel-title"><input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="addTeam()"/><b> Add</b></h4>
                                                 </div>
                                             </div>
                                         </div>
@@ -134,16 +139,20 @@
                 </div>
                 <div id="collapseThree" class="panel-collapse collapse">
                     <div class="panel-body">
-                        <p>Please select the round number for the teams you wish to maintain</p>
-
-                        <form role="form" method="post" action="#">
-                            <div class="form-group">
-                                <div class="col-sm-3">
-                                    <select class="form-control"></select>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-info">Submit</button>
-                        </form>
+                        <table class="table sortable moveable" id="teamViewTable">
+                            <thead>
+                                <tr>
+                                    <th>Student Number</th>
+                                    <th>Initials</th>
+                                    <th>Surname</th>
+                                    <th>Round</th>
+                                    <th>Team</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -152,72 +161,134 @@
     <script>
         function addTeam()
         {
-            var teamID = prompt('Team name:', 'Team'+(numTeams+1));
-            while($("#"+teamID).length != 0)
+            if(roundId == '')
             {
-                teamID = prompt('Team name already in use:', teamID);
+                alert("Please select a round");
             }
-            if(teamID != null)
+            else
             {
-                numTeams++;
-                var newTeam = '<div class="panel panel-default">'+
-                              '      <div class="panel-heading">'+
-                              '          <h4 class="panel-title">'+
-                              '              <input type="button" value="-" class="btn btn-info btn-xs minus" field="" onclick="removeTeam(\''+teamID+'\')"/>'+
-                              '              <a data-toggle="collapse" data-parent="#teams" href="#'+teamID+'">'+
-                              '                  '+teamID+'<b class="caret"></b>'+
-                              '              </a>'+
-                              '          </h4>'+
-                              '      </div>'+
-                              '      <div id="'+teamID+'" class="panel-collapse collapse  panel-team">'+
-                              '          <div class="panel-body">'+
-                              '              <table class="table sortable moveable teamTable">'+
-                              '                  <thead>'+
-                              '                      <tr>'+
-                              '                          <th>Student Number</th>'+
-                              '                          <th>Name</th>'+
-                              '                          <th>Surname</th>'+
-                              '                          <th></th>'+
-                              '                      </tr>'+
-                              '                  </thead>'+
-                              '                  <tbody>'+
-                              '                  </tbody>'+
-                              '              </table>'+
-                              '          </div>'+
-                              '      </div>'+
-                              '  </div>';
-                $("#teams").append(newTeam);
-
-                $("#"+teamID).find(".teamTable").DataTable({
-                    "orderClasses": false,
-                        "columnDefs": [{
-                            "orderable": false,
-                            "searchable": false,
-                            "render": function (data, type, full, meta) {
-                                return "<div class=\"removeUser button\" '><span class=\"glyphicon glyphicon-remove-circle\"></span></div>"
-                            },
-                            "targets": [3]}]
-                });
+                var teamID = prompt('Team name:', 'Team'+(numTeams+1));
+                while($("#"+teamID).length != 0 || teamID == "emptyTeam")
+                {
+                    teamID = prompt('Team name already in use:', teamID);
+                }
+                if(teamID != null)
+                {
+                    addTeamCont(teamID);
+                }
             }
         }
 
-        function removeTeam(teamID)
+        function addTeamCont(teamID)
         {
-            $("#"+teamID).find('div.removeUser').click();
-            $("#"+teamID).parent(1).remove();
-        }
+            numTeams++;
+            var newTeam = '<div class="panel panel-default">'+
+                          '      <div class="panel-heading">'+
+                          '          <h4 class="panel-title">'+
+                          '              <input type="button" value="-" class="btn btn-info btn-xs minus" field="" onclick="removeTeam(\''+teamID+'\')"/>'+
+                          '              <a data-toggle="collapse" data-parent="#teams" href="#'+teamID+'">'+
+                          '                  '+teamID+'<b class="caret"></b>'+
+                          '              </a>'+
+                          '          </h4>'+
+                          '      </div>'+
+                          '      <div id="'+teamID+'" class="panel-collapse collapse  panel-team">'+
+                          '          <div class="panel-body">'+
+                          '              <table class="table sortable moveable teamTable">'+
+                          '                  <thead>'+
+                          '                      <tr>'+
+                          '                          <th>Student Number</th>'+
+                          '                          <th>Name</th>'+
+                          '                          <th>Surname</th>'+
+                          '                          <th></th>'+
+                          '                      </tr>'+
+                          '                  </thead>'+
+                          '                  <tbody>'+
+                          '                  </tbody>'+
+                          '              </table>'+
+                          '          </div>'+
+                          '      </div>'+
+                          '  </div>';
+            $("#teams").append(newTeam);
 
-        $(document).ready(function () {
-            var users = $("#users").DataTable({
+            $("#"+teamID).find(".teamTable").DataTable({
                 "orderClasses": false,
                     "columnDefs": [{
                         "orderable": false,
                         "searchable": false,
                         "render": function (data, type, full, meta) {
-                            return "<div class=\"addUser button\"><span class=\"glyphicon glyphicon-chevron-right\"></span></div>"
+                            return "<div class=\"removeUser button\" '><span class=\"glyphicon glyphicon-remove-circle\"></span></div>"
                         },
                         "targets": [3]}]
             });
+        }
+
+        function removeTeam(teamID)
+        {
+            if(confirm("You are about to delete team " + teamID +". Do you want to do this?"))
+            {
+                $("#"+teamID).find('div.removeUser').click();
+                $("#"+teamID).parent(1).remove();
+            }
+        }
+
+        function moveUser(fromTable, toTable, row)
+        {
+            var tr = fromTable.row(row);
+            var node = tr.node();
+            tr.remove();
+            toTable.row.add(node).draw();
+        }
+
+        function changeStatus(teamId, newStatus)
+        {
+            $.ajax({
+                url: "/maintainTeam/changeTeamStatus/"+teamId+"/"+newStatus,
+                type: "GET",
+                success: function(data) {
+                    if(data["success"] == true)
+                    {
+                        console.log("Changed team: "+teamId+" to status: "+status);
+                    }
+                    else
+                    {
+                        console.log("ERROR: Could not change team: "+teamId+" to status: "+status);
+                    }
+                },
+                failure: function(data) {
+                    console.log("ERROR: Could not change team: "+teamId+" to status: "+status);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            var teamViewTable = $("#teamViewTable").DataTable({
+                "orederClasses": false,
+                "columnDefs": [{
+                    "orderable": true,
+                    "searchable": true,
+                    "render": function(data, type, full, meta){
+                        return  '<select class="form-control status">'+
+                                '    <option value="NA" class="NA">Not attempted</option>'+
+                                '    <option value="IP" class="IP">In progress</option>'+
+                                '    <option value="C" class="C">Completed</option>'+
+                                '</select>';
+                    },
+                    "targets": [5]
+                }]
+            });
+
+            var users = $("#users").DataTable({
+                "orderClasses": false,
+                "columnDefs": [{
+                    "orderable": false,
+                    "searchable": false,
+                    "render": function (data, type, full, meta) {
+                        return "<div class=\"addUser button\"><span class=\"glyphicon glyphicon-chevron-right\"></span></div>"
+                    },
+                    "targets": [3]}]
+            });
+
+            // Depricated?
             var teams = $(".teamTable").DataTable({
                 "orderClasses": false,
                     "columnDefs": [{
@@ -229,7 +300,6 @@
                         "targets": [3]}]
             });
 
-
             $('#teams').on('hide.bs.collapse', '.panel-team', function() {
                 selected = "";
             });
@@ -238,26 +308,131 @@
                 selected = e.currentTarget.id;
             });
 
+            function changeTeam(userId, roundId, newTeam)
+            {
+                $.ajax({
+                    url: '/maintainTeam/changeUserTeamForRound/'+roundId+'/'+userId+'/'+newTeam+'/',
+                    type: 'GET',
+                    success: function(data) {
+                        if(data["success"] == true)
+                        {
+                            console.log("Changed user: "+userId+" to team: "+newTeam+" for round: "+roundId);
+                        }
+                        else
+                        {
+                            console.log("ERROR: Could not change user: "+userId+" to team: "+newTeam+" for round: "+roundId);
+                        }
+                    },
+                    failure: function(data) {
+                        console.log("ERROR: Could not change user: "+userId+" to team: "+newTeam+" for round: "+roundId);
+                    }
+                });
+            }
+
             $('.moveable tbody').on('click', 'div.addUser', function() {
                 if(selected != "" && $("#"+selected+" .in") != null)
                 {
                     var teamTable = $("#"+selected).find(".teamTable").DataTable();
                     if(teamTable != null)
                     {
-                        var tr = users.row($(this).parents('tr'));
-                        var node = tr.node();
-                        tr.remove();
-                        teamTable.row.add(node).draw();
+                        var row = $(this).parents('tr');
+                        if (!loading)
+                        {
+                            var userId=row[0].id;
+                            var newTeam = selected;
+                            changeTeam(userId, roundId, newTeam);
+                        }
+                        moveUser(users, teamTable, row);
                     }
                 }
             });
 
             $(document).on('click', 'div.removeUser', function() {
                 var teamTable = $(this).parents("table").DataTable();
-                var tr = teamTable.row($(this).parents('tr'));
-                var node = tr.node();
-                users.row.add(node).draw();
-                tr.remove();
+                var row = $(this).parents('tr');
+                moveUser(teamTable, users, row);
+
+                if(!loading)
+                {
+                    var userId = row[0].id;
+                    changeTeam(userId, roundId, "emptyTeam");
+                }
+            });
+
+            
+            $('#selectedRound').on('change', function() {
+                loading = true;
+                $("#teams").find("div.removeUser").click();
+                $("#teams").html("");
+                roundId = this.value;
+                if(roundId != '')
+                {
+                    $.ajax({
+                        url: '/maintainTeam/getTeamsForRound/' + roundId,
+                        type: 'GET',
+                        success: function(data) {
+                            for(var team in data)
+                            {
+                                team = data[team];
+                                if(team["teamName"] != "emptyTeam")
+                                {
+                                    if($("#"+team["teamName"]).length == 0)
+                                    {
+                                        addTeamCont(team["teamName"]);
+                                    }
+
+                                    selected = team["teamName"];
+                                    $("#"+team["teamName"]).addClass("in");
+                                
+                                    $("#users").find("#"+team["userId"]).find('div.addUser').click();
+
+                                    $("#"+team["teamName"]).removeClass("in");
+                                    selected = "";
+                                }
+                            }
+                        },
+                        failure: function(data) {
+                            console.log('Error: getTeamsForRound');
+                        }
+                    }); 
+                }
+                loading = false;
+            });
+            
+            $("#collapseThree").on('shown.bs.collapse', function() {
+                $.ajax({
+                    url: '/maintainTeam/getTeams/',
+                    type: 'GET',
+                    success: function(data) {
+                        var table = $("#teamViewTable").DataTable();
+                        table.clear().draw();
+                        for(var team in data)
+                        {
+                            team = data[team];
+                            var teamName = team["team"];
+                            if(teamName == "emptyTeam")
+                                teamName = '';
+                            var status = team["status"];
+                            var row = table.row.add([
+                                    team["userId"],
+                                    team["initials"],
+                                    team["surname"],
+                                    team["round"],
+                                    teamName
+                                ]).draw(false).node();
+                            $(row).attr("id", team["teamId"]);
+                            $(row).find("."+status).attr("selected", "selected");
+                        }
+                    },
+                    failure: function(data) {
+                        console.log("ERROR: Could not change user: "+userId+" to team: "+newTeam+" for round: "+roundId)
+                    }
+                });
+            });
+            
+            $("#teamViewTable").on('change', '.status', function() {
+                var row = $(this).parents('tr');
+                changeStatus($(row).attr("id"), $(this).val());
             });
         });
     </script>

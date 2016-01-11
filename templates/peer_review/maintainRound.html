@@ -1,9 +1,10 @@
 {% extends "peer_review/base.html" %}
-{% block extrahead %}
-    <title>Maintain Rounds</title>
+{% load staticfiles %}
 
-    <script src="/static/peer_review/search.js"></script>
-    <script src="/static/peer_review/validation.js"></script>
+{% block extrahead %}
+    <title>User Admin</title>
+    <script src="{% static "peer_review/search.js" %}"></script>
+    <script src="{% static "peer_review/validation.js" %}"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             $('#users tr').each(function () {
@@ -13,123 +14,169 @@
             });
         });
     </script>
-    <!--Function to delete row-->
-    <script>
-        function deleteRow(row) {
-            var table = document.getElementById('round');
-            if (table.rows.length > 4) {
-                table.deleteRow(row.parentNode.parentNode.rowIndex);
-            }
-            else {
-                alert("Last row!");
-            }
-        }
-    </script>
-    <!--end-->
-    <!--Function to add row-->
-    <script>
-        function addRow(tableID) {
-            var table = document.getElementById(tableID);
-            var rowCount = table.rows.length;
-            var row = table.insertRow(1);
-            var colCount = table.rows[0].cells.length;
-            for (var i = 0; i < colCount; i++) {
-                var newcell = row.insertCell(i);
-                newcell.innerHTML = table.rows[2].cells[i].innerHTML;
-            }
-        }
-    </script>
-    <!--end-->
     <!--Edit navbar active-->
     <script>
         title = "maintainRound";
     </script>
-    <!--end-->
-{% endblock %}
+{% endblock extrahead %}
 
 {% block context %}
+<!--Function to delete row-->
+    <script>
+    function deleteRow(row) {
+        var table = document.getElementById('round');
+            if(table.rows.length >4)
+                {table.deleteRow(row.parentNode.parentNode.rowIndex);}
+            else
+                {alert("Last row!" );}
+    }
+    </script>
+<!--end-->
+<!--Function to add row-->
+    <script>
+    function addRow(tableID) {
+        var table = document.getElementById(tableID);
+        var rowCount = table.rows.length;   
+            var row = table.insertRow(1);
+            var colCount = table.rows[0].cells.length;
+            for(var i=0; i<colCount; i++) {
+                var newcell = row.insertCell(i);
+                newcell.innerHTML = table.rows[2].cells[i].innerHTML;
+            }
+    }
+    </script>
 
-    <div class="container">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title"><b>Maintain Rounds</b></h4>
-            </div>
 
-            <div class="panel-body">
 
-                <input type="text" class="form-control" id="search" placeholder="Search"
-                       onkeyup="showResult(this.value)">
+<!--end-->
 
-                <div class='table-responsive'>
-                    <table class='table sortable' id='round'>
-                        <thead>
-                        <tr>
-                            <th>Round Description</th>
-                            <th>Questionnaire Description</th>
-                            <th>Starting Date</th>
-                            <th>Ending Date</th>
-                            <th>Maintain</th>
-                            <th>Accept Edit</th>
-                            <th>Remove</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <!--<td contenteditable=true>-->
-                            <td><input type="text" value="This is a round" style="border:none"></td>
-                            <td>
-                                <select>
-                                    <option value="First">First</option>
-                                    <option value="Second">Second</option>
-                                    <option value="Third">Third</option>
-                                </select>
-                                <input type="button" value="+" class="btn btn-info btn-xs plus" field=""
-                                       onClick="location.href='http://127.0.0.1:8000/questionAdmin/'"/>
-                            </td>
 
-                            <!--Starting date-->
-                            <td>
-                                <form action="action_page.php">
-                                    <input type="datetime-local" name="startingDate" class="icon-bar"
-                                           style="width: 175px;">
-                                </form>
+        <div class="container">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title"><b>Maintain Rounds</b></h4>
+                </div>	
 
-                            </td>
-                            <!--Ending date-->
-                            <td>
-                                <form action="action_page.php">
-                                    <input type="datetime-local" name="endingDate" style="width: 175px;">
-                                </form>
-                            </td>
+                <div class="panel-body">
 
-                            <td>
-                                <button type='button' class='btn btn-default btn-xs' id='maintain' onclick='#'><a
-                                        href="teamBuilder.html"><span class="glyphicon glyphicon-wrench"></span>
-                                </a></button>
-                            </td>
-                            <td>
-                                <button type='button' class='btn btn-success btn-xs' id='accept' onclick='#'>
-                                    &#10004;</button>
-                            </td>
-                            <!--delete row -->
-                            <td>
-                                <button type='button' class='btn btn-warning btn-xs' id='delete'
-                                        onclick="deleteRow(this)">&#10008;
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
+                    <input type="text" class="form-control" id="search" placeholder="Search" onkeyup="showResult(this.value)">
+                    <div class='table-responsive'>
+                        <table class='table sortable' id='round'>
+                            <thead>
+                                <tr>
+                                    <th>Round Description</th>
+                                    <th>Questionnaire Description</th>
+                                    <th>Starting Date</th>
+                                    <th>Ending Date</th>
+                                    <th>Maintain</th>
+                                    <th>Accept Edit</th>
+                                    <th>Remove</th>
+                                </tr>
+                            </thead>
 
-                            <!--add row-->
-                        </tr>
+                           
 
-                        <td><input type="button" value="+" class="btn btn-info btn-xs plus" field=""
-                                   onclick="addRow('round')"/></td>
-                        </tr>
-                        </tbody>
-                    </table>
+
+
+                            <tbody>
+                            {% for round in roundDetail %}
+                                <tr id="{{ round.pk }}">
+                                            <form action="/maintainRound/update/{{ round.pk }}" method="post">
+                                                {% csrf_token %}
+                                                <td><input type="text" style="width: 150px" class="noBorder"
+                                                           name="description"
+                                                           value="{{ round.description }}">
+                                                    </input ></td>
+
+
+                                   
+<!--THIS ONE?
+
+                                    <td>
+                                        <select id="quetionniare" class="form-control" 
+                                style="width:auto">
+                                              <option value="{{round.questionnaire.intro}}">{{ round.questionnaire.intro }}</option>
+                                        </select>
+
+                                          <input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="window.location.href='/questionnaireAdmin'"  /> 
+                                    </td>
+
+
+ -->
+                                   
+                                        <td>
+                                        <select id="type" class="form-control" 
+                                style="width:auto">
+
+
+                            {% for quest in questionnaires %}
+                                              <option value="{{quest.intro}}">{{ quest.intro }}</option>
+                            {% endfor %}
+
+                                        </select>
+                                          <input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="window.location.href='/questionnaireAdmin'"  /> 
+                                    </td>
+
+
+
+
+
+
+
+                                                <td><input type="datetime" style="width: 200px" class="noBorder"
+                                                           name="startingDate" value="{{ round.startingDate }}"></input></td>
+
+
+
+                                                <td><input type="datetime" style="width: 200px" class="noBorder"
+                                                           name="endingDate"
+                                                           value="{{ round.endingDate }}"></input></td>
+
+<!--<td>
+                                        <form action="action_page.php">
+                                          <input type="datetime-local" name="endingDate">
+                                        </form>
+                                    </td>-->
+
+
+
+                                                 <td><button type='button' class='btn btn-default btn-xs' id='maintain'  onclick='#'><a href="teamBuilder.html"><span class="glyphicon glyphicon-wrench"></span></button></button></a></button></td>
+                                                <td>
+                                                    <button name="edit" class='btn btn-success btn-xs' id='edit' onclick="window.location.href='/maintainRound'">Edit
+                                                    </button>
+                                                </td>
+
+
+                                            </form>
+                                            <td>
+                                                <form action="/maintainRound/delete/{{ round.pk }}" method="post"
+                                                      onsubmit="return confirmDeletion()">
+                                                    {% csrf_token %}
+                                                    <button type='submit' name="remove" class='btn btn-warning btn-xs'
+                                                            id='remove'>Delete
+                                                    </button>
+                                                </form>
+                                            </td>
+
+                                        </tr>
+                                    {% endfor %}
+                                    </tr>
+
+                                    <td><input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="addRow('round')" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-{% endblock %}
+        <div class="navbar navbar-default navbar-fixed-bottom">
+            <div class="container">
+                <p class="navbar-text pull-left">&copy; Dillon Heins</p>
+                <a class="navbar-btn btn-danger btn pull-right">Log Out</a>
+            </div>
+        </div>
+
+
+
+{% endblock context %}

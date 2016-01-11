@@ -7,12 +7,17 @@ from django.shortcuts import render_to_response
 from django.shortcuts import render
 from django.template import RequestContext
 from django.http import JsonResponse
+import random
+import string
+import hashlib
+import uuid
 
 from django.utils import timezone
 
 from .models import Document
-from .models import Question, QuestionType, QuestionGrouping, Choice, Rank, RoundDetail
+from .models import Question, QuestionType, QuestionGrouping, Choice, Rank,Questionnaire, RoundDetail, TeamDetail
 from .models import User, UserDetail
+from .models import Questionnaire, QuestionOrder
 from .forms import DocumentForm, UserForm
 
 
@@ -50,13 +55,17 @@ def fileUpload(request):
         , context_instance=RequestContext(request)
     )
 
-
 def maintainRound(request):
-    return render(request, 'peer_review/maintainRound.html')
+    context = {'roundDetail': RoundDetail.objects.all(),
+                'questionnaires': Questionnaire.objects.all()}
+    return render(request, 'peer_review/maintainRound.html',context)
 
 
 def maintainTeam(request):
-    return render(request, 'peer_review/maintainTeam.html')
+    context = {'users': User.objects.all(),
+                'rounds': RoundDetail.objects.all(),
+                'teams': TeamDetail.objects.all()}
+    return render(request, 'peer_review/maintainTeam.html', context)
 
 
 def questionAdmin(request):
@@ -68,9 +77,17 @@ def questionnaireAdmin(request):
                'questions': Question.objects.all()}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
-def questionnaire(request):
-	context = {'intro':Questionnaire.intro()}
-	return render(request, 'peer_review/questionnaire.html', context)
+def questionnaire(request, questionnairePk):
+	if request.method == "POST":
+		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
+			   'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
+			   'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk)}
+		return render(request, 'peer_review/questionnaire.html', context)
+	else:
+		return render(request, 'peer_review/userError.html')
+
+def userError(request):
+	return render(request, 'peer_review/userError.html')
 
 def userList(request):
     users = User.objects.all
@@ -78,6 +95,70 @@ def userList(request):
     docForm = DocumentForm()
     return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'docForm': docForm})
 
+def getTeams(request):
+    teams = TeamDetail.objects.all()
+    response={}
+    for team in teams:
+        user = User.objects.get(userDetail=team.userDetail)
+        response[team.pk] = {
+            'userId': user.userId,
+            'initials': team.userDetail.initials,
+            'surname': team.userDetail.surname,
+            'round': team.roundDetail.description,
+            'team': team.teamName,
+            'status': team.status,
+            'teamId': team.pk
+        }
+    return JsonResponse(response)
+
+def getTeamsForRound(request, roundPk):
+    teams = TeamDetail.objects.filter(roundDetail_id=roundPk)
+    response = {}
+    for team in teams:
+        response[team.pk] = {
+            'userId': team.userDetail.pk,
+            'teamName': team.teamName,
+            'status': team.status
+            }
+    # print(response)
+    return JsonResponse(response)
+
+def changeUserTeamForRound(request, roundPk, userPk, teamName):
+    try:
+        team = TeamDetail.objects.filter(userDetail_id=userPk).get(roundDetail_id=roundPk)
+    except TeamDetail.DoesNotExist:
+        team = TeamDetail(
+            userDetail = UserDetail.objects.get(pk=userPk),
+            roundDetail = RoundDetail.objects.get(pk=roundPk)
+        )
+    team.teamName = teamName
+    team.save()
+    return JsonResponse({'success': True})
+
+def changeTeamStatus(request, teamPk, status):
+    team = TeamDetail.objects.get(pk=teamPk)
+    team.status = status
+    team.save()
+    return JsonResponse({'success': True})
+
+def generate_OTP():
+    N = random.randint(4, 10)
+    OTP = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits + string.ascii_lowercase)
+                  for _ in range(N))
+    return OTP
+
+def hash_password(password):
+    salt = uuid.uuid4().hex
+    return hashlib.sha256(salt.encode() + password.encode()).hexdigest() + ':' + salt
+
+def check_password(hashed_password, user_password):
+    password, salt = hashed_password.split(':')
+    return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
+
+def generate_email(OTP, post_name, post_surname):
+    email = "Welcome to Pinocchio " + post_name + " " + post_surname + "\n\nYour one time password is: " + OTP + \
+        "\n\nKind regards,\nThe Pinocchio Team"
+    # ToDo implement email notification
 
 def submitForm(request):
     if request.method == "POST":
@@ -95,17 +176,24 @@ def submitForm(request):
             userDetail.save()
 
             post_userId = userForm.cleaned_data['userId']
-            post_password = userForm.cleaned_data['password']
+
+            OTP = generate_OTP()
+            generate_email(OTP, post_name, post_surname)
+            post_password = hash_password(OTP)
+
             post_status = userForm.cleaned_data['status']
 
             user = User(userId=post_userId, password=post_password, status=post_status, userDetail=userDetail)
             user.save()
 
+            for roundObj in RoundDetail.objects.all():
+                team = TeamDetail(userDetail=userDetail, roundDetail=roundObj)
+                team.save()
+
             return HttpResponseRedirect("../")
     else:
         userForm = UserForm()
     return HttpResponseRedirect("../")
-
 
 def userDelete(request, userPk):
     user = User.objects.get(pk=userPk)
@@ -114,7 +202,6 @@ def userDelete(request, userPk):
     userDetail.delete()
     user.delete()
     return HttpResponseRedirect('../')
-
 
 def userUpdate(request, userPk):
     if request.method == "POST":
@@ -128,8 +215,10 @@ def userUpdate(request, userPk):
         post_surname = request.POST.get("surname")
         post_cell = request.POST.get("cell")
         post_email = request.POST.get("email")
+        post_status = request.POST.get("status")
 
         user.userId = post_userId
+        user.status = post_status
         userDetail.title = post_title
         userDetail.initials = post_initials
         userDetail.name = post_name
@@ -141,6 +230,36 @@ def userUpdate(request, userPk):
         userDetail.save()
     return HttpResponseRedirect('../')
 
+def resetPassword(request, userPk):
+    if request.method == "POST":
+        user = User.objects.get(pk=userPk)
+        userDetail = user.userDetail
+
+        OTP = generate_OTP()
+        generate_email(OTP, userDetail.name, userDetail.surname)
+        password = hash_password(OTP)
+
+        user.password = password
+        user.save()
+        userDetail.save()
+
+        print(OTP)
+        print(password)
+        print(check_password(password, OTP))
+        return HttpResponseRedirect('../')
+
+def addCSVInfo(userList):
+    for row in userList:
+        OTP = generate_OTP()
+        generate_email(OTP, row['name'], row['surname'])
+        password = hash_password(OTP)
+
+        userDetail = UserDetail(title=row['title'], initials=row['initials'], name=row['name'], surname=row['surname'],
+                                cell=row['cell'], email=row['email'])
+        userDetail.save()
+
+        user = User(userId=row['user_id'], password=password, status=row['status'], userDetail=userDetail)
+        user.save()
 
 def submitCSV(request):
     global errortype
@@ -153,7 +272,12 @@ def submitCSV(request):
             filePath = newdoc.docfile.url
             filePath = filePath[1:]
 
+            userList = list()
+            error = False
+
             documents = Document.objects.all()
+
+            # ToDo delete older files
 
             count = 0
             with open(filePath) as csvfile:
@@ -161,25 +285,23 @@ def submitCSV(request):
                 for row in reader:
                     count += 1
                     if validate(row) == 1:
-                        title = row['title']
-                        initials = row['initials']
-                        name = row['name']
-                        surname = row['surname']
-                        email = row['email']
-                        cell = row['cell']
+                        # title = row['title']
+                        # initials = row['initials']
+                        # name = row['name']
+                        # surname = row['surname']
+                        # email = row['email']
+                        # cell = row['cell']
+                        #
+                        # userId = row['user_id']
+                        # status = row['status']
+                        # OTP = generate_OTP()
+                        # generate_email(OTP, name, surname)
+                        # password = hash_password(OTP)
 
-                        userDetail = UserDetail(title=title, initials=initials, name=name, surname=surname, cell=cell,
-                                                email=email)
-                        userDetail.save()
-
-                        userId = row['user_id']
-                        status = row['status']
-                        password = row['password']
-
-                        user = User(userId=userId, password=password, status=status, userDetail=userDetail)
-                        user.save()
+                        userList.append(row)
                         # ToDo check for errors in multiple rows
                     else:
+                        error = True
                         if validate(row) == 0:
                             message = "Oops! Something seems to be wrong with the CSV file."
                             errortype = "Incorrect number of fields."
@@ -197,7 +319,6 @@ def submitCSV(request):
                             rowlist.append(row['cell'])
                             rowlist.append(row['user_id'])
                             rowlist.append(row['status'])
-                            rowlist.append(row['password'])
 
                         if validate(row) == 2:
                             errortype = "Not all fields contain values."
@@ -212,7 +333,10 @@ def submitCSV(request):
             form = DocumentForm()
             message = "Oops! Something seems to be wrong with the CSV file."
             errortype = "No file selected."
-            return render(request, 'peer_review/csvError.html', {'message': message, 'row': rowlist})
+            return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
+
+        if not(error):
+            addCSVInfo(userList)
     return HttpResponseRedirect('../')
 
 
@@ -223,7 +347,7 @@ def validate(row):
     # 3 = incorrect format
     # 4 = user already exists
 
-    if len(row) < 9:
+    if len(row) < 8:
         return 0
 
     for key, value in row.items():
@@ -305,6 +429,10 @@ def questionUpdate(request):
         qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
         choices = request.GET.getlist('choices[]')
         #Save the question
+
+        question.questionText=text
+        question.pubDate=timezone.now() - datetime.timedelta(days=1)
+        question.questionGrouping=qGrouping
         question.save()
 
         #Delete the old choices
@@ -398,7 +526,7 @@ def createQuestion(request):
                            num = rank,
                            header_id = 0)
                 rank += 1
-                print(c)
+                # print(c)
                 c.save()
 
         #Rank
@@ -438,3 +566,25 @@ def createQuestion(request):
     else:
         message = 'You submitted an empty form.'
     return HttpResponse()
+
+def roundDelete(request, roundPk):
+    round = RoundDetail.objects.get(pk = roundPk)
+    round.delete()
+    return HttpResponseRedirect('../')
+
+def roundUpdate(request, roundPk):
+    if request.method == "POST":
+        round = RoundDetail.objects.get(pk=roundPk)
+
+        post_description = request.POST.get("description")
+        post_questionnaire = request.POST.get("questionnaire")
+        post_startingDate = request.POST.get("startingDate")
+        post_endingDate = request.POST.get("endingDate")
+
+        round.description = post_description
+        round.questionnaire = post_questionnaire
+        round.startingDate = post_startingDate
+        round.endingDate = post_endingDate
+
+        round.save()
+    return HttpResponseRedirect('../')

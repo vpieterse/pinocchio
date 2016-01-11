@@ -11,9 +11,7 @@ function validateUserForm() {
 	var cell = $("#cell").val();
 	var userId = $("#userId").val();
 	var status = $("#status").val();
-	var password = $("#password").val();
-	var passwordConfirm = $("#passwordConfirm").val();
-	
+
 	if (title == null || title == "")
 	{
 		// $("#title").addClass
@@ -26,13 +24,11 @@ function validateUserForm() {
 		email == null || email == "" ||
 		cell == null || cell == "" ||
 		userId == null || userId == "" ||
-		status == null || status == "" ||
-		password == null || password == "" ||
-		passwordConfirm == null || passwordConfirm == "") {
+		status == null || status == "") {
         alert("Please fill in all fields");
         return false;
     }
-	
+
 	if (password != passwordConfirm){
 		alert("Passwords do not correspond");
 		return false;
@@ -81,6 +77,14 @@ function validateUserForm() {
 */
 function confirmDeletion() {
 	if(confirm('Are you sure you wish to delete this?')){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function confirmSubmit() {
+	if(confirm('Are you sure you wish to submit this?')){
 		return true;
 	} else {
 		return false;
