@@ -51,6 +51,14 @@ class Choice(models.Model):
     def __str__(self):
         return self.choiceText
 
+class FreeformItem(models.Model):
+    question = models.ForeignKey(Question)
+    value = models.CharField(max_length=200)
+    freeformType = models.CharField(max_length=10)
+
+    def __str__(self):
+        return self.value
+
 
 class Rank(models.Model):
     question = models.ForeignKey(Question)

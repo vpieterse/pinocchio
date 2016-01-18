@@ -9,9 +9,6 @@
     <script type="text/javascript" src="{% static "peer_review/js/stacking.js" %}"></script>
     <script type="text/javascript">
         /**Todo**
-<<<<<<< HEAD
-        Implement freeform type
-        Fix saving of rank type
         Delete using Ajax
         Update the question list using Ajax, after insertion or deletion
         Fix the label table
@@ -19,20 +16,6 @@
         Refactor: Clean up the create_post ajax call
         Refactor: Move js code to a seperate file
         */
-=======
-         Implement saving label type and freeform type
-         Fix saving of rank type
-         Delete using Ajax
-         Add an 'editSuccess' function (Or use the old one, with a parameter?)
-         Update the question list using Ajax, after insertion or deletion
-         Fix the label table
-         Save the labels to the DB when label grouping is selected
-         Stop the random empty table row being saved sometimes
-         Refactor: Clean up the create_post ajax call
-         Refactor: Move js code to a seperate file
-         */
->>>>>>> 6220d7dde70eea20087066296d59d87da8efa241
-
 
         var isEditing = false;
         var questionPk;
@@ -73,10 +56,10 @@
         function changeGrouping() {
             //Shows the label table if the grouping is changed to 'label'
             if ($('#grouping').val() === 'Label') {
-                $('#labelTable').parent().parent().fadeIn();
+                $('#labelTable').parent().parent().parent().fadeIn();
                 $('.labelTable').fadeIn();
             } else {
-                $('#labelTable').parent().parent().fadeOut();
+                $('#labelTable').parent().parent().parent().fadeOut();
                 $('.labelTable').fadeOut();
             }
 
@@ -102,7 +85,7 @@
 
         function clearPage()
         {
-            $('#table tr').remove();
+            //$('#table tr').remove();  //ToDo: Make this not remove the heading
             $('#question').val([]);
             $('#type').val('Label');
             $('#grouping').val('None');
@@ -111,22 +94,22 @@
             selected();
         }
 
-        function getAllRows() {
-            var myObjects = [];
+        function getLabels() {
+            var labels = [];
 
-            $('#typeDisplay table tbody tr').each(function (index, value) {
-                var row = getRow(index);
-                myObjects.push(row);
-            });
-
-            return myObjects;
+            $('#labelTable > tbody > tr').each( function (index, value) {
+                label = $(this).find('#choice').val();
+                labels.push(label);
+            });  
+            console.log(labels);
+            return labels;
         }
 
         function getChoices() {
             var choices = [];
 
-            $('#typeDisplay table tbody tr').each(function (index, value) {
-                var choice = $('#typeDisplay table tbody tr').eq(index).find('td:eq(0)').find('*').val();
+            $('#table > tbody > tr').each(function (index, value) {
+                choice = $(this).find('#choice').val();
                 if (choice != '')
                     choices.push(choice);
             });
@@ -135,43 +118,34 @@
         }
 
         function getFreeformItems() {
-            var items = [];
-            $('#typeDisplay table tbody tr').each(function (index, value) {
-                var type = $('#typeDisplay table tbody tr').eq(index).find('td:eq(0)').find('*').val();
-                var item = $('#typeDisplay table tbody tr').eq(index).find('td:eq(0)').find('*').val();
-                items.push([type, item]);
+            var items = {};
+            items.types = [];
+            items.values = [];
+            $('#table > tbody > tr').each(function (index, value) {
+                var value = $(this).find('#choice').val();
+                var type = $(this).find('#type').val();
+                items.types.push(type);
+                items.values.push(value);
             });
             return items;            
         }
 
         function getRates() {
-            var rates = [];
+            var rates = {scales: [], optionals: [], choices: []};
 
-            $('#typeDisplay table tbody tr').each(function (index, value) {
-                var $tr = $('#typeDisplay table tbody tr');
-                var scale = $tr.eq(index).find('td:eq(0)').find('*').is(':checked');
-                var optional = $tr.eq(index).find('td:eq(1)').find('*').is(':checked');
-                var choice = $tr.eq(index).find('td:eq(2)').find('*').val();
+            $('#table > tbody > tr').each(function (index, value) {
+                var optional = $(this).find('#optional').is(':checked');
+                var scale = $(this).find('#scale').val();
+                var choice = $(this).find('#choice').val();
 
                 if (choice != '') {
-                    rates.push({scale: scale, optional: optional, choice: choice});
+                    rates.scales.push(scale);
+                    rates.optionals.push(optional);
+                    rates.choices.push(choice);
                 }
             });
 
             return rates;
-        }
-
-        // Read the row into an object
-        function getRow(rowNum) {
-            var row = $('#typeDisplay table tbody tr').eq(rowNum);
-
-            var myObject = {};
-
-            myObject.ChangeType = row.find('td:eq(0)').text();
-            myObject.UpdateType = row.find('td:eq(1)').text();
-            myObject.three = row.find('td:eq(2)').text();
-
-            return myObject;
         }
 
         var upArrow = '<td style="text-align: center; width: 20px;">' +
@@ -187,12 +161,12 @@
                 '</td>';
 
         var numberBox = '<td style="text-align: center; width: 10px;">' +
-                '<input type="number" class="noBorder" style="text-align: center; "/>' +
+                '<input type="number" class="noBorder" id="scale" style="text-align: center; "/>' +
                 '</td>';
 
         var checkBox = '<td style="text-align: center; width: 10px;">' +
                 '<div class="checkbox">' +
-                '<input type="checkbox">' +
+                '<input type="checkbox" id = optional>' +
                 '</div>' +
                 '</td>';
 
@@ -300,29 +274,33 @@
         function createJson() {
             var data = {
                 question: $('#question').val(),
-                questionType: $('#type').val()
+                questionType: $('#type').val(),
+                questionLabel: $('#questionLabel').val(),
+                grouping: $('#grouping').val()
             };
+
+            if ($('#grouping').val() === 'Label')
+                data.labelArr = getLabels();
 
             switch ($('#type').val()) {
                 case 'Choice':
                     data.choices = getChoices()
-                    data.grouping = $('#grouping').val();
                     break;
                 case 'Rank':
                     data.firstWord = $('#first').val();
                     data.secondWord = $('#second').val();
-                    data.grouping = $('#grouping').val();
                     break;
                 case 'Label':
-                    data.grouping = 'None'
+                    data.grouping = 'None';
                     break;
                 case 'Rate':
-                    data.rates = getRates();
-                    data.grouping = $('#grouping').val();
+                    data.optionalArr = getRates().optionals;
+                    data.choiceArr = getRates().choices;
+                    data.scaleArr = getRates().scales;
                     break;
-                case 'Freeform' :
-                    data.items = getFreeformItems();
-                    data.grouping = $('#grouping').val();
+                case 'Freeform':
+                    data.types = getFreeformItems().types;
+                    data.values = getFreeformItems().values;
                     break;
             }
 
@@ -421,8 +399,12 @@
                     <input type="hidden" id="tableData">
 
                     <div class="form-group">
+                        <label for="questionLabel">Question Label</label>
+                        <textarea class="form-control" rows="1" style="resize:none;width:100%" id="questionLabel"
+                                  name="questionLabel"></textarea>
+                        <br/>
                         <label for="question">Question</label>
-                        <textarea class="form-control" cols="152" rows="3" style="resize:none;width:auto" id="question"
+                        <textarea class="form-control"rows="3" style="resize:none;width:100%" id="question"
                                   name="question">{{ questionText }}</textarea>
                         <br/>
 
@@ -485,18 +467,42 @@
         <div id="Label"></div>
         <div id="Choice">
             <div class="row hide_in_label">
+                <div class="labelTable">
+                    <div class="col-xs-1">
+                        <button class="btn btn-primary" id="btn" type="button"
+                                onclick="addRow('', '#labelTable')">+ Add
+                        </button>
+                    </div>
+                    <div class="col-xs-8">
+                    </div>
+                </div>
                 <div class="col-xs-1">
                     <button class="btn btn-primary" id="btn" type="button" onclick="addRow('', '#table')">+ Add</button>
                 </div>
-                <div class="col-xs-8">
-                </div>
-                <div class="col-xs-1">
-                    <button class="btn btn-primary labelTable" id="btn" type="button"
-                            onclick="addRow('', '#labelTable')">+ Add
-                    </button>
-                </div>
+
             </div>
+
             <div class="row">
+                <div class="col-xs-5">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <table id="labelTable"
+                                   class="table table-striped table-condensed table-hover btable labelTable">
+                                <thead>
+                                <tr>
+                                    <th style="text-align: center; ">
+                                        <div class="th-inner ">Label</div>
+                                        <div class="fht-cell"></div>
+                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
+                                            <div style="height: 34px;"></div>
+                                        </div>
+                                    </th>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>                
                 <div class="col-xs-5">
                     <div class="panel panel-default">
                         <div class="panel-body">
@@ -558,26 +564,6 @@
                                         </td>
                                     <tr>
                                 {% endfor %}
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-5">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <table id="labelTable"
-                                   class="table table-striped table-condensed table-hover btable labelTable">
-                                <thead>
-                                <tr>
-                                    <th style="text-align: center; ">
-                                        <div class="th-inner ">Label</div>
-                                        <div class="fht-cell"></div>
-                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
-                                            <div style="height: 34px;"></div>
-                                        </div>
-                                    </th>
-                                </tr>
-                                </thead>
                             </table>
                         </div>
                     </div>
@@ -727,18 +713,40 @@
         </div>
         <div id="Freeform">
             <div class="row hide_in_label">
+                <div class="labelTable">
+                    <div class="col-xs-1">
+                        <button class="btn btn-primary labelTable" id="btn" type="button"
+                                onclick="addRow('', '#labelTable')">+ Add
+                        </button>
+                    </div>
+                    <div class="col-xs-8">
+                    </div>
+                </div>
                 <div class="col-xs-1">
                     <button class="btn btn-primary" id="btn" type="button" onclick="addRow('', '#table')">+ Add</button>
                 </div>
-                <div class="col-xs-8">
-                </div>
-                <div class="col-xs-1">
-                    <button class="btn btn-primary labelTable" id="btn" type="button"
-                            onclick="addRow('', '#labelTable')">+ Add
-                    </button>
-                </div>
             </div>
             <div class="row">
+                <div class="col-xs-5">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <table id="labelTable"
+                                   class="table table-striped table-condensed table-hover btable labelTable">
+                                <thead>
+                                <tr>
+                                    <th style="text-align: center; ">
+                                        <div class="th-inner ">Label</div>
+                                        <div class="fht-cell"></div>
+                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
+                                            <div style="height: 34px;"></div>
+                                        </div>
+                                    </th>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-xs-5">
                     <div class="panel panel-default">
                         <div class="panel-body">
@@ -775,26 +783,6 @@
                                     </th>
                                     <th style="text-align: center; width: 20px; ">
                                         <div class="th-inner "></div>
-                                        <div class="fht-cell"></div>
-                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
-                                            <div style="height: 34px;"></div>
-                                        </div>
-                                    </th>
-                                </tr>
-                                </thead>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-5">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <table id="labelTable"
-                                   class="table table-striped table-condensed table-hover btable labelTable">
-                                <thead>
-                                <tr>
-                                    <th style="text-align: center; ">
-                                        <div class="th-inner ">Label</div>
                                         <div class="fht-cell"></div>
                                         <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
                                             <div style="height: 34px;"></div>
@@ -858,13 +846,8 @@
                                                            value="{{ question.questionGrouping.grouping }}">
                                                 </td>
                                                 <td>
-<<<<<<< HEAD
                                                     <button class='btn btn-success btn-xs' type = "button" onclick = "editQuestion({{ question.pk }})">
                                                         Edit
-=======
-                                                    <button class='btn btn-success btn-xs' type="button"
-                                                            onclick="editQuestion({{ question.pk }})">Edit
->>>>>>> 6220d7dde70eea20087066296d59d87da8efa241
                                                     </button>
                                                 </td>
                                             </form>
