@@ -409,8 +409,27 @@ def getGroupID(questionGroup):
     else:
         return -1
 
-#QuestionAdmin stuff
-#Todo: Save labels to DB when label grouping is selected
+#Get the list of questions (Label, Publish Date, Type, Grouping)
+def getQuestionList(request):
+    questions = Question.objects.all()
+    labels = []
+    publishDates = []
+    types = []
+    groupings = []
+
+    for question in questions:
+        labels.append(question.questionLabel)
+        publishDates.append(question.pubDate)
+        types.append(str(question.questionType))
+        groupings.append(str(question.questionGrouping))
+
+    print(labels)
+    return JsonResponse({'labels': labels,
+                         'publishDates': publishDates,
+                         'types': types,
+                         'groupings': groupings})
+
+
 
 #Update a question
 def questionUpdate(request):
@@ -495,11 +514,14 @@ def getRank(request, questionPk):
 
 #Delete a question
 def questionDelete(request):
-    print('delete!')
-    questionPk = request.GET['questionPk']
-    question = Question.objects.get(pk=questionPk)
-    question.delete()
-    return HttpResponseRedirect('Success! Question was deleted successfully.')
+    if request.method == "POST":
+        questionLabel = request.POST['questionLabel']
+        print('Deleting question with label "%s"' % questionLabel)
+        question = Question.objects.get(questionLabel=questionLabel)
+        question.delete()
+        return HttpResponse('Success! Question was deleted successfully.')
+    else:
+        return HttpResponse('Error.')
 
 #Create a question
 def createQuestion(request):

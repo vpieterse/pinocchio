@@ -1,5 +1,3 @@
-
-
 {% extends "peer_review/base.html" %}
 {% load staticfiles %}
 
@@ -7,12 +5,11 @@
     <title>Create Question</title>
 
     <script type="text/javascript" src="{% static "peer_review/js/stacking.js" %}"></script>
+    <script type="text/javascript" src="{% static "peer_review/js/jquery.dataTables.min.js" %}"></script>
     <script type="text/javascript">
         /**Todo**
         Delete using Ajax
         Update the question list using Ajax, after insertion or deletion
-        Fix the label table
-        Save the labels to the DB when label grouping is selected
         Refactor: Clean up the create_post ajax call
         Refactor: Move js code to a seperate file
         */
@@ -22,12 +19,26 @@
         $(document).ready(function () {
             addOnSubmitHandler();
             selected();
+            $('#questionList').DataTable( {
+                                            columns: [
+                                                        { title: "Label" },
+                                                        { title: "Publish Date" },
+                                                        { title: "Grouping" },
+                                                        { title: "Type." },
+                                                    ],
+                                            "fnCreatedRow": function(row, data, index) {
+                                                $(row).append('<td><button class="btn btn-success btn-xs" type = "button" onclick = "editQuestion()">Edit</button>  '
+                                                +'<button type="button" class="btn btn-warning btn-xs" onclick = "deleteQuestion(' + "'" + data[0] + "'" + ')">Delete</button></td>');
+                                            },
+                                            "bPaginate": false
+                                           }); 
+            updateQuestionList();
+            
         });
 
         function addOnSubmitHandler() {
             $('#questionForm').on('submit', function (event) {
                 event.preventDefault();
-                //create_post();
             });
         }
 
@@ -237,9 +248,24 @@
             window.scrollTo(0, 0);
         }
 
+        //Update the question list
         function updateQuestionList()
         {
-            //Implement
+            $.ajax({
+                url: '/questionAdmin/getQuestionList/',
+                type: 'get',
+                success: function(data) {
+                    var contents = [];
+                    for (var i = 0; i < data.labels.length; i++)
+                    {
+                        contents.push([data.labels[i], data.publishDates[i].substring(0, 10), data.types[i], data.groupings[i]])
+                    }
+                    t = $('#questionList').DataTable();
+                    t.clear();
+                    t.rows.add(contents).draw();
+
+                }                   
+            })
         }
 
         function textBox(text) {
@@ -308,20 +334,23 @@
             return data;
         }
 
-        function deleteQuestion(pk)
+        function deleteQuestion(label)
         {
+            console.log(label);
+
             var r = confirm("Delete this question?");
             if (!r)
                 return;
-
+            var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
             $.ajax({
                     url: "/questionAdmin/delete/", // the endpoint
-                    type: "GET", // http method
-                    data: {'questionPk': pk}, // data sent with the post request
+                    type: "POST", // http method
+                    data: {'questionLabel': label, 'csrfmiddlewaretoken': token}, // data sent with the post request
 
                     // handle a successful response
                     success: saveSuccess('Question was deleted successfully.')
                 });
+            updateQuestionList();
         }
 
         // AJAX for posting
@@ -361,10 +390,11 @@
                     success: saveSuccess('Question was created successfully.')
                 });
             }
+
+            updateQuestionList();
         }
         ;
     </script>
-    <script src="{% static "peer_review/search.js" %}"></script>
     <script src="{% static "peer_review/validation.js" %}"></script>
     <!--<script src="{% static "peer_review/submit.js" %}"></script>-->
     <script type="text/javascript">
@@ -810,61 +840,18 @@
                             </a>
                         </h4>
                     </div>
-
                     <div id="collapseOne" class="panel-collapse collapse">
+                    <form>
                         <div class="panel-body">
-
-                            <input type="text" class="form-control" id="search" placeholder="Search"
-                                   onkeyup="showResult(this.value)">
-
+                            <form id = "questionList">
+                            <input type="text" class="form-control" id="search" placeholder="Search">
                             <div class='table-responsive'>
-                                <table class='table sortable' id='users'>
-                                    <thead>
-                                    <tr>
-                                        <th>Question</th>
-                                        <th>Publish Date</th>
-                                        <th>Question Type</th>
-                                        <th>Grouping</th>
-                                        <!--<th>Edit</th>-->
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for question in questions %}
-                                        <tr id="{{ question.pk }}">
-                                            <form>
-                                                {% csrf_token %}
-                                                <td><input type="text" style="width: 250px" class="noBorder"
-                                                           name="questionText"
-                                                           value="{{ question.questionText }}"></td>
-                                                <td><input type="text" style="width: 200px" class="noBorder"
-                                                           name="pubDate" value="{{ question.pubDate }}"></td>
-                                                <td><input type="text" style="width: 200px" class="noBorder"
-                                                           name="QuestionType"
-                                                           value="{{ question.QuestionType.name }}"></td>
-                                                <td><input type="text" style="width: 200px" class="noBorder"
-                                                           name="questionGroup"
-                                                           value="{{ question.questionGrouping.grouping }}">
-                                                </td>
-                                                <td>
-                                                    <button class='btn btn-success btn-xs' type = "button" onclick = "editQuestion({{ question.pk }})">
-                                                        Edit
-                                                    </button>
-                                                </td>
-                                            </form>
-                                            <td>
-                                                <form>
-                                                    {% csrf_token %}
-                                                    <button type='button'class='btn btn-warning btn-xs' onclick = 'deleteQuestion({{ question.pk }})'>
-                                                        Delete
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
+                            {% csrf_token %}
+                                <table id='questionList'>
                                 </table>
                             </div>
                         </div>
+                    </form>
                     </div>
                 </div>
             </div>
