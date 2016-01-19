@@ -106,6 +106,15 @@
 
         }
 
+        function cancel()
+        {
+            if (isEditing)
+                $("#cancelButton").html('Clear');
+            clearPage();
+            isEditing = false;
+
+        }
+
         function clearPage()
         {
             //Remove items from the choice, freeform and rate tables
@@ -116,7 +125,7 @@
             $('#questionLabel').val([]);
             $('#type').val('Label');
             $('#grouping').val('None');
-            editing = false;
+            isEditing = false;
             questionPk = -1;
             selected();
         }
@@ -226,6 +235,7 @@
         //Fetches question details from database
         function editQuestion(label) {
             isEditing = true;
+            $("#cancelButton").html('Cancel');
 
             //Query question details from db
             $.ajax({
@@ -448,6 +458,7 @@
                     // handle a successful response
                     success: saveSuccess('Question was edited successfully.')
                 });
+                isEditing = false;
 
             } else {
 
@@ -564,9 +575,14 @@
                                 </div>
                             </div>
                         </div>
-                        <div>
-                            <br/>
-                            <button class="btn btn-primary" type="submit" onclick="create_post()">Save</button>
+                        <br/>
+                        <div class = "row">
+                            <div class = "col-xs-11">
+                                <button class="btn btn-primary" type="submit" onclick="create_post()">Save</button>
+                            </div>
+                            <div class = "col-xs-1">
+                                <button class="btn btn-primary" id = "cancelButton" onclick="cancel()">Clear</button>
+                            </div>
                         </div>
                     </div>
                 </form>
