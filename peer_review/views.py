@@ -423,7 +423,6 @@ def getQuestionList(request):
         types.append(str(question.questionType))
         groupings.append(str(question.questionGrouping))
 
-    print(labels)
     return JsonResponse({'labels': labels,
                          'publishDates': publishDates,
                          'types': types,
@@ -433,7 +432,6 @@ def getQuestionList(request):
 
 #Update a question
 def questionUpdate(request):
-    print('update')
     questionPk = request.GET['pk']
     question = Question.objects.get(pk=questionPk)
     qText = request.GET['question']
@@ -488,16 +486,31 @@ def questionUpdate(request):
     return HttpResponse('Success! Question was saved succesfully.')
 
 #Get a question and it's details
-def getQuestion(request, questionPk):
-    question = Question.objects.get(pk=questionPk)
-    return JsonResponse({'questionText': question.questionText, 
-                        'questionType': question.questionType.name,
-                        'questionGrouping': question.questionGrouping.grouping,
-                        })
+def getQuestion(request):
+    questionLabel = request.GET['questionLabel']
+    question = Question.objects.get(questionLabel=questionLabel)
+    qGrouping = question.questionGrouping.grouping
+    labels = []
+    if qGrouping == 'Label':
+        qLabels = Label.objects.filter(question=question)
+        index = 0
+        for label in qLabels:
+            labels.append(label.labelText)
+            index += 1
+
+    response = {'questionText': question.questionText, 
+                'questionType': question.questionType.name,
+                'questionGrouping': qGrouping,
+                'questionLabel': question.questionLabel,
+                'labels': labels,
+                }
+
+    return JsonResponse(response)
 
 #Get the Choice objects associated with a Choice question
-def getChoices(request, questionPk):
-    question = Question.objects.get(pk=questionPk)
+def getChoices(request):
+    questionLabel = request.GET['questionLabel']
+    question = Question.objects.get(questionLabel=questionLabel)
     choices = Choice.objects.filter(question=question)
     response = {};
     for choice in choices:
@@ -505,18 +518,50 @@ def getChoices(request, questionPk):
     return JsonResponse(response)
 
 #Get the Rank object associated with a Rank question
-def getRank(request, questionPk):
-    q = Question.objects.get(pk=questionPk)
-    print(Rank.objects.all()) 
+def getRank(request):
+    questionLabel = request.GET['qL']
+    q = Question.objects.get(questionLabel=questionLabel)
     rank = Rank.objects.get(question = q)
-    # return JsonResponse()
     return JsonResponse({'firstWord': rank.firstWord, 'secondWord': rank.secondWord})
+
+#Gets the Rate objects associated with a Rate question
+def getRates(request):
+    #Probably going to have to change this
+    questionLabel = request.GET['qL']
+    q = Question.objects.get(questionLabel=questionLabel)
+    rates = Rate.objects.filter(question=q)
+
+    optionalArr = []
+    scaleArr = []
+    #There aren't even text fields in the model
+    #choices = []
+
+    for r in rates:
+        optionalArr.append(r.optional)
+        scaleArr.append(r.numberOfOptions)
+
+    return JsonResponse({'optionalArr': optionalArr, 'scaleArr': scaleArr})
+
+#Gets the Freeform objects associated with a Rate question
+def getFreeformItems(request):
+    questionLabel = request.GET['qL']
+    q = Question.objects.get(questionLabel=questionLabel)
+    freeformItems = FreeformItem.objects.filter(question=q)
+    print(freeformItems)
+
+    typeArr = []
+    valueArr = []
+
+    for f in freeformItems:
+        typeArr.append(f.freeformType)
+        valueArr.append(f.value)
+
+    return JsonResponse({'typeArr': typeArr, 'valueArr': valueArr})
 
 #Delete a question
 def questionDelete(request):
     if request.method == "POST":
         questionLabel = request.POST['questionLabel']
-        print('Deleting question with label "%s"' % questionLabel)
         question = Question.objects.get(questionLabel=questionLabel)
         question.delete()
         return HttpResponse('Success! Question was deleted successfully.')
@@ -597,15 +642,13 @@ def createQuestion(request):
             optionalArr = request.GET.getlist('optionalArr[]')
             scaleArr = request.GET.getlist('scaleArr[]')
             choiceArr = request.GET.getlist('choiceArr[]')
-            print(optionalArr)
-            print(scaleArr)
-            print(choiceArr)
 
             index = 0
             for r in choiceArr:
+                print('Optional: %s' % optionalArr[index])
                 r = Rate(question = q,
                          numberOfOptions = scaleArr[index],
-                         optional = optionalArr[index],
+                         optional = (optionalArr[index] == "true"),
                          num = index)
                 r.save()
                 index += 1

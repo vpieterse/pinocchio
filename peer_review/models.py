@@ -80,6 +80,9 @@ class Label(models.Model):
     question = models.ForeignKey(Question)
     labelText = models.CharField(max_length=200)
 
+    def __str__(self):
+        return self.labelText
+
 
 class UserDetail(models.Model):
     title = models.CharField(max_length=4)

@@ -8,8 +8,12 @@
     <script type="text/javascript" src="{% static "peer_review/js/jquery.dataTables.min.js" %}"></script>
     <script type="text/javascript">
         /**Todo**
-        Delete using Ajax
-        Update the question list using Ajax, after insertion or deletion
+        Add check: Saving with 0 choices, freeforms, rates
+        Add check: (Rank) Has a first and last word
+        Add check: Label does not exist
+        Add check: Label is not over 300 chars
+        Implement editing of all questions
+        Fix the missing line above the buttons in the #questionList table
         Refactor: Clean up the create_post ajax call
         Refactor: Move js code to a seperate file
         */
@@ -23,16 +27,24 @@
                                             columns: [
                                                         { title: "Label" },
                                                         { title: "Publish Date" },
-                                                        { title: "Grouping" },
                                                         { title: "Type." },
+                                                        { title: "Grouping" }
                                                     ],
+                                            //Add 'edit' and 'delete' buttons to each row added to table
                                             "fnCreatedRow": function(row, data, index) {
-                                                $(row).append('<td><button class="btn btn-success btn-xs" type = "button" onclick = "editQuestion()">Edit</button>  '
+                                                $(row).append('<td><button class="btn btn-success btn-xs" type = "button" onclick = "editQuestion(' + "'" + data[0] + "'" + ')">Edit</button>  '
                                                 +'<button type="button" class="btn btn-warning btn-xs" onclick = "deleteQuestion(' + "'" + data[0] + "'" + ')">Delete</button></td>');
                                             },
-                                            "bPaginate": false
+                                            "bPaginate": false,
+                                            "sDom" : "t"
                                            }); 
             updateQuestionList();
+
+            $('#search').keyup(function () {
+                t = $('#questionList').DataTable();
+                t.search($('#search').val()).draw();
+            })
+
             
         });
 
@@ -43,7 +55,6 @@
         }
 
         function saveSuccess(message) {
-            console.log(message);
             //Show success alertbox thingy
             $('#results').html('<div class="alert alert-success">' + message + '</div>');
 
@@ -54,14 +65,15 @@
                 });
             }, 5000);
 
-            //This clear the box even when editing, for some reason
-            //Clear question inputbox
-            //$('#question').val([]);
-
             editing = false;
             questionPk = 0;
             clearPage();
-            updateQuestionList();
+
+            //For some reason it needs to wait before refreshing the list.
+            //Only for deleting questions though.
+            setTimeout(function(){
+                updateQuestionList();
+            }, 100);
         }
 
         function changeGrouping() {
@@ -96,8 +108,12 @@
 
         function clearPage()
         {
-            //$('#table tr').remove();  //ToDo: Make this not remove the heading
+            //Remove items from the choice, freeform and rate tables
+            $("#table").find("tr:gt(0)").remove();
+
+            //Clear inputs
             $('#question').val([]);
+            $('#questionLabel').val([]);
             $('#type').val('Label');
             $('#grouping').val('None');
             editing = false;
@@ -159,6 +175,7 @@
             return rates;
         }
 
+        //Html snippets used to add new rows to tables
         var upArrow = '<td style="text-align: center; width: 20px;">' +
                 '<a class="move up" href="javascript:void(0)" title="move up">' +
                 '<span class="glyphicon glyphicon-arrow-up"></span>' +
@@ -171,15 +188,22 @@
                 '</a>' +
                 '</td>';
 
-        var numberBox = '<td style="text-align: center; width: 10px;">' +
-                '<input type="number" class="noBorder" id="scale" style="text-align: center; "/>' +
-                '</td>';
+        function numberBox(number)
+        { 
+            return '<td style="text-align: center; width: 10px;">' +
+                   '<input type="number" class="noBorder" id="scale" style="text-align: center;"" value = "' + number + '"/>' +
+                   '</td>';
+        }
 
-        var checkBox = '<td style="text-align: center; width: 10px;">' +
-                '<div class="checkbox">' +
-                '<input type="checkbox" id = optional>' +
-                '</div>' +
-                '</td>';
+        function checkBox(isChecked)
+        { 
+            console.log(isChecked);
+            return '<td style="text-align: center; width: 10px;">' +
+            '<div class = "checkbox">' +
+             (isChecked ? '<input type="checkbox" id = optional checked>' : '<input type="checkbox" id = optional>') +
+            '</div>' +
+            '</td>';
+        }
 
         var removeButton = '<td style="text-align: center; width: 20px; ">' +
                 '<a class="remove" href="javascript:void(0)">' +
@@ -187,70 +211,129 @@
                 '</a>' +
                 '</td>';
 
-        var dropDown = '<td>' +
+        function dropDown(value)
+        { 
+            return '<td>' +
                 '<select class="form-control" id = "type">' +
-                '<option value="Word">Word</option>' +
-                '<option value="Paragraph">Paragraph</option>' +
-                '<option value="Integer">Integer</option>' +
-                '<option value="Real">Real</option>' +
+                (value == 'Word' ? '<option value="Word" selected>Word</option>' : '<option value="Word">Word</option>') +
+                (value == 'Paragraph' ? '<option value="Paragraph" selected>Paragraph</option>' : '<option value="Paragraph">Paragraph</option>') +
+                (value == 'Integer' ? '<option value="Integer" selected>Integer</option>' : '<option value="Integer">Integer</option>') +
+                (value == 'Real' ? '<option value="Real" selected>Real</option>' : '<option value="Real">Real</option>') +
                 '</select>' +
                 '</td>';
+        }
 
-        function editQuestion(pk) {
+        //Fetches question details from database
+        function editQuestion(label) {
             isEditing = true;
-            questionPk = pk;
 
             //Query question details from db
             $.ajax({
-                url: '/questionAdmin/getQuestion/' + pk,
-                type: 'get',
-                success: function (data) {
-                    console.log(data);
-                    $('#question').val(data.questionText);
-                    $('#type').val(data.questionType);
-                    $('#grouping').val(data.questionGrouping);
-                    selected();
+                url: '/questionAdmin/getQuestion/',
+                data: {questionLabel: label},
+                success: function (data) {populateQuestionFields(data);},
+                failure: function () {alert('Error');}
+            });
 
-                    if (data.questionType == "Choice")
-                    {
-                        $.ajax({
-                            url: '/questionAdmin/getChoices/' + pk,
-                            type: 'get',
-                            success: function(data) {
-                                console.log(data);
-                                for (var c in data)
-                                    if (data.hasOwnProperty(c))
+            //Go to top of page
+            //window.scrollTo(0, 0);
+        }
+
+        //Populates question fields
+        function populateQuestionFields(data)
+        {
+            console.log(data);
+            $('#questionLabel').val(data.questionLabel);
+            $('#question').val(data.questionText);
+            $('#type').val(data.questionType);
+            $('#grouping').val(data.questionGrouping);
+            selected();
+
+            if (data.questionGrouping == "Label")
+            {
+                for (var x = 0; x < data.labels.length; x++)
+                {
+                    addRow(data.labels[x], '#labelTable');
+                }
+            }
+
+            switch (data.questionType) {
+                case 'Choice':
+                    $.ajax({
+                        url: '/questionAdmin/getChoices/',
+                        data: {questionLabel: data.questionLabel},                   
+                        success: function (data) 
+                        {
+                            console.log(data);
+                            for (var c in data)
+                            {
+                                if (data.hasOwnProperty(c))
                                 {
                                     addRow(data[c], '#table');
                                 }
                             }
-                        });//End choice ajax
-                    } else
-                    if (data.questionType == "Rank")
-                    {
-                        $.ajax({
-                            url: '/questionAdmin/getRank/' + pk,
-                            type: 'get',
-                            success: function(data) {
-                                console.log(data);
-                                $('#first').val(data.firstWord);
-                                $('#second').val(data.secondWord);
+                        },
+                    })
+                    break;
+                case 'Rate':
+                    $.ajax({
+                        url: '/questionAdmin/getRates/',
+                        data: {qL: data.questionLabel},                   
+                        success: function (data) 
+                        {
+                            console.log(data);
+                            for (var x = 0; x < data.optionalArr.length; x++)
+                            {
+                                //Need to make a better function for this
+                                //Then again, this will probably get changed
+                                addRateRow(data.optionalArr[x], data.scaleArr[x]);
                             }
-                        });//End rank ajax   
-                    }
-                },
-                failure: function (data) {
-                    alert('Error');
-                }
-            });//End question details ajax
+                        },
+                    })
+                    break;
+                case 'Freeform':
+                    $.ajax({
+                        url: '/questionAdmin/getFreeformItems/',
+                        data: {qL: data.questionLabel},
+                        success: function(data) {
+                            console.log(data);
+                            for (var x = 0; x < data.typeArr.length; x++)
+                            {
+                                addFreeformRow(data.typeArr[x], data.valueArr[x]);
+                            }
+                        }
+                    });
+                    break;
+                case "Rank":
+                    $.ajax({
+                        url: '/questionAdmin/getRank/',
+                        data: {qL: data.questionLabel},
+                        success: function(data) {
+                            console.log(data);
+                            $('#first').val(data.firstWord);
+                            $('#second').val(data.secondWord);
+                        }
+                    });
+                default:
+                    break;
+            }         
+        }
 
-            //Go to top of page
-            window.scrollTo(0, 0);
+        function addRateRow(optional, scale)
+        {
+            $('#table').append('<tr>' + checkBox(optional) + numberBox(scale) + textBox('----') + upArrow + downArrow + removeButton + '</tr>');
+        }
+
+        function addFreeformRow(type, value)
+        {
+            console.log(type, value);
+            $('#table').append('<tr>' + dropDown(type) + textBox(value) + upArrow + downArrow + removeButton + '</tr>');
         }
 
         //Update the question list
         function updateQuestionList()
         {
+            console.log("Updating question list");
             $.ajax({
                 url: '/questionAdmin/getQuestionList/',
                 type: 'get',
@@ -263,7 +346,6 @@
                     t = $('#questionList').DataTable();
                     t.clear();
                     t.rows.add(contents).draw();
-
                 }                   
             })
         }
@@ -284,10 +366,10 @@
                         $table.append('<tr>' + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
                         break;
                     case 'Rate':
-                        $table.append('<tr>' + checkBox + numberBox + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
+                        $table.append('<tr>' + checkBox(false) + numberBox(0) + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
                         break;
                     case 'Freeform':
-                        $table.append('<tr>' + dropDown + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
+                        $table.append('<tr>' + dropDown('Word') + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
                         break;
                     default:
                         break;
@@ -336,21 +418,21 @@
 
         function deleteQuestion(label)
         {
-            console.log(label);
+            console.log("Deleting question with label: '" + label + "'");
 
             var r = confirm("Delete this question?");
             if (!r)
                 return;
+
             var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
             $.ajax({
-                    url: "/questionAdmin/delete/", // the endpoint
-                    type: "POST", // http method
-                    data: {'questionLabel': label, 'csrfmiddlewaretoken': token}, // data sent with the post request
-
-                    // handle a successful response
-                    success: saveSuccess('Question was deleted successfully.')
-                });
-            updateQuestionList();
+                    url: "/questionAdmin/delete/",
+                    type: "POST",
+                    //csrf token is sent with the ajax call
+                    data: {'questionLabel': label, 'csrfmiddlewaretoken': token},
+                    //For some reason this doesn't wait until the question is deleted
+                    success: saveSuccess('Question was deleted successfully.')  
+                });          
         }
 
         // AJAX for posting
@@ -390,10 +472,8 @@
                     success: saveSuccess('Question was created successfully.')
                 });
             }
+        };
 
-            updateQuestionList();
-        }
-        ;
     </script>
     <script src="{% static "peer_review/validation.js" %}"></script>
     <!--<script src="{% static "peer_review/submit.js" %}"></script>-->
