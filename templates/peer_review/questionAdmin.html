@@ -269,11 +269,11 @@
                 url: '/questionAdmin/getQuestion/',
                 data: {questionLabel: label},
                 success: function (data) {populateQuestionFields(data);},
-                failure: function () {alert('Error');}
+                failure: function () {alert('Error during reading in question details');}
             });
 
             //Go to top of page
-            //window.scrollTo(0, 0);
+            window.scrollTo(0, 0);
         }
 
         //Populates question fields
@@ -308,6 +308,7 @@
                                 }
                             }
                         },
+                        failure: function () {alert('Error occurred in querying the choices');}
                     })
                     break;
                 case 'Rate':
@@ -323,6 +324,7 @@
                                 addRateRow(data.optionalArr[x], data.scaleArr[x]);
                             }
                         },
+                        failure: function () {alert('Error occurred in querying the rates');}
                     })
                     break;
                 case 'Freeform':
@@ -334,7 +336,8 @@
                             {
                                 addFreeformRow(data.typeArr[x], data.valueArr[x]);
                             }
-                        }
+                        },
+                        failure: function () {alert('Error occurred in querying the freeform items');}
                     });
                     break;
                 case "Rank":
@@ -344,7 +347,8 @@
                         success: function(data) {
                             $('#first').val(data.firstWord);
                             $('#second').val(data.secondWord);
-                        }
+                        },
+                        failure: function () {alert('Error occurred in querying the rank');}
                     });
                 default:
                     break;
@@ -379,7 +383,8 @@
                     t = $('#questionList').DataTable();
                     t.clear();
                     t.rows.add(contents).draw();
-                }                   
+                },
+                failure: function () {alert('Error occurred in querying the question list');}                   
             })
         }
 
@@ -467,7 +472,8 @@
                     //csrf token is sent with the ajax call
                     data: {'questionLabel': label, 'csrfmiddlewaretoken': token},
                     //For some reason this doesn't wait until the question is deleted
-                    success: saveSuccess('Question was deleted successfully.')  
+                    success: saveSuccess('Question was deleted successfully.'),
+                    failure: function () {alert('Error occurred in question deletion');} 
                 });          
         }
 
@@ -484,7 +490,6 @@
             {
                 return;
             }
-
             var rowCount = $('#table > tbody > tr').length;
             if ($('#type').val() in {'Choice':1, 'Freeform':1, 'Rate':1} && rowCount < 1) {
                 $('#table-error').html('<div class="alert alert-danger">You need to add some items</div>');
@@ -496,7 +501,8 @@
                 url: "/createQuestion/", // the endpoint
                 type: "GET", // http method
                 data: data, // data sent with the post request
-                success: saveSuccess('Question was saved successfully.')
+                success: saveSuccess('Question was saved successfully.'),
+                failure: function () {alert('Error occurred in saving the question');}
                 });
         };
 
@@ -703,18 +709,37 @@
         <div id="Rate">
             <div id = "table-error">
             </div>
-            <div class="row hide_in_label">
-                <div class="col-xs-1">
-                    <button class="btn btn-primary" id="btn" type="button" onclick="addRow('', '#table')">+ Add</button>
-                </div>
-                <div class="col-xs-10">
-                </div>
-                <div class="col-xs-1">
+            <div class="row">
+                <div class="col-xs-1 labelTable">
                     <button class="btn btn-primary labelTable" id="btn" type="button" onclick="addRow('', '#labelTable')">+ Add
                     </button>
                 </div>
+                <div class="col-xs-10 labelTable">
+                </div>
+                <div class="col-xs-1">
+                    <button class="btn btn-primary" id="btn" type="button" onclick="addRow('', '#table')">+ Add</button>
+                </div>
             </div>
             <div class="row">
+                <div class="col-xs-5 labelTable">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <table id="labelTable" class="table table-striped table-condensed table-hover btable">
+                                <thead>
+                                <tr>
+                                    <th style="text-align: center; ">
+                                        <div class="th-inner ">Label</div>
+                                        <div class="fht-cell"></div>
+                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
+                                            <div style="height: 34px;"></div>
+                                        </div>
+                                    </th>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-xs-7">
                     <div class="panel panel-default">
                         <div class="panel-body">
@@ -769,26 +794,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xs-5">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <table id="labelTable"
-                                   class="table table-striped table-condensed table-hover btable labelTable">
-                                <thead>
-                                <tr>
-                                    <th style="text-align: center; ">
-                                        <div class="th-inner ">Label</div>
-                                        <div class="fht-cell"></div>
-                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
-                                            <div style="height: 34px;"></div>
-                                        </div>
-                                    </th>
-                                </tr>
-                                </thead>
-                            </table>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
         <div id="Rank">
@@ -812,7 +817,7 @@
             </div>
             <br>
 
-            <div class="row hide_in_label">
+            <div class="row">
                 <div class="col-xs-1">
                     <button class="btn btn-primary labelTable" id="btn" type="button" onclick="addRow('', '#labelTable')">+ Add
                     </button>
@@ -844,7 +849,7 @@
         <div id="Freeform">
             <div id = "table-error">
             </div>
-            <div class="row hide_in_label">
+            <div class="row">
                 <div class="labelTable">
                     <div class="col-xs-1">
                         <button class="btn btn-primary labelTable" id="btn" type="button"
