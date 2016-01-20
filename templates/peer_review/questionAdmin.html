@@ -115,6 +115,19 @@
 
             $('#grouping').prop('disabled', true);
 
+            //Remove 'None' from the grouping dropdown if type is 'Rank'
+            if ($('#type').val() == 'Rank') {
+                $("#grouping option[value='None']").remove();
+            } 
+            else {
+                //Check if 'None' grouping is in the dropdown
+                if (0 == $('#grouping option[value="None"]').length)
+                {
+                    //Re-add 'None' to the dropdown
+                    $('#grouping').prepend($('<option value="None">None</option>'));
+                }
+            }
+
             if ($('#type').val() == 'Label') {
                 $('#grouping').val('None');
                 $('#grouping').prop('disabled', true);
