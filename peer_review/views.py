@@ -428,63 +428,6 @@ def getQuestionList(request):
                          'types': types,
                          'groupings': groupings})
 
-
-
-#Update a question
-def questionUpdate(request):
-    questionPk = request.GET['pk']
-    question = Question.objects.get(pk=questionPk)
-    qText = request.GET['question']
-    qType = QuestionType.objects.get(name=request.GET['questionType'])
-    qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
-    question.questionText = qText
-    question.pubDate=timezone.now() - datetime.timedelta(days=1)
-
-    #Choice
-    if str(qType) == 'Choice':
-        qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
-        choices = request.GET.getlist('choices[]')
-        #Save the question
-
-        question.questionText=text
-        question.pubDate=timezone.now() - datetime.timedelta(days=1)
-        question.questionGrouping=qGrouping
-        question.save()
-
-        #Delete the old choices
-        oldChoices = Choice.objects.filter(question = question);
-        for c in oldChoices:
-            c.delete()
-
-        #Save the new choices
-        rank = 0
-        for choice in choices:
-            c = Choice(question = question,
-                       choiceText = choice,
-                       num = rank)
-            rank += 1
-            print(c)
-            c.save()
-
-    #Rank
-    elif str(qType) == 'Rank':
-        wordOne = request.GET["firstWord"]
-        wordTwo = request.GET["secondWord"]
-        #Save the question
-        question.save()
-
-        #Save the rank
-        r = Rank(question=q,
-                 firstWord=wordOne,
-                 secondWord=wordTwo)
-        r.save()
-
-        #Label
-    elif str(qType) == 'Label':
-        question.save()
-
-    return HttpResponse('Success! Question was saved succesfully.')
-
 #Get a question and it's details
 def getQuestion(request):
     questionLabel = request.GET['questionLabel']
@@ -575,16 +518,27 @@ def createQuestion(request):
         qType = QuestionType.objects.get(name=request.GET['questionType'])
         qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
         qLabel = request.GET['questionLabel']
+        qIsEditing = request.GET['isEditing']
+        qPubDate = timezone.now()
         print("Saving new question: Type = '%s', Label = '%s', Grouping = '%s'" % (qType, qLabel, qGrouping))
 
+        if qIsEditing == 'true':
+            print('Deleting old question')
+            q = Question.objects.get(questionLabel = qLabel)
+            qPubDate = q.pubDate
+            q.delete()
+
         #Save the question
+        print('Creating question')
         q = Question(questionText = qText,
-                     pubDate = timezone.now() - datetime.timedelta(days=1),
+                     #pubDate = timezone.now() - datetime.timedelta(days=1),
+                     pubDate = qPubDate,
                      questionType = qType,
                      questionGrouping = qGrouping,
                      questionLabel=qLabel
                      )
         q.save()
+
 
         if str(qGrouping) == 'Label':
             qLabels = request.GET.getlist('labelArr[]')
