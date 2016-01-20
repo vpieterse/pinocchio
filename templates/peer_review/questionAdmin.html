@@ -1,5 +1,3 @@
-
-
 {% extends "peer_review/base.html" %}
 {% load staticfiles %}
 
@@ -7,38 +5,79 @@
     <title>Create Question</title>
 
     <script type="text/javascript" src="{% static "peer_review/js/stacking.js" %}"></script>
+    <script type="text/javascript" src="{% static "peer_review/js/jquery.dataTables.min.js" %}"></script>
     <script type="text/javascript">
         /**Todo**
-         Implement saving label type and freeform type
-         Fix saving of rank type
-         Delete using Ajax
-         Add an 'editSuccess' function (Or use the old one, with a parameter?)
-         Update the question list using Ajax, after insertion or deletion
-         Fix the label table
-         Save the labels to the DB when label grouping is selected
-         Stop the random empty table row being saved sometimes
-         Refactor: Clean up the create_post ajax call
-         Refactor: Move js code to a seperate file
-         */
-
+        Fix the missing line above the buttons in the #questionList table
+        Refactor: Move js code to a seperate file
+        */
 
         var isEditing = false;
-        var questionPk;
         $(document).ready(function () {
             addOnSubmitHandler();
             selected();
+            $('#questionList').DataTable( {
+                                            columns: [
+                                                        { title: "Label" },
+                                                        { title: "Publish Date" },
+                                                        { title: "Type." },
+                                                        { title: "Grouping" }
+                                                    ],
+                                            //Add 'edit' and 'delete' buttons to each row added to table
+                                            "fnCreatedRow": function(row, data, index) {
+                                                $(row).append('<td><button class="btn btn-success btn-xs" type = "button" onclick = "editQuestion(' + "'" + data[0] + "'" + ')">Edit</button>  '
+                                                +'<button type="button" class="btn btn-warning btn-xs" onclick = "deleteQuestion(' + "'" + data[0] + "'" + ')">Delete</button></td>');
+                                            },
+                                            "bPaginate": false,
+                                            "sDom" : "t"
+                                           }); 
+            updateQuestionList();
+
+            $('#search').keyup(function () {
+                t = $('#questionList').DataTable();
+                t.search($('#search').val()).draw();
+            })
+
+            $('#questionLabel').keyup(function() {
+                qLabel = $('#questionLabel').val();
+
+                if (questionExists(qLabel)) {
+                    $('#question-label-error').html('<div class="alert alert-danger fade in">Question label must be unique</div>');
+                }
+                else if (qLabel.length > 300) {
+                    $('#question-label-error').html('<div class="alert alert-danger fade in">Question label must be less than 300 characters</div>');
+                } 
+                else {
+                    $('#question-label-error').html('');
+                }
+            })
+
+            
         });
 
         function addOnSubmitHandler() {
             $('#questionForm').on('submit', function (event) {
                 event.preventDefault();
-                //create_post();
             });
         }
 
-        function saveSuccess() {
+        function questionExists(label)
+        {
+            //Of course the question exists if it's being edited
+            if (isEditing)
+                return false;
+
+            var table = $('#questionList').DataTable();             
+            var index = table.column(0).data().indexOf(label);
+            if (index < 0)
+                return false
+            else
+                return true;
+        }
+
+        function saveSuccess(message) {
             //Show success alertbox thingy
-            $('#results').html('<div class="alert alert-success">Success! Question saved to database.</div>');
+            $('#results').html('<div class="alert alert-success">' + message + '</div>');
 
             //Make the alert box disappear after 5 seconds
             window.setTimeout(function () {
@@ -47,18 +86,22 @@
                 });
             }, 5000);
 
-            //This clear the box even when editing, for some reason
-            //Clear question inputbox
-            //$('#question').val([]);
+            clearPage();
+
+            //For some reason it needs to wait before refreshing the list.
+            //Only for deleting questions though.
+            setTimeout(function(){
+                updateQuestionList();
+            }, 100);
         }
 
         function changeGrouping() {
             //Shows the label table if the grouping is changed to 'label'
             if ($('#grouping').val() === 'Label') {
-                $('#labelTable').parent().parent().fadeIn();
+                $('#labelTable').parent().parent().parent().fadeIn();
                 $('.labelTable').fadeIn();
             } else {
-                $('#labelTable').parent().parent().fadeOut();
+                $('#labelTable').parent().parent().parent().fadeOut();
                 $('.labelTable').fadeOut();
             }
 
@@ -70,10 +113,28 @@
             initialiseStacking();
             changeGrouping();
 
-            if ($('#type').val() == 'Label')
-                $('.hide_in_label').hide();
-            else
-                $('.hide_in_label').show();
+            $('#grouping').prop('disabled', true);
+
+            //Remove 'None' from the grouping dropdown if type is 'Rank'
+            if ($('#type').val() == 'Rank') {
+                $("#grouping option[value='None']").remove();
+            } 
+            else {
+                //Check if 'None' grouping is in the dropdown
+                if (0 == $('#grouping option[value="None"]').length)
+                {
+                    //Re-add 'None' to the dropdown
+                    $('#grouping').prepend($('<option value="None">None</option>'));
+                }
+            }
+
+            if ($('#type').val() == 'Label') {
+                $('#grouping').val('None');
+                $('#grouping').prop('disabled', true);
+            }
+            else {
+                $('#grouping').prop('disabled', false);
+            }
 
             if ($('#type').val() == 'Rank')
                 $('#add').hide();
@@ -82,22 +143,47 @@
 
         }
 
-        function getAllRows() {
-            var myObjects = [];
+        function cancel()
+        {
+            if (isEditing)
+                $("#cancelButton").html('Clear');
+            clearPage();
+        }
 
-            $('#typeDisplay table tbody tr').each(function (index, value) {
-                var row = getRow(index);
-                myObjects.push(row);
-            });
+        function clearPage()
+        {
+            //Remove items from the choice, freeform and rate tables
+            $("#table").find("tr:gt(0)").remove();
 
-            return myObjects;
+            //Clear inputs
+            $('#question').val([]);
+            $('#questionLabel').val([]);
+            $('#type').val('Label');
+            $('#grouping').val('None');
+            isEditing = false;
+            selected();
+
+            $("#type").prop("disabled", false);
+            $("#questionLabel").prop('disabled', false);
+            $('#table-error').html('');
+            $('#question-label-error').html('');
+        }
+
+        function getLabels() {
+            var labels = [];
+
+            $('#labelTable > tbody > tr').each( function (index, value) {
+                label = $(this).find('#choice').val();
+                labels.push(label);
+            });  
+            return labels;
         }
 
         function getChoices() {
             var choices = [];
 
-            $('#typeDisplay table tbody tr').each(function (index, value) {
-                var choice = $('#typeDisplay table tbody tr').eq(index).find('td:eq(0)').find('*').val();
+            $('#table > tbody > tr').each(function (index, value) {
+                choice = $(this).find('#choice').val();
                 if (choice != '')
                     choices.push(choice);
             });
@@ -105,36 +191,38 @@
             return choices;
         }
 
-        function getRates() {
-            var rates = [];
+        function getFreeformItems() {
+            var items = {};
+            items.types = [];
+            items.values = [];
+            $('#table > tbody > tr').each(function (index, value) {
+                var value = $(this).find('#choice').val();
+                var type = $(this).find('#type').val();
+                items.types.push(type);
+                items.values.push(value);
+            });
+            return items;            
+        }
 
-            $('#typeDisplay table tbody tr').each(function (index, value) {
-                var $tr = $('#typeDisplay table tbody tr');
-                var scale = $tr.eq(index).find('td:eq(0)').find('*').is(':checked');
-                var optional = $tr.eq(index).find('td:eq(1)').find('*').is(':checked');
-                var choice = $tr.eq(index).find('td:eq(2)').find('*').val();
+        function getRates() {
+            var rates = {scales: [], optionals: [], choices: []};
+
+            $('#table > tbody > tr').each(function (index, value) {
+                var optional = $(this).find('#optional').is(':checked');
+                var scale = $(this).find('#scale').val();
+                var choice = $(this).find('#choice').val();
 
                 if (choice != '') {
-                    rates.push({scale: scale, optional: optional, choice: choice});
+                    rates.scales.push(scale);
+                    rates.optionals.push(optional);
+                    rates.choices.push(choice);
                 }
             });
 
             return rates;
         }
 
-        // Read the row into an object
-        function getRow(rowNum) {
-            var row = $('#typeDisplay table tbody tr').eq(rowNum);
-
-            var myObject = {};
-
-            myObject.ChangeType = row.find('td:eq(0)').text();
-            myObject.UpdateType = row.find('td:eq(1)').text();
-            myObject.three = row.find('td:eq(2)').text();
-
-            return myObject;
-        }
-
+        //Html snippets used to add new rows to tables
         var upArrow = '<td style="text-align: center; width: 20px;">' +
                 '<a class="move up" href="javascript:void(0)" title="move up">' +
                 '<span class="glyphicon glyphicon-arrow-up"></span>' +
@@ -147,15 +235,21 @@
                 '</a>' +
                 '</td>';
 
-        var numberBox = '<td style="text-align: center; width: 10px;">' +
-                '<input type="number" class="noBorder" style="text-align: center; "/>' +
-                '</td>';
+        function numberBox(number)
+        { 
+            return '<td style="text-align: center; width: 10px;">' +
+                   '<input type="number" class="noBorder" id="scale" style="text-align: center;"" value = "' + number + '"/>' +
+                   '</td>';
+        }
 
-        var checkBox = '<td style="text-align: center; width: 10px;">' +
-                '<div class="checkbox">' +
-                '<input type="checkbox">' +
-                '</div>' +
-                '</td>';
+        function checkBox(isChecked)
+        { 
+            return '<td style="text-align: center; width: 10px;">' +
+            '<div class = "checkbox">' +
+             (isChecked ? '<input type="checkbox" id = optional checked>' : '<input type="checkbox" id = optional>') +
+            '</div>' +
+            '</td>';
+        }
 
         var removeButton = '<td style="text-align: center; width: 20px; ">' +
                 '<a class="remove" href="javascript:void(0)">' +
@@ -163,47 +257,148 @@
                 '</a>' +
                 '</td>';
 
-        var dropDown = '<td>' +
+        function dropDown(value)
+        { 
+            return '<td>' +
                 '<select class="form-control" id = "type">' +
-                '<option value="Word">Word</option>' +
-                '<option value="Paragraph">Paragraph</option>' +
-                '<option value="Integer">Integer</option>' +
-                '<option value="Real">Real</option>' +
+                (value == 'Word' ? '<option value="Word" selected>Word</option>' : '<option value="Word">Word</option>') +
+                (value == 'Paragraph' ? '<option value="Paragraph" selected>Paragraph</option>' : '<option value="Paragraph">Paragraph</option>') +
+                (value == 'Integer' ? '<option value="Integer" selected>Integer</option>' : '<option value="Integer">Integer</option>') +
+                (value == 'Real' ? '<option value="Real" selected>Real</option>' : '<option value="Real">Real</option>') +
                 '</select>' +
                 '</td>';
+        }
 
-        function editQuestion(pk) {
+        //Fetches question details from database
+        function editQuestion(label) {
+            clearPage();
             isEditing = true;
-            questionPk = pk;
+            $("#type").prop("disabled", true);
+            $("#questionLabel").prop('disabled', true);
+            $("#cancelButton").html('Cancel');
 
+            //Query question details from db
             $.ajax({
-                url: '/questionAdmin/getQuestion/' + pk,
-                type: 'get',
-                success: function (data) {
-                    console.log(data);
-                    $('#question').val(data.questionText);
-                    $('#type').val(data.questionType);
-                    $('#grouping').val(data.questionGrouping);
-                    selected();
-                },
-                failure: function (data) {
-                    alert('Error');
-                }
-            });//End ajax
+                url: '/questionAdmin/getQuestion/',
+                data: {questionLabel: label},
+                success: function (data) {populateQuestionFields(data);},
+                failure: function () {alert('Error during reading in question details');}
+            });
 
-            if ($('#type').val() == "Choice") {
-                $.ajax({
-                    url: '/questionAdmin/getChoices/' + pk,
-                    type: 'get',
-                    success: function (data) {
-                        console.log(data);
-                        for (var c in data)
-                            if (data.hasOwnProperty(c)) {
-                                addRow(data[c], '#table');
-                            }
-                    },
-                });//End ajax
+            //Go to top of page
+            window.scrollTo(0, 0);
+        }
+
+        //Populates question fields
+        function populateQuestionFields(data)
+        {
+            $('#questionLabel').val(data.questionLabel);
+            $('#question').val(data.questionText);
+            $('#type').val(data.questionType);
+            $('#grouping').val(data.questionGrouping);
+            selected();
+
+            if (data.questionGrouping == "Label")
+            {
+                for (var x = 0; x < data.labels.length; x++)
+                {
+                    addRow(data.labels[x], '#labelTable');
+                }
             }
+
+            switch (data.questionType) {
+                case 'Choice':
+                    $.ajax({
+                        url: '/questionAdmin/getChoices/',
+                        data: {questionLabel: data.questionLabel},                   
+                        success: function (data) 
+                        {
+                            for (var c in data)
+                            {
+                                if (data.hasOwnProperty(c))
+                                {
+                                    addRow(data[c], '#table');
+                                }
+                            }
+                        },
+                        failure: function () {alert('Error occurred in querying the choices');}
+                    })
+                    break;
+                case 'Rate':
+                    $.ajax({
+                        url: '/questionAdmin/getRates/',
+                        data: {qL: data.questionLabel},                   
+                        success: function (data) 
+                        {
+                            for (var x = 0; x < data.optionalArr.length; x++)
+                            {
+                                //Need to make a better function for this
+                                //Then again, this will probably get changed
+                                addRateRow(data.optionalArr[x], data.scaleArr[x]);
+                            }
+                        },
+                        failure: function () {alert('Error occurred in querying the rates');}
+                    })
+                    break;
+                case 'Freeform':
+                    $.ajax({
+                        url: '/questionAdmin/getFreeformItems/',
+                        data: {qL: data.questionLabel},
+                        success: function(data) {
+                            for (var x = 0; x < data.typeArr.length; x++)
+                            {
+                                addFreeformRow(data.typeArr[x], data.valueArr[x]);
+                            }
+                        },
+                        failure: function () {alert('Error occurred in querying the freeform items');}
+                    });
+                    break;
+                case "Rank":
+                    $.ajax({
+                        url: '/questionAdmin/getRank/',
+                        data: {qL: data.questionLabel},
+                        success: function(data) {
+                            $('#first').val(data.firstWord);
+                            $('#second').val(data.secondWord);
+                        },
+                        failure: function () {alert('Error occurred in querying the rank');}
+                    });
+                default:
+                    break;
+            }         
+        }
+
+        function addRateRow(optional, scale)
+        {
+            $('#table').append('<tr>' + checkBox(optional) + numberBox(scale) + textBox('----') + upArrow + downArrow + removeButton + '</tr>');
+            $('#table-error').html('');
+        }
+
+        function addFreeformRow(type, value)
+        {
+            $('#table').append('<tr>' + dropDown(type) + textBox(value) + upArrow + downArrow + removeButton + '</tr>');
+            $('#table-error').html('');
+        }
+
+        //Update the question list
+        function updateQuestionList()
+        {
+            console.log("Updating question list");
+            $.ajax({
+                url: '/questionAdmin/getQuestionList/',
+                type: 'get',
+                success: function(data) {
+                    var contents = [];
+                    for (var i = 0; i < data.labels.length; i++)
+                    {
+                        contents.push([data.labels[i], data.publishDates[i].substring(0, 10), data.types[i], data.groupings[i]])
+                    }
+                    t = $('#questionList').DataTable();
+                    t.clear();
+                    t.rows.add(contents).draw();
+                },
+                failure: function () {alert('Error occurred in querying the question list');}                   
+            })
         }
 
         function textBox(text) {
@@ -220,12 +415,13 @@
                 switch ($('#type').val()) {
                     case 'Choice':
                         $table.append('<tr>' + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
+                        $('#table-error').html('');
                         break;
                     case 'Rate':
-                        $table.append('<tr>' + checkBox + numberBox + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
+                        $table.append('<tr>' + checkBox(false) + numberBox(0) + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
                         break;
                     case 'Freeform':
-                        $table.append('<tr>' + dropDown + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
+                        $table.append('<tr>' + dropDown('Word') + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
                         break;
                     default:
                         break;
@@ -233,91 +429,96 @@
             } else {
                 $table.append('<tr>' + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
             }
+
         }
 
         function createJson() {
             var data = {
                 question: $('#question').val(),
-                questionType: $('#type').val()
+                questionType: $('#type').val(),
+                questionLabel: $('#questionLabel').val(),
+                grouping: $('#grouping').val(),
+                isEditing: isEditing
             };
+
+            if ($('#grouping').val() === 'Label')
+                data.labelArr = getLabels();
 
             switch ($('#type').val()) {
                 case 'Choice':
                     data.choices = getChoices()
-                    data.grouping = $('#grouping').val();
                     break;
                 case 'Rank':
                     data.firstWord = $('#first').val();
                     data.secondWord = $('#second').val();
-                    data.grouping = $('#grouping').val();
                     break;
                 case 'Label':
-                    //Todo: Implement
+                    data.grouping = 'None';
                     break;
                 case 'Rate':
-                    data.rates = getRates();
-                    data.grouping = $('#grouping').val();
+                    data.optionalArr = getRates().optionals;
+                    data.choiceArr = getRates().choices;
+                    data.scaleArr = getRates().scales;
                     break;
-                case 'Freeform' :
-                    //Todo: Implement
+                case 'Freeform':
+                    data.types = getFreeformItems().types;
+                    data.values = getFreeformItems().values;
                     break;
             }
 
+            console.log(data);
             return data;
         }
 
-        // AJAX for posting
-        function create_post() {
+        function deleteQuestion(label)
+        {
+            console.log("Deleting question with label: '" + label + "'");
 
-            if (isEditing) {
-                var data = createJson();
-                data.pk = questionPk;
-                $.ajax({
-                    url: "questionAdmin/update", // the endpoint
-                    type: "GET", // http method
-                    data: data, // data sent with the post request
+            var r = confirm("Delete this question?");
+            if (!r)
+                return;
 
-                    // handle a successful response
-                    success: saveSuccess()
-                });
-
-            } else {
-
-
-                if ($('#question').val() == '') {
-                    var r = confirm("No question entered. Save anyways?");
-                    if (!r)
-                        return;
-                }
-
-                var data = createJson();
-
-                console.log(data); //Check
-
-                //Send the data to the createQuestion view
-                $.ajax({
-                    url: "/createQuestion/", // the endpoint
-                    type: "GET", // http method
-                    data: data, // data sent with the post request
-
-                    // handle a successful response
-                    success: saveSuccess()
-                });
-            }
+            var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
+            $.ajax({
+                    url: "/questionAdmin/delete/",
+                    type: "POST",
+                    //csrf token is sent with the ajax call
+                    data: {'questionLabel': label, 'csrfmiddlewaretoken': token},
+                    //For some reason this doesn't wait until the question is deleted
+                    success: saveSuccess('Question was deleted successfully.'),
+                    failure: function () {alert('Error occurred in question deletion');} 
+                });          
         }
-        ;
-    </script>
-    <script src="{% static "peer_review/search.js" %}"></script>
-    <script src="{% static "peer_review/validation.js" %}"></script>
-    <!--<script src="{% static "peer_review/submit.js" %}"></script>-->
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#users tr').each(function () {
-                $(this).find('input[type="text"]').each(function () {
-                    $(this).attr('size', $(this).val().length);
+
+        // AJAX for posting
+        function create_post() {  
+
+            //Validation
+            var qLabel = $('#questionLabel').val();
+            if (qLabel == '') {
+                $('#question-label-error').html('<div class="alert alert-danger">This is a required field</div>');
+                return;
+            }
+            if (qLabel.length > 300 || questionExists(qLabel))
+            {
+                return;
+            }
+            var rowCount = $('#table > tbody > tr').length;
+            if ($('#type').val() in {'Choice':1, 'Freeform':1, 'Rate':1} && rowCount < 1) {
+                $('#table-error').html('<div class="alert alert-danger">You need to add some items</div>');
+                return;
+            }
+
+            var data = createJson();
+            $.ajax({
+                url: "/createQuestion/", // the endpoint
+                type: "GET", // http method
+                data: data, // data sent with the post request
+                success: saveSuccess('Question was saved successfully.'),
+                failure: function () {alert('Error occurred in saving the question');}
                 });
-            });
-        });
+        };
+
     </script>
     <!--Edit navbar active-->
     <script>
@@ -342,20 +543,33 @@
                     <input type="hidden" id="tableData">
 
                     <div class="form-group">
-                        <label for="question">Question</label>
-                        <textarea class="form-control" cols="152" rows="3" style="resize:none;width:auto" id="question"
-                                  name="question">{{ questionText }}</textarea>
+                        <label for="questionLabel">Question Label</label>
+                        <textarea class="form-control" rows="1" style="resize:none;width:100%" id="questionLabel"
+                                  name="questionLabel"></textarea>
+                        <div id = "question-label-error">
+                        </div>
                         <br/>
-
+                        <label for="question">Question</label>
+                        <textarea class="form-control"rows="3" style="resize:none;width:100%" id="question"
+                                  name="question"></textarea>
+                        <br/>
                         <div class="row">
+                            <div class="col-xs-5">
+                                <label>Grouping</label>
+                            </div>
                             <div class="col-xs-5">
                                 <label>Type</label>
                             </div>
-                            <div class="col-xs-5">
-                                <label class="hide_in_label">Grouping</label>
-                            </div>
                         </div>
                         <div class="row">
+                            <div class="col-xs-5 ">
+                                <select class="form-control" id="grouping" style="width:auto" onchange="changeGrouping()">
+                                    <option value="None">None</option>
+                                    <option value="Rest">Rest</option>
+                                    <option value="All">All</option>
+                                    <option value="Label">Label</option>
+                                </select>
+                            </div>
                             <div class="col-xs-5">
                                 <select id="type" class="form-control" style="width:auto" onchange="selected()"
                                         name="type" value= {{ questionType }}>
@@ -368,15 +582,6 @@
                                             {% endif %}
                                         {% endfor %}
                                     {% endif %}
-                                </select>
-                            </div>
-                            <div class="col-xs-5">
-                                <select class="form-control hide_in_label" id="grouping" style="width:auto"
-                                        onchange="changeGrouping()">
-                                    <option value="None">None</option>
-                                    <option value="Rest">Rest</option>
-                                    <option value="All">All</option>
-                                    <option value="Label">Label</option>
                                 </select>
                             </div>
                         </div>
@@ -393,9 +598,14 @@
                                 </div>
                             </div>
                         </div>
-                        <div>
-                            <br/>
-                            <button class="btn btn-primary" type="submit" onclick="create_post()">Save</button>
+                        <br/>
+                        <div class = "row">
+                            <div class = "col-xs-11">
+                                <button class="btn btn-primary" type="submit" onclick="create_post()">Save</button>
+                            </div>
+                            <div class = "col-xs-1">
+                                <button class="btn btn-primary" id = "cancelButton" onclick="cancel()">Clear</button>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -405,19 +615,43 @@
     <div id="hidden" class="hidden">
         <div id="Label"></div>
         <div id="Choice">
-            <div class="row hide_in_label">
+            <div id = "table-error">
+            </div>
+            <div class="row">
+                <div class="labelTable">
+                    <div class="col-xs-1">
+                        <button class="btn btn-primary" id="btn" type="button"
+                                onclick="addRow('', '#labelTable')">+ Add
+                        </button>
+                    </div>
+                    <div class="col-xs-8">
+                    </div>
+                </div>
                 <div class="col-xs-1">
                     <button class="btn btn-primary" id="btn" type="button" onclick="addRow('', '#table')">+ Add</button>
                 </div>
-                <div class="col-xs-8">
-                </div>
-                <div class="col-xs-1">
-                    <button class="btn btn-primary labelTable" id="btn" type="button"
-                            onclick="addRow('', '#labelTable')">+ Add
-                    </button>
-                </div>
             </div>
             <div class="row">
+                <div class="col-xs-5">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <table id="labelTable"
+                                   class="table table-striped table-condensed table-hover btable labelTable">
+                                <thead>
+                                <tr>
+                                    <th style="text-align: center; ">
+                                        <div class="th-inner ">Label</div>
+                                        <div class="fht-cell"></div>
+                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
+                                            <div style="height: 34px;"></div>
+                                        </div>
+                                    </th>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>                
                 <div class="col-xs-5">
                     <div class="panel panel-default">
                         <div class="panel-body">
@@ -483,11 +717,27 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xs-5">
+            </div>
+        </div>
+        <div id="Rate">
+            <div id = "table-error">
+            </div>
+            <div class="row">
+                <div class="col-xs-1 labelTable">
+                    <button class="btn btn-primary labelTable" id="btn" type="button" onclick="addRow('', '#labelTable')">+ Add
+                    </button>
+                </div>
+                <div class="col-xs-10 labelTable">
+                </div>
+                <div class="col-xs-1">
+                    <button class="btn btn-primary" id="btn" type="button" onclick="addRow('', '#table')">+ Add</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-5 labelTable">
                     <div class="panel panel-default">
                         <div class="panel-body">
-                            <table id="labelTable"
-                                   class="table table-striped table-condensed table-hover btable labelTable">
+                            <table id="labelTable" class="table table-striped table-condensed table-hover btable">
                                 <thead>
                                 <tr>
                                     <th style="text-align: center; ">
@@ -503,22 +753,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div id="Rate">
-            <div class="row hide_in_label">
-                <div class="col-xs-1">
-                    <button class="btn btn-primary" id="btn" type="button" onclick="addRow('', '#table')">+ Add</button>
-                </div>
-                <div class="col-xs-10">
-                </div>
-                <div class="col-xs-1">
-                    <button class="btn btn-primary labelTable" id="btn" type="button"
-                            onclick="addRow('', '#labelTable')">+ Add
-                    </button>
-                </div>
-            </div>
-            <div class="row">
                 <div class="col-xs-7">
                     <div class="panel panel-default">
                         <div class="panel-body">
@@ -573,26 +807,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xs-5">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <table id="labelTable"
-                                   class="table table-striped table-condensed table-hover btable labelTable">
-                                <thead>
-                                <tr>
-                                    <th style="text-align: center; ">
-                                        <div class="th-inner ">Label</div>
-                                        <div class="fht-cell"></div>
-                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
-                                            <div style="height: 34px;"></div>
-                                        </div>
-                                    </th>
-                                </tr>
-                                </thead>
-                            </table>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
         <div id="Rank">
@@ -606,7 +820,7 @@
             </div>
             <div class="row">
                 <div class="col-xs-4">
-                    <input class='form-control' type='text' id='first' value='{{ firstWord }}'/>
+                    <input class='form-control' type='text' id='first'/>
                 </div>
                 <div class="col-xs-4">
                     <input class='form-control' type='text' id='second'/>
@@ -616,10 +830,9 @@
             </div>
             <br>
 
-            <div class="row hide_in_label">
+            <div class="row">
                 <div class="col-xs-1">
-                    <button class="btn btn-primary labelTable" id="btn" type="button"
-                            onclick="addRow('', '#labelTable')">+ Add
+                    <button class="btn btn-primary labelTable" id="btn" type="button" onclick="addRow('', '#labelTable')">+ Add
                     </button>
                 </div>
             </div>
@@ -647,19 +860,43 @@
             </div>
         </div>
         <div id="Freeform">
-            <div class="row hide_in_label">
+            <div id = "table-error">
+            </div>
+            <div class="row">
+                <div class="labelTable">
+                    <div class="col-xs-1">
+                        <button class="btn btn-primary labelTable" id="btn" type="button"
+                                onclick="addRow('', '#labelTable')">+ Add
+                        </button>
+                    </div>
+                    <div class="col-xs-8">
+                    </div>
+                </div>
                 <div class="col-xs-1">
                     <button class="btn btn-primary" id="btn" type="button" onclick="addRow('', '#table')">+ Add</button>
                 </div>
-                <div class="col-xs-8">
-                </div>
-                <div class="col-xs-1">
-                    <button class="btn btn-primary labelTable" id="btn" type="button"
-                            onclick="addRow('', '#labelTable')">+ Add
-                    </button>
-                </div>
             </div>
             <div class="row">
+                <div class="col-xs-5">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <table id="labelTable"
+                                   class="table table-striped table-condensed table-hover btable labelTable">
+                                <thead>
+                                <tr>
+                                    <th style="text-align: center; ">
+                                        <div class="th-inner ">Label</div>
+                                        <div class="fht-cell"></div>
+                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
+                                            <div style="height: 34px;"></div>
+                                        </div>
+                                    </th>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-xs-5">
                     <div class="panel panel-default">
                         <div class="panel-body">
@@ -707,26 +944,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xs-5">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <table id="labelTable"
-                                   class="table table-striped table-condensed table-hover btable labelTable">
-                                <thead>
-                                <tr>
-                                    <th style="text-align: center; ">
-                                        <div class="th-inner ">Label</div>
-                                        <div class="fht-cell"></div>
-                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
-                                            <div style="height: 34px;"></div>
-                                        </div>
-                                    </th>
-                                </tr>
-                                </thead>
-                            </table>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -743,60 +960,11 @@
                             </a>
                         </h4>
                     </div>
-
                     <div id="collapseOne" class="panel-collapse collapse">
                         <div class="panel-body">
-
-                            <input type="text" class="form-control" id="search" placeholder="Search"
-                                   onkeyup="showResult(this.value)">
-
+                            <input type="text" class="form-control" id="search" placeholder="Search">
                             <div class='table-responsive'>
-                                <table class='table sortable' id='users'>
-                                    <thead>
-                                    <tr>
-                                        <th>Question</th>
-                                        <th>Publish Date</th>
-                                        <th>Question Type</th>
-                                        <th>Grouping</th>
-                                        <!--<th>Edit</th>-->
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for question in questions %}
-                                        <tr id="{{ question.pk }}">
-                                            <!--<form action = "/questionAdmin/update/{{ question.pk }}" method = "post">-->
-                                            <form>
-                                                {% csrf_token %}
-                                                <td><input type="text" style="width: 250px" class="noBorder"
-                                                           name="questionText"
-                                                           value="{{ question.questionText }}"></td>
-                                                <td><input type="text" style="width: 200px" class="noBorder"
-                                                           name="pubDate" value="{{ question.pubDate }}"></td>
-                                                <td><input type="text" style="width: 200px" class="noBorder"
-                                                           name="QuestionType"
-                                                           value="{{ question.QuestionType.name }}"></td>
-                                                <td><input type="text" style="width: 200px" class="noBorder"
-                                                           name="questionGroup"
-                                                           value="{{ question.questionGrouping.grouping }}">
-                                                </td>
-                                                <td>
-                                                    <button class='btn btn-success btn-xs' type="button"
-                                                            onclick="editQuestion({{ question.pk }})">Edit
-                                                    </button>
-                                                </td>
-                                            </form>
-                                            <td>
-                                                <form action="/questionAdmin/delete/{{ question.pk }}" method="post"
-                                                      onsubmit="return confirmDeletion()">
-                                                    {% csrf_token %}
-                                                    <button type='submit' name="remove" class='btn btn-warning btn-xs'
-                                                            id='remove'>Delete
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
+                                <table id='questionList'>
                                 </table>
                             </div>
                         </div>

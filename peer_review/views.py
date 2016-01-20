@@ -15,7 +15,7 @@ import uuid
 from django.utils import timezone
 
 from .models import Document
-from .models import Question, QuestionType, QuestionGrouping, Choice, Rank,Questionnaire, RoundDetail, TeamDetail
+from .models import Question, QuestionType, QuestionGrouping, Choice, Rank, Questionnaire, RoundDetail, TeamDetail, FreeformItem, Rate, Label
 from .models import User, UserDetail
 from .models import Questionnaire, QuestionOrder
 from .forms import DocumentForm, UserForm
@@ -409,129 +409,204 @@ def getGroupID(questionGroup):
     else:
         return -1
 
-#QuestionAdmin stuff
-#Todo: Merge the questionUpdate and createQuestion functions
-#Todo: Implement saving of freeform type and label type
-#Todo: Fix saving of rank type
-#Todo: Save labels to DB when label grouping is selected
+#Get the list of questions (Label, Publish Date, Type, Grouping)
+def getQuestionList(request):
+    questions = Question.objects.all()
+    labels = []
+    publishDates = []
+    types = []
+    groupings = []
 
-def questionUpdate(request):
-    questionPk = request.GET['pk']
-    question = Question.get(pk=questionPk)
-    text = request.GET['question']
-    qType = QuestionType.objects.get(name=request.GET['questionType'])
+    for question in questions:
+        labels.append(question.questionLabel)
+        publishDates.append(question.pubDate)
+        types.append(str(question.questionType))
+        groupings.append(str(question.questionGrouping))
 
-    #Choice
-    if str(qType) == 'Choice':
-        qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
-        choices = request.GET.getlist('choices[]')
-        #Save the question
-        question.questionText=text
-        question.pubDate=timezone.now() - datetime.timedelta(days=1)
-        question.questionGrouping=qGrouping
-        question.save()
+    return JsonResponse({'labels': labels,
+                         'publishDates': publishDates,
+                         'types': types,
+                         'groupings': groupings})
 
-        #Save the choices
-        rank = 0
-        for choice in choices:
-            c = Choice(question = q,
-                       choiceText = choice,
-                       num = rank,
-                       header_id = 0)
-            rank += 1
-            c.save()
+#Get a question and it's details
+def getQuestion(request):
+    questionLabel = request.GET['questionLabel']
+    question = Question.objects.get(questionLabel=questionLabel)
+    qGrouping = question.questionGrouping.grouping
+    labels = []
+    if qGrouping == 'Label':
+        qLabels = Label.objects.filter(question=question)
+        index = 0
+        for label in qLabels:
+            labels.append(label.labelText)
+            index += 1
 
-    #Rank
-    elif str(qType) == 'Rank':
-        qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
-        wordOne = request.GET["firstWord"]
-        wordTwo = request.GET["secondWord"]
-        #Save the question
-        question.questionText=text
-        question.pubDate=timezone.now() - datetime.timedelta(days=1)
-        question.questionGrouping=qGrouping
+    response = {'questionText': question.questionText, 
+                'questionType': question.questionType.name,
+                'questionGrouping': qGrouping,
+                'questionLabel': question.questionLabel,
+                'labels': labels,
+                }
 
-        question.save()
+    return JsonResponse(response)
 
-        #Save the rank
-        r = Rank(question=q,
-                 firstWord=wordOne,
-                 secondWord=wordTwo)
-        r.save()
-
-
-def getQuestion(request, questionPk):
-    question = Question.objects.get(pk=questionPk)
-    return JsonResponse({'questionText': question.questionText, 
-                        'questionType': question.questionType.name,
-                        'questionGrouping': question.questionGrouping.grouping,
-                        })
-
-def getChoices(request, questionPk):
-    question = Question.objects.get(pk=questionPk)
+#Get the Choice objects associated with a Choice question
+def getChoices(request):
+    questionLabel = request.GET['questionLabel']
+    question = Question.objects.get(questionLabel=questionLabel)
     choices = Choice.objects.filter(question=question)
     response = {};
     for choice in choices:
         response[choice.num] = choice.choiceText
-    # print(response)
     return JsonResponse(response)
 
+#Get the Rank object associated with a Rank question
+def getRank(request):
+    questionLabel = request.GET['qL']
+    q = Question.objects.get(questionLabel=questionLabel)
+    rank = Rank.objects.get(question = q)
+    return JsonResponse({'firstWord': rank.firstWord, 'secondWord': rank.secondWord})
 
+#Gets the Rate objects associated with a Rate question
+def getRates(request):
+    #Probably going to have to change this
+    questionLabel = request.GET['qL']
+    q = Question.objects.get(questionLabel=questionLabel)
+    rates = Rate.objects.filter(question=q)
 
-def questionDelete(request, questionPk):
-    question = Question.objects.get(pk=questionPk)
-    question.delete()
-    return HttpResponseRedirect('../')
+    optionalArr = []
+    scaleArr = []
+    #There aren't even text fields in the model
+    #choices = []
 
+    for r in rates:
+        optionalArr.append(r.optional)
+        scaleArr.append(r.numberOfOptions)
 
+    return JsonResponse({'optionalArr': optionalArr, 'scaleArr': scaleArr})
+
+#Gets the Freeform objects associated with a Rate question
+def getFreeformItems(request):
+    questionLabel = request.GET['qL']
+    q = Question.objects.get(questionLabel=questionLabel)
+    freeformItems = FreeformItem.objects.filter(question=q)
+    print(freeformItems)
+
+    typeArr = []
+    valueArr = []
+
+    for f in freeformItems:
+        typeArr.append(f.freeformType)
+        valueArr.append(f.value)
+
+    return JsonResponse({'typeArr': typeArr, 'valueArr': valueArr})
+
+#Delete a question
+def questionDelete(request):
+    if request.method == "POST":
+        questionLabel = request.POST['questionLabel']
+        question = Question.objects.get(questionLabel=questionLabel)
+        question.delete()
+        return HttpResponse('Success! Question was deleted successfully.')
+    else:
+        return HttpResponse('Error.')
+
+#Create a question
 def createQuestion(request):
     if 'question' in request.GET:
-        text = request.GET['question']
+        qText = request.GET['question']
         qType = QuestionType.objects.get(name=request.GET['questionType'])
+        qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
+        qLabel = request.GET['questionLabel']
+        qIsEditing = request.GET['isEditing']
+        qPubDate = timezone.now()
+        print("Saving new question: Type = '%s', Label = '%s', Grouping = '%s'" % (qType, qLabel, qGrouping))
+
+        if qIsEditing == 'true':
+            print('Deleting old question')
+            q = Question.objects.get(questionLabel = qLabel)
+            qPubDate = q.pubDate
+            q.delete()
+
+        #Save the question
+        print('Creating question')
+        q = Question(questionText = qText,
+                     #pubDate = timezone.now() - datetime.timedelta(days=1),
+                     pubDate = qPubDate,
+                     questionType = qType,
+                     questionGrouping = qGrouping,
+                     questionLabel=qLabel
+                     )
+        q.save()
+
+
+        if str(qGrouping) == 'Label':
+            qLabels = request.GET.getlist('labelArr[]')
+            print("Grouping is label: %s" % qLabels)
+
+            for label in qLabels:
+                l = Label(question = q, labelText = label)
+                l.save()
 
         #Choice
         if str(qType) == 'Choice':
-            qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
             choices = request.GET.getlist('choices[]')
-
-            #Save the question
-            q = Question(questionText = text,
-                         pubDate = timezone.now() - datetime.timedelta(days=1),
-                         questionType = qType,
-                         questionGrouping = qGrouping
-                         )
-            q.save()
-
+            print("Choices = %s" % choices)
+           
             #Save the choices
             rank = 0
             for choice in choices:
                 c = Choice(question = q,
                            choiceText = choice,
-                           num = rank,
-                           header_id = 0)
+                           num = rank)
                 rank += 1
                 # print(c)
                 c.save()
 
         #Rank
         elif str(qType) == 'Rank':
-            qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
             wordOne = request.GET["firstWord"]
             wordTwo = request.GET["secondWord"]
-
-            #Save the question
-            q = Question(questionText=text,
-                         pubDate=timezone.now() - datetime.timedelta(days=1),
-                         QuestionType=qType,
-                         questionGrouping=qGrouping
-                         )
-            q.save()
+            print("First Word: '%s', Second Word: '%s'" % (wordOne, wordTwo))
 
             #Save the rank
             r = Rank(question=q,
                      firstWord=wordOne,
                      secondWord=wordTwo)
             r.save()
+
+        #Freeform
+        elif str(qType) == 'Freeform':
+            types = request.GET.getlist('types[]')
+            values = request.GET.getlist('values[]')
+            print(types)
+            print("Types: %s, Values:" % types, values)
+
+            rank = 0
+            for t in types:
+                f = FreeformItem(question = q,
+                                 value = values[rank],
+                                 freeformType = t
+                                 )
+                rank += 1
+                f.save()
+
+        #Rate
+        elif str(qType) == 'Rate':
+            optionalArr = request.GET.getlist('optionalArr[]')
+            scaleArr = request.GET.getlist('scaleArr[]')
+            choiceArr = request.GET.getlist('choiceArr[]')
+
+            index = 0
+            for r in choiceArr:
+                print('Optional: %s' % optionalArr[index])
+                r = Rate(question = q,
+                         numberOfOptions = scaleArr[index],
+                         optional = (optionalArr[index] == "true"),
+                         num = index)
+                r.save()
+                index += 1
+
     else:
         message = 'You submitted an empty form.'
     return HttpResponse()
