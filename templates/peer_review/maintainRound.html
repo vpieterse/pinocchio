@@ -45,6 +45,25 @@
 
 <script type="text/javascript">
     
+
+
+function createNewQuestionnaire()
+        {
+               
+            var x = '';
+               var x = document.getElementById("questionn").value;
+              window.alert(x); 
+            if (x == "create questionnaire")
+                window.location.href = '/questionnaireAdmin';
+
+          /*  if (text == 'change')
+                window.alert("HEY YoU");*/
+           /* return (window.location.href='/questionnaireAdmin')*/
+//window.location = url;
+
+        }
+
+
     function editRound(pk)
         {
             isEditing = true;
@@ -67,21 +86,85 @@
             });//End ajax
             
         }
-
+function show()
+        {
+            
+           var x = '';
+               var x = document.getElementById("startingDate").value;
+              window.alert(x);  
+        }
 
 
 </script>
 
 <!--end-->
-
-
-        <div class="container">
+ <div class="container">
+        <div class="panel-group" id="accordion">
             <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h4 class="panel-title"><b>Maintain Rounds</b></h4>
-                </div>	
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
+                    <h4 class="panel-title">
+                        <a>
+                            Create Round <b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
 
-                <div class="panel-body">
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        {% block content %}
+                            <form action="/maintainRound/RoundSubmitForm/" method="post"
+                                  onsubmit="return validateUserForm();" class="form-horizontal user-form" id="userForm"
+                                  role="form">
+                                {% csrf_token %}
+                                <div class="form-group">
+<!--DESCRIPTION-->
+                            <tr>
+                                <td>
+                                <label for="description" class="col-sm-2 control-label">Description:</label>
+                                </td>
+
+<!--QUESTIONNAIRE-->
+                               <td>
+                                <label for="questionnaire" class="col-sm-2 control-label">Questionnaire:</label>
+
+                                </td>
+                            </tr>
+
+<!--STARTING DATE-->
+                                 <tr>
+
+                                  <td>
+                                    <label for="questionnaire" class="col-sm-2 control-label">Starting Date:</label>
+                                    </td>
+
+                                    
+
+<!--ENDING DATE-->
+                                <td>
+                                <label for="questionnaire" class="col-sm-2 control-label">Ending Date:</label>
+                                </td>
+                                </tr>
+                                
+
+
+                                <div class="form-group">
+                                    <!-- Submit Button -->
+                                                                    </div>
+                            </form>
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+<div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
+                    <h4 class="panel-title">
+                        <a>
+                            Maintain Round <b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+	            <div id="collapseTwo" class="panel-collapse collapse">
+                    <div class="panel-body">
 
                     <input type="text" class="form-control" id="search" placeholder="Search" onkeyup="showResult(this.value)">
 
@@ -135,28 +218,33 @@
 
 
                                         <td>
-                                       <select id="questionn" name=="questionn" class="form-control" 
-                                style="width:auto" onchange="selected()" >
+                                       <select id="questionn" name="questionn" class="form-control" 
+                                style="width:auto" onchange="createNewQuestionnaire()" >
 
-                                <option selected value="{{round.questionnaire.intro}}">{{ round.questionnaire.intro}}</option>
+                                <option selected value="{{round.questionnaire.pk}}">{{ round.questionnaire.intro}}</option>
                             {% for quest in questionnaires %}
                                     {% if round.questionnaire.intro = quest.intro %}
+
                                             {% else %}
                                                 <option value="{{quest.pk}}">{{ quest.intro }}</option>     
                                     {% endif %}
+                                            
+
+                                        
                             {% endfor %}
 
-                                        </select>
+                                        <option >create questionnaire</option>
+                                       </select> 
 <!--Plus sign to go create a questionnaire-->
-                                          <input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="window.location.href='/questionnaireAdmin'"  /> 
+                                        <!--  <input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="window.location.href='/questionnaireAdmin'"  /> -->
                                     </td>
 
 
 
 <!--STARTING DATE-->
 
-                                                <td><input type="text" class="noBorder" name="startinDate"
-                                                       value="{{ round.startingDate }}"></input></td>
+                                               <td><input type="datetime" class="noBorder" name="startingDate"
+                                                       value="{{ round.startingDate }}" onclick="show()"></input>
 <!--
 
                                                 <td><input type="datetime" style="width: 200px" class="noBorder"
@@ -235,10 +323,7 @@
 
                                         </tr>
                                     {% endfor %}
-                                    </tr>
-
-                                    <td><input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="addRow('', '#round')" /></td>
-                                </tr>
+                                   
                             </tbody>
                         </table>
                     </div>

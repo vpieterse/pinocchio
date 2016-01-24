@@ -499,13 +499,27 @@ def roundUpdate(request, roundPk):
 
         post_description = request.POST.get("desc")
         post_questionnaire = request.POST.get("questionn")
-        post_startingDate = request.POST.get("starting")
-        post_endingDate = request.POST.get("ending")
+        #print(post_questionnaire)
+
+       # for obj in Test.objects.all():
+    #obj.start_datetime = time.strptime(obj.start_time, "%d %b %y")
+    #obj.save()
+
+#datetime.strptime("21/11/06 16:30", "%d/%m/%y %H:%M")
+
+        post_startingDate =request.POST.get("startingDate") 
+        #datetime.datetime.strptime(request.POST.get("startingDate"), "%d-%b-%Y %H:%M")
+        #datetime.datetime.strptime("startingDate", "%y-%m-%d %H:%M")
+        #"2016-11-06 16:30"
+        #post_startingDate.substr(0, post_startingDate.length - 1);
+        # post_startingDate = datetime.datetime.strptime("startingDate", "%d/%m/%y %H:%M")
+
+        post_endingDate = request.POST.get("endingDate")
 
         round.description = post_description
-        round.questionnaire = post_questionnaire
-       # round.startingDate = post_startingDate
-       # round.endingDate = post_endingDate
+        round.questionnaire = Questionnaire.objects.get(pk=post_questionnaire)
+        round.startingDate = post_startingDate
+        #round.endingDate = post_endingDate
 
         round.save()
     return HttpResponseRedirect('../')
@@ -515,4 +529,39 @@ def getRound(request, roundPk):
     round = RoundDetail.objects.get(pk=roundPk)
     return JsonResponse({'roundDetail': RoundDetail.objects.all(),
                 'questionnaires': Questionnaire.objects.all()})
+
+def RoundSubmitForm(request):
+    if request.method == "POST":
+        userForm = UserForm(request.POST)
+        if userForm.is_valid():
+            post_title = userForm.cleaned_data['title']
+            post_initials = userForm.cleaned_data['initials']
+            post_name = userForm.cleaned_data['name']
+            post_surname = userForm.cleaned_data['surname']
+            post_cell = userForm.cleaned_data['cell']
+            post_email = userForm.cleaned_data['email']
+
+            userDetail = UserDetail(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
+                                    cell=post_cell, email=post_email)
+            userDetail.save()
+
+            post_userId = userForm.cleaned_data['userId']
+
+            OTP = generate_OTP()
+            generate_email(OTP, post_name, post_surname)
+            post_password = hash_password(OTP)
+
+            post_status = userForm.cleaned_data['status']
+
+            user = User(userId=post_userId, password=post_password, status=post_status, userDetail=userDetail)
+            user.save()
+
+            for roundObj in RoundDetail.objects.all():
+                team = TeamDetail(userDetail=userDetail, roundDetail=roundObj)
+                team.save()
+
+            return HttpResponseRedirect("../")
+    else:
+        userForm = UserForm()
+    return HttpResponseRedirect("../")
 
