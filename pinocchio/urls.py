@@ -10,6 +10,7 @@ urlpatterns = [
                   url(r'^fileUpload', views.fileUpload, name='fileUpload'),
                   url(r'^createQuestion/$', views.createQuestion, name='createQuestion'),
                   url(r'^maintainRound/$', views.maintainRound, name='maintainRound'),
+                  url(r'^createRound/$', views.createRound, name='createRound'),
                   
                   url(r'^maintainTeam/$', views.maintainTeam, name='maintainTeam'),
                   url(r'^questionnaireAdmin/$', views.questionnaireAdmin, name='questionnaireAdmin'),

@@ -15,14 +15,6 @@
         });
     </script>
 
-    <script>
-        title = "maintainRound";
-    </script>
-{% endblock%}
-
-{% block context %}
-
-<!--Function to add row-->
 <script type="text/javascript">
     function textBox(text) {
             return '<td style="text-align: center; ">' +
@@ -86,16 +78,87 @@ function createNewQuestionnaire()
             });//End ajax
             
         }
-function show()
+//needs editing!!
+function cancel()
         {
-            
-           var x = '';
-               var x = document.getElementById("startingDate").value;
-              window.alert(x);  
+            alert('heya');
+            if (isEditing)
+                $("#cancelButton").html('Clear');
+            clearPage();
         }
 
+//needs
+function clearPage()
+        {
+            //Remove items from the choice, freeform and rate tables
+            $("#table").find("tr:gt(0)").remove();
+
+            //Clear inputs
+            $('#question').val([]);
+            $('#questionLabel').val([]);
+            $('#type').val('Label');
+            $('#grouping').val('None');
+            isEditing = false;
+            selected();
+
+            $("#type").prop("disabled", false);
+            $("#questionLabel").prop('disabled', false);
+            $('#table-error').html('');
+            $('#question-label-error').html('');
+        }
+
+function createJson() {
+            alert("Create Json")
+            var data = {
+                description: $('#description').val(),
+                questionnaire: $('#questionnaire').val(),
+                startingDate: $('#startingDate').val(),
+                endingDate: $('#endingDate').val(),
+               // isEditing: isEditing
+            };
+
+            console.log(data);
+            return data;
+        }
+// AJAX for posting
+        function create_post() {  
+
+
+            alert('create_post')
+            //Validation
+            var rLabel = $('#roundLabel').val();
+            if (rLabel == '') {
+                $('#round-label-error').html('<div class="alert alert-danger">This is a required field</div>');
+                return;
+            }
+            if (rLabel.length > 300 || roundExists(rLabel))
+            {
+                return;
+            }
+
+            var data = createJson();
+            $.ajax({
+                url: "/createRound/", // the endpoint
+                type: "GET", // http method
+                data: data, // data sent with the post request
+                success: saveSuccess('Round was saved successfully.'),
+                failure: function () {alert('Error occurred in saving the question');}
+                });
+            
+        };
 
 </script>
+
+
+    <script>
+        title = "maintainRound";
+    </script>
+{% endblock%}
+
+{% block context %}
+
+<!--Function to add row-->
+
 
 <!--end-->
  <div class="container">
@@ -104,57 +167,76 @@ function show()
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
                     <h4 class="panel-title">
                         <a>
-                            Create Round <b class="caret"></b>
+                            Create Round<b class="caret"> </b>
                         </a>
                     </h4>
                 </div>
 
                 <div id="collapseOne" class="panel-collapse collapse in">
                     <div class="panel-body">
-                        {% block content %}
-                            <form action="/maintainRound/RoundSubmitForm/" method="post"
-                                  onsubmit="return validateUserForm();" class="form-horizontal user-form" id="userForm"
-                                  role="form">
-                                {% csrf_token %}
-                                <div class="form-group">
-<!--DESCRIPTION-->
-                            <tr>
-                                <td>
-                                <label for="description" class="col-sm-2 control-label">Description:</label>
-                                </td>
-
-<!--QUESTIONNAIRE-->
-                               <td>
-                                <label for="questionnaire" class="col-sm-2 control-label">Questionnaire:</label>
-
-                                </td>
-                            </tr>
-
-<!--STARTING DATE-->
-                                 <tr>
-
-                                  <td>
-                                    <label for="questionnaire" class="col-sm-2 control-label">Starting Date:</label>
-                                    </td>
-
-                                    
-
-<!--ENDING DATE-->
-                                <td>
-                                <label for="questionnaire" class="col-sm-2 control-label">Ending Date:</label>
-                                </td>
-                                </tr>
-                                
 
 
-                                <div class="form-group">
-                                    <!-- Submit Button -->
-                                                                    </div>
-                            </form>
-                        {% endblock %}
+                <form role="form" id="roundForm" action="/createRound/" method="GET">
+                    {% csrf_token %}
+                    <input type="hidden" id="tableData">
+
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea class="form-control" rows="1" style="resize:none;width:100%" id="roundLabel"
+                                  name="description"></textarea>
+                        <div id = "round-label-error">
+                        </div>
+                        <br/>
+
+                        <div>
+                        <label for="questionnaire">Questionnaire</label>
+                        </div>
+                        <div class="col-xs-5">
+                                <select id="questionnaire" name="questionnaire" class="form-control" 
+                                style="width:auto" >
+
+                                <option selected value="{{round.questionnaire.pk}}">{{ round.questionnaire.intro}}</option>
+                            {% for quest in questionnaires %}
+                                    {% if round.questionnaire.intro = quest.intro %}
+
+                                            {% else %}
+                                                <option value="{{quest.pk}}">{{ quest.intro }}</option>     
+                                    {% endif %}
+                                            
+
+                                        
+                            {% endfor %}
+                                       </select> 
+
+                           <br/>
+                           <label for="startingDate">Starting Date</label>
+                           <div>
+                            <input type="datetime-local"  name="startingDate" value="" ></input>
+                            </div>
+
+                           <br/>
+                           <label for="endingDate">Ending Date</label>
+                           <div>
+                            <input type="datetime-local"  name="endingDate" value="" ></input>
+                            </div>
+
+
+                            <br/>
+                           <div class = "row">
+                            <div class = "col-xs-11">
+                                <button class="btn btn-primary" type="submit" onclick="create_post()">Save</button>
+                            </div>
+                            <div class = "col-xs-1">
+                                <button class="btn btn-primary" id = "cancelButton" onclick="cancel()">Clear</button>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
+        </div>
+    </div>
+    </div>
+    
 <div class="panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
                     <h4 class="panel-title">
@@ -219,7 +301,7 @@ function show()
 
                                         <td>
                                        <select id="questionn" name="questionn" class="form-control" 
-                                style="width:auto" onchange="createNewQuestionnaire()" >
+                                style="width:auto" >
 
                                 <option selected value="{{round.questionnaire.pk}}">{{ round.questionnaire.intro}}</option>
                             {% for quest in questionnaires %}
@@ -232,19 +314,19 @@ function show()
 
                                         
                             {% endfor %}
-
-                                        <option >create questionnaire</option>
                                        </select> 
 <!--Plus sign to go create a questionnaire-->
-                                        <!--  <input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="window.location.href='/questionnaireAdmin'"  /> -->
+                                          <input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="window.location.href='/questionnaireAdmin'"  />
                                     </td>
 
 
 
 <!--STARTING DATE-->
 
-                                               <td><input type="datetime" class="noBorder" name="startingDate"
-                                                       value="{{ round.startingDate }}" onclick="show()"></input>
+                                               <td><b><input type="text" class="noBorder" name="startingDisplay"
+                                                       value="{{round.startingDate}}" readonly></input></b>
+                                                <input type="datetime-local" class="noBorder" name="startingDate"
+                                                       value="{{round.startingDate}}" ></input>
 <!--
 
                                                 <td><input type="datetime" style="width: 200px" class="noBorder"
@@ -262,8 +344,12 @@ function show()
                                                            name="endingDate"
                                                            value="{{ round.endingDate }}"></input></td>
 -->
-                                    <td><input type="text" class="noBorder" name="endingDate"
-                                                       value="{{ round.endingDate }}"></input></td>
+                                    <td><b><input type="text" class="noBorder" name="endingDisplay"
+                                                       value="{{round.endingDate}}" readonly></input></b>
+                                            <input type="datetime-local" class="noBorder" name="endingDate"
+                                                       value="{{ round.endingDate }}"></input>
+
+                                                       </td>
 
 <!--HERE
 <td>
@@ -274,7 +360,7 @@ function show()
 
 
 <!--SPANNER-->
-                                                 <td><button type='button' class='btn btn-default btn-xs' id='maintain'  onclick='#'><a href="teamBuilder.html"><span class="glyphicon glyphicon-wrench"></span></button></button></a></button></td>
+                                                 <td><button type='button' class='btn btn-default btn-xs' id='maintain'  onclick="window.location.href='/maintainTeam'"><span class="glyphicon glyphicon-wrench"></span></button></button></a></button></td>
 
 <!--EDIT-->
                 <!--

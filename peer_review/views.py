@@ -507,8 +507,7 @@ def roundUpdate(request, roundPk):
 
 #datetime.strptime("21/11/06 16:30", "%d/%m/%y %H:%M")
 
-        post_startingDate =request.POST.get("startingDate") 
-        #datetime.datetime.strptime(request.POST.get("startingDate"), "%d-%b-%Y %H:%M")
+        post_startingDate =request.POST.get("startingDate")
         #datetime.datetime.strptime("startingDate", "%y-%m-%d %H:%M")
         #"2016-11-06 16:30"
         #post_startingDate.substr(0, post_startingDate.length - 1);
@@ -518,50 +517,95 @@ def roundUpdate(request, roundPk):
 
         round.description = post_description
         round.questionnaire = Questionnaire.objects.get(pk=post_questionnaire)
-        round.startingDate = post_startingDate
-        #round.endingDate = post_endingDate
+
+        if post_startingDate !='':
+            round.startingDate = post_startingDate
+
+        if post_endingDate !='':
+            round.endingDate = post_endingDate
 
         round.save()
     return HttpResponseRedirect('../')
+#Create a round
+def createRound(request):
+    if 'round' in request.GET:
+        rDescription = request.GET['round']
+        rQuestionnaire = Questionnaire.objects.get(label=request.GET['questionnaire'])
+        rStartingDate = timezone.now()
+        #request.GET['startingDate']
+        rEndingDate = timezone.now()
+        #request.GET['endingDate']
+       # rIsEditing = request.GET['isEditing']
+       # qPubDate = timezone.now()
+      #  print("Saving new question"): Description = '%s', Questionnaire = '%s'" % (rDescription, rQuestionnaire))"
+
+        #if qIsEditing == 'true':
+         #   print('Deleting old question')
+         #   q = Question.objects.get(questionLabel = qLabel)
+          #  qPubDate = q.pubDate
+          #  q.delete()
+
+        #Save the question
+        print('Creating Round')
+        r = Round(description = rDescription,
+                     #pubDate = timezone.now() - datetime.timedelta(days=1),
+                     questionnaire = rQuestionnaire,
+                     startingDate = rStartingDate,
+                     endingDate = rEndingDate,
+                     )
+        r.save()
+        return HttpResponse()
+#def createQuestion(request):
+ #   if 'question' in request.GET:
+  #      text = request.GET['question']
+   #     qType = QuestionType.objects.get(name=request.GET['questionType'])
+
+        #Choice
+    #    if str(qType) == 'Choice':
+     #       qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
+      #      choices = request.GET.getlist('choices[]')
+
+            #Save the question
+       #     q = Question(questionText = text,
+        #                 pubDate = timezone.now() - datetime.timedelta(days=1),
+         #                questionType = qType,
+          #               questionGrouping = qGrouping
+           #              )
+            #q.save()
+
+            #Save the choices
+  #          rank = 0
+   #         for choice in choices:
+    #            c = Choice(question = q,
+     #                      choiceText = choice,
+      #                     num = rank,
+       #                    header_id = 0)
+        #        rank += 1
+                # print(c)
+         #       c.save()
+
+        #Rank
+ #       elif str(qType) == 'Rank':
+  #          qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
+   #         wordOne = request.GET["firstWord"]
+    #        wordTwo = request.GET["secondWord"]
+#
+ #           #Save the question
+  #          q = Question(questionText=text,
+   #                      pubDate=timezone.now() - datetime.timedelta(days=1),
+    #                     QuestionType=qType,
+     #                    questionGrouping=qGrouping
+      #                   )
+       #     q.save()
+#
+ #           #Save the rank
+  #          r = Rank(question=q,
+   #                  firstWord=wordOne,
+    #                 secondWord=wordTwo)
+     #       r.save()
+   # else:
+    #    message = 'You submitted an empty form.'
+#    return HttpResponse()
 
 
-def getRound(request, roundPk):
-    round = RoundDetail.objects.get(pk=roundPk)
-    return JsonResponse({'roundDetail': RoundDetail.objects.all(),
-                'questionnaires': Questionnaire.objects.all()})
-
-def RoundSubmitForm(request):
-    if request.method == "POST":
-        userForm = UserForm(request.POST)
-        if userForm.is_valid():
-            post_title = userForm.cleaned_data['title']
-            post_initials = userForm.cleaned_data['initials']
-            post_name = userForm.cleaned_data['name']
-            post_surname = userForm.cleaned_data['surname']
-            post_cell = userForm.cleaned_data['cell']
-            post_email = userForm.cleaned_data['email']
-
-            userDetail = UserDetail(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
-                                    cell=post_cell, email=post_email)
-            userDetail.save()
-
-            post_userId = userForm.cleaned_data['userId']
-
-            OTP = generate_OTP()
-            generate_email(OTP, post_name, post_surname)
-            post_password = hash_password(OTP)
-
-            post_status = userForm.cleaned_data['status']
-
-            user = User(userId=post_userId, password=post_password, status=post_status, userDetail=userDetail)
-            user.save()
-
-            for roundObj in RoundDetail.objects.all():
-                team = TeamDetail(userDetail=userDetail, roundDetail=roundObj)
-                team.save()
-
-            return HttpResponseRedirect("../")
-    else:
-        userForm = UserForm()
-    return HttpResponseRedirect("../")
 
