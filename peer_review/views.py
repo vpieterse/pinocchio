@@ -376,7 +376,6 @@ def validate(row):
 
     return 1
 
-<<<<<<< HEAD
 def updateEmail(request):
     if request.method == "POST":
         emailText = request.POST.get("emailText")
@@ -387,8 +386,7 @@ def updateEmail(request):
 
         file.write(emailText)
         file.close()
-
-=======
+        
 def addTeamCSVInfo(teamList):
     for row in teamList:
         teamDetail = TeamDetail(userDetail=row['userDetail'],
@@ -455,7 +453,6 @@ def submitTeamCSV(request):
 
         if not(error):
             addCSVInfo(teamList)
->>>>>>> ed05d162cadcf3c55dedca34c9e208426b19b409
     return HttpResponseRedirect('../')
 
 
