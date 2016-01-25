@@ -118,7 +118,7 @@
                 </div>
                 <div id="collapseTwo" class="panel-collapse collapse">
                     <div class="panel-body">
-                        <form role="form" method="post" action="#">
+                        <form role="form" method="post" action="{% url 'submitCSV' %}" enctype="multipart/form-data">
                             <div class="form-group">
                                 <label for="inputfile">Upload CSV File:</label>
                                 <input type="file" id="inputfile">

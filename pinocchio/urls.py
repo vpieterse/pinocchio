@@ -38,6 +38,7 @@ urlpatterns = [
                   url(r'^maintainTeam/changeUserTeamForRound/(?P<roundPk>[0-9]+)/(?P<userPk>[0-9]+)/(?P<teamName>[a-zA-Z0-9]+)/?$', views.changeUserTeamForRound),
                   url(r'^maintainTeam/getTeams/$', views.getTeams),
                   url(r'^maintainTeam/changeTeamStatus/(?P<teamPk>[0-9]+)/(?P<status>[a-zA-Z0-9]+)/?$', views.changeTeamStatus),
+                  url(r'^maintainTeam/submitTeamCSV/$', views.submitTeamCSV, name="submitTeamCSV"),
 
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
