@@ -118,12 +118,25 @@
                 </div>
                 <div id="collapseTwo" class="panel-collapse collapse">
                     <div class="panel-body">
-                        <form role="form" method="post" action="{% url 'submitCSV' %}" enctype="multipart/form-data">
+                        <form role="form" method="post" action="{% url 'submitTeamCSV' %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <!--
+                            <p>{{ docForm.non_field_errors }}</p>
+
+                            <p>{{ docForm.docfile.label_tag }} {{ docForm.docfile.help_text }}</p>
+
+                            <p>
+                                {{ docForm.docfile.errors }}
+                                {{ docForm.docfile }}
+                            </p>
+                            -->
                             <div class="form-group">
-                                <label for="inputfile">Upload CSV File:</label>
-                                <input type="file" id="inputfile">
+                                <label for="docfile">Upload CSV File:</label>
+                                <input type="file" id="docfile" name="docfile">
                                 <p class="help-block">Select a CSV file to create teams</p>
                             </div>
+                            
                             <button type="submit" class="btn btn-info">Submit</button>
                         </form>
                     </div>
