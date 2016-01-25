@@ -10,11 +10,11 @@ urlpatterns = [
                   url(r'^fileUpload', views.fileUpload, name='fileUpload'),
                   url(r'^createQuestion/$', views.createQuestion, name='createQuestion'),
                   url(r'^maintainRound/$', views.maintainRound, name='maintainRound'),
-                  
                   url(r'^maintainTeam/$', views.maintainTeam, name='maintainTeam'),
                   url(r'^questionnaireAdmin/$', views.questionnaireAdmin, name='questionnaireAdmin'),
-		  url(r'^questionnaire/$', views.userError, name='userError'),
-		  url(r'^questionnaire/(?P<questionnairePk>[0-9]+)/?$', views.questionnaire, name='questionnaire'),
+                  url(r'^questionnaire/$', views.userError, name='userError'),
+                  url(r'^questionnaire/(?P<questionnairePk>[0-9]+)/?$', views.questionnaire, name='questionnaire'),
+                  url(r'^studentHomePage/$', views.studentHomePage, name='studentHomePage'),
 
                   url(r'^$', views.index, name='index'),
                   url(r'^(?P<question_id>[0-9]+)/$', views.detail, name='detail'),
@@ -23,6 +23,7 @@ urlpatterns = [
                   url(r'^userAdmin/delete/(?P<userPk>[0-9]+)/?$', views.userDelete),
                   url(r'^userAdmin/update/(?P<userPk>[0-9]+)/?$', views.userUpdate),
                   url(r'^userAdmin/resetPassword/(?P<userPk>[0-9]+)/?$', views.resetPassword),
+                  url(r'^userAdmin/updateEmail/$', views.updateEmail),
                   url(r'^userAdmin/$', views.userList),
                   url(r'^questionAdmin/delete/$', views.questionDelete, name='questionDelete'),
                   url(r'^questionAdmin/getQuestion/$', views.getQuestion, name = 'getQuestion'),
@@ -38,6 +39,7 @@ urlpatterns = [
                   url(r'^maintainTeam/changeUserTeamForRound/(?P<roundPk>[0-9]+)/(?P<userPk>[0-9]+)/(?P<teamName>[a-zA-Z0-9]+)/?$', views.changeUserTeamForRound),
                   url(r'^maintainTeam/getTeams/$', views.getTeams),
                   url(r'^maintainTeam/changeTeamStatus/(?P<teamPk>[0-9]+)/(?P<status>[a-zA-Z0-9]+)/?$', views.changeTeamStatus),
+                  url(r'^maintainTeam/submitTeamCSV/$', views.submitTeamCSV, name="submitTeamCSV"),
 
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

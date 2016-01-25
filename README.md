@@ -1,6 +1,7 @@
 -------------
 # Pinocchio
 -------------
+[![Build status](https://ci.appveyor.com/api/projects/status/68jje87f56qnc90q/branch/master?svg=true)](https://ci.appveyor.com/project/MatthiasHarvey/pinocchio/branch/master)
 
 ### Getting started
 - Install Django (https://www.djangoproject.com/start/)
