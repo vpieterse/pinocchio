@@ -2,8 +2,23 @@
 {% load staticfiles %}
 
 {% block extrahead %}
-
+	<title>Student Home Page</title>
+	<!--Edit navbar active-->
+    <script>
+        title = "activeRounds";
+    </script>
+    <!--end-->
 {% endblock extrahead %}
-
-{% block content %}
-{% endblock content %}
+{% block context %}
+	<div class="container">
+		<div class="panel-group">
+			<div class="panel  panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title"><b>Rounds</b></h4>
+				</div>
+				<div class="panel-body">
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock context %}

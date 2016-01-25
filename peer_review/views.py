@@ -481,7 +481,6 @@ def submitTeamCSV(request):
             return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
 
         if not(error):
-            addCSVInfo(teamList)
             addTeamCSVInfo(teamList)
     return HttpResponseRedirect('../')
 
