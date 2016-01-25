@@ -22,6 +22,9 @@ from .models import User, UserDetail
 from .models import Questionnaire, QuestionOrder
 from .forms import DocumentForm, UserForm
 
+def studentHomePage(request):
+    context = {}
+    return render(request, 'peer_review/studentHomePage.html',context)
 
 def detail(request, question_id):
     return HttpResponse("You're looking at question %s." % question_id)
@@ -481,7 +484,6 @@ def submitTeamCSV(request):
             return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
 
         if not(error):
-            addCSVInfo(teamList)
             addTeamCSVInfo(teamList)
     return HttpResponseRedirect('../')
 
