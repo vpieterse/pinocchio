@@ -118,7 +118,7 @@
                 </div>
                 <div id="collapseTwo" class="panel-collapse collapse">
                     <div class="panel-body">
-                        <form role="form" method="post" action="{% url 'submitCSV' %}" enctype="multipart/form-data">
+                        <form role="form" method="post" action="{% url 'submitTeamCSV' %}" enctype="multipart/form-data">
                             {% csrf_token %}
                             
                             <!--

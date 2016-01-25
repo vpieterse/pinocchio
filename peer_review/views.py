@@ -389,12 +389,9 @@ def updateEmail(request):
         
 def addTeamCSVInfo(teamList):
     for row in teamList:
-        teamDetail = TeamDetail(userDetail=row['userDetail'],
-                                roundDetail=row['roundDetail'],
-                                teamName=row['teamName'],
-                                status=row['status'])
-        teamDetail.save()
-        return 1
+        print(row['userDetail'])
+        changeUserTeamForRound("", row['roundDetail'], row['userDetail'], row['teamName'])
+    return 1
 
 def submitTeamCSV(request):
     global errortype
@@ -419,29 +416,23 @@ def submitTeamCSV(request):
                     count += 1
                     valid = validateTeamCSV(row)
                     if valid == 0:
+                        print(row['userDetail'])
                         teamList.append(row)
                     else:
                         error = True
+                        message = "Oops! Something seems to be wrong with the CSV file at row " + str(count) + "."
+
+                        rowlist = list()
+                        rowlist.append(row['userDetail'])
+                        rowlist.append(row['roundDetail'])
+                        rowlist.append(row['teamName'])
+
                         if valid == 1:
-                            message = "Oops! Something seems to be wrong with the CSV file."
                             errortype = "Incorrect number of fields."
-                            return render(request, 'peer_review/csvError.html',
-                                          {'message': message, 'error': errortype})
-                        else:
-                            message = "Oops! Something seems to be wrong with the CSV file at row " + str(count) + "."
-
-                            rowlist = list()
-                            rowlist.append(row['userDetail'])
-                            rowlist.append(row['roundDetail'])
-                            rowlist.append(row['teamName'])
-                            rowlist.append(row['status'])
-
-                            if valid == 2:
-                                errortype = "Not all fields contain values."
-                            elif valid == 3:
-                                errortype = "Cell or user ID is not a number."
-                            elif valid == 4:
-                                errortype = "TeamDetail already exists."
+                        elif valid == 2:
+                            errortype = "Not all fields contain values."
+                        elif valid == 3:
+                            errortype = "Cell or user ID is not a number."
 
                         return render(request, 'peer_review/csvError.html',
                                       {'message': message, 'row': rowlist, 'error': errortype})
@@ -452,7 +443,7 @@ def submitTeamCSV(request):
             return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
 
         if not(error):
-            addCSVInfo(teamList)
+            addTeamCSVInfo(teamList)
     return HttpResponseRedirect('../')
 
 
@@ -461,9 +452,8 @@ def validateTeamCSV(row):
     # 1 = incorrect number of fields
     # 2 = missing value/s
     # 3 = incorrect format
-    # 4 = teamDetail already exists
 
-    if len(row) < 4:
+    if len(row) != 3:
         return 1
     for key, value in row.items():
         if value is None:
@@ -473,10 +463,6 @@ def validateTeamCSV(row):
                 int(value)
             except ValueError:
                 return 3
-    teamDetail = TeamDetail.objects.filter(userDetail=row['userDetail'], roundDetail=row['roundDetail'])
-    if teamDetail.count() > 0:
-        return 4
-
     return 0
 
 def getTypeID(questionType):
