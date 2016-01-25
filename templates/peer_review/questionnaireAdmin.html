@@ -5,6 +5,8 @@
 
     <script src="{% static "peer_review/search.js" %}"></script>
     <script src="{% static "peer_review/validation.js" %}"></script>
+    <script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
+
     <script type="text/javascript">
         function makeOneRowSelectable(table, dataTable) {
             table.find('tbody').on('click', 'tr', function () {
@@ -27,8 +29,22 @@
         }
 
         function submitQuestionnaire() {
+            label = $("#label").val();
+            if (label.length > 300)
+                return;
+
+            if (label == '') {
+                $('#label-error').html('<div class="alert alert-danger fade in">Label is required</div>');
+                window.scrollTo(0, 0);
+                return;
+            } 
+
             var table = $('#questionnaireTable').DataTable();
-            var json = {"questionOrders":[] };
+            var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
+            //var intro = $('#intro').val();
+            var intro = tinyMCE.get('intro').getContent();
+            var label = $('#label').val();
+            var json = {"questionOrders":[], intro: intro, label: label, 'csrfmiddlewaretoken': token };
             table.rows().every(function (rowIdx, tableLoop, rowLoop) {
                 var data = this.data();
                 var id = this.node().id;
@@ -36,6 +52,31 @@
             });
 
             console.log(json);
+
+            $.ajax({
+                url: '/questionnaireAdmin/saveQuestionnaire/',
+                data: json,
+                type: "POST",
+                success: function () {
+                    //Success message
+                    $('#save-success').html('<div class="alert alert-success">Questionnaire successfully saved</div>');
+
+                    //Make the alert box disappear after 5 seconds
+                    window.setTimeout(function () {
+                        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                            $(this).remove();
+                        });
+                    }, 5000);
+                },
+                failure: function () {console.log("Failure");}
+            });
+
+            //Clear page
+            $("#label").val([]);
+            //$("#intro").val([]);
+            tinyMCE.get('intro').setContent('');
+            table.clear().draw();
+            window.scrollTo(0, 0);
         }
 
         // @todo refactor or something
@@ -48,6 +89,11 @@
                 '</a>';
 
         $(document).ready(function () {
+            tinymce.init({ selector:'#intro',
+            statusbar: false, 
+            menubar: '',
+            toolbar: 'undo redo bold italic alignleft aligncenter alignright bullist numlist outdent indent code hr ', });
+
             $('.table').on("click", '.move', function () {
                 var row = $(this).closest('tr');
                 if ($(this).hasClass('up'))
@@ -120,6 +166,27 @@
                 dTableQuestionnaire.row(tr).remove().draw();
                 {#                users.row.add(tr).draw();#}
             });
+
+            $('#label').keyup(function() {
+                label = $('#label').val();
+
+                if (label.length > 300) {
+                    $('#label-error').html('<div class="alert alert-danger fade in">Label must be less than 300 characters</div>');
+                } 
+                else {
+                    $('#label-error').html('');
+                }
+            })
+
+            $('#questionnaireList').DataTable({
+                columns: [
+                    { title: "Label" },
+                    { title: "Questions" }], 
+                //Add 'edit' and 'delete' buttons to each row added to table
+                "fnCreatedRow": function(row, data, index) {
+                    $(row).append('');
+                },                    
+            });
         });
     </script>
     <!--Edit navbar active-->
@@ -132,84 +199,105 @@
     <div class="container">
         <div class="panel-group" id="accordion">
             <div class="panel panel-default">
-                <div class="panel panel-default">
-                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
-                         data-target="#collapseTwo">
-                        <h4 class="panel-title">
-                            <a>
-                                1. Make a header/introduction <b class="caret"></b>
-                            </a>
-                        </h4>
-                    </div>
-
-                    <div id="collapseTwo" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <label for="intro">Introduction</label>
-                            <input id="intro" value="">
-                        </div>
+                <div id = "save-success"></div>
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
+                     data-target="#collapseOne">
+                    <h4 class="panel-title">
+                        <a>
+                            1. Make a header/introduction <b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <label for="label">Label</label>
+                        <input id="label" class="form-control" value="">
+                        <div id = "label-error"></div>
+                        <br/>
+                        <label for="intro">Introduction</label>
+                        <input id="intro" class = "form-control" value="">
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="panel panel-default">
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
-                     data-target="#collapseThree">
-                    <h4 class="panel-title">
-                        <a>
-                            2. Choose questions<b class="caret"></b>
-                        </a>
-                    </h4>
+            <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
+                 data-target="#collapseTwo">
+                <h4 class="panel-title">
+                    <a>
+                        2. Choose questions<b class="caret"></b>
+                    </a>
+                </h4>
+            </div>
+
+            <div id="collapseTwo" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class='table moveable' id='questionTable'>
+                                <thead>
+                                <tr>
+                                    <th>Question</th>
+                                    <th>Publish Date</th>
+                                    <th>Question Type</th>
+                                    <th>Grouping</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for question in questions %}
+                                    <tr id="{{ question.pk }}">
+                                        {% csrf_token %}
+                                        <td>{{ question.questionText }}</td>
+                                        <td>{{ question.pubDate }}</td>
+                                        <td>{{ question.questionType.name }}</td>
+                                        <td>{{ question.questionGrouping.grouping }}</td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table id="questionnaireTable" class="table moveable">
+                                <thead>
+                                <tr>
+                                    <th>Question</th>
+                                    <th>Publish Date</th>
+                                    <th>Question Type</th>
+                                    <th>Grouping</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
+                 data-target="#collapseThree">
+                <h4 class="panel-title">
+                    <a>
+                        Maintain Questionnaires<b class="caret"></b>
+                    </a>
+                </h4>
+            </div>
 
-                <div id="collapseThree" class="panel-collapse collapse">
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <table class='table moveable' id='questionTable'>
-                                    <thead>
-                                    <tr>
-                                        <th>Question</th>
-                                        <th>Publish Date</th>
-                                        <th>Question Type</th>
-                                        <th>Grouping</th>
-                                        <th></th>
-                                        <th></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for question in questions %}
-                                        <tr id="{{ question.pk }}">
-                                            {% csrf_token %}
-                                            <td>{{ question.questionText }}</td>
-                                            <td>{{ question.pubDate }}</td>
-                                            <td>{{ question.questionType.name }}</td>
-                                            <td>{{ question.questionGrouping.grouping }}</td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="col-md-6">
-                                <table id="questionnaireTable" class="table moveable">
-                                    <thead>
-                                    <tr>
-                                        <th>Question</th>
-                                        <th>Publish Date</th>
-                                        <th>Question Type</th>
-                                        <th>Grouping</th>
-                                        <th></th>
-                                        <th></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-
-                                    </tbody>
-                                </table>
-                            </div>
+            <div id="collapseThree" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table id = "questionnaireList">
+                            </table>                            
                         </div>
                     </div>
                 </div>

@@ -611,6 +611,24 @@ def createQuestion(request):
         message = 'You submitted an empty form.'
     return HttpResponse()
 
+def saveQuestionnaire(request):
+    if request.method == 'POST':
+        questionOrders = request.POST.getlist('questionOrders[]')
+        intro = request.POST.get("intro")
+        label = request.POST.get("label")
+
+        q = Questionnaire.objects.create(intro = intro,
+                          label = label)
+
+        index = 0
+        for question in questionOrders:
+            qO = QuestionOrder.objects.create(questionnaire = q,
+                               question = Question.objects.get(pk = question),
+                               order = index)
+            index += 1
+
+    return  HttpResponse('Success')
+
 def roundDelete(request, roundPk):
     round = RoundDetail.objects.get(pk = roundPk)
     round.delete()

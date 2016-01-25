@@ -13,8 +13,9 @@ urlpatterns = [
                   
                   url(r'^maintainTeam/$', views.maintainTeam, name='maintainTeam'),
                   url(r'^questionnaireAdmin/$', views.questionnaireAdmin, name='questionnaireAdmin'),
-		  url(r'^questionnaire/$', views.userError, name='userError'),
-		  url(r'^questionnaire/(?P<questionnairePk>[0-9]+)/?$', views.questionnaire, name='questionnaire'),
+                  url(r'^questionnaireAdmin/saveQuestionnaire/$', views.saveQuestionnaire, name='saveQuestionnaire'),
+		      url(r'^questionnaire/$', views.userError, name='userError'),
+		      url(r'^questionnaire/(?P<questionnairePk>[0-9]+)/?$', views.questionnaire, name='questionnaire'),
 
                   url(r'^$', views.index, name='index'),
                   url(r'^(?P<question_id>[0-9]+)/$', views.detail, name='detail'),

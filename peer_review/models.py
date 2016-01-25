@@ -112,11 +112,16 @@ class Questionnaire(models.Model):
     label = models.CharField(max_length=300, unique=True)
     questionOrders = models.ManyToManyField(Question, through='QuestionOrder')
 
+    def __str__(self):
+        return self.label
 
 class QuestionOrder(models.Model):
     questionnaire = models.ForeignKey(Questionnaire)
     question = models.ForeignKey(Question)
     order = models.IntegerField(default=1)
+
+    def __str__(self):
+        return self.question.questionLabel
 
 class RoundDetail(models.Model):
     questionnaire = models.ForeignKey(Questionnaire)
