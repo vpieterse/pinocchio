@@ -4,12 +4,13 @@ from django.shortcuts import render_to_response
 from django.shortcuts import render
 from django.template import RequestContext
 from django.http import JsonResponse
+from django.core.mail import send_mail
 import random
 import string
 import hashlib
 import uuid
 
-import datetime
+import time
 import csv
 import os
 
@@ -33,12 +34,14 @@ def index(request):
     users = User.objects.all
     userForm = UserForm()
     docForm = DocumentForm()
+
     module_dir = os.path.dirname(__file__)
     file_path = os.path.join(module_dir)
-    file = open(file_path + '/text/email.txt', 'a+')
-    file.seek(0)
+    file = open(file_path + '/text/email.txt', 'r+')
     emailText = file.read()
     file.close()
+
+    # send_mail('Subject', 'Message', 'from@example.com', ['u14035538@tuks.co.za'], fail_silently=False)
 
     return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'docForm': docForm, 'email_text': emailText})
 
@@ -104,7 +107,14 @@ def userList(request):
     users = User.objects.all
     userForm = UserForm()
     docForm = DocumentForm()
-    return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'docForm': docForm})
+
+    module_dir = os.path.dirname(__file__)
+    file_path = os.path.join(module_dir)
+    file = open(file_path + '/text/email.txt', 'r+')
+    emailText = file.read()
+    file.close()
+
+    return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'docForm': docForm, 'email_text': emailText})
 
 def getTeams(request):
     teams = TeamDetail.objects.all()
@@ -166,9 +176,19 @@ def check_password(hashed_password, user_password):
     password, salt = hashed_password.split(':')
     return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
 
-def generate_email(OTP, post_name, post_surname):
-    email = "Welcome to Pinocchio " + post_name + " " + post_surname + "\n\nYour one time password is: " + OTP + \
-        "\n\nKind regards,\nThe Pinocchio Team"
+def generate_email(OTP, post_name, post_surname, email_text):
+    fn = "{firstname}"
+    ln = "{lastname}"
+    otp = "{otp}"
+    datetime = "{datetime}"
+
+    email_text = email_text.replace(fn, post_name)
+    email_text = email_text.replace(ln, post_surname)
+    email_text = email_text.replace(otp, OTP)
+    email_text = email_text.replace(datetime, time.strftime("%H:%M:%S %d/%m/%Y"))
+
+    print(email_text)
+
     # ToDo implement email notification
 
 def submitForm(request):
@@ -189,7 +209,15 @@ def submitForm(request):
             post_userId = userForm.cleaned_data['userId']
 
             OTP = generate_OTP()
-            generate_email(OTP, post_name, post_surname)
+
+            module_dir = os.path.dirname(__file__)
+            file_path = os.path.join(module_dir)
+            file = open(file_path + '/text/email.txt', 'a+')
+            file.seek(0)
+            emailText = file.read()
+            file.close()
+
+            generate_email(OTP, post_name, post_surname, emailText)
             post_password = hash_password(OTP)
 
             post_status = userForm.cleaned_data['status']
@@ -262,7 +290,14 @@ def resetPassword(request, userPk):
 def addCSVInfo(userList):
     for row in userList:
         OTP = generate_OTP()
-        generate_email(OTP, row['name'], row['surname'])
+        module_dir = os.path.dirname(__file__)
+        file_path = os.path.join(module_dir)
+        file = open(file_path + '/text/email.txt', 'a+')
+        file.seek(0)
+        emailText = file.read()
+        file.close()
+
+        generate_email(OTP, row['name'], row['surname'], emailText)
         password = hash_password(OTP)
 
         userDetail = UserDetail(title=row['title'], initials=row['initials'], name=row['name'], surname=row['surname'],
@@ -385,11 +420,11 @@ def updateEmail(request):
 
         module_dir = os.path.dirname(__file__)
         file_path = os.path.join(module_dir)
-        file = open(file_path + '/text/email.txt', 'w')
+        file = open(file_path + '/text/email.txt', 'w+')
 
         file.write(emailText)
         file.close()
-        
+
 def addTeamCSVInfo(teamList):
     for row in teamList:
         userDetID = User.objects.get(userId=row['userID']).userDetail_id
@@ -446,6 +481,7 @@ def submitTeamCSV(request):
             return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
 
         if not(error):
+            addCSVInfo(teamList)
             addTeamCSVInfo(teamList)
     return HttpResponseRedirect('../')
 

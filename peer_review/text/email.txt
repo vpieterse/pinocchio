@@ -1,7 +1,10 @@
-This is a new
+Good day {firstname} {lastname}.
 
-EMAIL
+Your one time password for Pinocchio is:
 
-Template
+{otp}
 
-Kind regards
+This password is valid for 7 days as of {datetime}
+
+Kind regards,
+The Pinocchio Team
