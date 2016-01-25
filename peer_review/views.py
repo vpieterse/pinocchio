@@ -494,6 +494,7 @@ def roundDelete(request, roundPk):
     return HttpResponseRedirect('../')
 
 def roundUpdate(request, roundPk):
+    #print('Editing')
     if request.method == "POST":
         round = RoundDetail.objects.get(pk=roundPk)
 
@@ -508,18 +509,26 @@ def roundUpdate(request, roundPk):
 #datetime.strptime("21/11/06 16:30", "%d/%m/%y %H:%M")
 
         post_startingDate =request.POST.get("startingDate")
-        #datetime.datetime.strptime("startingDate", "%y-%m-%d %H:%M")
+        #post_startingDate = post_startingDate
+        post_name = request.POST.get("name")
+        #to_datetime("startingDate", format="%y-%m-%d %H:%M")
         #"2016-11-06 16:30"
         #post_startingDate.substr(0, post_startingDate.length - 1);
         # post_startingDate = datetime.datetime.strptime("startingDate", "%d/%m/%y %H:%M")
+       # w=getFullYear(post_startingDate)
+        #print(w)
+
+
 
         post_endingDate = request.POST.get("endingDate")
 
         round.description = post_description
         round.questionnaire = Questionnaire.objects.get(pk=post_questionnaire)
-
+        round.name = post_name
         if post_startingDate !='':
             round.startingDate = post_startingDate
+            #string[0: len(post_startingDate) - 1];
+            
 
         if post_endingDate !='':
             round.endingDate = post_endingDate
@@ -528,13 +537,19 @@ def roundUpdate(request, roundPk):
     return HttpResponseRedirect('../')
 #Create a round
 def createRound(request):
-    if 'round' in request.GET:
-        rDescription = request.GET['round']
-        rQuestionnaire = Questionnaire.objects.get(label=request.GET['questionnaire'])
-        rStartingDate = timezone.now()
-        #request.GET['startingDate']
-        rEndingDate = timezone.now()
-        #request.GET['endingDate']
+    #print('Creating Round')
+    if 'description' in request.GET:
+        rDescription = request.GET['description']
+
+        try:
+            rQuestionnaire = Questionnaire.objects.get(pk=request.GET['questionnaire'])
+        except Questionnaire.DoesNotExist:
+            rQuestionnaire = None
+
+   # rQuestionnaire =Questionnaire.objects.get(intro=request.GET['questionnaire'])
+        rStartingDate = request.GET['startingDate']
+        rEndingDate = request.GET['endingDate']
+        rName = request.GET['name']
        # rIsEditing = request.GET['isEditing']
        # qPubDate = timezone.now()
       #  print("Saving new question"): Description = '%s', Questionnaire = '%s'" % (rDescription, rQuestionnaire))"
@@ -547,14 +562,19 @@ def createRound(request):
 
         #Save the question
         print('Creating Round')
-        r = Round(description = rDescription,
+        r = RoundDetail(description = rDescription,
                      #pubDate = timezone.now() - datetime.timedelta(days=1),
                      questionnaire = rQuestionnaire,
                      startingDate = rStartingDate,
+                     name = rName,
                      endingDate = rEndingDate,
                      )
         r.save()
-        return HttpResponse()
+    #
+    return HttpResponseRedirect('../maintainRound')
+    #HttpResponse()
+
+
 #def createQuestion(request):
  #   if 'question' in request.GET:
   #      text = request.GET['question']

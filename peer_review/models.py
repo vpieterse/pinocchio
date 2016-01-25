@@ -108,10 +108,11 @@ class QuestionOrder(models.Model):
     order = models.IntegerField(default=1)
 
 class RoundDetail(models.Model):
+    name = models.CharField(max_length = 15)
     questionnaire = models.ForeignKey(Questionnaire, null =True)
     startingDate = models.DateTimeField('starting date')
     endingDate = models.DateTimeField('ending date')
-    description = models.CharField(max_length=200)
+    description = models.CharField(max_length=300)
 
 
 class TeamDetail(models.Model):
