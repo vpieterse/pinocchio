@@ -1,6 +1,3 @@
-import datetime
-import csv
-
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
@@ -11,6 +8,10 @@ import random
 import string
 import hashlib
 import uuid
+
+import datetime
+import csv
+import os
 
 from django.utils import timezone
 
@@ -29,7 +30,14 @@ def index(request):
     users = User.objects.all
     userForm = UserForm()
     docForm = DocumentForm()
-    return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'docForm': docForm})
+    module_dir = os.path.dirname(__file__)
+    file_path = os.path.join(module_dir)
+    file = open(file_path + '/text/email.txt', 'a+')
+    file.seek(0)
+    emailText = file.read()
+    file.close()
+
+    return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'docForm': docForm, 'email_text': emailText})
 
 
 def fileUpload(request):
@@ -103,7 +111,7 @@ def getTeamsForRound(request, roundPk):
             'userId': team.userDetail.pk,
             'teamName': team.teamName,
             'status': team.status
-            }
+        }
     # print(response)
     return JsonResponse(response)
 
@@ -343,8 +351,18 @@ def validate(row):
 
     return 1
 
+def updateEmail(request):
+    if request.method == "POST":
+        emailText = request.POST.get("emailText")
 
+        module_dir = os.path.dirname(__file__)
+        file_path = os.path.join(module_dir)
+        file = open(file_path + '/text/email.txt', 'w')
 
+        file.write(emailText)
+        file.close()
+
+    return HttpResponseRedirect('../')
 
 
 def getTypeID(questionType):

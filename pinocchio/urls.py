@@ -23,6 +23,7 @@ urlpatterns = [
                   url(r'^userAdmin/delete/(?P<userPk>[0-9]+)/?$', views.userDelete),
                   url(r'^userAdmin/update/(?P<userPk>[0-9]+)/?$', views.userUpdate),
                   url(r'^userAdmin/resetPassword/(?P<userPk>[0-9]+)/?$', views.resetPassword),
+                  url(r'^userAdmin/updateEmail/$', views.updateEmail),
                   url(r'^userAdmin/$', views.userList),
                   url(r'^questionAdmin/update/$', views.questionUpdate, name='questionUpdate'),
                   url(r'^questionAdmin/delete/(?P<questionPk>[0-9]+)/?$', views.questionDelete),
