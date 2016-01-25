@@ -4,6 +4,7 @@ from django.shortcuts import render_to_response
 from django.shortcuts import render
 from django.template import RequestContext
 from django.http import JsonResponse
+from django.core.mail import send_mail
 import random
 import string
 import hashlib
@@ -37,7 +38,7 @@ def index(request):
     emailText = file.read()
     file.close()
 
-    print(emailText)
+    # send_mail('Subject', 'Message', 'from@example.com', ['u14035538@tuks.co.za'], fail_silently=False)
 
     return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'docForm': docForm, 'email_text': emailText})
 
