@@ -326,8 +326,9 @@ def submitCSV(request):
             with open(filePath) as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
+                    valid = validate(row)
                     count += 1
-                    if validate(row) == 1:
+                    if valid == 1:
                         # title = row['title']
                         # initials = row['initials']
                         # name = row['name']
@@ -345,7 +346,7 @@ def submitCSV(request):
                         # ToDo check for errors in multiple rows
                     else:
                         error = True
-                        if validate(row) == 0:
+                        if valid == 0:
                             message = "Oops! Something seems to be wrong with the CSV file."
                             errortype = "Incorrect number of fields."
                             return render(request, 'peer_review/csvError.html',
@@ -363,11 +364,11 @@ def submitCSV(request):
                             rowlist.append(row['user_id'])
                             rowlist.append(row['status'])
 
-                        if validate(row) == 2:
+                        if valid == 2:
                             errortype = "Not all fields contain values."
-                        if validate(row) == 3:
+                        if valid == 3:
                             errortype = "Cell or user ID is not a number."
-                        if validate(row) == 4:
+                        if valid == 4:
                             errortype = "User already exists."
 
                         return render(request, 'peer_review/csvError.html',
@@ -380,6 +381,8 @@ def submitCSV(request):
 
         if not(error):
             addCSVInfo(userList)
+
+    os.remove(filePath)
     return HttpResponseRedirect('../')
 
 
