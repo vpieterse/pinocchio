@@ -11,6 +11,12 @@
 {% endblock %}
 {% block context %}
                 <h1 style="font-size:300%">Error 404 - Page Not Found</h1>
+
+		<form action="/questionnaire/1" method="POST">
+			{% csrf_token %}
+    			<button name="Test" value="Test">Test</button>
+		</form>
+
     <div class="navbar navbar-default navbar-fixed-bottom">
         <div class="container">
             <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
