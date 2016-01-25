@@ -443,9 +443,8 @@ def validateTeamCSV(row):
     # 3 = incorrect format
     # 4 = teamDetail already exists
 
-    if len(row) != 4:
+    if len(row) < 4:
         return 1
-
     for key, value in row.items():
         if value is None:
             return 2
@@ -454,9 +453,7 @@ def validateTeamCSV(row):
                 int(value)
             except ValueError:
                 return 3
-
     teamDetail = TeamDetail.objects.filter(userDetail=row['userDetail'], roundDetail=row['roundDetail'])
-
     if teamDetail.count() > 0:
         return 4
 
