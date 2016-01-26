@@ -7,11 +7,105 @@
   		font-weight: bold;
   		padding: 12px;
 		}
+
+
+input[type=range] {
+    /*removes default webkit styles*/
+    -webkit-appearance: none;
+    
+    /*fix for FF unable to apply focus style bug */
+    /*border: 1px solid white;*/
+    
+    /*required for proper track sizing in FF*/
+    /*width: 300px;*/
+}
+input[type=range]::-webkit-slider-runnable-track {
+    height: 7px;
+    background: #ddd;
+    border: none;
+    border-radius: 4px;
+}
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: #428BCA;
+    margin-top: -4px;
+}
+input[type=range]:focus {
+    outline: none;
+}
+input[type=range]:focus::-webkit-slider-runnable-track {
+    background: #ccc;
+}
+
+input[type=range]::-moz-range-track {
+    /*width: 300px;*/
+    height: 7px;
+    background: #ddd;
+    border: none;
+    border-radius: 3px;
+}
+input[type=range]::-moz-range-thumb {
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: #428BCA;
+}
+
+/*hide the outline behind the border*/
+input[type=range]:-moz-focusring{
+    outline: 1px solid white;
+    outline-offset: -1px;
+}
+
+input[type=range]::-ms-track {
+    /*width: 300px;*/
+    height: 7px;
+    
+    /*remove bg colour from the track, we'll use ms-fill-lower and ms-fill-upper instead */
+    background: transparent;
+    
+    /*leave room for the larger thumb to overflow with a transparent border */
+    border-color: transparent;
+    border-width: 6px 0;
+
+    /*remove default tick marks*/
+    color: transparent;
+}
+input[type=range]::-ms-fill-lower {
+    background: #777;
+    border-radius: 10px;
+}
+input[type=range]::-ms-fill-upper {
+    background: #ddd;
+    border-radius: 10px;
+}
+input[type=range]::-ms-thumb {
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: #428BCA;
+}
+input[type=range]:focus::-ms-fill-lower {
+    background: #888;
+}
+input[type=range]:focus::-ms-fill-upper {
+    background: #ccc;
+}
   </style>
+  
 
 
     <script src="{% static "peer_review/search.js" %}"></script>
     <script src="{% static "peer_review/validation.js" %}"></script>
+    <script src="{% static "peer_review/jquery.min.js" %}"></script>
+    <script src="{% static "peer_review/js/bootstrap-slider.js" %}"></script>
+    <script src="{% static "peer_review/modernizr.js" %}"></script>
     <script type="text/javascript">
         function makeOneRowSelectable(table, dataTable) {
             table.find('tbody').on('click', 'tr', function () {
@@ -174,7 +268,59 @@
 							{% ifequal QuestionsOrder.questionnaire_id questionnairePk %}
 								{% for QuestionsText in questions %}
 									{% ifequal QuestionsText.id QuestionsOrder.question_id %}
-										<p>{{ QuestionsText.questionText }}</p>
+										<p style="font-size:110%;">{{ QuestionsText.questionText }}</p>
+										{% if QuestionsText.questionType_id == 2 %} <!-- CHOICE QUESTIONS-->
+
+											<fieldset>
+												<legend>Options</legend>
+												{% for QuestionsChoices in choices %}
+												<form>
+													{% ifequal QuestionChoices.question_id QuestionsOrder.question_id %}
+														<input type="radio" name="questionChoice"
+														value="{{ QuestionsChoices.choiceText }}">{{ QuestionsChoices.choiceText }}<br>
+													{% endifequal %}
+												</form>	
+											</fieldset>
+												{% endfor %}
+
+										{% elif QuestionsText.questionType_id == 3 %} <!-- RANK QUESTIONS-->
+										<div>
+										<p style="text-allign:left;"> First Word
+										<span align="center"><label id="valueLabel">5</label></span>
+										<span style="float:right;"> Second Word</span></p>
+										<!-- <div class="well">
+  											<div class="slider slider-horizontal" id="ex1Slider"><div class="slider-track"><div class="slider-track-low" style="left: 0px; width: 0%;"></div><div class="slider-selection" style="left: 0%; width: 55%;"></div><div class="slider-track-high" style="right: 0px; width: 45%;"></div>
+  											<div class="slider-handle min-slider-handle round" role="slider" aria-valuemin="0" aria-valuemax="20" aria-valuenow="11" tabindex="0" style="left: 55%;"></div><div class="slider-handle max-slider-handle round hide" role="slider" aria-valuemin="0" aria-valuemax="20" aria-valuenow="0" tabindex="0" style="left: 0%;"></div></div><div class="tooltip tooltip-main top in" role="presentation" style="left: 55%; margin-left: -15px;"><div class="tooltip-arrow"></div><div class="tooltip-inner">11</div></div><div class="tooltip tooltip-min top" role="presentation" style="display: none;"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div><div class="tooltip tooltip-max top" role="presentation" style="display: none;"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div></div><input id="rankSlider" data-slider-id="ex1Slider" type="text" data-slider-min="0" data-slider-max="20" data-slider-step="1" data-slider-value="14" data-value="11" value="11" style="display: none;">
+      									</div>
+
+      									<script type="text/javascript">
+      										var slider = new Slider("rankSlider", {
+																	tooltip: 'always'
+											});
+      									</script> -->
+										
+      									<!-- Bootstrap slider link
+      										http://seiyria.com/bootstrap-slider/
+      									-->
+
+      									
+      										<input type="range" min="0" max="10" value="5" step="1" onchange="updateLabel(this.value)" />
+      										
+      										<script type="text/javascript">
+      										function updateLabel(LabelValue)
+      										{
+      											document.getElementById('valueLabel').innerHTML=LabelValue;
+
+											}
+      											</script>
+      									</div>
+										
+      		
+
+
+
+										{% endif %}
+
 									{% endifequal %}
 								{% endfor %}
 							{% endifequal %}
