@@ -25,6 +25,14 @@ from .forms import DocumentForm, UserForm, LoginForm
 def activeRounds(request):
     context = {}
     return render(request, 'peer_review/studentHomePage.html',context)
+    
+def teamMembers(request):
+    context = {}
+    return render(request, 'peer_review/teamMembers.html',context)
+    
+def accountDetails(request):
+    context = {}
+    return render(request, 'peer_review/accountDetails.html',context)
 
 def login(request):
     loginForm = LoginForm()

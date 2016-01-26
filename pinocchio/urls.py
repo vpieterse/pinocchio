@@ -25,6 +25,8 @@ urlpatterns = [
                   url(r'^login/$', views.login, name='login'),
                   url(r'^questionnaire/(?P<questionnairePk>[0-9]+)/?$', views.questionnaire, name='questionnaire'),
                   url(r'^activeRounds/$', views.activeRounds, name='activeRounds'),
+                  url(r'^teamMembers/$', views.teamMembers, name='teamMembers'),
+                  url(r'^accountDetails/$', views.accountDetails, name='accountDetails'),
 
                   url(r'^$', views.index, name='index'),
                   url(r'^(?P<question_id>[0-9]+)/$', views.detail, name='detail'),
