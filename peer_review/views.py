@@ -241,8 +241,12 @@ def submitForm(request):
         userForm = UserForm()
     return HttpResponseRedirect("../")
 
-def userProfile(request, userId):
-    return render(request, 'peer_review/userProfile.html')
+def userProfile(request, userPk):
+    if request.method == "GET":
+        user = User.objects.get(pk=userPk)
+        userDetail = user.userDetail
+
+    return render(request, 'peer_review/userProfile.html', {'user': user, 'userDetail': userDetail})
 
 
 def userDelete(request):
@@ -322,6 +326,7 @@ def addCSVInfo(userList):
 
         user = User(userId=row['user_id'], password=password, status=row['status'], userDetail=userDetail)
         user.save()
+    return #todo return render request
 
 def submitCSV(request):
     global errortype

@@ -2,15 +2,66 @@
 {% load staticfiles %}
 
 {% block extrahead %}
-    <title>User Admin</title>
+    <title>User Profile</title>
     <!--Edit navbar active-->
     <script>
-        title = "userAdmin";
+        title = "";
     </script>
 {% endblock extrahead %}
 
 {% block context %}
     <div class="container">
+        <h1>{{ userDetail.name }} {{ userDetail.surname }}</h1>
 
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
+                    <h4 class="panel-title">
+                        <a>
+                            Box One <b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        {% block content %}
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
+                    <h4 class="panel-title">
+                        <a>
+                            Box Two <b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapseTwo" class="panel-collapse collapse">
+                    <div class="panel-body">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseThree">
+                    <h4 class="panel-title">
+                        <a>
+                            Box Three <b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapseThree" class="panel-collapse collapse">
+                    <div class="panel-body">
+
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock context %}
