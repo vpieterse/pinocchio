@@ -33,9 +33,15 @@
 				<div class="panel-body">
 					Please log in below
                     
-                    <form role="form" method="post" action="#">
-                        <div class="form-inline">
-                            <div class="form-group">
+                    <form role="form" method="post" action="/login/auth/">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="type" class="col-sm-3 control-label">User Type:</label>
+                            <div class="col-sm-5">
+                                {{ loginForm.userType }}
+                            </div>
+                            <div class="col-sm-1">
+                                        <button type="submit" class="btn btn-info" id="submit">Login</button>
                             </div>
                         </div>
                     </form>
