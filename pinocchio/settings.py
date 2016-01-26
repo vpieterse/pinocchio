@@ -87,6 +87,9 @@ DATABASES = {
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
+from django.conf.locale.en import formats as en_formats
+en_formats.DATETIME_FORMAT = "Y-m-d H:m"
+
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'

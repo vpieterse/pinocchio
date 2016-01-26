@@ -136,7 +136,11 @@ function clearPage()
         //}
 
 function createJson() {
-            //alert("Create Json")
+            alert("Create Json")
+            
+            //var cName = $('#name').val();
+            //alert(cName)
+
             var data = {
                 description: $('#description').val(),
                 name: $('#name').val(),
@@ -146,6 +150,9 @@ function createJson() {
                // isEditing: isEditing
             };
 
+            //var cName = $('#name').val();
+            //alert(cName)
+
             console.log(data);
            // alert("Create Json")
             return data;
@@ -154,18 +161,19 @@ function createJson() {
         function create_post() {  
 
 
-            //alert('create_post')
+            alert('create_post')
             //Validation
-           /* var rLabel = $('#roundLabel').val();
-            if (rLabel == '') {
-                $('#round-label-error').html('<div class="alert alert-danger">This is a required field</div>');
-                return;
-            }
-            if (rLabel.length > 300 || roundExists(rLabel))
-            {
-                return;
-            }*/
+          /*  var cQuest = $('#questionnaire').val()
+            alert(cQuest)
 
+            if (cQuest == '') {
+                $('#round-label-error').html('<div class="alert alert-danger">This is a required field</div>')
+                return
+            }
+
+        
+            alert('Past')
+*/
             var data = createJson();
             $.ajax({
                 url: "/createRound/", // the endpoint
@@ -174,9 +182,11 @@ function createJson() {
                 success: saveSuccess('Round was saved successfully.'),
                 failure: function () {alert('Error occurred in saving the question');}
                 });
+
+        
             
         };
-        function test(text){
+        function CreateQuestionnaire(text){
 
                 //alert(text)
 
@@ -186,6 +196,28 @@ function createJson() {
                 }
 
 
+        };
+       function validate_date(d){
+
+
+            alert('pfft')
+
+            try{
+                datetime.strptime(d, '%m/%d/%Y %I:%M %p')
+                return True
+            }
+            catch( ValueError)
+            {
+                return False
+            }
+
+        };
+
+        function test(){
+
+
+
+            alert('meow')
         }
 </script>
 
@@ -232,7 +264,7 @@ function createJson() {
 
                     <div class="form-group">
                         <label for="description">Description</label>
-                        <textarea class="form-control" rows="3" style="resize:none;width:100%" id="roundLabel"
+                        <textarea class="form-control" rows="2" style="resize:none;width:45%" id="roundLabel"
                                   name="description"></textarea>
                         <div id = "round-label-error">
                         </div>
@@ -280,6 +312,7 @@ function createJson() {
                         </div>
                     </div>
                 </form>
+                </div>
             </div>
         </div>
     </div>
@@ -355,7 +388,7 @@ function createJson() {
 
                                         <td>
                                        <select id="questionn" name="questionn" class="form-control" 
-                                style="width:auto" onchange="test(value)">
+                                style="width:auto" onchange="CreateQuestionnaire(value)">
 
                                 <option selected value="{{round.questionnaire.pk}}">{{ round.questionnaire.intro}}</option>
                             {% for quest in questionnaires %}
@@ -381,44 +414,31 @@ function createJson() {
 
 <!--STARTING DATE-->
 
-<!--
 
+<!--
                         <td>
-                         <input type="datetime-local" class="noBorder" name="startingDate"
+                         <input type="datetime" class="noBorder" name="startingDate"
                                                        value="{{round.startingDate}}" ></input>
-                                                       </td>-->
-
-                                               <td><b><input type="text" class="noBorder" name="startingDisplay"
-                                                       value="{{round.startingDate}}" readonly></input></b>
-
-
-                                                <input type="datetime-local" class="noBorder" name="startingDate"
-                                                       value="{{round.startingDate}}" ></input>
-
-
-<!--
-
-                                                <td><input type="datetime" style="width: 200px" class="noBorder"
-                                                           name="startingDate" value="{{ round.startingDate }}"></input></td>
-
+                                                       </td>
 -->
-                             <!-- HERE      <td>
-                                        <form action="action_page.php">
-                                          <input type="datetime" name="starting" id="starting" value="{{ round.startingDate }}">
-                                        </form>
-                                    </td>-->
+
+                                               <td><input type="datetime" style="width: 200px" class="noBorder" name="startingDate"
+                                                       value="{{round.startingDate|date:'DATETIME_FORMAT'}}" ></input>
+
+
 
 <!--ENDINGDATE-->
-    <!--                                            <td><input type="datetime" style="width: 200px" class="noBorder"
+                                                <td><input type="datetime" style="width: 200px" class="noBorder"
                                                            name="endingDate"
-                                                           value="{{ round.endingDate }}"></input></td>
--->
-                                    <td><b><input type="text" class="noBorder" name="endingDisplay"
+                                                           value="{{ round.endingDate|date:'DATETIME_FORMAT' }}"></input></td>
+
+   <!--                                 <td><b><input type="text" class="noBorder" name="endingDisplay"
                                                        value="{{round.endingDate}}" readonly></input></b>
                                             <input type="datetime-local" class="noBorder" name="endingDate"
                                                        value="{{ round.endingDate }}"></input>
 
                                                        </td>
+-->
 
 <!--HERE
 <td>
@@ -460,7 +480,7 @@ function createJson() {
                                             </td>-->
  <td>
                                                 <button type='submit' name="edit" class='btn btn-success btn-xs'
-                                                        id='edit' value="{{ round.description }}">Edit
+                                                        id='edit' value="{{ round.description }}" onclick="validate_date(round.startingDate)">Edit
                                                 </button>
                                             </td>
                                             </form>

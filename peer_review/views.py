@@ -498,6 +498,12 @@ def roundUpdate(request, roundPk):
     if request.method == "POST":
         round = RoundDetail.objects.get(pk=roundPk)
 
+        post_startingDate =request.POST.get("startingDate")
+
+
+
+
+
         post_description = request.POST.get("desc")
         post_questionnaire = request.POST.get("questionn")
         #print(post_questionnaire)
@@ -508,7 +514,7 @@ def roundUpdate(request, roundPk):
 
 #datetime.strptime("21/11/06 16:30", "%d/%m/%y %H:%M")
 
-        post_startingDate =request.POST.get("startingDate")
+        
         #post_startingDate = post_startingDate
         post_name = request.POST.get("name")
         #to_datetime("startingDate", format="%y-%m-%d %H:%M")
@@ -525,13 +531,13 @@ def roundUpdate(request, roundPk):
         round.description = post_description
         round.questionnaire = Questionnaire.objects.get(pk=post_questionnaire)
         round.name = post_name
-        if post_startingDate !='':
-            round.startingDate = post_startingDate
+        #if post_startingDate !='':
+        round.startingDate = post_startingDate
             #string[0: len(post_startingDate) - 1];
             
 
-        if post_endingDate !='':
-            round.endingDate = post_endingDate
+        #if post_endingDate !='':
+        round.endingDate = post_endingDate
 
         round.save()
     return HttpResponseRedirect('../')
@@ -571,8 +577,8 @@ def createRound(request):
                      )
         r.save()
     #
-    return HttpResponseRedirect('../maintainRound')
-    #HttpResponse()
+    #return HttpResponseRedirect('../maintainRound')
+    return HttpResponse()
 
 
 #def createQuestion(request):
