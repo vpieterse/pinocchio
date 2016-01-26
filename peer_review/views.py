@@ -429,6 +429,7 @@ def getQuestionList(request):
                          'groupings': groupings})
 
 #Get a question and it's details
+#ToDo: Make this use the pk to get the question instead of the label
 def getQuestion(request):
     questionLabel = request.GET['questionLabel']
     question = Question.objects.get(questionLabel=questionLabel)
@@ -451,6 +452,7 @@ def getQuestion(request):
     return JsonResponse(response)
 
 #Get the Choice objects associated with a Choice question
+#ToDo: Make this use the pk to get the question instead of the label
 def getChoices(request):
     questionLabel = request.GET['questionLabel']
     question = Question.objects.get(questionLabel=questionLabel)
@@ -461,6 +463,7 @@ def getChoices(request):
     return JsonResponse(response)
 
 #Get the Rank object associated with a Rank question
+#ToDo: Make this use the pk to get the question instead of the label
 def getRank(request):
     questionLabel = request.GET['qL']
     q = Question.objects.get(questionLabel=questionLabel)
@@ -468,6 +471,7 @@ def getRank(request):
     return JsonResponse({'firstWord': rank.firstWord, 'secondWord': rank.secondWord})
 
 #Gets the Rate objects associated with a Rate question
+#ToDo: Make this use the pk to get the question instead of the label
 def getRates(request):
     #Probably going to have to change this
     questionLabel = request.GET['qL']
@@ -486,6 +490,7 @@ def getRates(request):
     return JsonResponse({'optionalArr': optionalArr, 'scaleArr': scaleArr})
 
 #Gets the Freeform objects associated with a Rate question
+#ToDo: Make this use the pk to get the question instead of the label
 def getFreeformItems(request):
     questionLabel = request.GET['qL']
     q = Question.objects.get(questionLabel=questionLabel)
@@ -502,6 +507,7 @@ def getFreeformItems(request):
     return JsonResponse({'typeArr': typeArr, 'valueArr': valueArr})
 
 #Delete a question
+#ToDo: Make this use the pk to delete the question instead of the label
 def questionDelete(request):
     if request.method == "POST":
         questionLabel = request.POST['questionLabel']
@@ -512,6 +518,7 @@ def questionDelete(request):
         return HttpResponse('Error.')
 
 #Create a question
+#ToDo: Make this use the pk to get the question instead of the label
 def createQuestion(request):
     if 'question' in request.GET:
         qText = request.GET['question']
@@ -613,14 +620,21 @@ def createQuestion(request):
 
 def saveQuestionnaire(request):
     if request.method == 'POST':
-        questionOrders = request.POST.getlist('questionOrders[]')
         intro = request.POST.get("intro")
         label = request.POST.get("label")
+        print(label)
 
-        q = Questionnaire.objects.create(intro = intro,
-                          label = label)
+        if 'pk' in request.POST:
+            q = Questionnaire.objects.get(pk = request.POST.get('pk'))
+            q.intro = intro
+            q.label = label
+            QuestionOrder.objects.filter(questionnaire = q).delete()
+            q.save()
+        else:
+            q = Questionnaire.objects.create(intro = intro, label = label)
 
         index = 0
+        questionOrders = request.POST.getlist('questionOrders[]')
         for question in questionOrders:
             qO = QuestionOrder.objects.create(questionnaire = q,
                                question = Question.objects.get(pk = question),
@@ -628,6 +642,44 @@ def saveQuestionnaire(request):
             index += 1
 
     return  HttpResponse('Success')
+
+def deleteQuestionnaire(request, qPk):
+    if request.method == "POST":
+        q = Questionnaire.objects.get(pk = qPk)
+        q.delete()
+    return HttpResponse()
+
+def getQuestionnaireList(request):
+    questionnaires = Questionnaire.objects.all();
+    json = {'labels': [], 'ids': []}
+    for q in questionnaires:
+        json['labels'].append(q.label)
+        json['ids'].append(q.pk)
+    return JsonResponse(json)
+
+def getQuestionnaire(request, qPk):
+    questionnaire = Questionnaire.objects.get(pk = qPk)
+    questions = QuestionOrder.objects.filter(questionnaire = questionnaire)
+    questionLabels = []
+    questionPubDates = []
+    questionTypes = []
+    questionGroupings = []
+    questionIds = []
+    for q in questions:
+        questionLabels.append(q.question.questionLabel)
+        questionGroupings.append(q.question.questionGrouping.grouping)
+        questionTypes.append(q.question.questionType.name)
+        questionPubDates.append(q.question.pubDate)
+        questionIds.append(q.question.pk)
+
+    json = {'label': questionnaire.label, 
+            'intro': questionnaire.intro, 
+            'questionLabels': questionLabels, 
+            'questionPubDates': questionPubDates, 
+            'questionTypes': questionTypes,
+            'questionGroupings': questionGroupings,
+            'questionIds': questionIds}
+    return JsonResponse(json)
 
 def roundDelete(request, roundPk):
     round = RoundDetail.objects.get(pk = roundPk)
