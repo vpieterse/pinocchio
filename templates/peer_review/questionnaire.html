@@ -105,7 +105,6 @@ input[type=range]:focus::-ms-fill-upper {
     <script src="{% static "peer_review/validation.js" %}"></script>
     <script src="{% static "peer_review/jquery.min.js" %}"></script>
     <script src="{% static "peer_review/js/bootstrap-slider.js" %}"></script>
-    <script src="{% static "peer_review/modernizr.js" %}"></script>
     <script type="text/javascript">
         function makeOneRowSelectable(table, dataTable) {
             table.find('tbody').on('click', 'tr', function () {
@@ -286,31 +285,17 @@ input[type=range]:focus::-ms-fill-upper {
 										{% elif QuestionsText.questionType_id == 3 %} <!-- RANK QUESTIONS-->
 										<div>
 										<p style="text-allign:left;"> First Word
-										<span align="center"><label id="valueLabel">5</label></span>
+										<span align="center"><label id="valueLabel{{ QuestionsOrder.order }}">5</label></span>
 										<span style="float:right;"> Second Word</span></p>
-										<!-- <div class="well">
-  											<div class="slider slider-horizontal" id="ex1Slider"><div class="slider-track"><div class="slider-track-low" style="left: 0px; width: 0%;"></div><div class="slider-selection" style="left: 0%; width: 55%;"></div><div class="slider-track-high" style="right: 0px; width: 45%;"></div>
-  											<div class="slider-handle min-slider-handle round" role="slider" aria-valuemin="0" aria-valuemax="20" aria-valuenow="11" tabindex="0" style="left: 55%;"></div><div class="slider-handle max-slider-handle round hide" role="slider" aria-valuemin="0" aria-valuemax="20" aria-valuenow="0" tabindex="0" style="left: 0%;"></div></div><div class="tooltip tooltip-main top in" role="presentation" style="left: 55%; margin-left: -15px;"><div class="tooltip-arrow"></div><div class="tooltip-inner">11</div></div><div class="tooltip tooltip-min top" role="presentation" style="display: none;"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div><div class="tooltip tooltip-max top" role="presentation" style="display: none;"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div></div><input id="rankSlider" data-slider-id="ex1Slider" type="text" data-slider-min="0" data-slider-max="20" data-slider-step="1" data-slider-value="14" data-value="11" value="11" style="display: none;">
-      									</div>
-
-      									<script type="text/javascript">
-      										var slider = new Slider("rankSlider", {
-																	tooltip: 'always'
-											});
-      									</script> -->
 										
-      									<!-- Bootstrap slider link
-      										http://seiyria.com/bootstrap-slider/
-      									-->
 
       									
-      										<input type="range" min="0" max="10" value="5" step="1" onchange="updateLabel(this.value)" />
+      										<input type="range" min="0" max="10" value="5" step="1" onchange="updateLabel(this.value, {{ QuestionsOrder.order }})" />
       										
       										<script type="text/javascript">
-      										function updateLabel(LabelValue)
+      										function updateLabel(LabelValue, LabelID)
       										{
-      											document.getElementById('valueLabel').innerHTML=LabelValue;
-
+                                                document.getElementById('valueLabel' + LabelID).innerHTML=LabelValue;
 											}
       											</script>
       									</div>
