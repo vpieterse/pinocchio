@@ -1,12 +1,12 @@
 from datetime import datetime
 
-from django.db import models
 from django.core.management import call_command
+from django.db import models
 from django.utils import timezone
 
 
 class Document(models.Model):
-    docfile = models.FileField(upload_to='documents/%Y/%m/%d')
+    docfile = models.FileField(upload_to='documents')
 
 
 class QuestionType(models.Model):
@@ -50,6 +50,7 @@ class Choice(models.Model):
 
     def __str__(self):
         return self.choiceText
+
 
 class FreeformItem(models.Model):
     question = models.ForeignKey(Question)
@@ -101,7 +102,10 @@ class User(models.Model):
     password = models.CharField(max_length=100)
     OTP = models.BooleanField(default=True)
     status = models.CharField(max_length=1)
-    userDetail = models.ForeignKey(UserDetail)
+    userDetail = models.OneToOneField(
+            UserDetail,
+            on_delete=models.CASCADE
+    )
 
     def __str__(self):
         return self.userId + " - " + self.userDetail.surname + " " + self.userDetail.initials
@@ -132,6 +136,7 @@ class RoundDetail(models.Model):
     def __str__(self):
         return self.description
 
+
 class TeamDetail(models.Model):
     userDetail = models.ForeignKey(UserDetail, null=True)
     roundDetail = models.ForeignKey(RoundDetail)
@@ -147,4 +152,4 @@ class TeamDetail(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=NOT_ATTEMPTED)
 
     def __str__(self):
-        return self.roundDetail.description + " " + self.teamName + " (" + self.userDetail.surname + ", " +self.userDetail.initials + ")"
+        return self.roundDetail.description + " " + self.teamName + " (" + self.userDetail.surname + ", " + self.userDetail.initials + ")"
