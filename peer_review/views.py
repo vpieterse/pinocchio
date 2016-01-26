@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template import RequestContext
 from django.http import JsonResponse
 from django.core.mail import send_mail
@@ -20,31 +20,38 @@ from .models import Document
 from .models import Question, QuestionType, QuestionGrouping, Choice, Rank, Questionnaire, RoundDetail, TeamDetail, FreeformItem, Rate, Label
 from .models import User, UserDetail
 from .models import Questionnaire, QuestionOrder
-from .forms import DocumentForm, UserForm
+from .forms import DocumentForm, UserForm, LoginForm
 
-def studentHomePage(request):
+def activeRounds(request):
     context = {}
     return render(request, 'peer_review/studentHomePage.html',context)
+
+def login(request):
+    loginForm = LoginForm()
+    context = {'loginForm': loginForm}
+    return render(request, 'peer_review/login.html',context)
+
+def auth(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            userType = form.cleaned_data['userType']
+            if userType == 'A':
+                return redirect('/userAdmin/')
+            elif userType == 'S':
+                return redirect('/activeRounds/')
+            else:
+                return redirect('/login/')
+        else:
+            return redirect('/login/')
+    else:
+        return redirect('/login/')
 
 def detail(request, question_id):
     return HttpResponse("You're looking at question %s." % question_id)
 
-
 def index(request):
-    users = User.objects.all
-    userForm = UserForm()
-    docForm = DocumentForm()
-
-    module_dir = os.path.dirname(__file__)
-    file_path = os.path.join(module_dir)
-    file = open(file_path + '/text/email.txt', 'r+')
-    emailText = file.read()
-    file.close()
-
-    # send_mail('Subject', 'Message', 'from@example.com', ['u14035538@tuks.co.za'], fail_silently=False)
-
-    return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'docForm': docForm, 'email_text': emailText})
-
+    return login(request)
 
 def fileUpload(request):
     # Handle file upload
@@ -234,12 +241,17 @@ def submitForm(request):
         userForm = UserForm()
     return HttpResponseRedirect("../")
 
-def userDelete(request, userPk):
-    user = User.objects.get(pk=userPk)
-    userDetail = user.userDetail
+def userDelete(request):
+    if request.method == "POST":
+        toDelete = request.POST.getlist("toDelete[]")
 
-    userDetail.delete()
-    user.delete()
+        for userPk in toDelete:
+            user = User.objects.get(pk=userPk)
+            userDetail = user.userDetail
+
+            userDetail.delete()
+            user.delete()
+
     return HttpResponseRedirect('../')
 
 def userUpdate(request, userPk):
@@ -329,8 +341,9 @@ def submitCSV(request):
             with open(filePath) as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
+                    valid = validate(row)
                     count += 1
-                    if validate(row) == 1:
+                    if valid == 1:
                         # title = row['title']
                         # initials = row['initials']
                         # name = row['name']
@@ -348,7 +361,7 @@ def submitCSV(request):
                         # ToDo check for errors in multiple rows
                     else:
                         error = True
-                        if validate(row) == 0:
+                        if valid == 0:
                             message = "Oops! Something seems to be wrong with the CSV file."
                             errortype = "Incorrect number of fields."
                             return render(request, 'peer_review/csvError.html',
@@ -366,12 +379,17 @@ def submitCSV(request):
                             rowlist.append(row['user_id'])
                             rowlist.append(row['status'])
 
-                        if validate(row) == 2:
+                        if valid == 2:
                             errortype = "Not all fields contain values."
-                        if validate(row) == 3:
+                        if valid == 3:
                             errortype = "Cell or user ID is not a number."
-                        if validate(row) == 4:
+                        if valid == 4:
                             errortype = "User already exists."
+
+                        csvfile.close()
+
+                        if os.path.isfile(filePath):
+                            os.remove(filePath)
 
                         return render(request, 'peer_review/csvError.html',
                                       {'message': message, 'row': rowlist, 'error': errortype})
@@ -383,6 +401,9 @@ def submitCSV(request):
 
         if not(error):
             addCSVInfo(userList)
+
+    if os.path.isfile(filePath):
+        os.remove(filePath)
     return HttpResponseRedirect('../')
 
 
@@ -424,6 +445,7 @@ def updateEmail(request):
 
         file.write(emailText)
         file.close()
+    return HttpResponseRedirect('../')
 
 def addTeamCSVInfo(teamList):
     for row in teamList:
@@ -471,17 +493,20 @@ def submitTeamCSV(request):
                             errortype = "Not all fields contain values."
                         elif valid == 3:
                             errortype = "user ID is not a number."
-
+                            
+                        os.remove(filePath)
                         return render(request, 'peer_review/csvError.html',
                                       {'message': message, 'row': rowlist, 'error': errortype})
         else:
             form = DocumentForm()
             message = "Oops! Something seems to be wrong with the CSV file."
             errortype = "No file selected."
+            os.remove(filePath)
             return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
 
         if not(error):
             addTeamCSVInfo(teamList)
+    os.remove(filePath)
     return HttpResponseRedirect('../')
 
 

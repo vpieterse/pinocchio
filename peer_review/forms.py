@@ -7,6 +7,12 @@ class DocumentForm(forms.Form):
         label='Select a file'
     )
 
+class LoginForm(forms.Form):
+    userType = forms.ChoiceField(
+        label="User Type:",
+        choices=(('', ''), ('A', 'Admin',), ('S', 'Student',)),
+        widget=forms.Select(attrs={'class': 'form-control', 'id': 'userType'}),
+    )
 
 class UserForm(forms.Form):
     userId = forms.CharField(

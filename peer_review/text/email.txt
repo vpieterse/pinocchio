@@ -7,4 +7,4 @@ Your one time password for Pinocchio is:
 This password is valid for 7 days as of {datetime}
 
 Kind regards,
-The Pinocchio Team
+The Pinocchio Team :D

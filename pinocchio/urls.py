@@ -14,13 +14,14 @@ urlpatterns = [
                   url(r'^questionnaireAdmin/$', views.questionnaireAdmin, name='questionnaireAdmin'),
                   url(r'^questionnaire/$', views.userError, name='userError'),
                   url(r'^questionnaire/(?P<questionnairePk>[0-9]+)/?$', views.questionnaire, name='questionnaire'),
-                  url(r'^studentHomePage/$', views.studentHomePage, name='studentHomePage'),
+                  url(r'^activeRounds/$', views.activeRounds, name='activeRounds'),
+                  url(r'^login/$', views.login, name='login'),
 
                   url(r'^$', views.index, name='index'),
                   url(r'^(?P<question_id>[0-9]+)/$', views.detail, name='detail'),
                   url(r'^userAdmin/submitForm/?$', views.submitForm),
                   url(r'^userAdmin/submitCSV/$', views.submitCSV, name="submitCSV"),
-                  url(r'^userAdmin/delete/(?P<userPk>[0-9]+)/?$', views.userDelete),
+                  url(r'^userAdmin/delete/$', views.userDelete, name="userDelete"),
                   url(r'^userAdmin/update/(?P<userPk>[0-9]+)/?$', views.userUpdate),
                   url(r'^userAdmin/resetPassword/(?P<userPk>[0-9]+)/?$', views.resetPassword),
                   url(r'^userAdmin/updateEmail/$', views.updateEmail),
@@ -40,6 +41,7 @@ urlpatterns = [
                   url(r'^maintainTeam/getTeams/$', views.getTeams),
                   url(r'^maintainTeam/changeTeamStatus/(?P<teamPk>[0-9]+)/(?P<status>[a-zA-Z0-9]+)/?$', views.changeTeamStatus),
                   url(r'^maintainTeam/submitTeamCSV/$', views.submitTeamCSV, name="submitTeamCSV"),
+                  url(r'^login/auth/$', views.auth, name="auth"),
 
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
