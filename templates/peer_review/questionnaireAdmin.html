@@ -8,6 +8,7 @@
     <script src="{% static "peer_review/js/tinymce/tinymce.min.js" %}"></script>
 
     <script type="text/javascript">
+        //TinyMCE html editor from https://www.tinymce.com/
         var currentlyEditing = -1;
         function makeOneRowSelectable(table, dataTable) {
             table.find('tbody').on('click', 'tr', function () {
