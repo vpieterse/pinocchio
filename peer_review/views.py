@@ -241,12 +241,17 @@ def submitForm(request):
         userForm = UserForm()
     return HttpResponseRedirect("../")
 
-def userDelete(request, userPk):
-    user = User.objects.get(pk=userPk)
-    userDetail = user.userDetail
+def userDelete(request):
+    if request.method == "POST":
+        toDelete = request.POST.getlist("toDelete[]")
 
-    userDetail.delete()
-    user.delete()
+        for userPk in toDelete:
+            user = User.objects.get(pk=userPk)
+            userDetail = user.userDetail
+
+            userDetail.delete()
+            user.delete()
+
     return HttpResponseRedirect('../')
 
 def userUpdate(request, userPk):
@@ -440,6 +445,7 @@ def updateEmail(request):
 
         file.write(emailText)
         file.close()
+    return HttpResponseRedirect('../')
 
 def addTeamCSVInfo(teamList):
     for row in teamList:
