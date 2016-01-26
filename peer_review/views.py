@@ -160,6 +160,8 @@ def changeUserTeamForRound(request, roundPk, userPk, teamName):
             roundDetail = RoundDetail.objects.get(pk=roundPk)
         )
     team.teamName = teamName
+    if teamName == 'emptyTeam':
+        team.status = 'NA'
     team.save()
     return JsonResponse({'success': True})
 
