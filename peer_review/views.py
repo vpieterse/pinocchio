@@ -23,11 +23,24 @@ from .models import Questionnaire, QuestionOrder
 from .forms import DocumentForm, UserForm, LoginForm
 
 def activeRounds(request):
-    context = {}
-    return render(request, 'peer_review/studentHomePage.html',context)
+    rounds = RoundDetail.objects.all()
+    context = {'rounds': rounds}
+    return render(request, 'peer_review/activeRounds.html',context)
     
 def teamMembers(request):
-    context = {}
+    #TEST
+    user = User.objects.get(userId = '14031145')
+    rounds = RoundDetail.objects.all()
+    teamList = list()
+    teamMembers = list()
+    for team in TeamDetail.objects.all():
+        if team.userDetail == user.userDetail:
+            teamList.append(team)
+    for team in teamList:
+        for teamItem in TeamDetail.objects.all():
+            if team.teamName == teamItem.teamName and team.roundDetail == teamItem.roundDetail and team.userDetail != teamItem.userDetail:
+                teamMembers.append(teamItem)
+    context = {'rounds': rounds, 'teamMembers': teamMembers}
     return render(request, 'peer_review/teamMembers.html',context)
     
 def accountDetails(request):

@@ -2,12 +2,41 @@
 {% load staticfiles %}
 
 {% block extrahead %}
-	<title>Student Home Page</title>
+	<title>Team Members</title>
 	<!--Edit navbar active-->
     <script>
-        title = "teamMemebers";
+        title = "teamMembers";
     </script>
     <!--end-->
 {% endblock extrahead %}
 {% block context %}
+    <div class="container">
+        <div class="panel-group" id="accordion">
+            {% for round in rounds %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ round.id }}">
+                                {{ round.name }}<b class="caret"></b>
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapse{{ round.id }}" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <script>
+                                console.log("{{ teamMembers.teamName.distinct }}");
+                            </script>
+                            <ul>
+                                {% for team in teamMembers %}
+                                {% if team.roundDetail.id == round.id and team.teamName != 'emptyTeam' %}
+                                    <li>{{ team.teamName }}: {{ team.userDetail }}</li>
+                                {% endif %}
+                            {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock context %}
