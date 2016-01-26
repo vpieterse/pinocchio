@@ -128,10 +128,11 @@ class QuestionOrder(models.Model):
         return self.question.questionLabel
 
 class RoundDetail(models.Model):
-    questionnaire = models.ForeignKey(Questionnaire)
+    name = models.CharField(max_length = 15)
+    questionnaire = models.ForeignKey(Questionnaire, null =True)
     startingDate = models.DateTimeField('starting date')
     endingDate = models.DateTimeField('ending date')
-    description = models.CharField(max_length=200)
+    description = models.CharField(max_length=300)
 
     def __str__(self):
         return self.description

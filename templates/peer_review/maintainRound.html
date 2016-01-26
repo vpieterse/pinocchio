@@ -2,7 +2,7 @@
 {% load staticfiles %}
 
 {% block extrahead %}
-    <title>User Admin</title>
+    <title>Rounds</title>
     <script src="{% static "peer_review/search.js" %}"></script>
     <script src="{% static "peer_review/validation.js" %}"></script>
     <script type="text/javascript">
@@ -20,139 +20,480 @@
     </script>
 {% endblock extrahead %}
 
-{% block context %}
-<!--Function to delete row-->
-    <script>
-    function deleteRow(row) {
-        var table = document.getElementById('round');
-            if(table.rows.length >4)
-                {table.deleteRow(row.parentNode.parentNode.rowIndex);}
-            else
-                {alert("Last row!" );}
-    }
+<script type="text/javascript">
+    function textBox(text) {
+            return '<td style="text-align: center; ">' +
+                    '<input type="text" class="noBorder" id="choice" value="' +
+                    text +
+                    '" style="text-align: center; "/>' +
+                    '</td>';
+        }
+     function addRow(text, selector) {
+
+            $table = $(selector);
+            $('#round tr:last').after('<tr>' + '<td style="text-align: center; width: 10px;">' +
+                '<input type="number" class="noBorder" style="text-align: center; "/>' +
+                '</td>'+'</tr>');
+/*$('#myTable tr:last').after('<tr>...</tr><tr>...</tr>');*/
+           
+        
+        }
     </script>
-<!--end-->
-<!--Function to add row-->
-    <script>
-    function addRow(tableID) {
-        var table = document.getElementById(tableID);
-        var rowCount = table.rows.length;   
-            var row = table.insertRow(1);
-            var colCount = table.rows[0].cells.length;
-            for(var i=0; i<colCount; i++) {
-                var newcell = row.insertCell(i);
-                newcell.innerHTML = table.rows[2].cells[i].innerHTML;
+
+<script type="text/javascript">
+    
+
+/*
+function createNewQuestionnaire()
+        {
+               
+            var x = '';
+               var x = document.getElementById("questionn").value;
+              window.alert(x); 
+            if (x == "create questionnaire")
+                window.location.href = '/questionnaireAdmin';
+
+          /*  if (text == 'change')
+                window.alert("HEY YoU");*/
+           /* return (window.location.href='/questionnaireAdmin')*/
+//window.location = url;
+
+       // }
+
+
+    function editRound(pk)
+        {
+            isEditing = true;
+            roundPk = pk;
+
+            $.ajax({
+                url: '/maintainRound/getRound/' + pk,
+                type: 'get',
+                success: function(data) {
+                    console.log(data);
+                    $('#desc').val(data.description);
+                    $('#quest').val(data.questionnaire);
+                    $('#start').val(data.startingDate);
+                    $('#end').val(data.endingDate);
+                    selected();
+                },
+                failure: function(data) { 
+                    alert('Error');
+                }
+            });//End ajax
+            
+        }
+
+
+        /*function cancel()
+        {
+            if (isEditing)
+                $("#cancelButton").html('Clear');
+            clearPage();
+        }
+
+        function clearPage()
+        {
+            //Remove items from the choice, freeform and rate tables
+            $("#table").find("tr:gt(0)").remove();
+
+            //Clear inputs
+            $('#question').val([]);
+            $('#questionLabel').val([]);
+            $('#type').val('Label');
+            $('#grouping').val('None');
+            isEditing = false;
+            selected();
+
+            $("#type").prop("disabled", false);
+            $("#questionLabel").prop('disabled', false);
+            $('#table-error').html('');
+            $('#question-label-error').html('');
+        }*/
+//needs editing!!
+/*
+function cancel()
+        {
+            //alert('heya');
+            if (isEditing)
+                $("#cancelButton").html('Clear');
+            clearPage();
+        }
+
+//needs
+function clearPage()
+        {
+            //Remove items from the choice, freeform and rate tables
+           // $("#table").find("tr:gt(0)").remove();
+
+            //Clear inputs
+            $('#description').val([]);
+            $('#questionnaire').val([]);
+            $('#startingDate').val('none');
+            $('#endingDate').val('None');
+            isEditing = false;
+            selected();
+*/
+           /* $("#type").prop("disabled", false);
+            $("#questionLabel").prop('disabled', false);
+            $('#table-error').html('');
+            $('#question-label-error').html('');*/
+        //}
+
+function createJson() {
+            alert("Create Json")
+            
+            //var cName = $('#name').val();
+            //alert(cName)
+
+            var data = {
+                description: $('#description').val(),
+                name: $('#name').val(),
+                questionnaire: $('#questionnaire').val(),
+                startingDate: $('#startingDate').val(),
+                endingDate: $('#endingDate').val(),
+               // isEditing: isEditing
+            };
+
+            //var cName = $('#name').val();
+            //alert(cName)
+
+            console.log(data);
+           // alert("Create Json")
+            return data;
+        }
+// AJAX for posting
+        function create_post() {  
+
+
+            alert('create_post')
+            //Validation
+          /*  var cQuest = $('#questionnaire').val()
+            alert(cQuest)
+
+            if (cQuest == '') {
+                $('#round-label-error').html('<div class="alert alert-danger">This is a required field</div>')
+                return
             }
-    }
-    </script>
 
+        
+            alert('Past')
+*/
+            var data = createJson();
+            $.ajax({
+                url: "/createRound/", // the endpoint
+                type: "GET", // http method
+                data: data, // data sent with the post request
+                success: saveSuccess('Round was saved successfully.'),
+                failure: function () {alert('Error occurred in saving the question');}
+                });
+
+        
+            
+        };
+        function CreateQuestionnaire(text){
+
+                //alert(text)
+
+                if (text == "create"){
+                   // alert(text)
+                    window.location.href='/questionnaireAdmin'
+                }
+
+
+        };
+       function validate_date(d){
+
+
+            alert('pfft')
+
+            try{
+                datetime.strptime(d, '%m/%d/%Y %I:%M %p')
+                return True
+            }
+            catch( ValueError)
+            {
+                return False
+            }
+
+        };
+
+        function test(){
+
+
+
+            alert('meow')
+        }
+</script>
+
+
+    <script>
+        title = "maintainRound";
+    </script>
+{% block context %}
+
+<!--Function to add row-->
 
 
 <!--end-->
-
-
-        <div class="container">
+ <div class="container">
+        <div class="panel-group" id="accordion">
             <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h4 class="panel-title"><b>Maintain Rounds</b></h4>
-                </div>	
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
+                    <h4 class="panel-title">
+                        <a>
+                            Create Round<b class="caret"> </b>
+                        </a>
+                    </h4>
+                </div>
 
-                <div class="panel-body">
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+
+
+                <form role="form" id="roundForm" action="/createRound/" method="GET">
+                    {% csrf_token %}
+                    <input type="hidden" id="tableData">
+
+
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <textarea class="form-control" rows="1" style="resize:none;width:20%" id="roundLabel"
+                                  name="name"></textarea>
+                        <div id = "round-label-error">
+                        </div>
+                        <br/>
+
+
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea class="form-control" rows="2" style="resize:none;width:45%" id="roundLabel"
+                                  name="description"></textarea>
+                        <div id = "round-label-error">
+                        </div>
+                        <br/>
+
+                        <div>
+                        <label for="questionnaire">Questionnaire</label>
+                        </div>
+                        <div class="col-xs-5">
+                                <select id="questionnaire" name="questionnaire" class="form-control" 
+                                style="width:auto" >
+
+                                <option selected value="{{round.questionnaire.pk}}">{{ round.questionnaire.intro}}</option>
+                            {% for quest in questionnaires %}
+                                    {% if round.questionnaire.intro = quest.intro %}
+
+                                            {% else %}
+                                                <option value="{{quest.pk}}">{{ quest.intro }}</option>     
+                                    {% endif %}
+                                            
+
+                                        
+                            {% endfor %}
+                                       </select> 
+
+                           <br/>
+                           <label for="startingDate">Starting Date</label>
+                           <div>
+                            <input type="datetime-local"  name="startingDate" value="" ></input>
+                            </div>
+
+                           <br/>
+                           <label for="endingDate">Ending Date</label>
+                           <div>
+                            <input type="datetime-local"  name="endingDate" value="" ></input>
+                            </div>
+
+
+                            <br/>
+                           <div class = "row">
+                            <div class = "col-xs-11">
+                                <button class="btn btn-primary" type="submit" onclick="create_post()">Save</button>
+                            </div>
+                           
+                        </div>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    
+<div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
+                    <h4 class="panel-title">
+                        <a>
+                            Maintain Round <b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+	            <div id="collapseTwo" class="panel-collapse collapse">
+                    <div class="panel-body">
 
                     <input type="text" class="form-control" id="search" placeholder="Search" onkeyup="showResult(this.value)">
+
                     <div class='table-responsive'>
+
                         <table class='table sortable' id='round'>
                             <thead>
                                 <tr>
+                                    <th>Round Name</th>
                                     <th>Round Description</th>
                                     <th>Questionnaire Description</th>
                                     <th>Starting Date</th>
                                     <th>Ending Date</th>
-                                    <th>Maintain</th>
+                            <!--        <th>Maintain</th>-->
                                     <th>Accept Edit</th>
                                     <th>Remove</th>
                                 </tr>
                             </thead>
-
-                           
-
-
-
                             <tbody>
                             {% for round in roundDetail %}
                                 <tr id="{{ round.pk }}">
-                                            <form action="/maintainRound/update/{{ round.pk }}" method="post">
+                                    <form action="/maintainRound/update/{{ round.pk }}" method="post">
                                                 {% csrf_token %}
-                                                <td><input type="text" style="width: 150px" class="noBorder"
-                                                           name="description"
-                                                           value="{{ round.description }}">
-                                                    </input ></td>
+
+<!--ROUND DESCRIPTION-->
+                                         <td><input type="text" style="width: 100px" class="noBorder"
+                                                 name="name"
+                                                value="{{ round.name }}">
+                                            </input ></td>
+
+                                        <td><input type="text" style="width: 150px" class="noBorder"
+                                                 name="desc"
+                                                value="{{ round.description }}">
+                                            </input ></td>
+                                      
+
+<!--SELECT FOR QUESTIONNARE-->
+                  <!--                     
+                                   <td> <input type="text" class="noBorder" name="questionn"
+                                                       value="{{ round.questionnaire}}"></input>-->
+
+                        <!--   <td>
+                                <select id="type" class="form-control" style="width:auto" 
+                                        name="type" value= {{ Questionnaire }}>
+                                    {% if Questionnaire %}
+                                        {% for qt in Questionnaire %}
+                                            {% if qt == questionType %}
+                                                <option selected value="{{ qt.name }}">{{ qt.name }}</option>
+                                            {% else %}
+                                                <option value="{{ qt.name }}">{{ qt.name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </select>
+                            
+                            </td>-->
 
 
-                                   
-<!--THIS ONE?
-
-                                    <td>
-                                        <select id="quetionniare" class="form-control" 
-                                style="width:auto">
-                                              <option value="{{round.questionnaire.intro}}">{{ round.questionnaire.intro }}</option>
-                                        </select>
-
-                                          <input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="window.location.href='/questionnaireAdmin'"  /> 
-                                    </td>
-
-
- -->
-                                   
                                         <td>
-                                        <select id="type" class="form-control" 
-                                style="width:auto">
+                                       <select id="questionn" name="questionn" class="form-control" 
+                                style="width:auto" onchange="CreateQuestionnaire(value)">
 
-
+                                <option selected value="{{round.questionnaire.pk}}">{{ round.questionnaire.intro}}</option>
                             {% for quest in questionnaires %}
-                                              <option value="{{quest.intro}}">{{ quest.intro }}</option>
+                                    {% if round.questionnaire.intro = quest.intro %}
+
+                                            {% else %}
+                                                <option value="{{quest.pk}}">{{ quest.intro }}</option>     
+                                    {% endif %}
+                                            
+
+                                        
                             {% endfor %}
-
-                                        </select>
-                                          <input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="window.location.href='/questionnaireAdmin'"  /> 
-                                    </td>
-
+                                         <option value="create">Create Questionnaire</option> 
+                                       </select> 
+<!--Plus sign to go create a questionnaire-->
 
 
 
-
-
-
-                                                <td><input type="datetime" style="width: 200px" class="noBorder"
-                                                           name="startingDate" value="{{ round.startingDate }}"></input></td>
-
-
-
-                                                <td><input type="datetime" style="width: 200px" class="noBorder"
-                                                           name="endingDate"
-                                                           value="{{ round.endingDate }}"></input></td>
-
-<!--<td>
-                                        <form action="action_page.php">
-                                          <input type="datetime-local" name="endingDate">
-                                        </form>
+                                  <!--        <input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="window.location.href='/questionnaireAdmin'"  />
                                     </td>-->
 
 
 
-                                                 <td><button type='button' class='btn btn-default btn-xs' id='maintain'  onclick='#'><a href="teamBuilder.html"><span class="glyphicon glyphicon-wrench"></span></button></button></a></button></td>
-                                                <td>
-                                                    <button name="edit" class='btn btn-success btn-xs' id='edit' onclick="window.location.href='/maintainRound'">Edit
+<!--STARTING DATE-->
+
+
+<!--
+                        <td>
+                         <input type="datetime" class="noBorder" name="startingDate"
+                                                       value="{{round.startingDate}}" ></input>
+                                                       </td>
+-->
+
+                                               <td><input type="datetime" style="width: 200px" class="noBorder" name="startingDate"
+                                                       value="{{round.startingDate|date:'DATETIME_FORMAT'}}" ></input>
+
+
+
+<!--ENDINGDATE-->
+                                                <td><input type="datetime" style="width: 200px" class="noBorder"
+                                                           name="endingDate"
+                                                           value="{{ round.endingDate|date:'DATETIME_FORMAT' }}"></input></td>
+
+   <!--                                 <td><b><input type="text" class="noBorder" name="endingDisplay"
+                                                       value="{{round.endingDate}}" readonly></input></b>
+                                            <input type="datetime-local" class="noBorder" name="endingDate"
+                                                       value="{{ round.endingDate }}"></input>
+
+                                                       </td>
+-->
+
+<!--HERE
+<td>
+                                        <form action="action_page.php">
+                                          <input type="datetime" name="ending" id = ="ending" value="{{ round.endingDate }}">
+                                        </form>
+                                    </td>-->
+
+
+<!--SPANNER-->
+        <!--                                        <td><button type='button' class='btn btn-default btn-xs' id='maintain'  onclick="window.location.href='/maintainTeam'"><span class="glyphicon glyphicon-wrench"></span></button></button></a></button></td>-->
+
+<!--EDIT-->
+                <!--
+                               <td>
+                                    <button type='submit' name="edit" class='btn btn-success btn-xs'
+                                    id='edit' value="{{ round.pk }}">Edit
+                                    </button>
+                                </td>-->
+
+                 <!--
+                    <td>
+                                                    <button class='btn btn-success btn-xs' type = "button" onclick = "editRound({{ round.pk }})">Edit
                                                     </button>
-                                                </td>
-
-
+                                                </td>-->
+                                             <!--update function??-->
+                                         <!--       <td>
+                                                    <button name="edit" class='btn btn-success btn-xs' id='edit' onclick="window.location.href='/maintainRound/'">Edit
+                                                    </button>
+                                                </td>-->
+                         <!--                                               
+                        <td>
+                                                <form action="/maintainRound/update/{{ round.pk }}" method="post">
+                                                    {% csrf_token %}
+                                                    <button type='submit' name="edit" class='btn btn-success btn-xs'
+                                                            id='edit'>Edit
+                                                    </button>
+                                                </form>
+                                            </td>-->
+ <td>
+                                                <button type='submit' name="edit" class='btn btn-success btn-xs'
+                                                        id='edit' value="{{ round.description }}" onclick="validate_date(round.startingDate)">Edit
+                                                </button>
+                                            </td>
                                             </form>
+
+<!--DELETE-->
                                             <td>
                                                 <form action="/maintainRound/delete/{{ round.pk }}" method="post"
                                                       onsubmit="return confirmDeletion()">
                                                     {% csrf_token %}
-                                                    <button type='submit' name="remove" class='btn btn-warning btn-xs'
+                                                    <button type='submit' name="delete" class='btn btn-warning btn-xs'
                                                             id='remove'>Delete
                                                     </button>
                                                 </form>
@@ -160,10 +501,7 @@
 
                                         </tr>
                                     {% endfor %}
-                                    </tr>
-
-                                    <td><input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="addRow('round')" /></td>
-                                </tr>
+                                   
                             </tbody>
                         </table>
                     </div>
@@ -176,7 +514,4 @@
                 <a class="navbar-btn btn-danger btn pull-right">Log Out</a>
             </div>
         </div>
-
-
-
 {% endblock context %}

@@ -10,6 +10,8 @@ urlpatterns = [
                   url(r'^fileUpload', views.fileUpload, name='fileUpload'),
                   url(r'^createQuestion/$', views.createQuestion, name='createQuestion'),
                   url(r'^maintainRound/$', views.maintainRound, name='maintainRound'),
+                  url(r'^createRound/$', views.createRound, name='createRound'),
+             
                   url(r'^maintainTeam/$', views.maintainTeam, name='maintainTeam'),
                   url(r'^questionnaireAdmin/$', views.questionnaireAdmin, name='questionnaireAdmin'),
 
@@ -50,6 +52,7 @@ urlpatterns = [
                   url(r'^maintainTeam/changeTeamStatus/(?P<teamPk>[0-9]+)/(?P<status>[a-zA-Z0-9]+)/?$', views.changeTeamStatus),
                   url(r'^maintainTeam/submitTeamCSV/$', views.submitTeamCSV, name="submitTeamCSV"),
                   url(r'^login/auth/$', views.auth, name="auth"),
+
 
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
