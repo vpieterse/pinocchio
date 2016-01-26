@@ -132,19 +132,33 @@ def userList(request):
     return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'docForm': docForm, 'email_text': emailText})
 
 def getTeams(request):
-    teams = TeamDetail.objects.all()
     response={}
-    for team in teams:
-        user = User.objects.get(userDetail=team.userDetail)
-        response[team.pk] = {
-            'userId': user.userId,
-            'initials': team.userDetail.initials,
-            'surname': team.userDetail.surname,
-            'round': team.roundDetail.name,
-            'team': team.teamName,
-            'status': team.status,
-            'teamId': team.pk
-        }
+    if request.method == "GET":
+        teams = TeamDetail.objects.all()
+        for team in teams:
+            user = User.objects.get(userDetail=team.userDetail)
+            response[team.pk] = {
+                'userId': user.userId,
+                'initials': team.userDetail.initials,
+                'surname': team.userDetail.surname,
+                'round': team.roundDetail.name,
+                'team': team.teamName,
+                'status': team.status,
+                'teamId': team.pk
+            }
+    elif request.method == "POST":
+        userPk = request.POST.get("pk")
+        user = User.objects.get(pk=userPk)
+        userDetail = user.userDetail
+
+        teams = TeamDetail.objects.filter(userDetail=userDetail)
+        for team in teams:
+            response[team.pk] = {
+                'round': team.roundDetail.name,
+                'team': team.teamName,
+                'status': team.status,
+                'teamId': team.pk
+            }
     return JsonResponse(response)
 
 def getTeamsForRound(request, roundPk):
