@@ -183,18 +183,20 @@ def check_password(hashed_password, user_password):
     password, salt = hashed_password.split(':')
     return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
 
-def generate_email(OTP, post_name, post_surname, email_text):
+def generate_email(OTP, post_name, post_surname, email_text, email):
     fn = "{firstname}"
     ln = "{lastname}"
     otp = "{otp}"
     datetime = "{datetime}"
+
+    email_subject = "Pinocchio Confirm Registration"
 
     email_text = email_text.replace(fn, post_name)
     email_text = email_text.replace(ln, post_surname)
     email_text = email_text.replace(otp, OTP)
     email_text = email_text.replace(datetime, time.strftime("%H:%M:%S %d/%m/%Y"))
 
-    print(email_text)
+    #send_mail(email_subject, email_text, 'no-reply@pinocchio.up.ac.za', [email], fail_silently=False)
 
     # ToDo implement email notification
 
@@ -224,7 +226,7 @@ def submitForm(request):
             emailText = file.read()
             file.close()
 
-            generate_email(OTP, post_name, post_surname, emailText)
+            generate_email(OTP, post_name, post_surname, emailText, post_email)
             post_password = hash_password(OTP)
 
             post_status = userForm.cleaned_data['status']
@@ -309,7 +311,7 @@ def addCSVInfo(userList):
         emailText = file.read()
         file.close()
 
-        generate_email(OTP, row['name'], row['surname'], emailText)
+        generate_email(OTP, row['name'], row['surname'], emailText, row['email'])
         password = hash_password(OTP)
 
         userDetail = UserDetail(title=row['title'], initials=row['initials'], name=row['name'], surname=row['surname'],
@@ -492,7 +494,9 @@ def submitTeamCSV(request):
                         elif valid == 2:
                             errortype = "Not all fields contain values."
                         elif valid == 3:
-                            errortype = "user ID is not a number."
+                            errortype = "User ID is not a number."
+                        elif valid == 4:
+                            errortype = "User ID or Round Name does not exist"
                             
                         os.remove(filePath)
                         return render(request, 'peer_review/csvError.html',
@@ -515,6 +519,7 @@ def validateTeamCSV(row):
     # 1 = incorrect number of fields
     # 2 = missing value/s
     # 3 = incorrect format
+    # 4 = user/round does not exist
 
     if len(row) != 3:
         return 1
@@ -526,6 +531,12 @@ def validateTeamCSV(row):
                 int(value)
             except ValueError:
                 return 3
+            try:
+                user = User.objects.get(pk=value).userDetail_id
+                #roundD = 
+            except User.DoesNotExist:
+                return 4
+            
     return 0
 
 def getTypeID(questionType):
