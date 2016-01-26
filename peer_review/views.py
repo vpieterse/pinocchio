@@ -200,8 +200,6 @@ def generate_email(OTP, post_name, post_surname, email_text, email):
 
     #send_mail(email_subject, email_text, 'no-reply@pinocchio.up.ac.za', [email], fail_silently=False)
 
-    # ToDo implement email notification
-
 def submitForm(request):
     if request.method == "POST":
         userForm = UserForm(request.POST)
@@ -244,6 +242,10 @@ def submitForm(request):
     else:
         userForm = UserForm()
     return HttpResponseRedirect("../")
+
+def userProfile(request, userId):
+    return render(request, 'peer_review/userProfile.html')
+
 
 def userDelete(request):
     if request.method == "POST":
@@ -338,8 +340,6 @@ def submitCSV(request):
             error = False
 
             documents = Document.objects.all()
-
-            # ToDo delete older files
 
             count = 0
             with open(filePath) as csvfile:
@@ -585,22 +585,24 @@ def getQuestionList(request):
     publishDates = []
     types = []
     groupings = []
+    ids = []
 
     for question in questions:
         labels.append(question.questionLabel)
         publishDates.append(question.pubDate)
         types.append(str(question.questionType))
         groupings.append(str(question.questionGrouping))
+        ids.append(question.pk)
 
     return JsonResponse({'labels': labels,
                          'publishDates': publishDates,
                          'types': types,
-                         'groupings': groupings})
+                         'groupings': groupings,
+                         'ids': ids})
 
 #Get a question and it's details
-def getQuestion(request):
-    questionLabel = request.GET['questionLabel']
-    question = Question.objects.get(questionLabel=questionLabel)
+def getQuestion(request, qPk):
+    question = Question.objects.get(pk=qPk)
     qGrouping = question.questionGrouping.grouping
     labels = []
     if qGrouping == 'Label':
@@ -620,9 +622,8 @@ def getQuestion(request):
     return JsonResponse(response)
 
 #Get the Choice objects associated with a Choice question
-def getChoices(request):
-    questionLabel = request.GET['questionLabel']
-    question = Question.objects.get(questionLabel=questionLabel)
+def getChoices(request, qPk):
+    question = Question.objects.get(pk=qPk)
     choices = Choice.objects.filter(question=question)
     response = {};
     for choice in choices:
@@ -630,17 +631,14 @@ def getChoices(request):
     return JsonResponse(response)
 
 #Get the Rank object associated with a Rank question
-def getRank(request):
-    questionLabel = request.GET['qL']
-    q = Question.objects.get(questionLabel=questionLabel)
+def getRank(request, qPk):
+    q = Question.objects.get(pk=qPk)
     rank = Rank.objects.get(question = q)
     return JsonResponse({'firstWord': rank.firstWord, 'secondWord': rank.secondWord})
 
 #Gets the Rate objects associated with a Rate question
-def getRates(request):
-    #Probably going to have to change this
-    questionLabel = request.GET['qL']
-    q = Question.objects.get(questionLabel=questionLabel)
+def getRates(request, qPk):
+    q = Question.objects.get(pk=qPk)
     rates = Rate.objects.filter(question=q)
 
     optionalArr = []
@@ -655,9 +653,8 @@ def getRates(request):
     return JsonResponse({'optionalArr': optionalArr, 'scaleArr': scaleArr})
 
 #Gets the Freeform objects associated with a Rate question
-def getFreeformItems(request):
-    questionLabel = request.GET['qL']
-    q = Question.objects.get(questionLabel=questionLabel)
+def getFreeformItems(request, qPk):
+    q = Question.objects.get(pk=qPk)
     freeformItems = FreeformItem.objects.filter(question=q)
     print(freeformItems)
 
@@ -671,10 +668,9 @@ def getFreeformItems(request):
     return JsonResponse({'typeArr': typeArr, 'valueArr': valueArr})
 
 #Delete a question
-def questionDelete(request):
+def questionDelete(request, qPk):
     if request.method == "POST":
-        questionLabel = request.POST['questionLabel']
-        question = Question.objects.get(questionLabel=questionLabel)
+        question = Question.objects.get(pk=qPk)
         question.delete()
         return HttpResponse('Success! Question was deleted successfully.')
     else:
@@ -682,18 +678,17 @@ def questionDelete(request):
 
 #Create a question
 def createQuestion(request):
-    if 'question' in request.GET:
-        qText = request.GET['question']
-        qType = QuestionType.objects.get(name=request.GET['questionType'])
-        qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
-        qLabel = request.GET['questionLabel']
-        qIsEditing = request.GET['isEditing']
+    if request.method == "POST":
+        qText = request.POST['question']
+        qType = QuestionType.objects.get(name=request.POST['questionType'])
+        qGrouping = QuestionGrouping.objects.get(grouping=request.POST['grouping'])
+        qLabel = request.POST['questionLabel']
         qPubDate = timezone.now()
         print("Saving new question: Type = '%s', Label = '%s', Grouping = '%s'" % (qType, qLabel, qGrouping))
 
-        if qIsEditing == 'true':
+        if 'pk' in request.POST:
             print('Deleting old question')
-            q = Question.objects.get(questionLabel = qLabel)
+            q = Question.objects.get(pk = request.POST['pk'])
             qPubDate = q.pubDate
             q.delete()
 
@@ -710,7 +705,7 @@ def createQuestion(request):
 
 
         if str(qGrouping) == 'Label':
-            qLabels = request.GET.getlist('labelArr[]')
+            qLabels = request.POST.getlist('labelArr[]')
             print("Grouping is label: %s" % qLabels)
 
             for label in qLabels:
@@ -719,7 +714,7 @@ def createQuestion(request):
 
         #Choice
         if str(qType) == 'Choice':
-            choices = request.GET.getlist('choices[]')
+            choices = request.POST.getlist('choices[]')
             print("Choices = %s" % choices)
            
             #Save the choices
@@ -734,8 +729,8 @@ def createQuestion(request):
 
         #Rank
         elif str(qType) == 'Rank':
-            wordOne = request.GET["firstWord"]
-            wordTwo = request.GET["secondWord"]
+            wordOne = request.POST["firstWord"]
+            wordTwo = request.POST["secondWord"]
             print("First Word: '%s', Second Word: '%s'" % (wordOne, wordTwo))
 
             #Save the rank
@@ -746,8 +741,8 @@ def createQuestion(request):
 
         #Freeform
         elif str(qType) == 'Freeform':
-            types = request.GET.getlist('types[]')
-            values = request.GET.getlist('values[]')
+            types = request.POST.getlist('types[]')
+            values = request.POST.getlist('values[]')
             print(types)
             print("Types: %s, Values:" % types, values)
 
@@ -762,9 +757,9 @@ def createQuestion(request):
 
         #Rate
         elif str(qType) == 'Rate':
-            optionalArr = request.GET.getlist('optionalArr[]')
-            scaleArr = request.GET.getlist('scaleArr[]')
-            choiceArr = request.GET.getlist('choiceArr[]')
+            optionalArr = request.POST.getlist('optionalArr[]')
+            scaleArr = request.POST.getlist('scaleArr[]')
+            choiceArr = request.POST.getlist('choiceArr[]')
 
             index = 0
             for r in choiceArr:
@@ -779,6 +774,69 @@ def createQuestion(request):
     else:
         message = 'You submitted an empty form.'
     return HttpResponse()
+
+def saveQuestionnaire(request):
+    if request.method == 'POST':
+        intro = request.POST.get("intro")
+        label = request.POST.get("label")
+        print(label)
+
+        if 'pk' in request.POST:
+            q = Questionnaire.objects.get(pk = request.POST.get('pk'))
+            q.intro = intro
+            q.label = label
+            QuestionOrder.objects.filter(questionnaire = q).delete()
+            q.save()
+        else:
+            q = Questionnaire.objects.create(intro = intro, label = label)
+
+        index = 0
+        questionOrders = request.POST.getlist('questionOrders[]')
+        for question in questionOrders:
+            qO = QuestionOrder.objects.create(questionnaire = q,
+                               question = Question.objects.get(pk = question),
+                               order = index)
+            index += 1
+
+    return  HttpResponse('Success')
+
+def deleteQuestionnaire(request, qPk):
+    if request.method == "POST":
+        q = Questionnaire.objects.get(pk = qPk)
+        q.delete()
+    return HttpResponse()
+
+def getQuestionnaireList(request):
+    questionnaires = Questionnaire.objects.all();
+    json = {'labels': [], 'ids': []}
+    for q in questionnaires:
+        json['labels'].append(q.label)
+        json['ids'].append(q.pk)
+    return JsonResponse(json)
+
+def getQuestionnaire(request, qPk):
+    questionnaire = Questionnaire.objects.get(pk = qPk)
+    questions = QuestionOrder.objects.filter(questionnaire = questionnaire)
+    questionLabels = []
+    questionPubDates = []
+    questionTypes = []
+    questionGroupings = []
+    questionIds = []
+    for q in questions:
+        questionLabels.append(q.question.questionLabel)
+        questionGroupings.append(q.question.questionGrouping.grouping)
+        questionTypes.append(q.question.questionType.name)
+        questionPubDates.append(q.question.pubDate)
+        questionIds.append(q.question.pk)
+
+    json = {'label': questionnaire.label, 
+            'intro': questionnaire.intro, 
+            'questionLabels': questionLabels, 
+            'questionPubDates': questionPubDates, 
+            'questionTypes': questionTypes,
+            'questionGroupings': questionGroupings,
+            'questionIds': questionIds}
+    return JsonResponse(json)
 
 def roundDelete(request, roundPk):
     round = RoundDetail.objects.get(pk = roundPk)
