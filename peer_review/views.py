@@ -33,22 +33,8 @@ def login(request):
 def detail(request, question_id):
     return HttpResponse("You're looking at question %s." % question_id)
 
-
 def index(request):
-    users = User.objects.all
-    userForm = UserForm()
-    docForm = DocumentForm()
-
-    module_dir = os.path.dirname(__file__)
-    file_path = os.path.join(module_dir)
-    file = open(file_path + '/text/email.txt', 'r+')
-    emailText = file.read()
-    file.close()
-
-    # send_mail('Subject', 'Message', 'from@example.com', ['u14035538@tuks.co.za'], fail_silently=False)
-
-    return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'docForm': docForm, 'email_text': emailText})
-
+    return login(request)
 
 def fileUpload(request):
     # Handle file upload
