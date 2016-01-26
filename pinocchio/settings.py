@@ -116,8 +116,8 @@ STATICFILES_DIRS = (
     # '/var/www/static/',
 )
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_HOST_USER = "example@gmail.com"
-EMAIL_HOST_PASSWORD = "example"
+EMAIL_USE_TLS = False
+EMAIL_HOST = "kendy.up.ac.za"
+EMAIL_PORT = 25
+EMAIL_HOST_USER = ""
+EMAIL_HOST_PASSWORD = ""
