@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template import RequestContext
 from django.http import JsonResponse
 from django.core.mail import send_mail
@@ -20,15 +20,32 @@ from .models import Document
 from .models import Question, QuestionType, QuestionGrouping, Choice, Rank, Questionnaire, RoundDetail, TeamDetail, FreeformItem, Rate, Label
 from .models import User, UserDetail
 from .models import Questionnaire, QuestionOrder
-from .forms import DocumentForm, UserForm
+from .forms import DocumentForm, UserForm, LoginForm
 
-def studentHomePage(request):
+def activeRounds(request):
     context = {}
     return render(request, 'peer_review/studentHomePage.html',context)
 
 def login(request):
-    context = {}
+    loginForm = LoginForm()
+    context = {'loginForm': loginForm}
     return render(request, 'peer_review/login.html',context)
+
+def auth(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            userType = form.cleaned_data['userType']
+            if userType == 'A':
+                return redirect('/userAdmin/')
+            elif userType == 'S':
+                return redirect('/activeRounds/')
+            else:
+                return redirect('/login/')
+        else:
+            return redirect('/login/')
+    else:
+        return redirect('/login/')
 
 def detail(request, question_id):
     return HttpResponse("You're looking at question %s." % question_id)
