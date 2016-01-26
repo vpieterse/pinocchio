@@ -198,8 +198,6 @@ def generate_email(OTP, post_name, post_surname, email_text, email):
 
     #send_mail(email_subject, email_text, 'no-reply@pinocchio.up.ac.za', [email], fail_silently=False)
 
-    # ToDo implement email notification
-
 def submitForm(request):
     if request.method == "POST":
         userForm = UserForm(request.POST)
@@ -242,6 +240,10 @@ def submitForm(request):
     else:
         userForm = UserForm()
     return HttpResponseRedirect("../")
+
+def userProfile(request, userId):
+    return render(request, 'peer_review/userProfile.html')
+
 
 def userDelete(request):
     if request.method == "POST":
@@ -336,8 +338,6 @@ def submitCSV(request):
             error = False
 
             documents = Document.objects.all()
-
-            # ToDo delete older files
 
             count = 0
             with open(filePath) as csvfile:

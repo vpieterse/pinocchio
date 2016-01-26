@@ -21,6 +21,7 @@ urlpatterns = [
                   url(r'^(?P<question_id>[0-9]+)/$', views.detail, name='detail'),
                   url(r'^userAdmin/submitForm/?$', views.submitForm),
                   url(r'^userAdmin/submitCSV/$', views.submitCSV, name="submitCSV"),
+                  url(r'^userAdmin/userProfile/(?P<userId>[0-9]+)/?$', views.userProfile, name="userProfile"),
                   url(r'^userAdmin/delete/$', views.userDelete, name="userDelete"),
                   url(r'^userAdmin/update/(?P<userPk>[0-9]+)/?$', views.userUpdate),
                   url(r'^userAdmin/resetPassword/(?P<userPk>[0-9]+)/?$', views.resetPassword),

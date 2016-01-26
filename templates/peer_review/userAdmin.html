@@ -173,7 +173,7 @@
                                 <tbody>
                                 {% for user in users %}
                                     <tr id="{{ user.pk }}">
-                                        <td data-id="userId">{{ user.userId }}</td>
+                                        <td data-id="userId"><a href="/userAdmin/userProfile/{{ user.userId }}">{{ user.userId }}</a></td>
                                         <td data-id="title">{{ user.userDetail.title }}</td>
                                         <td data-id="initials">{{ user.userDetail.initials }}</td>
                                         <td data-id="name">{{ user.userDetail.name }}</td>
