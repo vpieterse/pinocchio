@@ -5,7 +5,11 @@
 
     <script src="{% static "peer_review/search.js" %}"></script>
     <script src="{% static "peer_review/validation.js" %}"></script>
+    <script src="{% static "peer_review/js/tinymce/tinymce.min.js" %}"></script>
+
     <script type="text/javascript">
+        //TinyMCE html editor from https://www.tinymce.com/
+        var currentlyEditing = -1;
         function makeOneRowSelectable(table, dataTable) {
             table.find('tbody').on('click', 'tr', function () {
                 if ($(this).hasClass('selected')) {
@@ -26,16 +30,128 @@
             });
         }
 
+        function updateQuestionnaireList() {
+            var table = $('#questionnaireList').DataTable();
+            table.clear();
+            
+            $.ajax({
+                url: '/questionnaireAdmin/getQuestionnaireList/',
+                type: "GET",
+                success: function (data) {
+                    console.log(data);
+                    var content = [];
+                    for (var x = 0; x < data.labels.length; x++)
+                        content.push({"label": data.labels[x], "DT_RowId": data.ids[x]});
+                    table.rows.add(content).draw();
+
+                },
+                failure: function () {console.log("Failure");}
+            });
+        }
+
+        function editQuestionnaire(pk) {
+            currentlyEditing = pk;
+            var $table = $('#questionnaireTable').DataTable();
+            $table.clear();
+            $.ajax({
+                url: '/questionnaireAdmin/getQuestionnaire/' + pk,
+                type: 'GET',
+                success: function(data) {
+                    tinyMCE.get('intro').setContent(data.intro);
+                    $('#label').val(data.label);
+
+                    contents = [];
+                    for (var x = 0; x < data.questionLabels.length; x++) {
+                        contents.push({'label': data.questionLabels[x],
+                                       'pubdate': data.questionPubDates[x],
+                                       'type': data.questionTypes[x],
+                                       'grouping': data.questionGroupings[x],
+                                       'DT_RowId': data.questionIds[x]
+                                       });
+
+                    }
+                    $table.rows.add(contents).draw();
+                    window.scrollTo(0,0);
+                }
+            })
+        }
+
+        function deleteQuestionnaire(pk) {
+            console.log(pk);
+            var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
+            $.ajax({
+                url: "/questionnaireAdmin/deleteQuestionnaire/" + pk,
+                type: "POST",
+                data: {'csrfmiddlewaretoken' : token},
+                success: function() {
+                    //Success message
+                    $('#save-success').html('<div class="alert alert-success">Questionnaire successfully deleted</div>');
+
+                    //Make the alert box disappear after 5 seconds
+                    window.setTimeout(function () {
+                        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                            $(this).remove();
+                        });
+                    }, 5000);   
+                    updateQuestionnaireList();                 
+                }
+
+            })
+
+        }
+
         function submitQuestionnaire() {
+            label = $("#label").val();
+            if (label.length > 300)
+                return;
+
+            if (label == '') {
+                $('#label-error').html('<div class="alert alert-danger fade in">Label is required</div>');
+                window.scrollTo(0, 0);
+                return;
+            } 
+
             var table = $('#questionnaireTable').DataTable();
-            var json = {"questionOrders":[] };
+            var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
+            //var intro = $('#intro').val();
+            var intro = tinyMCE.get('intro').getContent();
+            var label = $('#label').val();
+            var json = {"questionOrders":[], intro: intro, label: label, 'csrfmiddlewaretoken': token };
             table.rows().every(function (rowIdx, tableLoop, rowLoop) {
                 var data = this.data();
                 var id = this.node().id;
                 json["questionOrders"].push(id);
             });
+            if (currentlyEditing != -1) {
+                json.pk = currentlyEditing;
+            }
 
-            console.log(json);
+            $.ajax({
+                url: '/questionnaireAdmin/saveQuestionnaire/',
+                data: json,
+                type: "POST",
+                success: function () {
+                    //Success message
+                    $('#save-success').html('<div class="alert alert-success">Questionnaire successfully saved</div>');
+
+                    //Make the alert box disappear after 5 seconds
+                    window.setTimeout(function () {
+                        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                            $(this).remove();
+                        });
+                    }, 5000);
+                },
+                failure: function () {console.log("Failure");}
+            });
+
+            //Clear page
+            $("#label").val([]);
+            //$("#intro").val([]);
+            tinyMCE.get('intro').setContent('');
+            table.clear().draw();
+            window.scrollTo(0, 0);
+
+            updateQuestionnaireList();
         }
 
         // @todo refactor or something
@@ -48,6 +164,11 @@
                 '</a>';
 
         $(document).ready(function () {
+            tinymce.init({ selector:'#intro',
+            statusbar: false, 
+            menubar: '',
+            toolbar: 'undo redo bold italic alignleft aligncenter alignright bullist numlist outdent indent code hr ', });
+
             $('.table').on("click", '.move', function () {
                 var row = $(this).closest('tr');
                 if ($(this).hasClass('up'))
@@ -70,7 +191,10 @@
                     "targets": [4]
                 }]
             });
-
+                                       /* 'label': data.questionLabels[x],
+                                       'pubdate': data.questionPubDates[x],
+                                       'type': data.questionTypes[x],
+                                       'grouping': data.questionGroupings[x],*/
             var questionnaireTable = $("#questionnaireTable");
             var dTableQuestionnaire = questionnaireTable.DataTable({
                 "orderClasses": false,
@@ -82,7 +206,7 @@
                         "render": function (data, type, full, meta) {
                             return upArrow + downArrow;
                         },
-                        "targets": [4]
+                        "targets": [4],
                     },
                     {
                         "orderable": false,
@@ -97,7 +221,30 @@
                         "searchable": false,
                         "targets": [0, 1, 2, 3]
                     }
-                ]
+                ],
+                "columns": [
+                    {
+                        title: "Question",
+                        data: "label"
+                    },
+                    {
+                        title: "Publish Date",
+                        data: "pubdate"
+                    },
+                    {
+                        title: "Question Type",
+                        data: "type"
+                    },
+                    {
+                        title: "Grouping",
+                        data: "grouping"
+                    },
+                    {
+                        title: ""
+                    },
+                    {
+                        title: ""
+                    }]
             });
             dTableQuestionnaire.columns.orderable = false;
 
@@ -120,6 +267,36 @@
                 dTableQuestionnaire.row(tr).remove().draw();
                 {#                users.row.add(tr).draw();#}
             });
+
+            $('#label').keyup(function() {
+                label = $('#label').val();
+
+                if (label.length > 300) {
+                    $('#label-error').html("<div class=\"alert alert-danger fade in\">Label must be less than 300 characters</div>");
+                } 
+                else {
+                    $('#label-error').html('');
+                }
+            });
+
+            $('#questionnaireList').DataTable({                
+                columnDefs: [{
+                    title: "Questionnaire Label",
+                    data: "label", 
+                    targets: [0],
+                },
+                {
+                    title: "",
+                    orderable: false,
+                    searchable: false,
+                    render: function (data, type, row, meta) {
+                            return "<div align = \"right\"><button class=\"btn btn-success btn-xs\" type = \"button\" onclick = \"editQuestionnaire(" + "\'" + row.DT_RowId + "\'" + ")\">Edit</button>"
+                            + "<button class=\"btn btn-warning btn-xs\" type = \"button\" onclick = \"deleteQuestionnaire(" + "\'" + row.DT_RowId + "\'" + ")\">Delete</button></div>";
+                        },
+                    targets: [1],
+                }]                
+            });
+            updateQuestionnaireList();
         });
     </script>
     <!--Edit navbar active-->
@@ -131,87 +308,101 @@
 {% block context %}
     <div class="container">
         <div class="panel-group" id="accordion">
+            <div id = "save-success"></div>
             <div class="panel panel-default">
-                <div class="panel panel-default">
-                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
-                         data-target="#collapseTwo">
-                        <h4 class="panel-title">
-                            <a>
-                                1. Make a header/introduction <b class="caret"></b>
-                            </a>
-                        </h4>
-                    </div>
-
-                    <div id="collapseTwo" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <label for="intro">Introduction</label>
-                            <input id="intro" value="">
-                        </div>
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
+                     data-target="#collapseOne">
+                    <h4 class="panel-title">
+                        <a>
+                            1. Make a header/introduction <b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <label for="label">Label</label>
+                        <input id="label" class="form-control" value="">
+                        <div id = "label-error"></div>
+                        <br/>
+                        <label for="intro">Introduction</label>
+                        <input id="intro" class = "form-control" value="">
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="panel panel-default">
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
-                     data-target="#collapseThree">
-                    <h4 class="panel-title">
-                        <a>
-                            2. Choose questions<b class="caret"></b>
-                        </a>
-                    </h4>
-                </div>
+            <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
+                 data-target="#collapseTwo">
+                <h4 class="panel-title">
+                    <a>
+                        2. Choose questions<b class="caret"></b>
+                    </a>
+                </h4>
+            </div>
 
-                <div id="collapseThree" class="panel-collapse collapse">
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <table class='table moveable' id='questionTable'>
-                                    <thead>
-                                    <tr>
-                                        <th>Question</th>
-                                        <th>Publish Date</th>
-                                        <th>Question Type</th>
-                                        <th>Grouping</th>
-                                        <th></th>
-                                        <th></th>
+            <div id="collapseTwo" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class='table moveable' id='questionTable'>
+                                <thead>
+                                <tr>
+                                    <th>Question</th>
+                                    <th>Publish Date</th>
+                                    <th>Question Type</th>
+                                    <th>Grouping</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for question in questions %}
+                                    <tr id="{{ question.pk }}">
+                                        {% csrf_token %}
+                                        <td>{{ question.questionText }}</td>
+                                        <td>{{ question.pubDate }}</td>
+                                        <td>{{ question.questionType.name }}</td>
+                                        <td>{{ question.questionGrouping.grouping }}</td>
+                                        <td></td>
+                                        <td></td>
                                     </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for question in questions %}
-                                        <tr id="{{ question.pk }}">
-                                            {% csrf_token %}
-                                            <td>{{ question.questionText }}</td>
-                                            <td>{{ question.pubDate }}</td>
-                                            <td>{{ question.questionType.name }}</td>
-                                            <td>{{ question.questionGrouping.grouping }}</td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="col-md-6">
-                                <table id="questionnaireTable" class="table moveable">
-                                    <thead>
-                                    <tr>
-                                        <th>Question</th>
-                                        <th>Publish Date</th>
-                                        <th>Question Type</th>
-                                        <th>Grouping</th>
-                                        <th></th>
-                                        <th></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-
-                                    </tbody>
-                                </table>
-                            </div>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table id="questionnaireTable" class="table moveable">
+                            </table>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
+                 data-target="#collapseThree">
+                <h4 class="panel-title">
+                    <a>
+                        Maintain Questionnaires<b class="caret"></b>
+                    </a>
+                </h4>
+            </div>
+
+            <div id="collapseThree" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <input type="text" class="form-control" id="search" placeholder="Search">
+                    <br/>
+                    <div class='table-responsive'>
+                        <table id = "questionnaireList">
+                            <thead>
+                                <tr>
+                                    <th>Questionnaire Label</th>
+                                    <th>-</th>
+                                </tr>
+                            </thead>
+                        </table> 
+                    </div>                           
                 </div>
             </div>
         </div>
