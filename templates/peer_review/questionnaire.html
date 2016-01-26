@@ -267,16 +267,17 @@ input[type=range]:focus::-ms-fill-upper {
 							{% ifequal QuestionsOrder.questionnaire_id questionnairePk %}
 								{% for QuestionsText in questions %}
 									{% ifequal QuestionsText.id QuestionsOrder.question_id %}
+                                    <legend> </legend>
 										<p style="font-size:110%;">{{ QuestionsText.questionText }}</p>
 										{% if QuestionsText.questionType_id == 2 %} <!-- CHOICE QUESTIONS-->
 
 											<fieldset>
 												<legend>Options</legend>
-												{% for QuestionsChoices in choices %}
+												{% for QuestionsChoice in questionChoices %}
 												<form>
-													{% ifequal QuestionChoices.question_id QuestionsOrder.question_id %}
+													{% ifequal QuestionChoice.question_id QuestionsOrder.question_id %}
 														<input type="radio" name="questionChoice"
-														value="{{ QuestionsChoices.choiceText }}">{{ QuestionsChoices.choiceText }}<br>
+														value="{{ QuestionsChoice.choiceText }}">{{ QuestionsChoice.choiceText }}<br>
 													{% endifequal %}
 												</form>	
 											</fieldset>
@@ -284,11 +285,19 @@ input[type=range]:focus::-ms-fill-upper {
 
 										{% elif QuestionsText.questionType_id == 3 %} <!-- RANK QUESTIONS-->
 										<div>
-										<p style="text-allign:left;"> First Word
-										<span align="center"><label id="valueLabel{{ QuestionsOrder.order }}">5</label></span>
-										<span style="float:right;"> Second Word</span></p>
-										
+                                        
+                                        {% for Ranks in questionRanking %}
+                                            {% ifequal Ranks.question_id QuestionsOrder.question_id  %}
+                                            
+										<div style="float: left; width:48%"><b>{{ Ranks.firstWord }}</b></div>
+                                        <div style="float: left; width:4%" align="center">
+                                        <label id="valueLabel{{ QuestionsOrder.order }}"><b>5</b></label></div>
+										<div style="float: left; width:48%" align="right"><b>{{ Ranks.secondWord }}</b></div>
+                                        <br style="clear: left;"/>
 
+										  
+                                            {% endifequal %}
+                                        {% endfor %}
       									
       										<input type="range" min="0" max="10" value="5" step="1" onchange="updateLabel(this.value, {{ QuestionsOrder.order }})" />
       										
@@ -300,7 +309,7 @@ input[type=range]:focus::-ms-fill-upper {
       											</script>
       									</div>
 										
-      		
+      		                            
 
 
 
