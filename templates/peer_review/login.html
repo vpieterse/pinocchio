@@ -1,14 +1,11 @@
 {% extends "peer_review/base.html" %}
 {% load staticfiles %}
-
 {% block extrabasehead %}
-    <!--Edit navbar active-->
+	<!--Edit navbar active-->
     <script>
-        var title = "activeRounds";
+        var title = "login";
     </script>
     <!--end-->
-
-    {% block extrahead %}{% endblock %}
 {% endblock %}
 {% block basecontext %}
     <nav class="navbar navbar-inverse navbar-static-top">
@@ -23,15 +20,11 @@
             </div>
             <div class="collapse navbar-collapse navHeaderCollapse">
                 <ul class="nav navbar-nav navbar-left" style="padding-left:100px">
-                    <li id="activeRounds"><a href="/activeRounds">Active Rounds</a></li>
-                    <li id="teamMembers"><a href="/teamMembers">Team Members</a></li>
-                    <li id="questionnaire"><a href="/questionnaire">Questionnaire</a></li>
-                    <li id="accountDetails"><a href="/accountDetails">Account Details</a></li>
+                    <li id="login"><a href="/login">Login</a></li>>
             </div>
         </div>
     </nav>
     {% block context %}{% endblock %}
 {% endblock %}
 {% block logout %}
-	<a class="navbar-btn btn-danger btn pull-right">Log Out</a>
 {% endblock %}

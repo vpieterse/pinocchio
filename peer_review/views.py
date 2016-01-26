@@ -26,6 +26,10 @@ def studentHomePage(request):
     context = {}
     return render(request, 'peer_review/studentHomePage.html',context)
 
+def login(request):
+    context = {}
+    return render(request, 'peer_review/login.html',context)
+
 def detail(request, question_id):
     return HttpResponse("You're looking at question %s." % question_id)
 
@@ -474,13 +478,15 @@ def submitTeamCSV(request):
                             errortype = "Not all fields contain values."
                         elif valid == 3:
                             errortype = "user ID is not a number."
-
+                            
+                        os.remove(filePath)
                         return render(request, 'peer_review/csvError.html',
                                       {'message': message, 'row': rowlist, 'error': errortype})
         else:
             form = DocumentForm()
             message = "Oops! Something seems to be wrong with the CSV file."
             errortype = "No file selected."
+            os.remove(filePath)
             return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
 
         if not(error):
