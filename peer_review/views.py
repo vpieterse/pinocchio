@@ -1,36 +1,57 @@
-import datetime
-import csv
-
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template import RequestContext
 from django.http import JsonResponse
+from django.core.mail import send_mail
 import random
 import string
 import hashlib
 import uuid
 
+import time
+import csv
+import os
+
 from django.utils import timezone
 
 from .models import Document
-from .models import Question, QuestionType, QuestionGrouping, Choice, Rank,Questionnaire, RoundDetail, TeamDetail
+from .models import Question, QuestionType, QuestionGrouping, Choice, Rank, Questionnaire, RoundDetail, TeamDetail, FreeformItem, Rate, Label
 from .models import User, UserDetail
 from .models import Questionnaire, QuestionOrder
-from .forms import DocumentForm, UserForm
+from .forms import DocumentForm, UserForm, LoginForm
 
+def activeRounds(request):
+    context = {}
+    return render(request, 'peer_review/studentHomePage.html',context)
+
+def login(request):
+    loginForm = LoginForm()
+    context = {'loginForm': loginForm}
+    return render(request, 'peer_review/login.html',context)
+
+def auth(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            userType = form.cleaned_data['userType']
+            if userType == 'A':
+                return redirect('/userAdmin/')
+            elif userType == 'S':
+                return redirect('/activeRounds/')
+            else:
+                return redirect('/login/')
+        else:
+            return redirect('/login/')
+    else:
+        return redirect('/login/')
 
 def detail(request, question_id):
     return HttpResponse("You're looking at question %s." % question_id)
 
-
 def index(request):
-    users = User.objects.all
-    userForm = UserForm()
-    docForm = DocumentForm()
-    return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'docForm': docForm})
-
+    return login(request)
 
 def fileUpload(request):
     # Handle file upload
@@ -80,8 +101,8 @@ def questionnaireAdmin(request):
 def questionnaire(request, questionnairePk):
 	if request.method == "POST":
 		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
-				'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
-				'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : questionnairePk}
+			   'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
+			   'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk)}
 		return render(request, 'peer_review/questionnaire.html', context)
 	else:
 		return render(request, 'peer_review/userError.html')
@@ -93,7 +114,30 @@ def userList(request):
     users = User.objects.all
     userForm = UserForm()
     docForm = DocumentForm()
-    return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'docForm': docForm})
+
+    module_dir = os.path.dirname(__file__)
+    file_path = os.path.join(module_dir)
+    file = open(file_path + '/text/email.txt', 'r+')
+    emailText = file.read()
+    file.close()
+
+    return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'docForm': docForm, 'email_text': emailText})
+
+def getTeams(request):
+    teams = TeamDetail.objects.all()
+    response={}
+    for team in teams:
+        user = User.objects.get(userDetail=team.userDetail)
+        response[team.pk] = {
+            'userId': user.userId,
+            'initials': team.userDetail.initials,
+            'surname': team.userDetail.surname,
+            'round': team.roundDetail.description,
+            'team': team.teamName,
+            'status': team.status,
+            'teamId': team.pk
+        }
+    return JsonResponse(response)
 
 def getTeamsForRound(request, roundPk):
     teams = TeamDetail.objects.filter(roundDetail_id=roundPk)
@@ -103,15 +147,27 @@ def getTeamsForRound(request, roundPk):
             'userId': team.userDetail.pk,
             'teamName': team.teamName,
             'status': team.status
-            }
+        }
     # print(response)
     return JsonResponse(response)
 
 def changeUserTeamForRound(request, roundPk, userPk, teamName):
-    team = TeamDetail.objects.filter(roundDetail_id=roundPk).filter(userDetail_id=userPk)
+    try:
+        team = TeamDetail.objects.filter(userDetail_id=userPk).get(roundDetail_id=roundPk)
+    except TeamDetail.DoesNotExist:
+        team = TeamDetail(
+            userDetail = UserDetail.objects.get(pk=userPk),
+            roundDetail = RoundDetail.objects.get(pk=roundPk)
+        )
     team.teamName = teamName
     team.save()
-    return JsonResponse({})
+    return JsonResponse({'success': True})
+
+def changeTeamStatus(request, teamPk, status):
+    team = TeamDetail.objects.get(pk=teamPk)
+    team.status = status
+    team.save()
+    return JsonResponse({'success': True})
 
 def generate_OTP():
     N = random.randint(4, 10)
@@ -127,9 +183,19 @@ def check_password(hashed_password, user_password):
     password, salt = hashed_password.split(':')
     return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
 
-def generate_email(OTP, post_name, post_surname):
-    email = "Welcome to Pinocchio " + post_name + " " + post_surname + "\n\nYour one time password is: " + OTP + \
-        "\n\nKind regards,\nThe Pinocchio Team"
+def generate_email(OTP, post_name, post_surname, email_text):
+    fn = "{firstname}"
+    ln = "{lastname}"
+    otp = "{otp}"
+    datetime = "{datetime}"
+
+    email_text = email_text.replace(fn, post_name)
+    email_text = email_text.replace(ln, post_surname)
+    email_text = email_text.replace(otp, OTP)
+    email_text = email_text.replace(datetime, time.strftime("%H:%M:%S %d/%m/%Y"))
+
+    print(email_text)
+
     # ToDo implement email notification
 
 def submitForm(request):
@@ -150,7 +216,15 @@ def submitForm(request):
             post_userId = userForm.cleaned_data['userId']
 
             OTP = generate_OTP()
-            generate_email(OTP, post_name, post_surname)
+
+            module_dir = os.path.dirname(__file__)
+            file_path = os.path.join(module_dir)
+            file = open(file_path + '/text/email.txt', 'a+')
+            file.seek(0)
+            emailText = file.read()
+            file.close()
+
+            generate_email(OTP, post_name, post_surname, emailText)
             post_password = hash_password(OTP)
 
             post_status = userForm.cleaned_data['status']
@@ -167,12 +241,17 @@ def submitForm(request):
         userForm = UserForm()
     return HttpResponseRedirect("../")
 
-def userDelete(request, userPk):
-    user = User.objects.get(pk=userPk)
-    userDetail = user.userDetail
+def userDelete(request):
+    if request.method == "POST":
+        toDelete = request.POST.getlist("toDelete[]")
 
-    userDetail.delete()
-    user.delete()
+        for userPk in toDelete:
+            user = User.objects.get(pk=userPk)
+            userDetail = user.userDetail
+
+            userDetail.delete()
+            user.delete()
+
     return HttpResponseRedirect('../')
 
 def userUpdate(request, userPk):
@@ -187,8 +266,10 @@ def userUpdate(request, userPk):
         post_surname = request.POST.get("surname")
         post_cell = request.POST.get("cell")
         post_email = request.POST.get("email")
+        post_status = request.POST.get("status")
 
         user.userId = post_userId
+        user.status = post_status
         userDetail.title = post_title
         userDetail.initials = post_initials
         userDetail.name = post_name
@@ -200,10 +281,35 @@ def userUpdate(request, userPk):
         userDetail.save()
     return HttpResponseRedirect('../')
 
+def resetPassword(request, userPk):
+    if request.method == "POST":
+        user = User.objects.get(pk=userPk)
+        userDetail = user.userDetail
+
+        OTP = generate_OTP()
+        generate_email(OTP, userDetail.name, userDetail.surname)
+        password = hash_password(OTP)
+
+        user.password = password
+        user.save()
+        userDetail.save()
+
+        print(OTP)
+        print(password)
+        print(check_password(password, OTP))
+        return HttpResponseRedirect('../')
+
 def addCSVInfo(userList):
     for row in userList:
         OTP = generate_OTP()
-        generate_email(OTP, row['name'], row['surname'])
+        module_dir = os.path.dirname(__file__)
+        file_path = os.path.join(module_dir)
+        file = open(file_path + '/text/email.txt', 'a+')
+        file.seek(0)
+        emailText = file.read()
+        file.close()
+
+        generate_email(OTP, row['name'], row['surname'], emailText)
         password = hash_password(OTP)
 
         userDetail = UserDetail(title=row['title'], initials=row['initials'], name=row['name'], surname=row['surname'],
@@ -235,8 +341,9 @@ def submitCSV(request):
             with open(filePath) as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
+                    valid = validate(row)
                     count += 1
-                    if validate(row) == 1:
+                    if valid == 1:
                         # title = row['title']
                         # initials = row['initials']
                         # name = row['name']
@@ -254,7 +361,7 @@ def submitCSV(request):
                         # ToDo check for errors in multiple rows
                     else:
                         error = True
-                        if validate(row) == 0:
+                        if valid == 0:
                             message = "Oops! Something seems to be wrong with the CSV file."
                             errortype = "Incorrect number of fields."
                             return render(request, 'peer_review/csvError.html',
@@ -272,12 +379,17 @@ def submitCSV(request):
                             rowlist.append(row['user_id'])
                             rowlist.append(row['status'])
 
-                        if validate(row) == 2:
+                        if valid == 2:
                             errortype = "Not all fields contain values."
-                        if validate(row) == 3:
+                        if valid == 3:
                             errortype = "Cell or user ID is not a number."
-                        if validate(row) == 4:
+                        if valid == 4:
                             errortype = "User already exists."
+
+                        csvfile.close()
+
+                        if os.path.isfile(filePath):
+                            os.remove(filePath)
 
                         return render(request, 'peer_review/csvError.html',
                                       {'message': message, 'row': rowlist, 'error': errortype})
@@ -289,6 +401,9 @@ def submitCSV(request):
 
         if not(error):
             addCSVInfo(userList)
+
+    if os.path.isfile(filePath):
+        os.remove(filePath)
     return HttpResponseRedirect('../')
 
 
@@ -320,9 +435,98 @@ def validate(row):
 
     return 1
 
+def updateEmail(request):
+    if request.method == "POST":
+        emailText = request.POST.get("emailText")
+
+        module_dir = os.path.dirname(__file__)
+        file_path = os.path.join(module_dir)
+        file = open(file_path + '/text/email.txt', 'w+')
+
+        file.write(emailText)
+        file.close()
+    return HttpResponseRedirect('../')
+
+def addTeamCSVInfo(teamList):
+    for row in teamList:
+        userDetID = User.objects.get(userId=row['userID']).userDetail_id
+        changeUserTeamForRound("", row['roundDetail'], userDetID, row['teamName'])
+    return 1
+
+def submitTeamCSV(request):
+    global errortype
+    if request.method == 'POST':
+        form = DocumentForm(request.POST, request.FILES)
+        if form.is_valid():
+            newdoc = Document(docfile=request.FILES['docfile'])
+            newdoc.save()
+
+            filePath = newdoc.docfile.url
+            filePath = filePath[1:]
+
+            teamList = list()
+            error = False
+
+            documents = Document.objects.all()
+
+            count = 0
+            with open(filePath) as csvfile:
+                reader = csv.DictReader(csvfile)
+                for row in reader:
+                    count += 1
+                    valid = validateTeamCSV(row)
+                    if valid == 0:
+                        print(row['userID'])
+                        teamList.append(row)
+                    else:
+                        error = True
+                        message = "Oops! Something seems to be wrong with the CSV file at row " + str(count) + "."
+
+                        rowlist = list()
+                        rowlist.append(row['userID'])
+                        rowlist.append(row['roundDetail'])
+                        rowlist.append(row['teamName'])
+
+                        if valid == 1:
+                            errortype = "Incorrect number of fields."
+                        elif valid == 2:
+                            errortype = "Not all fields contain values."
+                        elif valid == 3:
+                            errortype = "user ID is not a number."
+                            
+                        os.remove(filePath)
+                        return render(request, 'peer_review/csvError.html',
+                                      {'message': message, 'row': rowlist, 'error': errortype})
+        else:
+            form = DocumentForm()
+            message = "Oops! Something seems to be wrong with the CSV file."
+            errortype = "No file selected."
+            os.remove(filePath)
+            return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
+
+        if not(error):
+            addTeamCSVInfo(teamList)
+    os.remove(filePath)
+    return HttpResponseRedirect('../')
 
 
+def validateTeamCSV(row):
+    # 0 = correct
+    # 1 = incorrect number of fields
+    # 2 = missing value/s
+    # 3 = incorrect format
 
+    if len(row) != 3:
+        return 1
+    for key, value in row.items():
+        if value is None:
+            return 2
+        if key == "userID":
+            try:
+                int(value)
+            except ValueError:
+                return 3
+    return 0
 
 def getTypeID(questionType):
     # -1 = Error
@@ -361,129 +565,204 @@ def getGroupID(questionGroup):
     else:
         return -1
 
-#QuestionAdmin stuff
-#Todo: Merge the questionUpdate and createQuestion functions
-#Todo: Implement saving of freeform type and label type
-#Todo: Fix saving of rank type
-#Todo: Save labels to DB when label grouping is selected
+#Get the list of questions (Label, Publish Date, Type, Grouping)
+def getQuestionList(request):
+    questions = Question.objects.all()
+    labels = []
+    publishDates = []
+    types = []
+    groupings = []
 
-def questionUpdate(request):
-    questionPk = request.GET['pk']
-    question = Question.get(pk=questionPk)
-    text = request.GET['question']
-    qType = QuestionType.objects.get(name=request.GET['questionType'])
+    for question in questions:
+        labels.append(question.questionLabel)
+        publishDates.append(question.pubDate)
+        types.append(str(question.questionType))
+        groupings.append(str(question.questionGrouping))
 
-    #Choice
-    if str(qType) == 'Choice':
-        qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
-        choices = request.GET.getlist('choices[]')
-        #Save the question
-        question.questionText=text
-        question.pubDate=timezone.now() - datetime.timedelta(days=1)
-        questionGrouping.questionGrouping=qGrouping
-        question.save()
+    return JsonResponse({'labels': labels,
+                         'publishDates': publishDates,
+                         'types': types,
+                         'groupings': groupings})
 
-        #Save the choices
-        rank = 0
-        for choice in choices:
-            c = Choice(question = q,
-                       choiceText = choice,
-                       num = rank,
-                       header_id = 0)
-            rank += 1
-            c.save()
+#Get a question and it's details
+def getQuestion(request):
+    questionLabel = request.GET['questionLabel']
+    question = Question.objects.get(questionLabel=questionLabel)
+    qGrouping = question.questionGrouping.grouping
+    labels = []
+    if qGrouping == 'Label':
+        qLabels = Label.objects.filter(question=question)
+        index = 0
+        for label in qLabels:
+            labels.append(label.labelText)
+            index += 1
 
-    #Rank
-    elif str(qType) == 'Rank':
-        qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
-        wordOne = request.GET["firstWord"]
-        wordTwo = request.GET["secondWord"]
-        #Save the question
-        question.questionText=text
-        question.pubDate=timezone.now() - datetime.timedelta(days=1)
-        questionGrouping.questionGrouping=qGrouping
+    response = {'questionText': question.questionText, 
+                'questionType': question.questionType.name,
+                'questionGrouping': qGrouping,
+                'questionLabel': question.questionLabel,
+                'labels': labels,
+                }
 
-        question.save()
+    return JsonResponse(response)
 
-        #Save the rank
-        r = Rank(question=q,
-                 firstWord=wordOne,
-                 secondWord=wordTwo)
-        r.save()
-
-
-def getQuestion(request, questionPk):
-    question = Question.objects.get(pk=questionPk)
-    return JsonResponse({'questionText': question.questionText, 
-                        'questionType': question.questionType.name,
-                        'questionGrouping': question.questionGrouping.grouping,
-                        })
-
-def getChoices(request, questionPk):
-    question = Question.objects.get(pk=questionPk)
+#Get the Choice objects associated with a Choice question
+def getChoices(request):
+    questionLabel = request.GET['questionLabel']
+    question = Question.objects.get(questionLabel=questionLabel)
     choices = Choice.objects.filter(question=question)
     response = {};
     for choice in choices:
         response[choice.num] = choice.choiceText
-    # print(response)
     return JsonResponse(response)
 
+#Get the Rank object associated with a Rank question
+def getRank(request):
+    questionLabel = request.GET['qL']
+    q = Question.objects.get(questionLabel=questionLabel)
+    rank = Rank.objects.get(question = q)
+    return JsonResponse({'firstWord': rank.firstWord, 'secondWord': rank.secondWord})
 
+#Gets the Rate objects associated with a Rate question
+def getRates(request):
+    #Probably going to have to change this
+    questionLabel = request.GET['qL']
+    q = Question.objects.get(questionLabel=questionLabel)
+    rates = Rate.objects.filter(question=q)
 
-def questionDelete(request, questionPk):
-    question = Question.objects.get(pk=questionPk)
-    question.delete()
-    return HttpResponseRedirect('../')
+    optionalArr = []
+    scaleArr = []
+    #There aren't even text fields in the model
+    #choices = []
 
+    for r in rates:
+        optionalArr.append(r.optional)
+        scaleArr.append(r.numberOfOptions)
 
+    return JsonResponse({'optionalArr': optionalArr, 'scaleArr': scaleArr})
+
+#Gets the Freeform objects associated with a Rate question
+def getFreeformItems(request):
+    questionLabel = request.GET['qL']
+    q = Question.objects.get(questionLabel=questionLabel)
+    freeformItems = FreeformItem.objects.filter(question=q)
+    print(freeformItems)
+
+    typeArr = []
+    valueArr = []
+
+    for f in freeformItems:
+        typeArr.append(f.freeformType)
+        valueArr.append(f.value)
+
+    return JsonResponse({'typeArr': typeArr, 'valueArr': valueArr})
+
+#Delete a question
+def questionDelete(request):
+    if request.method == "POST":
+        questionLabel = request.POST['questionLabel']
+        question = Question.objects.get(questionLabel=questionLabel)
+        question.delete()
+        return HttpResponse('Success! Question was deleted successfully.')
+    else:
+        return HttpResponse('Error.')
+
+#Create a question
 def createQuestion(request):
     if 'question' in request.GET:
-        text = request.GET['question']
+        qText = request.GET['question']
         qType = QuestionType.objects.get(name=request.GET['questionType'])
+        qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
+        qLabel = request.GET['questionLabel']
+        qIsEditing = request.GET['isEditing']
+        qPubDate = timezone.now()
+        print("Saving new question: Type = '%s', Label = '%s', Grouping = '%s'" % (qType, qLabel, qGrouping))
+
+        if qIsEditing == 'true':
+            print('Deleting old question')
+            q = Question.objects.get(questionLabel = qLabel)
+            qPubDate = q.pubDate
+            q.delete()
+
+        #Save the question
+        print('Creating question')
+        q = Question(questionText = qText,
+                     #pubDate = timezone.now() - datetime.timedelta(days=1),
+                     pubDate = qPubDate,
+                     questionType = qType,
+                     questionGrouping = qGrouping,
+                     questionLabel=qLabel
+                     )
+        q.save()
+
+
+        if str(qGrouping) == 'Label':
+            qLabels = request.GET.getlist('labelArr[]')
+            print("Grouping is label: %s" % qLabels)
+
+            for label in qLabels:
+                l = Label(question = q, labelText = label)
+                l.save()
 
         #Choice
         if str(qType) == 'Choice':
-            qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
             choices = request.GET.getlist('choices[]')
-
-            #Save the question
-            q = Question(questionText = text,
-                         pubDate = timezone.now() - datetime.timedelta(days=1),
-                         questionType = qType,
-                         questionGrouping = qGrouping
-                         )
-            q.save()
-
+            print("Choices = %s" % choices)
+           
             #Save the choices
             rank = 0
             for choice in choices:
                 c = Choice(question = q,
                            choiceText = choice,
-                           num = rank,
-                           header_id = 0)
+                           num = rank)
                 rank += 1
                 # print(c)
                 c.save()
 
         #Rank
         elif str(qType) == 'Rank':
-            qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
             wordOne = request.GET["firstWord"]
             wordTwo = request.GET["secondWord"]
-
-            #Save the question
-            q = Question(questionText=text,
-                         pubDate=timezone.now() - datetime.timedelta(days=1),
-                         QuestionType=qType,
-                         questionGrouping=qGrouping
-                         )
-            q.save()
+            print("First Word: '%s', Second Word: '%s'" % (wordOne, wordTwo))
 
             #Save the rank
             r = Rank(question=q,
                      firstWord=wordOne,
                      secondWord=wordTwo)
             r.save()
+
+        #Freeform
+        elif str(qType) == 'Freeform':
+            types = request.GET.getlist('types[]')
+            values = request.GET.getlist('values[]')
+            print(types)
+            print("Types: %s, Values:" % types, values)
+
+            rank = 0
+            for t in types:
+                f = FreeformItem(question = q,
+                                 value = values[rank],
+                                 freeformType = t
+                                 )
+                rank += 1
+                f.save()
+
+        #Rate
+        elif str(qType) == 'Rate':
+            optionalArr = request.GET.getlist('optionalArr[]')
+            scaleArr = request.GET.getlist('scaleArr[]')
+            choiceArr = request.GET.getlist('choiceArr[]')
+
+            index = 0
+            for r in choiceArr:
+                print('Optional: %s' % optionalArr[index])
+                r = Rate(question = q,
+                         numberOfOptions = scaleArr[index],
+                         optional = (optionalArr[index] == "true"),
+                         num = index)
+                r.save()
+                index += 1
+
     else:
         message = 'You submitted an empty form.'
     return HttpResponse()
@@ -577,61 +856,8 @@ def createRound(request):
                      )
         r.save()
     #
-    #return HttpResponseRedirect('../maintainRound')
-    return HttpResponse()
-
-
-#def createQuestion(request):
- #   if 'question' in request.GET:
-  #      text = request.GET['question']
-   #     qType = QuestionType.objects.get(name=request.GET['questionType'])
-
-        #Choice
-    #    if str(qType) == 'Choice':
-     #       qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
-      #      choices = request.GET.getlist('choices[]')
-
-            #Save the question
-       #     q = Question(questionText = text,
-        #                 pubDate = timezone.now() - datetime.timedelta(days=1),
-         #                questionType = qType,
-          #               questionGrouping = qGrouping
-           #              )
-            #q.save()
-
-            #Save the choices
-  #          rank = 0
-   #         for choice in choices:
-    #            c = Choice(question = q,
-     #                      choiceText = choice,
-      #                     num = rank,
-       #                    header_id = 0)
-        #        rank += 1
-                # print(c)
-         #       c.save()
-
-        #Rank
- #       elif str(qType) == 'Rank':
-  #          qGrouping = QuestionGrouping.objects.get(grouping=request.GET['grouping'])
-   #         wordOne = request.GET["firstWord"]
-    #        wordTwo = request.GET["secondWord"]
-#
- #           #Save the question
-  #          q = Question(questionText=text,
-   #                      pubDate=timezone.now() - datetime.timedelta(days=1),
-    #                     QuestionType=qType,
-     #                    questionGrouping=qGrouping
-      #                   )
-       #     q.save()
-#
- #           #Save the rank
-  #          r = Rank(question=q,
-   #                  firstWord=wordOne,
-    #                 secondWord=wordTwo)
-     #       r.save()
-   # else:
-    #    message = 'You submitted an empty form.'
-#    return HttpResponse()
+    return HttpResponseRedirect('../maintainRound')
+    #return HttpResponse()
 
 
 

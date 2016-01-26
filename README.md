@@ -1,6 +1,7 @@
 -------------
 # Pinocchio
 -------------
+[![Build Status](https://travis-ci.org/MatthiasHarvey/pinocchio.svg?branch=master)](https://travis-ci.org/MatthiasHarvey/pinocchio)
 
 ### Getting started
 - Install Django (https://www.djangoproject.com/start/)

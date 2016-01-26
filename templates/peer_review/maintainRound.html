@@ -1,4 +1,4 @@
-{% extends "peer_review/base.html" %}
+{% extends "peer_review/baseAdmin.html" %}
 {% load staticfiles %}
 
 {% block extrahead %}
@@ -14,6 +14,11 @@
             });
         });
     </script>
+    <!--Edit navbar active-->
+    <script>
+        title = "maintainRound";
+    </script>
+{% endblock extrahead %}
 
 <script type="text/javascript">
     function textBox(text) {

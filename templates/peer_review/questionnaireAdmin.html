@@ -1,4 +1,4 @@
-{% extends "peer_review/base.html" %}
+{% extends "peer_review/baseAdmin.html" %}
 {% load staticfiles %}
 {% block extrahead %}
     <title xmlns="http://www.w3.org/1999/html">Questionnaire Admin</title>
@@ -26,20 +26,36 @@
             });
         }
 
-        // @todo refactor or something
-        var upArrow = '<td style="text-align: center; width: 20px;">' +
-                '<a class="move up" href="javascript:void(0)" title="move up">' +
-                '<span class="glyphicon glyphicon-arrow-up"></span>' +
-                '</a>' +
-                '</td>';
+        function submitQuestionnaire() {
+            var table = $('#questionnaireTable').DataTable();
+            var json = {"questionOrders":[] };
+            table.rows().every(function (rowIdx, tableLoop, rowLoop) {
+                var data = this.data();
+                var id = this.node().id;
+                json["questionOrders"].push(id);
+            });
 
-        var downArrow = '<td style="text-align: center; width: 20px; ">' +
-                '<a class="move down" href="javascript:void(0)" title="move down">' +
+            console.log(json);
+        }
+
+        // @todo refactor or something
+        var upArrow = '<a class="move up" href="javascript:void(0)" title="move up">' +
+                '<span class="glyphicon glyphicon-arrow-up"></span>' +
+                '</a>';
+
+        var downArrow = '<a class="move down" href="javascript:void(0)" title="move down">' +
                 '<span class="glyphicon glyphicon-arrow-down"></span>' +
-                '</a>' +
-                '</td>';
+                '</a>';
 
         $(document).ready(function () {
+            $('.table').on("click", '.move', function () {
+                var row = $(this).closest('tr');
+                if ($(this).hasClass('up'))
+                    row.prev().before(row);
+                else
+                    row.next().after(row);
+            });
+
             var questionTable = $("#questionTable");
             resizeTableColumns(questionTable);
 
@@ -64,9 +80,17 @@
                         "orderable": false,
                         "searchable": false,
                         "render": function (data, type, full, meta) {
-                            return "<div class=\"removeQuestion button\" '><span class=\"glyphicon glyphicon-remove-circle\"></span></div>"
+                            return upArrow + downArrow;
                         },
                         "targets": [4]
+                    },
+                    {
+                        "orderable": false,
+                        "searchable": false,
+                        "render": function (data, type, full, meta) {
+                            return "<div class=\"removeQuestion button\" '><span class=\"glyphicon glyphicon-remove-circle\"></span></div>"
+                        },
+                        "targets": [5]
                     },
                     {
                         "orderable": false,
@@ -151,6 +175,7 @@
                                         <th>Question Type</th>
                                         <th>Grouping</th>
                                         <th></th>
+                                        <th></th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -161,6 +186,7 @@
                                             <td>{{ question.pubDate }}</td>
                                             <td>{{ question.questionType.name }}</td>
                                             <td>{{ question.questionGrouping.grouping }}</td>
+                                            <td></td>
                                             <td></td>
                                         </tr>
                                     {% endfor %}
@@ -176,6 +202,7 @@
                                         <th>Question Type</th>
                                         <th>Grouping</th>
                                         <th></th>
+                                        <th></th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -188,6 +215,7 @@
                 </div>
             </div>
         </div>
+        <button onclick="submitQuestionnaire();" class="btn btn-primary">Submit</button>
     </div>
 
     <div class="navbar navbar-default navbar-fixed-bottom">
@@ -195,6 +223,5 @@
             <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
             <a class="navbar-btn btn-danger btn pull-right" href="/admin/logout">Log Out</a>
         </div>
-    </div>
     </div>
 {% endblock %}

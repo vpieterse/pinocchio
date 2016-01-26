@@ -6,7 +6,7 @@ from django.utils import timezone
 
 
 class Document(models.Model):
-    docfile = models.FileField(upload_to='documents/%Y/%m/%d')
+    docfile = models.FileField(upload_to='documents')
 
 
 class QuestionType(models.Model):
@@ -51,6 +51,14 @@ class Choice(models.Model):
     def __str__(self):
         return self.choiceText
 
+class FreeformItem(models.Model):
+    question = models.ForeignKey(Question)
+    value = models.CharField(max_length=200)
+    freeformType = models.CharField(max_length=10)
+
+    def __str__(self):
+        return self.value
+
 
 class Rank(models.Model):
     question = models.ForeignKey(Question)
@@ -71,6 +79,9 @@ class Rate(models.Model):
 class Label(models.Model):
     question = models.ForeignKey(Question)
     labelText = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.labelText
 
 
 class UserDetail(models.Model):
@@ -114,6 +125,8 @@ class RoundDetail(models.Model):
     endingDate = models.DateTimeField('ending date')
     description = models.CharField(max_length=300)
 
+    def __str__(self):
+        return self.description
 
 class TeamDetail(models.Model):
     userDetail = models.ForeignKey(UserDetail, null=True)
@@ -127,7 +140,7 @@ class TeamDetail(models.Model):
         (IN_PROGRESS, "In progress"),
         (COMPLETED, "Completed")
     )
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Not attempted")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=NOT_ATTEMPTED)
 
     def __str__(self):
         return self.roundDetail.description + " " + self.teamName + " (" + self.userDetail.surname + ", " +self.userDetail.initials + ")"
