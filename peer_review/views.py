@@ -364,6 +364,11 @@ def submitCSV(request):
                         if valid == 4:
                             errortype = "User already exists."
 
+                        csvfile.close()
+
+                        if os.path.isfile(filePath):
+                            os.remove(filePath)
+
                         return render(request, 'peer_review/csvError.html',
                                       {'message': message, 'row': rowlist, 'error': errortype})
         else:
@@ -375,7 +380,8 @@ def submitCSV(request):
         if not(error):
             addCSVInfo(userList)
 
-    os.remove(filePath)
+    if os.path.isfile(filePath):
+        os.remove(filePath)
     return HttpResponseRedirect('../')
 
 
