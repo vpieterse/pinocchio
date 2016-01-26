@@ -494,7 +494,9 @@ def submitTeamCSV(request):
                         elif valid == 2:
                             errortype = "Not all fields contain values."
                         elif valid == 3:
-                            errortype = "user ID is not a number."
+                            errortype = "User ID is not a number."
+                        elif valid == 4:
+                            errortype = "User ID or Round Name does not exist"
                             
                         os.remove(filePath)
                         return render(request, 'peer_review/csvError.html',
@@ -517,6 +519,7 @@ def validateTeamCSV(row):
     # 1 = incorrect number of fields
     # 2 = missing value/s
     # 3 = incorrect format
+    # 4 = user/round does not exist
 
     if len(row) != 3:
         return 1
@@ -528,6 +531,12 @@ def validateTeamCSV(row):
                 int(value)
             except ValueError:
                 return 3
+            try:
+                user = User.objects.get(pk=value).userDetail_id
+                #roundD = 
+            except User.DoesNotExist:
+                return 4
+            
     return 0
 
 def getTypeID(questionType):
