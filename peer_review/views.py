@@ -132,7 +132,7 @@ def getTeams(request):
             'userId': user.userId,
             'initials': team.userDetail.initials,
             'surname': team.userDetail.surname,
-            'round': team.roundDetail.description,
+            'round': team.roundDetail.name,
             'team': team.teamName,
             'status': team.status,
             'teamId': team.pk
@@ -459,7 +459,8 @@ def updateEmail(request):
 def addTeamCSVInfo(teamList):
     for row in teamList:
         userDetID = User.objects.get(userId=row['userID']).userDetail_id
-        changeUserTeamForRound("", row['roundDetail'], userDetID, row['teamName'])
+        roundDetID = RoundDetail.objects.get(name=row['roundDetail']).pk
+        changeUserTeamForRound("", roundDetID, userDetID, row['teamName'])
     return 1
 
 def submitTeamCSV(request):
