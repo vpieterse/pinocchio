@@ -485,6 +485,7 @@ def submitTeamCSV(request):
 
         if not(error):
             addTeamCSVInfo(teamList)
+    os.remove(filePath)
     return HttpResponseRedirect('../')
 
 
