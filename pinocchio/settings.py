@@ -15,7 +15,6 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
@@ -26,7 +25,6 @@ SECRET_KEY = '!lz*&*^pr_#a&277j6!hsif3*ueca+sg#&*j)k$1hu)2yhh6@v'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -72,7 +70,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'pinocchio.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
@@ -83,9 +80,12 @@ DATABASES = {
     }
 }
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
+
+from django.conf.locale.en import formats as en_formats
+
+en_formats.DATETIME_FORMAT = "Y-m-d H:m"
 
 LANGUAGE_CODE = 'en-us'
 
@@ -116,10 +116,9 @@ STATICFILES_DIRS = (
     # '/var/www/static/',
 )
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_HOST_USER = "example@gmail.com"
-EMAIL_HOST_PASSWORD = "example"
-
 AUTH_USER_MODEL = 'peer_review.User'
+EMAIL_USE_TLS = False
+EMAIL_HOST = "kendy.up.ac.za"
+EMAIL_PORT = 25
+EMAIL_HOST_USER = ""
+EMAIL_HOST_PASSWORD = ""

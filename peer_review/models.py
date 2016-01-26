@@ -116,18 +116,23 @@ class Questionnaire(models.Model):
     label = models.CharField(max_length=300, unique=True)
     questionOrders = models.ManyToManyField(Question, through='QuestionOrder')
 
+    def __str__(self):
+        return self.label
 
 class QuestionOrder(models.Model):
     questionnaire = models.ForeignKey(Questionnaire)
     question = models.ForeignKey(Question)
     order = models.IntegerField(default=1)
 
+    def __str__(self):
+        return self.question.questionLabel
 
 class RoundDetail(models.Model):
-    questionnaire = models.ForeignKey(Questionnaire)
+    name = models.CharField(max_length = 15)
+    questionnaire = models.ForeignKey(Questionnaire, null =True)
     startingDate = models.DateTimeField('starting date')
     endingDate = models.DateTimeField('ending date')
-    description = models.CharField(max_length=200)
+    description = models.CharField(max_length=300)
 
     def __str__(self):
         return self.description

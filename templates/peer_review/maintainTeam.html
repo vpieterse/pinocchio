@@ -423,18 +423,19 @@
                         {
                             team = data[team];
                             var teamName = team["team"];
-                            if(teamName == "emptyTeam")
-                                teamName = '';
-                            var status = team["status"];
-                            var row = table.row.add([
-                                    team["userId"],
-                                    team["initials"],
-                                    team["surname"],
-                                    team["round"],
-                                    teamName
-                                ]).draw(false).node();
-                            $(row).attr("id", team["teamId"]);
-                            $(row).find("."+status).attr("selected", "selected");
+                            if(teamName != "emptyTeam")
+                            {
+                                var status = team["status"];
+                                var row = table.row.add([
+                                        team["userId"],
+                                        team["initials"],
+                                        team["surname"],
+                                        team["round"],
+                                        teamName
+                                    ]).draw(false).node();
+                                $(row).attr("id", team["teamId"]);
+                                $(row).find("."+status).attr("selected", "selected");
+                            }
                         }
                     },
                     failure: function(data) {

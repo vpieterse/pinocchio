@@ -1,3 +1,4 @@
+
 {% extends "peer_review/baseAdmin.html" %}
 {% load staticfiles %}
 
@@ -9,28 +10,52 @@
     <script type="text/javascript">
         /**Todo**
         Fix the missing line above the buttons in the #questionList table
-        Refactor: Move js code to a seperate file
         */
 
-        var isEditing = false;
+        var currentlyEditing = -1;
         $(document).ready(function () {
             addOnSubmitHandler();
             selected();
             $('#questionList').DataTable( {
-                                            columns: [
-                                                        { title: "Label" },
-                                                        { title: "Publish Date" },
-                                                        { title: "Type." },
-                                                        { title: "Grouping" }
-                                                    ],
-                                            //Add 'edit' and 'delete' buttons to each row added to table
-                                            "fnCreatedRow": function(row, data, index) {
-                                                $(row).append('<td><button class="btn btn-success btn-xs" type = "button" onclick = "editQuestion(' + "'" + data[0] + "'" + ')">Edit</button>  '
-                                                +'<button type="button" class="btn btn-warning btn-xs" onclick = "deleteQuestion(' + "'" + data[0] + "'" + ')">Delete</button></td>');
-                                            },
-                                            "bPaginate": false,
-                                            "sDom" : "t"
-                                           }); 
+                //Add 'edit' and 'delete' buttons to each row added to table
+                /*"fnCreatedRow": function(row, data, index) {
+                    $(row).append('<td><button class="btn btn-success btn-xs" type = "button" onclick = "editQuestion(' + "'" + data[0] + "'" + ')">Edit</button>  '
+                    +'<button type="button" class="btn btn-warning btn-xs" onclick = "deleteQuestion(' + "'" + data[0] + "'" + ')">Delete</button></td>');
+                },*/
+                columnDefs: [
+                {
+                    title: "Label",
+                    data: "label",
+                    targets: [0]
+                },
+                {
+                    title: "Publish Date",
+                    data: "pubdate",
+                    targets: [1],
+                },
+                {
+                    title: "Type",
+                    data: "type",
+                    targets: [2]
+                },
+                {
+                    title: "Grouping",
+                    data: "grouping",
+                    targets: [3]
+                },
+                {
+                    title: "",
+                    searchable: false,
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                            return "<div align = \"right\"><button class=\"btn btn-success btn-xs\" type = \"button\" onclick = \"editQuestion(" + "\'" + row.DT_RowId + "\'" + ")\">Edit</button>"
+                            + "<button class=\"btn btn-warning btn-xs\" type = \"button\" onclick = \"deleteQuestion(" + "\'" + row.DT_RowId + "\'" + ")\">Delete</button></div>";
+                        },
+                    targets: [4]
+                }],
+                "bPaginate": false,
+                "sDom" : "t",
+               }); 
             updateQuestionList();
 
             $('#search').keyup(function () {
@@ -64,7 +89,7 @@
         function questionExists(label)
         {
             //Of course the question exists if it's being edited
-            if (isEditing)
+            if (currentlyEditing != -1)
                 return false;
 
             var table = $('#questionList').DataTable();             
@@ -145,8 +170,9 @@
 
         function cancel()
         {
-            if (isEditing)
+            if (currentlyEditing != -1)
                 $("#cancelButton").html('Clear');
+            currentlyEditing = -1;
             clearPage();
         }
 
@@ -160,7 +186,7 @@
             $('#questionLabel').val([]);
             $('#type').val('Label');
             $('#grouping').val('None');
-            isEditing = false;
+            currentlyEditing = -1;
             selected();
 
             $("#type").prop("disabled", false);
@@ -270,18 +296,17 @@
         }
 
         //Fetches question details from database
-        function editQuestion(label) {
+        function editQuestion(pk) {
             clearPage();
-            isEditing = true;
+            currentlyEditing = pk;
             $("#type").prop("disabled", true);
             $("#questionLabel").prop('disabled', true);
             $("#cancelButton").html('Cancel');
 
             //Query question details from db
             $.ajax({
-                url: '/questionAdmin/getQuestion/',
-                data: {questionLabel: label},
-                success: function (data) {populateQuestionFields(data);},
+                url: '/questionAdmin/getQuestion/' + pk,
+                success: function (data) {populateQuestionFields(data, pk);},
                 failure: function () {alert('Error during reading in question details');}
             });
 
@@ -290,7 +315,7 @@
         }
 
         //Populates question fields
-        function populateQuestionFields(data)
+        function populateQuestionFields(data, pk)
         {
             $('#questionLabel').val(data.questionLabel);
             $('#question').val(data.questionText);
@@ -309,8 +334,7 @@
             switch (data.questionType) {
                 case 'Choice':
                     $.ajax({
-                        url: '/questionAdmin/getChoices/',
-                        data: {questionLabel: data.questionLabel},                   
+                        url: '/questionAdmin/getChoices/' + pk,                 
                         success: function (data) 
                         {
                             for (var c in data)
@@ -326,8 +350,7 @@
                     break;
                 case 'Rate':
                     $.ajax({
-                        url: '/questionAdmin/getRates/',
-                        data: {qL: data.questionLabel},                   
+                        url: '/questionAdmin/getRates/' + pk,                  
                         success: function (data) 
                         {
                             for (var x = 0; x < data.optionalArr.length; x++)
@@ -342,8 +365,7 @@
                     break;
                 case 'Freeform':
                     $.ajax({
-                        url: '/questionAdmin/getFreeformItems/',
-                        data: {qL: data.questionLabel},
+                        url: '/questionAdmin/getFreeformItems/' + pk,
                         success: function(data) {
                             for (var x = 0; x < data.typeArr.length; x++)
                             {
@@ -355,8 +377,7 @@
                     break;
                 case "Rank":
                     $.ajax({
-                        url: '/questionAdmin/getRank/',
-                        data: {qL: data.questionLabel},
+                        url: '/questionAdmin/getRank/' + pk,
                         success: function(data) {
                             $('#first').val(data.firstWord);
                             $('#second').val(data.secondWord);
@@ -391,8 +412,14 @@
                     var contents = [];
                     for (var i = 0; i < data.labels.length; i++)
                     {
-                        contents.push([data.labels[i], data.publishDates[i].substring(0, 10), data.types[i], data.groupings[i]])
+                        contents.push({
+                                      'label': data.labels[i],
+                                      'pubdate': data.publishDates[i].substring(0, 10), 
+                                      'type': data.types[i], 
+                                      'grouping': data.groupings[i],
+                                      'DT_RowId': data.ids[i]})
                     }
+                    console.log(contents);
                     t = $('#questionList').DataTable();
                     t.clear();
                     t.rows.add(contents).draw();
@@ -438,8 +465,12 @@
                 questionType: $('#type').val(),
                 questionLabel: $('#questionLabel').val(),
                 grouping: $('#grouping').val(),
-                isEditing: isEditing
             };
+
+            if (currentlyEditing != -1) {
+                data.pk = currentlyEditing;
+                currentlyEditing = -1;
+            }
 
             if ($('#grouping').val() === 'Label')
                 data.labelArr = getLabels();
@@ -470,20 +501,18 @@
             return data;
         }
 
-        function deleteQuestion(label)
+        function deleteQuestion(pk)
         {
-            console.log("Deleting question with label: '" + label + "'");
-
             var r = confirm("Delete this question?");
             if (!r)
                 return;
 
             var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
             $.ajax({
-                    url: "/questionAdmin/delete/",
+                    url: "/questionAdmin/delete/" + pk,
                     type: "POST",
                     //csrf token is sent with the ajax call
-                    data: {'questionLabel': label, 'csrfmiddlewaretoken': token},
+                    data: {'csrfmiddlewaretoken': token},
                     //For some reason this doesn't wait until the question is deleted
                     success: saveSuccess('Question was deleted successfully.'),
                     failure: function () {alert('Error occurred in question deletion');} 
@@ -510,9 +539,11 @@
             }
 
             var data = createJson();
+            var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
+            data.csrfmiddlewaretoken = token;
             $.ajax({
                 url: "/createQuestion/", // the endpoint
-                type: "GET", // http method
+                type: "POST", // http method
                 data: data, // data sent with the post request
                 success: saveSuccess('Question was saved successfully.'),
                 failure: function () {alert('Error occurred in saving the question');}
@@ -963,10 +994,20 @@
                     <div id="collapseOne" class="panel-collapse collapse">
                         <div class="panel-body">
                             <input type="text" class="form-control" id="search" placeholder="Search">
+                            <br/>
                             <div class='table-responsive'>
-                                <table id='questionList'>
-                                </table>
-                            </div>
+                                <table id = "questionList">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                </table> 
+                            </div>                           
                         </div>
                     </div>
                 </div>
