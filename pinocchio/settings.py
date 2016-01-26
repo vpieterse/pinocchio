@@ -87,6 +87,9 @@ DATABASES = {
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
+from django.conf.locale.en import formats as en_formats
+en_formats.DATETIME_FORMAT = "Y-m-d H:m"
+
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -116,8 +119,8 @@ STATICFILES_DIRS = (
     # '/var/www/static/',
 )
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_HOST_USER = "example@gmail.com"
-EMAIL_HOST_PASSWORD = "example"
+EMAIL_USE_TLS = False
+EMAIL_HOST = "kendy.up.ac.za"
+EMAIL_PORT = 25
+EMAIL_HOST_USER = ""
+EMAIL_HOST_PASSWORD = ""

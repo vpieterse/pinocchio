@@ -1,0 +1,41 @@
+{% extends "peer_review/base.html" %}
+{% load staticfiles %}
+
+{% block extrabasehead %}
+	<!--Edit navbar active-->
+    <script>
+        var title = "userAdmin";
+    </script>
+    <!--end-->
+	{% block extrahead %}{% endblock %}
+{% endblock %}
+
+{% block basecontext %}
+	<nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container">
+        <div class="navbar-header">
+            <a href="." class="navbar-brand"><img src="{% static "peer_review/header.png" %}" id="header"/></a>
+            <button class="navbar-toggle" data-toggle="collapse" data-target=".navHeaderCollapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse navHeaderCollapse">
+            <ul class="nav navbar-nav navbar-left" style="padding-left:100px">
+                <li id="userAdmin"><a href="/userAdmin">User Admin</a></li>
+                <li id="maintainRound"><a href="/maintainRound">Rounds</a></li>
+                <li id="maintainTeam"><a href="/maintainTeam">Team Admin</a></li>
+                <li id="questionAdmin"><a href="/questionAdmin">Question Admin</a></li>
+                <li id="questionnaireAdmin"><a href="/questionnaireAdmin">Questionnaire Admin</a></li>
+                <li id="fileManager"><a href="/fileUpload#">File Manager</a></li>
+                <li id="serverManager"><a href="#">Server Manager</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+	{% block context %}{% endblock %}
+{% endblock %}
+{% block logout %}
+	<a class="navbar-btn btn-danger btn pull-right">Log Out</a>
+{% endblock %}
