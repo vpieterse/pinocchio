@@ -222,7 +222,7 @@ def check_password(hashed_password, user_password):
     password, salt = hashed_password.split(':')
     return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
 
-def generate_email(OTP, post_name, post_surname, email_text):
+def generate_email(OTP, post_name, post_surname, email_text, email):
     fn = "{firstname}"
     ln = "{lastname}"
     otp = "{otp}"
@@ -351,7 +351,7 @@ def addCSVInfo(userList):
         emailText = file.read()
         file.close()
 
-        generate_email(OTP, row['name'], row['surname'], emailText)
+        generate_email(OTP, row['name'], row['surname'], emailText, row['email'])
         password = hash_password(OTP)
 
         user = User(userId=row['user_id'], password=password, status=row['status'],title=row['title'], initials=row['initials'], name=row['name'], surname=row['surname'],

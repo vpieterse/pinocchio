@@ -81,24 +81,12 @@ class Label(models.Model):
     def __str__(self):
         return self.labelText
 
-
-class UserDetail(models.Model):
-    title = models.CharField(max_length=4)
-    initials = models.CharField(max_length=10)
-    name = models.CharField(max_length=50)
-    surname = models.CharField(max_length=50)
-    cell = models.CharField(max_length=10)
-    email = models.CharField(max_length=60)
-
-    def __str__(self):
-        return self.surname + " " + self.initials
-
-
 class User(models.Model):
     title = models.CharField(max_length=4)
     initials = models.CharField(max_length=10)
     name = models.CharField(max_length=50)
     surname = models.CharField(max_length=50)
+    password = models.CharField(max_length=200)
     cell = models.CharField(max_length=10)
     email = models.CharField(max_length=60)
     userId = models.CharField(max_length=8, unique=True)
@@ -106,7 +94,7 @@ class User(models.Model):
     status = models.CharField(max_length=1)
 
     def __str__(self):
-        return self.userId + " - " + self.userDetail.surname + " " + self.userDetail.initials
+        return self.userId + " - " + self.surname + " " + self.initials
 
 
 class Questionnaire(models.Model):
@@ -137,7 +125,7 @@ class RoundDetail(models.Model):
 
 
 class TeamDetail(models.Model):
-    userDetail = models.ForeignKey(UserDetail, null=True)
+    user = models.ForeignKey(User, null=True)
     roundDetail = models.ForeignKey(RoundDetail)
     teamName = models.CharField(max_length=200, default="emptyTeam")
     NOT_ATTEMPTED = "NA"
