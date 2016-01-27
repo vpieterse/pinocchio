@@ -69,11 +69,13 @@ class Rank(models.Model):
     def __str__(self):
         return self.firstWord + " - " + self.secondWord
 
+
 class Rate(models.Model):
     question = models.ForeignKey(Question)
     topWord = models.CharField(max_length=25)
     bottomWord = models.CharField(max_length=25)
     optional = models.BooleanField(default=False)
+
 
 class Label(models.Model):
     question = models.ForeignKey(Question)
@@ -83,13 +85,37 @@ class Label(models.Model):
         return self.labelText
 
 
+class UserManager(BaseUserManager):
+    def create_user(self, email, password, **kwargs):
+        user = self.model(
+                email=self.normalize_email(email),
+                is_active=True,
+                **kwargs
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password, **kwargs):
+        user = self.model(
+                email=email,
+                is_staff=True,
+                is_superuser=True,
+                is_active=True,
+                **kwargs
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+
 class User(AbstractBaseUser, PermissionsMixin):
     title = models.CharField(max_length=4)
     initials = models.CharField(max_length=10)
     name = models.CharField(max_length=50)
     surname = models.CharField(max_length=50)
     cell = models.CharField(max_length=10)
-    email = models.CharField(max_length=60)
+    email = models.EmailField(max_length=254, unique=True)
 
     userId = models.CharField(max_length=8, unique=True)
     OTP = models.BooleanField(default=True)
@@ -97,7 +123,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'email'
     # TODO Add more required fields maybe
-    #REQUIRED_FIELDS = ['status']
+    # REQUIRED_FIELDS = ['status']
 
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. '
@@ -117,29 +143,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email + " - " + self.surname + " " + self.initials
 
-class UserManager(BaseUserManager):
-
-    def create_user(self, email, password, **kwargs):
-        user = self.model(
-            email=self.normalize_email(email),
-            is_active=True,
-            **kwargs
-        )
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, email, password, **kwargs):
-        user = self.model(
-            email=email,
-            is_staff=True,
-            is_superuser=True,
-            is_active=True,
-            **kwargs
-        )
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
 
 class Questionnaire(models.Model):
     intro = models.CharField(max_length=1000)
@@ -149,6 +152,7 @@ class Questionnaire(models.Model):
     def __str__(self):
         return self.label
 
+
 class QuestionOrder(models.Model):
     questionnaire = models.ForeignKey(Questionnaire)
     question = models.ForeignKey(Question)
@@ -157,9 +161,10 @@ class QuestionOrder(models.Model):
     def __str__(self):
         return self.question.questionLabel
 
+
 class RoundDetail(models.Model):
-    name = models.CharField(max_length = 15)
-    questionnaire = models.ForeignKey(Questionnaire, null =True)
+    name = models.CharField(max_length=15)
+    questionnaire = models.ForeignKey(Questionnaire, null=True)
     startingDate = models.DateTimeField('starting date')
     endingDate = models.DateTimeField('ending date')
     description = models.CharField(max_length=300)
@@ -169,7 +174,7 @@ class RoundDetail(models.Model):
 
 
 class TeamDetail(models.Model):
-    userDetail = models.ForeignKey(UserDetail, null=True)
+    user = models.ForeignKey(User, null=True)
     roundDetail = models.ForeignKey(RoundDetail)
     teamName = models.CharField(max_length=200, default="emptyTeam")
     NOT_ATTEMPTED = "NA"
