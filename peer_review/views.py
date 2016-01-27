@@ -887,7 +887,7 @@ def roundUpdate(request, roundPk):
 
         round.save()
     return HttpResponseRedirect('../')
-    #return HttpResponse()
+    # return HttpResponse()
 
 #Create a round
 def createRound(request):
