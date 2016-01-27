@@ -23,8 +23,29 @@ from .models import Questionnaire, QuestionOrder
 from .forms import DocumentForm, UserForm, LoginForm
 
 def activeRounds(request):
+    rounds = RoundDetail.objects.all()
+    context = {'rounds': rounds}
+    return render(request, 'peer_review/activeRounds.html',context)
+    
+def teamMembers(request):
+    #TEST
+    user = User.objects.get(userId = '14031145')
+    rounds = RoundDetail.objects.all()
+    teamList = list()
+    teamMembers = list()
+    for team in TeamDetail.objects.all():
+        if team.userDetail == user.userDetail:
+            teamList.append(team)
+    for team in teamList:
+        for teamItem in TeamDetail.objects.all():
+            if team.teamName == teamItem.teamName and team.roundDetail == teamItem.roundDetail and team.userDetail != teamItem.userDetail:
+                teamMembers.append(teamItem)
+    context = {'rounds': rounds, 'teamMembers': teamMembers}
+    return render(request, 'peer_review/teamMembers.html',context)
+    
+def accountDetails(request):
     context = {}
-    return render(request, 'peer_review/studentHomePage.html',context)
+    return render(request, 'peer_review/accountDetails.html',context)
 
 def login(request):
     loginForm = LoginForm()
@@ -102,7 +123,8 @@ def questionnaire(request, questionnairePk):
 	if request.method == "POST":
 		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
 			   'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
-			   'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk)}
+			   'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk),
+               'questionRanking' : Rank.objects.all(), 'questionChoices' : Choice.objects.all()}
 		return render(request, 'peer_review/questionnaire.html', context)
 	else:
 		return render(request, 'peer_review/userError.html')
@@ -124,19 +146,33 @@ def userList(request):
     return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'docForm': docForm, 'email_text': emailText})
 
 def getTeams(request):
-    teams = TeamDetail.objects.all()
     response={}
-    for team in teams:
-        user = User.objects.get(userDetail=team.userDetail)
-        response[team.pk] = {
-            'userId': user.userId,
-            'initials': team.userDetail.initials,
-            'surname': team.userDetail.surname,
-            'round': team.roundDetail.description,
-            'team': team.teamName,
-            'status': team.status,
-            'teamId': team.pk
-        }
+    if request.method == "GET":
+        teams = TeamDetail.objects.all()
+        for team in teams:
+            user = User.objects.get(userDetail=team.userDetail)
+            response[team.pk] = {
+                'userId': user.userId,
+                'initials': team.userDetail.initials,
+                'surname': team.userDetail.surname,
+                'round': team.roundDetail.name,
+                'team': team.teamName,
+                'status': team.status,
+                'teamId': team.pk
+            }
+    elif request.method == "POST":
+        userPk = request.POST.get("pk")
+        user = User.objects.get(pk=userPk)
+        userDetail = user.userDetail
+
+        teams = TeamDetail.objects.filter(userDetail=userDetail)
+        for team in teams:
+            response[team.pk] = {
+                'round': team.roundDetail.name,
+                'team': team.teamName,
+                'status': team.status,
+                'teamId': team.pk
+            }
     return JsonResponse(response)
 
 def getTeamsForRound(request, roundPk):
@@ -190,6 +226,7 @@ def generate_email(OTP, post_name, post_surname, email_text, email):
     ln = "{lastname}"
     otp = "{otp}"
     datetime = "{datetime}"
+    login = "{login}"
 
     email_subject = "Pinocchio Confirm Registration"
 
@@ -197,6 +234,9 @@ def generate_email(OTP, post_name, post_surname, email_text, email):
     email_text = email_text.replace(ln, post_surname)
     email_text = email_text.replace(otp, OTP)
     email_text = email_text.replace(datetime, time.strftime("%H:%M:%S %d/%m/%Y"))
+    email_text = email_text.replace(login, email)
+
+    print(email_text)
 
     #send_mail(email_subject, email_text, 'no-reply@pinocchio.up.ac.za', [email], fail_silently=False)
 
@@ -459,7 +499,8 @@ def updateEmail(request):
 def addTeamCSVInfo(teamList):
     for row in teamList:
         userDetID = User.objects.get(userId=row['userID']).userDetail_id
-        changeUserTeamForRound("", row['roundDetail'], userDetID, row['teamName'])
+        roundDetID = RoundDetail.objects.get(name=row['roundDetail']).pk
+        changeUserTeamForRound("", roundDetID, userDetID, row['teamName'])
     return 1
 
 def submitTeamCSV(request):

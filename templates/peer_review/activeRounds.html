@@ -17,7 +17,11 @@
 					<h4 class="panel-title"><b>Rounds</b></h4>
 				</div>
 				<div class="panel-body">
-					
+					<ul>
+						{% for round in rounds %}
+							<li>{{ round.name }}</li>
+						{% endfor %}
+					</ul>
 				</div>
 			</div>
 		</div>
