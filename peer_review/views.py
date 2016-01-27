@@ -18,13 +18,36 @@ from django.utils import timezone
 
 from .models import Document
 from .models import Question, QuestionType, QuestionGrouping, Choice, Rank, Questionnaire, RoundDetail, TeamDetail, FreeformItem, Rate, Label
-from .models import User, UserDetail
+from .models import User
 from .models import Questionnaire, QuestionOrder
 from .forms import DocumentForm, UserForm, LoginForm
 
 def activeRounds(request):
+    rounds = RoundDetail.objects.all()
+    context = {'rounds': rounds}
+    return render(request, 'peer_review/activeRounds.html',context)
+    
+def teamMembers(request):
+    #TEST
+    user = User.objects.get(userId = '14031145')
+    rounds = RoundDetail.objects.all()
+    teamList = {}
+    for team in TeamDetail.objects.filter(user=user):
+        teamName = team.teamName
+        roundName = RoundDetail.objects.get(pk=team.roundDetail.pk).name
+        teamList[teamName] = {}
+        teamList[teamName]['roundName'] = roundName
+        #teamList[teamName]['teamMembers'] = {}
+        #for teamItem in TeamDetail.objects.filter(teamName=teamName):
+        #    if(teamItem.userDetail!=user.userDetail):
+        #        teamList[teamName]['teamMembers'][teamItem.pk] = teamItem
+    context={'teams':teamList}
+    print(teamList)
+    return render(request, 'peer_review/teamMembers.html',context)
+    
+def accountDetails(request):
     context = {}
-    return render(request, 'peer_review/studentHomePage.html',context)
+    return render(request, 'peer_review/accountDetails.html',context)
 
 def login(request):
     loginForm = LoginForm()
@@ -102,7 +125,8 @@ def questionnaire(request, questionnairePk):
 	if request.method == "POST":
 		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
 			   'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
-			   'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk)}
+			   'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk),
+               'questionRanking' : Rank.objects.all(), 'questionChoices' : Choice.objects.all()}
 		return render(request, 'peer_review/questionnaire.html', context)
 	else:
 		return render(request, 'peer_review/userError.html')
@@ -124,19 +148,32 @@ def userList(request):
     return render(request, 'peer_review/userAdmin.html', {'users': users, 'userForm': userForm, 'docForm': docForm, 'email_text': emailText})
 
 def getTeams(request):
-    teams = TeamDetail.objects.all()
     response={}
-    for team in teams:
-        user = User.objects.get(userDetail=team.userDetail)
-        response[team.pk] = {
-            'userId': user.userId,
-            'initials': team.userDetail.initials,
-            'surname': team.userDetail.surname,
-            'round': team.roundDetail.description,
-            'team': team.teamName,
-            'status': team.status,
-            'teamId': team.pk
-        }
+    if request.method == "GET":
+        teams = TeamDetail.objects.all()
+        for team in teams:
+            user = User.objects.get(user=team.user)
+            response[team.pk] = {
+                'userId': user.userId,
+                'initials': team.user.initials,
+                'surname': team.usre.surname,
+                'round': team.roundDetail.name,
+                'team': team.teamName,
+                'status': team.status,
+                'teamId': team.pk
+            }
+    elif request.method == "POST":
+        userPk = request.POST.get("pk")
+        user = User.objects.get(pk=userPk)
+
+        teams = TeamDetail.objects.filter(user=user)
+        for team in teams:
+            response[team.pk] = {
+                'round': team.roundDetail.name,
+                'team': team.teamName,
+                'status': team.status,
+                'teamId': team.pk
+            }
     return JsonResponse(response)
 
 def getTeamsForRound(request, roundPk):
@@ -144,7 +181,7 @@ def getTeamsForRound(request, roundPk):
     response = {}
     for team in teams:
         response[team.pk] = {
-            'userId': team.userDetail.pk,
+            'userId': team.user.pk,
             'teamName': team.teamName,
             'status': team.status
         }
@@ -153,10 +190,10 @@ def getTeamsForRound(request, roundPk):
 
 def changeUserTeamForRound(request, roundPk, userPk, teamName):
     try:
-        team = TeamDetail.objects.filter(userDetail_id=userPk).get(roundDetail_id=roundPk)
+        team = TeamDetail.objects.filter(user_id=userPk).get(roundDetail_id=roundPk)
     except TeamDetail.DoesNotExist:
         team = TeamDetail(
-            userDetail = UserDetail.objects.get(pk=userPk),
+            user = User.objects.get(pk=userPk),
             roundDetail = RoundDetail.objects.get(pk=roundPk)
         )
     team.teamName = teamName
@@ -185,18 +222,20 @@ def check_password(hashed_password, user_password):
     password, salt = hashed_password.split(':')
     return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
 
-def generate_email(OTP, post_name, post_surname, email_text, email):
+def generate_email(OTP, post_name, post_surname, email_text):
     fn = "{firstname}"
     ln = "{lastname}"
     otp = "{otp}"
     datetime = "{datetime}"
-
-    email_subject = "Pinocchio Confirm Registration"
+    login = "{login}"
 
     email_text = email_text.replace(fn, post_name)
     email_text = email_text.replace(ln, post_surname)
     email_text = email_text.replace(otp, OTP)
     email_text = email_text.replace(datetime, time.strftime("%H:%M:%S %d/%m/%Y"))
+    email_text = email_text.replace(login, email)
+
+    print(email_text)
 
     #send_mail(email_subject, email_text, 'no-reply@pinocchio.up.ac.za', [email], fail_silently=False)
 
@@ -211,9 +250,9 @@ def submitForm(request):
             post_cell = userForm.cleaned_data['cell']
             post_email = userForm.cleaned_data['email']
 
-            userDetail = UserDetail(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
+            user = User(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
                                     cell=post_cell, email=post_email)
-            userDetail.save()
+            user.save()
 
             post_userId = userForm.cleaned_data['userId']
 
@@ -226,16 +265,16 @@ def submitForm(request):
             emailText = file.read()
             file.close()
 
-            generate_email(OTP, post_name, post_surname, emailText, post_email)
+            generate_email(OTP, post_name, post_surname, emailText)
             post_password = hash_password(OTP)
 
             post_status = userForm.cleaned_data['status']
 
-            user = User(userId=post_userId, password=post_password, status=post_status, userDetail=userDetail)
+            user = User(userId=post_userId, password=post_password, status=post_status)
             user.save()
 
             for roundObj in RoundDetail.objects.all():
-                team = TeamDetail(userDetail=userDetail, roundDetail=roundObj)
+                team = TeamDetail(user = user, roundDetail=roundObj)
                 team.save()
 
             return HttpResponseRedirect("../")
@@ -246,9 +285,8 @@ def submitForm(request):
 def userProfile(request, userPk):
     if request.method == "GET":
         user = User.objects.get(pk=userPk)
-        userDetail = user.userDetail
 
-    return render(request, 'peer_review/userProfile.html', {'user': user, 'userDetail': userDetail})
+    return render(request, 'peer_review/userProfile.html', {'user': user)
 
 
 def userDelete(request):
@@ -257,9 +295,7 @@ def userDelete(request):
 
         for userPk in toDelete:
             user = User.objects.get(pk=userPk)
-            userDetail = user.userDetail
 
-            userDetail.delete()
             user.delete()
 
     return HttpResponseRedirect('../')
@@ -267,7 +303,6 @@ def userDelete(request):
 def userUpdate(request, userPk):
     if request.method == "POST":
         user = User.objects.get(pk=userPk)
-        userDetail = user.userDetail
 
         post_userId = request.POST.get("userId")
         post_title = request.POST.get("title")
@@ -280,29 +315,26 @@ def userUpdate(request, userPk):
 
         user.userId = post_userId
         user.status = post_status
-        userDetail.title = post_title
-        userDetail.initials = post_initials
-        userDetail.name = post_name
-        userDetail.surname = post_surname
-        userDetail.cell = post_cell
-        userDetail.email = post_email
+        user.title = post_title
+        user.initials = post_initials
+        user.name = post_name
+        user.surname = post_surname
+        user.cell = post_cell
+        user.email = post_email
 
         user.save()
-        userDetail.save()
     return HttpResponseRedirect('../')
 
 def resetPassword(request, userPk):
     if request.method == "POST":
         user = User.objects.get(pk=userPk)
-        userDetail = user.userDetail
 
         OTP = generate_OTP()
-        generate_email(OTP, userDetail.name, userDetail.surname)
+        generate_email(OTP, user.name, user.surname)
         password = hash_password(OTP)
 
         user.password = password
         user.save()
-        userDetail.save()
 
         print(OTP)
         print(password)
@@ -319,14 +351,12 @@ def addCSVInfo(userList):
         emailText = file.read()
         file.close()
 
-        generate_email(OTP, row['name'], row['surname'], emailText, row['email'])
+        generate_email(OTP, row['name'], row['surname'], emailText)
         password = hash_password(OTP)
 
-        userDetail = UserDetail(title=row['title'], initials=row['initials'], name=row['name'], surname=row['surname'],
+        user = User(userId=row['user_id'], password=password, status=row['status'],title=row['title'], initials=row['initials'], name=row['name'], surname=row['surname'],
                                 cell=row['cell'], email=row['email'])
-        userDetail.save()
 
-        user = User(userId=row['user_id'], password=password, status=row['status'], userDetail=userDetail)
         user.save()
     return #todo return render request
 
@@ -459,7 +489,8 @@ def updateEmail(request):
 def addTeamCSVInfo(teamList):
     for row in teamList:
         userDetID = User.objects.get(userId=row['userID']).userDetail_id
-        changeUserTeamForRound("", row['roundDetail'], userDetID, row['teamName'])
+        roundDetID = RoundDetail.objects.get(name=row['roundDetail']).pk
+        changeUserTeamForRound("", roundDetID, userDetID, row['teamName'])
     return 1
 
 def submitTeamCSV(request):
@@ -501,9 +532,7 @@ def submitTeamCSV(request):
                         elif valid == 2:
                             errortype = "Not all fields contain values."
                         elif valid == 3:
-                            errortype = "User ID is not a number."
-                        elif valid == 4:
-                            errortype = "User ID or Round Name does not exist"
+                            errortype = "user ID is not a number."
                             
                         os.remove(filePath)
                         return render(request, 'peer_review/csvError.html',
@@ -526,7 +555,6 @@ def validateTeamCSV(row):
     # 1 = incorrect number of fields
     # 2 = missing value/s
     # 3 = incorrect format
-    # 4 = user/round does not exist
 
     if len(row) != 3:
         return 1
@@ -538,12 +566,6 @@ def validateTeamCSV(row):
                 int(value)
             except ValueError:
                 return 3
-            try:
-                user = User.objects.get(pk=value).userDetail_id
-                #roundD = 
-            except User.DoesNotExist:
-                return 4
-            
     return 0
 
 def getTypeID(questionType):
@@ -644,33 +666,18 @@ def getRank(request, qPk):
 #Gets the Rate objects associated with a Rate question
 def getRates(request, qPk):
     q = Question.objects.get(pk=qPk)
-    rates = Rate.objects.filter(question=q)
+    rate = Rate.objects.get(question=q)
 
-    optionalArr = []
-    scaleArr = []
-    #There aren't even text fields in the model
-    #choices = []
-
-    for r in rates:
-        optionalArr.append(r.optional)
-        scaleArr.append(r.numberOfOptions)
-
-    return JsonResponse({'optionalArr': optionalArr, 'scaleArr': scaleArr})
+    return JsonResponse({'topWord': rate.topWord, 
+                        'bottomWord': rate.bottomWord,
+                        'optional' : rate.optional})
 
 #Gets the Freeform objects associated with a Rate question
 def getFreeformItems(request, qPk):
     q = Question.objects.get(pk=qPk)
-    freeformItems = FreeformItem.objects.filter(question=q)
-    print(freeformItems)
+    freeformItem = FreeformItem.objects.get(question=q)
 
-    typeArr = []
-    valueArr = []
-
-    for f in freeformItems:
-        typeArr.append(f.freeformType)
-        valueArr.append(f.value)
-
-    return JsonResponse({'typeArr': typeArr, 'valueArr': valueArr})
+    return JsonResponse({'freeformType': freeformItem.freeformType})
 
 #Delete a question
 def questionDelete(request, qPk):
@@ -746,38 +753,19 @@ def createQuestion(request):
 
         #Freeform
         elif str(qType) == 'Freeform':
-            types = request.POST.getlist('types[]')
-            values = request.POST.getlist('values[]')
-            print(types)
-            print("Types: %s, Values:" % types, values)
-
-            rank = 0
-            for t in types:
-                f = FreeformItem(question = q,
-                                 value = values[rank],
-                                 freeformType = t
-                                 )
-                rank += 1
-                f.save()
+            FreeformItem.objects.create(question = q, freeformType = request.POST['freeformType'])
 
         #Rate
         elif str(qType) == 'Rate':
-            optionalArr = request.POST.getlist('optionalArr[]')
-            scaleArr = request.POST.getlist('scaleArr[]')
-            choiceArr = request.POST.getlist('choiceArr[]')
+            if request.POST['optional'] == "false":
+                optional = False
+            else:
+                optional = True
 
-            index = 0
-            for r in choiceArr:
-                print('Optional: %s' % optionalArr[index])
-                r = Rate(question = q,
-                         numberOfOptions = scaleArr[index],
-                         optional = (optionalArr[index] == "true"),
-                         num = index)
-                r.save()
-                index += 1
-
-    else:
-        message = 'You submitted an empty form.'
+            Rate.objects.create(question = q,
+                                topWord = request.POST['topWord'],
+                                bottomWord = request.POST['bottomWord'],
+                                optional = optional)
     return HttpResponse()
 
 def saveQuestionnaire(request):
@@ -896,6 +884,8 @@ def roundUpdate(request, roundPk):
 
         round.save()
     return HttpResponseRedirect('../')
+    #return HttpResponse()
+
 #Create a round
 def createRound(request):
     #print('Creating Round')
@@ -932,8 +922,8 @@ def createRound(request):
                      )
         r.save()
     #
-    return HttpResponseRedirect('../maintainRound')
-    #return HttpResponse()
+    #return HttpResponseRedirect('../maintainRound')
+    return HttpResponse()
 
 
 

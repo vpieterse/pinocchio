@@ -55,7 +55,6 @@ class Choice(models.Model):
 
 class FreeformItem(models.Model):
     question = models.ForeignKey(Question)
-    value = models.CharField(max_length=200)
     freeformType = models.CharField(max_length=10)
 
     def __str__(self):
@@ -70,13 +69,11 @@ class Rank(models.Model):
     def __str__(self):
         return self.firstWord + " - " + self.secondWord
 
-
 class Rate(models.Model):
     question = models.ForeignKey(Question)
-    numberOfOptions = models.IntegerField(default=5)
+    topWord = models.CharField(max_length=25)
+    bottomWord = models.CharField(max_length=25)
     optional = models.BooleanField(default=False)
-    num = models.IntegerField(default=0)
-
 
 class Label(models.Model):
     question = models.ForeignKey(Question)
@@ -86,29 +83,19 @@ class Label(models.Model):
         return self.labelText
 
 
-class UserDetail(models.Model):
+class User(AbstractBaseUser, PermissionsMixin):
     title = models.CharField(max_length=4)
     initials = models.CharField(max_length=10)
     name = models.CharField(max_length=50)
     surname = models.CharField(max_length=50)
     cell = models.CharField(max_length=10)
-    email = models.EmailField(max_length=254, unique=True)
+    email = models.CharField(max_length=60)
 
-    def __str__(self):
-        return self.surname + " " + self.initials
-
-
-class User(AbstractBaseUser, PermissionsMixin):
     userId = models.CharField(max_length=8, unique=True)
-    password = models.CharField(max_length=100)
     OTP = models.BooleanField(default=True)
     status = models.CharField(max_length=1)
-    userDetail = models.OneToOneField(
-            UserDetail,
-            on_delete=models.CASCADE
-    )
 
-    USERNAME_FIELD = 'userDetail.email'
+    USERNAME_FIELD = 'email'
     # TODO Add more required fields maybe
     #REQUIRED_FIELDS = ['status']
 
@@ -122,14 +109,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     # TODO Perhaps change this
     def get_full_name(self):
         """Return the email."""
-        return self.userDetail.email
+        return self.email
 
     def get_short_name(self):
         """Return the email."""
-        return self.userDetail.email
+        return self.email
 
     def __str__(self):
-        return self.userDetail.email + " - " + self.userDetail.surname + " " + self.userDetail.initials
+        return self.email + " - " + self.surname + " " + self.initials
 
 class UserManager(BaseUserManager):
 

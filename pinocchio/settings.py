@@ -85,7 +85,7 @@ DATABASES = {
 
 from django.conf.locale.en import formats as en_formats
 
-en_formats.DATETIME_FORMAT = "Y-m-d H:m"
+en_formats.DATETIME_FORMAT = "Y-m-d H:i"
 
 LANGUAGE_CODE = 'en-us'
 

@@ -44,7 +44,7 @@
                                     name="type">
                                             <option selected value=""></option>
                                             {% for round in rounds %}
-                                                <option value="{{ round.pk }}">{{ round.description }}</option>
+                                                <option value="{{ round.pk }}" desc="{{ round.description }}">{{ round.name }}</option>
                                             {% endfor %}
                                         </select>
                                         <a href="/maintainRound" class="btn btn-info btn-xs plus">+</a>
@@ -52,7 +52,20 @@
                                 </div>
                             </form>
                         </div>
-                        <br/><br/><br/>
+                        <br />
+                        <div class="container col-md-8">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title"><b>Round Description</b></h4>
+                                </div>
+                                <div class="panel-body" id="roundDesc">
+                                    Please select a round above
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="col-md-12 col-sm-12" style="padding: 5px"></div>
+                        <br />
                         <div class="container">
                             <div class="row">
                                 <div class="col-xs-5">
@@ -74,10 +87,10 @@
                                                     <tbody>
                                                         {% for user in users %}
                                                             {% csrf_token %}
-                                                            <tr id="{{ user.userDetail.pk }}">
-                                                                <td>{{ user.userId }}</td>
-                                                                <td>{{ user.userDetail.name }}</td>
-                                                                <td>{{ user.userDetail.surname }}</td>
+                                                            <tr id="{{ user.pk }}">
+                                                                <td>{{ user }}</td>
+                                                                <td>{{ user.name }}</td>
+                                                                <td>{{ user.surname }}</td>
                                                                 <td></td>
                                                             </tr>
                                                         {% endfor %}
@@ -275,7 +288,7 @@
 
         $(document).ready(function () {
             var teamViewTable = $("#teamViewTable").DataTable({
-                "orederClasses": false,
+                "orderClasses": false,
                 "columnDefs": [{
                     "orderable": true,
                     "searchable": true,
@@ -378,8 +391,14 @@
                 $("#teams").find("div.removeUser").click();
                 $("#teams").html("");
                 roundId = this.value;
-                if(roundId != '')
+                desc = $("#selectedRound > option[value="+roundId+"]").attr("desc")
+                if(roundId == '')
                 {
+                    $("#roundDesc").html("Please select a round above");
+                }
+                else
+                {
+                    $("#roundDesc").html(desc);
                     $.ajax({
                         url: '/maintainTeam/getTeamsForRound/' + roundId,
                         type: 'GET',

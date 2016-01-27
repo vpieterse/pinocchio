@@ -17,7 +17,7 @@ class RegistrationForm(forms.ModelForm):
 class LoginForm(forms.Form):
     userType = forms.ChoiceField(
         label="User Type:",
-        choices=(('', ''), ('A', 'Admin',), ('S', 'Student',)),
+        choices=(('A', 'Admin',), ('S', 'Student',)),
         widget=forms.Select(attrs={'class': 'form-control', 'id': 'userType'}),
     )
 

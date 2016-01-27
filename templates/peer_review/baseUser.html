@@ -27,11 +27,12 @@
                     <li id="teamMembers"><a href="/teamMembers">Team Members</a></li>
                     <li id="questionnaire"><a href="/questionnaire">Questionnaire</a></li>
                     <li id="accountDetails"><a href="/accountDetails">Account Details</a></li>
+                </ul>
             </div>
         </div>
     </nav>
     {% block context %}{% endblock %}
 {% endblock %}
 {% block logout %}
-	<a class="navbar-btn btn-danger btn pull-right">Log Out</a>
+	<a class="navbar-btn btn-danger btn pull-right" href="/login">Log Out</a>
 {% endblock %}
