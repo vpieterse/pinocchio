@@ -18,7 +18,7 @@ from django.utils import timezone
 
 from .models import Document
 from .models import Question, QuestionType, QuestionGrouping, Choice, Rank, Questionnaire, RoundDetail, TeamDetail, FreeformItem, Rate, Label
-from .models import User, UserDetail
+from .models import User
 from .models import Questionnaire, QuestionOrder
 from .forms import DocumentForm, UserForm, LoginForm
 
@@ -32,7 +32,8 @@ def teamMembers(request):
     user = User.objects.get(userId = '14031145')
     rounds = RoundDetail.objects.all()
     teamList = {}
-    for team in TeamDetail.objects.filter(userDetail=user.userDetail):
+    for team in TeamDetail.objects.filter(user=user):
+        teamName = team.teamName
         roundName = RoundDetail.objects.get(pk=team.roundDetail.pk).name
         teamName = roundName + ": " + team.teamName
         teamList[teamName] = []
@@ -151,11 +152,11 @@ def getTeams(request):
     if request.method == "GET":
         teams = TeamDetail.objects.all()
         for team in teams:
-            user = User.objects.get(userDetail=team.userDetail)
+            user = User.objects.get(user=team.user)
             response[team.pk] = {
                 'userId': user.userId,
-                'initials': team.userDetail.initials,
-                'surname': team.userDetail.surname,
+                'initials': team.user.initials,
+                'surname': team.usre.surname,
                 'round': team.roundDetail.name,
                 'team': team.teamName,
                 'status': team.status,
@@ -164,9 +165,8 @@ def getTeams(request):
     elif request.method == "POST":
         userPk = request.POST.get("pk")
         user = User.objects.get(pk=userPk)
-        userDetail = user.userDetail
 
-        teams = TeamDetail.objects.filter(userDetail=userDetail)
+        teams = TeamDetail.objects.filter(user=user)
         for team in teams:
             response[team.pk] = {
                 'round': team.roundDetail.name,
@@ -181,7 +181,7 @@ def getTeamsForRound(request, roundPk):
     response = {}
     for team in teams:
         response[team.pk] = {
-            'userId': team.userDetail.pk,
+            'userId': team.user.pk,
             'teamName': team.teamName,
             'status': team.status
         }
@@ -190,10 +190,10 @@ def getTeamsForRound(request, roundPk):
 
 def changeUserTeamForRound(request, roundPk, userPk, teamName):
     try:
-        team = TeamDetail.objects.filter(userDetail_id=userPk).get(roundDetail_id=roundPk)
+        team = TeamDetail.objects.filter(user_id=userPk).get(roundDetail_id=roundPk)
     except TeamDetail.DoesNotExist:
         team = TeamDetail(
-            userDetail = UserDetail.objects.get(pk=userPk),
+            user = User.objects.get(pk=userPk),
             roundDetail = RoundDetail.objects.get(pk=roundPk)
         )
     team.teamName = teamName
@@ -250,9 +250,9 @@ def submitForm(request):
             post_cell = userForm.cleaned_data['cell']
             post_email = userForm.cleaned_data['email']
 
-            userDetail = UserDetail(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
+            user = User(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
                                     cell=post_cell, email=post_email)
-            userDetail.save()
+            user.save()
 
             post_userId = userForm.cleaned_data['userId']
 
@@ -270,11 +270,11 @@ def submitForm(request):
 
             post_status = userForm.cleaned_data['status']
 
-            user = User(userId=post_userId, password=post_password, status=post_status, userDetail=userDetail)
+            user = User(userId=post_userId, password=post_password, status=post_status)
             user.save()
 
             for roundObj in RoundDetail.objects.all():
-                team = TeamDetail(userDetail=userDetail, roundDetail=roundObj)
+                team = TeamDetail(user = user, roundDetail=roundObj)
                 team.save()
 
             return HttpResponseRedirect("../")
@@ -285,9 +285,8 @@ def submitForm(request):
 def userProfile(request, userPk):
     if request.method == "GET":
         user = User.objects.get(pk=userPk)
-        userDetail = user.userDetail
 
-    return render(request, 'peer_review/userProfile.html', {'user': user, 'userDetail': userDetail})
+    return render(request, 'peer_review/userProfile.html', {'user': user})
 
 
 def userDelete(request):
@@ -296,9 +295,7 @@ def userDelete(request):
 
         for userPk in toDelete:
             user = User.objects.get(pk=userPk)
-            userDetail = user.userDetail
 
-            userDetail.delete()
             user.delete()
 
     return HttpResponseRedirect('../')
@@ -306,7 +303,6 @@ def userDelete(request):
 def userUpdate(request, userPk):
     if request.method == "POST":
         user = User.objects.get(pk=userPk)
-        userDetail = user.userDetail
 
         post_userId = request.POST.get("userId")
         post_title = request.POST.get("title")
@@ -319,29 +315,26 @@ def userUpdate(request, userPk):
 
         user.userId = post_userId
         user.status = post_status
-        userDetail.title = post_title
-        userDetail.initials = post_initials
-        userDetail.name = post_name
-        userDetail.surname = post_surname
-        userDetail.cell = post_cell
-        userDetail.email = post_email
+        user.title = post_title
+        user.initials = post_initials
+        user.name = post_name
+        user.surname = post_surname
+        user.cell = post_cell
+        user.email = post_email
 
         user.save()
-        userDetail.save()
     return HttpResponseRedirect('../')
 
 def resetPassword(request, userPk):
     if request.method == "POST":
         user = User.objects.get(pk=userPk)
-        userDetail = user.userDetail
 
         OTP = generate_OTP()
-        generate_email(OTP, userDetail.name, userDetail.surname)
+        generate_email(OTP, user.name, user.surname)
         password = hash_password(OTP)
 
         user.password = password
         user.save()
-        userDetail.save()
 
         print(OTP)
         print(password)
@@ -361,11 +354,9 @@ def addCSVInfo(userList):
         generate_email(OTP, row['name'], row['surname'], emailText)
         password = hash_password(OTP)
 
-        userDetail = UserDetail(title=row['title'], initials=row['initials'], name=row['name'], surname=row['surname'],
+        user = User(userId=row['user_id'], password=password, status=row['status'],title=row['title'], initials=row['initials'], name=row['name'], surname=row['surname'],
                                 cell=row['cell'], email=row['email'])
-        userDetail.save()
 
-        user = User(userId=row['user_id'], password=password, status=row['status'], userDetail=userDetail)
         user.save()
     return #todo return render request
 

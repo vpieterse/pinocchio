@@ -20,6 +20,7 @@ urlpatterns = [
                   url(r'^questionnaireAdmin/getQuestionnaire/(?P<qPk>[0-9]+)/?$', views.getQuestionnaire, name='getQuestionnaire'),
                   url(r'^questionnaireAdmin/deleteQuestionnaire/(?P<qPk>[0-9]+)/?$', views.deleteQuestionnaire, name='deleteQuestionnaire'),
 
+                  
 		      url(r'^questionnaire/$', views.userError, name='userError'),
                   url(r'^questionnaire/(?P<questionnairePk>[0-9]+)/?$', views.questionnaire, name='questionnaire'),
                   url(r'^login/$', views.login, name='login'),

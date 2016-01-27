@@ -95,14 +95,15 @@ class UserDetail(models.Model):
 
 
 class User(models.Model):
+    title = models.CharField(max_length=4)
+    initials = models.CharField(max_length=10)
+    name = models.CharField(max_length=50)
+    surname = models.CharField(max_length=50)
+    cell = models.CharField(max_length=10)
+    email = models.CharField(max_length=60)
     userId = models.CharField(max_length=8, unique=True)
-    password = models.CharField(max_length=100)
     OTP = models.BooleanField(default=True)
     status = models.CharField(max_length=1)
-    userDetail = models.OneToOneField(
-            UserDetail,
-            on_delete=models.CASCADE
-    )
 
     def __str__(self):
         return self.userId + " - " + self.userDetail.surname + " " + self.userDetail.initials
