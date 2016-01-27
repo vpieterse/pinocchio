@@ -31,19 +31,20 @@ def teamMembers(request):
     #TEST
     user = User.objects.get(userId = '14035548')
     rounds = RoundDetail.objects.all()
-    teamList = {}
+    teamList = []
+    teamMembers = []
     for team in TeamDetail.objects.filter(user=user):
         teamName = team.teamName
         roundName = RoundDetail.objects.get(pk=team.roundDetail.pk).name
-        teamName = roundName + ": " + team.teamName
-        teamList[teamName] = []
+        teamList.append(team)
         for teamItem in TeamDetail.objects.filter(teamName=team.teamName):
-            print(teamItem)
             if(teamItem.user!=user):
-                teamList[teamName].append(teamItem.user)
-    context={'teams':teamList}
+                print(teamItem)
+                teamMembers.append(teamItem)
+    context={'teams': teamList, 'members': teamMembers}
     print(teamList)
-    return render(request, 'peer_review/teamMembers.html',context)
+    print(teamMembers)
+    return render(request, 'peer_review/teamMembers.html', context)
     
 def accountDetails(request):
     context = {}
@@ -106,6 +107,7 @@ def maintainRound(request):
 
 
 def maintainTeam(request):
+<<<<<<< HEAD
     if request.method == "POST":
         roundPk = request.POST.get("roundPk")
         print(roundPk)
@@ -118,6 +120,12 @@ def maintainTeam(request):
                    'rounds': RoundDetail.objects.all(),
                    'teams': TeamDetail.objects.all(),
                    'roundPk': "none"}
+=======
+    context = {'users': User.objects.all(),
+                'rounds': RoundDetail.objects.all(),
+                'teams': TeamDetail.objects.all()}
+    print(context)
+>>>>>>> 0f2c96f6a7443e0446eeaca5cea2ae9e15730450
     return render(request, 'peer_review/maintainTeam.html', context)
 
 
