@@ -76,7 +76,21 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-            $("#userRoundsTable").DataTable();
+            var userRoundsTable = $("#userRoundsTable").DataTable({
+                "orderClasses": false,
+                "columnDefs": [{
+                    "orderable": true,
+                    "searchable": true,
+                    "render": function(data, type, full, meta){
+                        return  '<select class="form-control status">'+
+                                '    <option value="NA" class="NA">Not attempted</option>'+
+                                '    <option value="IP" class="IP">In progress</option>'+
+                                '    <option value="C" class="C">Completed</option>'+
+                                '</select>';
+                    },
+                    "targets": [2]
+                }]
+            });
 
             var pk = $("#userRoundsTable").data("pk");
             var token = $("#userRoundsTable").data("csrf");
@@ -101,7 +115,6 @@
                             var row = table.row.add([
                                 value.round,
                                 value.team,
-                                value.status
                             ]).draw(false).node();
 
                             $(row).attr("id", value.teamId);
