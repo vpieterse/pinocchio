@@ -226,6 +226,7 @@ def generate_email(OTP, post_name, post_surname, email_text, email):
     ln = "{lastname}"
     otp = "{otp}"
     datetime = "{datetime}"
+    login = "{login}"
 
     email_subject = "Pinocchio Confirm Registration"
 
@@ -233,6 +234,9 @@ def generate_email(OTP, post_name, post_surname, email_text, email):
     email_text = email_text.replace(ln, post_surname)
     email_text = email_text.replace(otp, OTP)
     email_text = email_text.replace(datetime, time.strftime("%H:%M:%S %d/%m/%Y"))
+    email_text = email_text.replace(login, email)
+
+    print(email_text)
 
     #send_mail(email_subject, email_text, 'no-reply@pinocchio.up.ac.za', [email], fail_silently=False)
 

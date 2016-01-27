@@ -279,8 +279,9 @@
                         <div class="form-group">
                             <label for="userId">Email Text:</label>
                             <p>
-                                Please use {firstname}, {lastname}, {otp} and {datetime} to indicate the positioning of the user's first name, last name, one time password and time of registration, example:<br><br>
-                                Hello {firstname} {lastname} your OTP is {otp} it expires in 7 days from {datetime}
+                                Please use {firstname}, {lastname}, {otp}, {datetime} and {login} to indicate the positioning of the user's first name, last name, one time password,
+                                time of registration and login details, example:<br><br>
+                                Hello {firstname} {lastname} your username is {login} and your OTP is {otp}. It expires in 7 days from {datetime}
                             </p>
                             <textarea id="emailText" rows="15" type="text" class="form-control" id="email_text">{{ email_text }}</textarea>
                         </div>
