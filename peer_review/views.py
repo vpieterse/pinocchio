@@ -286,7 +286,7 @@ def userProfile(request, userPk):
     if request.method == "GET":
         user = User.objects.get(pk=userPk)
 
-    return render(request, 'peer_review/userProfile.html', {'user': user)
+    return render(request, 'peer_review/userProfile.html', {'user': user})
 
 
 def userDelete(request):
