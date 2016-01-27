@@ -100,9 +100,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     #REQUIRED_FIELDS = ['status']
 
     is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True, help_text=_(
-        'Designates whether this user should be treated as '
-        'active. Unselect this instead of deleting accounts.'))
+    is_active = models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. '
+                                                            'Unselect this instead of deleting accounts.')
 
     objects = UserManager()
 
