@@ -62,16 +62,16 @@ class FreeformItem(models.Model):
 
 class Rank(models.Model):
     question = models.ForeignKey(Question)
-    topWord = models.CharField(max_length=200)
-    bottomWord = models.CharField(max_length=200)
+    firstWord = models.CharField(max_length=200)
+    secondWord = models.CharField(max_length=200)
 
     def __str__(self):
         return self.firstWord + " - " + self.secondWord
 
 class Rate(models.Model):
     question = models.ForeignKey(Question)
-    firstWord = models.CharField(max_length=25)
-    secondWord = models.CharField(max_length=25)
+    topWord = models.CharField(max_length=25)
+    bottomWord = models.CharField(max_length=25)
     optional = models.BooleanField(default=False)
 
 class Label(models.Model):
