@@ -644,33 +644,18 @@ def getRank(request, qPk):
 #Gets the Rate objects associated with a Rate question
 def getRates(request, qPk):
     q = Question.objects.get(pk=qPk)
-    rates = Rate.objects.filter(question=q)
+    rate = Rate.objects.get(question=q)
 
-    optionalArr = []
-    scaleArr = []
-    #There aren't even text fields in the model
-    #choices = []
-
-    for r in rates:
-        optionalArr.append(r.optional)
-        scaleArr.append(r.numberOfOptions)
-
-    return JsonResponse({'optionalArr': optionalArr, 'scaleArr': scaleArr})
+    return JsonResponse({'topWord': rate.topWord, 
+                        'bottomWord': rate.bottomWord,
+                        'optional' : rate.optional})
 
 #Gets the Freeform objects associated with a Rate question
 def getFreeformItems(request, qPk):
     q = Question.objects.get(pk=qPk)
-    freeformItems = FreeformItem.objects.filter(question=q)
-    print(freeformItems)
+    freeformItem = FreeformItem.objects.get(question=q)
 
-    typeArr = []
-    valueArr = []
-
-    for f in freeformItems:
-        typeArr.append(f.freeformType)
-        valueArr.append(f.value)
-
-    return JsonResponse({'typeArr': typeArr, 'valueArr': valueArr})
+    return JsonResponse({'freeformType': freeformItem.freeformType})
 
 #Delete a question
 def questionDelete(request, qPk):
@@ -746,38 +731,19 @@ def createQuestion(request):
 
         #Freeform
         elif str(qType) == 'Freeform':
-            types = request.POST.getlist('types[]')
-            values = request.POST.getlist('values[]')
-            print(types)
-            print("Types: %s, Values:" % types, values)
-
-            rank = 0
-            for t in types:
-                f = FreeformItem(question = q,
-                                 value = values[rank],
-                                 freeformType = t
-                                 )
-                rank += 1
-                f.save()
+            FreeformItem.objects.create(question = q, freeformType = request.POST['freeformType'])
 
         #Rate
         elif str(qType) == 'Rate':
-            optionalArr = request.POST.getlist('optionalArr[]')
-            scaleArr = request.POST.getlist('scaleArr[]')
-            choiceArr = request.POST.getlist('choiceArr[]')
+            if request.POST['optional'] == "false":
+                optional = False
+            else:
+                optional = True
 
-            index = 0
-            for r in choiceArr:
-                print('Optional: %s' % optionalArr[index])
-                r = Rate(question = q,
-                         numberOfOptions = scaleArr[index],
-                         optional = (optionalArr[index] == "true"),
-                         num = index)
-                r.save()
-                index += 1
-
-    else:
-        message = 'You submitted an empty form.'
+            Rate.objects.create(question = q,
+                                topWord = request.POST['topWord'],
+                                bottomWord = request.POST['bottomWord'],
+                                optional = optional)
     return HttpResponse()
 
 def saveQuestionnaire(request):
@@ -896,6 +862,8 @@ def roundUpdate(request, roundPk):
 
         round.save()
     return HttpResponseRedirect('../')
+    #return HttpResponse()
+
 #Create a round
 def createRound(request):
     #print('Creating Round')
@@ -932,8 +900,8 @@ def createRound(request):
                      )
         r.save()
     #
-    return HttpResponseRedirect('../maintainRound')
-    #return HttpResponse()
+    #return HttpResponseRedirect('../maintainRound')
+    return HttpResponse()
 
 
 

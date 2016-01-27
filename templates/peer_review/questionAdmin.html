@@ -9,13 +9,15 @@
     <script type="text/javascript" src="{% static "peer_review/js/jquery.dataTables.min.js" %}"></script>
     <script type="text/javascript">
         /**Todo**
-        Fix the missing line above the buttons in the #questionList table
+        
         */
+        var MAX_CHOICES = 7;
 
         var currentlyEditing = -1;
         $(document).ready(function () {
             addOnSubmitHandler();
             selected();
+            initialiseStacking();
             $('#questionList').DataTable( {
                 //Add 'edit' and 'delete' buttons to each row added to table
                 /*"fnCreatedRow": function(row, data, index) {
@@ -75,9 +77,7 @@
                 else {
                     $('#question-label-error').html('');
                 }
-            })
-
-            
+            })                      
         });
 
         function addOnSubmitHandler() {
@@ -143,6 +143,14 @@
             //Remove 'None' from the grouping dropdown if type is 'Rank'
             if ($('#type').val() == 'Rank') {
                 $("#grouping option[value='None']").remove();
+                var rowCount = $('#labelTable > tbody > tr').length;
+                console.log(rowCount);
+                if (rowCount == 1) {
+                    addRow('', '#labelTable');
+                } else if (rowCount == 0) {
+                    addRow('', '#labelTable');
+                    addRow('', '#labelTable');
+                }
             } 
             else {
                 //Check if 'None' grouping is in the dropdown
@@ -178,7 +186,7 @@
 
         function clearPage()
         {
-            //Remove items from the choice, freeform and rate tables
+            //Remove items from the choice table
             $("#table").find("tr:gt(0)").remove();
 
             //Clear inputs
@@ -190,7 +198,6 @@
             selected();
 
             $("#type").prop("disabled", false);
-            $("#questionLabel").prop('disabled', false);
             $('#table-error').html('');
             $('#question-label-error').html('');
         }
@@ -217,37 +224,6 @@
             return choices;
         }
 
-        function getFreeformItems() {
-            var items = {};
-            items.types = [];
-            items.values = [];
-            $('#table > tbody > tr').each(function (index, value) {
-                var value = $(this).find('#choice').val();
-                var type = $(this).find('#type').val();
-                items.types.push(type);
-                items.values.push(value);
-            });
-            return items;            
-        }
-
-        function getRates() {
-            var rates = {scales: [], optionals: [], choices: []};
-
-            $('#table > tbody > tr').each(function (index, value) {
-                var optional = $(this).find('#optional').is(':checked');
-                var scale = $(this).find('#scale').val();
-                var choice = $(this).find('#choice').val();
-
-                if (choice != '') {
-                    rates.scales.push(scale);
-                    rates.optionals.push(optional);
-                    rates.choices.push(choice);
-                }
-            });
-
-            return rates;
-        }
-
         //Html snippets used to add new rows to tables
         var upArrow = '<td style="text-align: center; width: 20px;">' +
                 '<a class="move up" href="javascript:void(0)" title="move up">' +
@@ -268,39 +244,17 @@
                    '</td>';
         }
 
-        function checkBox(isChecked)
-        { 
-            return '<td style="text-align: center; width: 10px;">' +
-            '<div class = "checkbox">' +
-             (isChecked ? '<input type="checkbox" id = optional checked>' : '<input type="checkbox" id = optional>') +
-            '</div>' +
-            '</td>';
-        }
-
         var removeButton = '<td style="text-align: center; width: 20px; ">' +
                 '<a class="remove" href="javascript:void(0)">' +
                 '<span class="glyphicon glyphicon-minus"></span>' +
                 '</a>' +
                 '</td>';
 
-        function dropDown(value)
-        { 
-            return '<td>' +
-                '<select class="form-control" id = "type">' +
-                (value == 'Word' ? '<option value="Word" selected>Word</option>' : '<option value="Word">Word</option>') +
-                (value == 'Paragraph' ? '<option value="Paragraph" selected>Paragraph</option>' : '<option value="Paragraph">Paragraph</option>') +
-                (value == 'Integer' ? '<option value="Integer" selected>Integer</option>' : '<option value="Integer">Integer</option>') +
-                (value == 'Real' ? '<option value="Real" selected>Real</option>' : '<option value="Real">Real</option>') +
-                '</select>' +
-                '</td>';
-        }
-
         //Fetches question details from database
         function editQuestion(pk) {
             clearPage();
             currentlyEditing = pk;
             $("#type").prop("disabled", true);
-            $("#questionLabel").prop('disabled', true);
             $("#cancelButton").html('Cancel');
 
             //Query question details from db
@@ -345,7 +299,7 @@
                                 }
                             }
                         },
-                        failure: function () {alert('Error occurred in querying the choices');}
+                        failure: function () {alert('Error occurred in querying the choice items');}
                     })
                     break;
                 case 'Rate':
@@ -353,26 +307,20 @@
                         url: '/questionAdmin/getRates/' + pk,                  
                         success: function (data) 
                         {
-                            for (var x = 0; x < data.optionalArr.length; x++)
-                            {
-                                //Need to make a better function for this
-                                //Then again, this will probably get changed
-                                addRateRow(data.optionalArr[x], data.scaleArr[x]);
-                            }
+                            $('#rateTop').val(data.topWord);
+                            $('#rateBottom').val(data.bottomWord);
+                            $('#rateOptional').attr('checked', data.optional);
                         },
-                        failure: function () {alert('Error occurred in querying the rates');}
+                        failure: function () {alert('Error occurred in querying the rate item');}
                     })
                     break;
                 case 'Freeform':
                     $.ajax({
                         url: '/questionAdmin/getFreeformItems/' + pk,
                         success: function(data) {
-                            for (var x = 0; x < data.typeArr.length; x++)
-                            {
-                                addFreeformRow(data.typeArr[x], data.valueArr[x]);
-                            }
+                            $('#freeformType').val(data.freeformType);
                         },
-                        failure: function () {alert('Error occurred in querying the freeform items');}
+                        failure: function () {alert('Error occurred in querying the freeform item');}
                     });
                     break;
                 case "Rank":
@@ -382,23 +330,11 @@
                             $('#first').val(data.firstWord);
                             $('#second').val(data.secondWord);
                         },
-                        failure: function () {alert('Error occurred in querying the rank');}
+                        failure: function () {alert('Error occurred in querying the rank item');}
                     });
                 default:
                     break;
             }         
-        }
-
-        function addRateRow(optional, scale)
-        {
-            $('#table').append('<tr>' + checkBox(optional) + numberBox(scale) + textBox('----') + upArrow + downArrow + removeButton + '</tr>');
-            $('#table-error').html('');
-        }
-
-        function addFreeformRow(type, value)
-        {
-            $('#table').append('<tr>' + dropDown(type) + textBox(value) + upArrow + downArrow + removeButton + '</tr>');
-            $('#table-error').html('');
         }
 
         //Update the question list
@@ -439,21 +375,17 @@
         function addRow(text, selector) {
             $table = $(selector);
             if (selector != '#labelTable') {
-                switch ($('#type').val()) {
-                    case 'Choice':
-                        $table.append('<tr>' + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
-                        $('#table-error').html('');
-                        break;
-                    case 'Rate':
-                        $table.append('<tr>' + checkBox(false) + numberBox(0) + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
-                        break;
-                    case 'Freeform':
-                        $table.append('<tr>' + dropDown('Word') + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
-                        break;
-                    default:
-                        break;
+                var rowCount = $('#table > tbody > tr').length;
+                console.log(rowCount);
+                if (rowCount >= MAX_CHOICES && $('#grouping').val() in {'Rest':1, 'All':1, 'Label':1}) {
+                    $('#table-error').html("<div class=\"alert alert-danger\">No more than " + MAX_CHOICES + " choices allowed in \'" + $('#grouping').val() + "\' grouping. Change to grouping \'None\' to add more.</div>");
+                    return;    
+                } else {
+                    $table.append('<tr>' + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
+                    $('#table-error').html("");
                 }
             } else {
+                $('#table-error').html('');
                 $table.append('<tr>' + textBox(text) + upArrow + downArrow + removeButton + '</tr>');
             }
 
@@ -487,13 +419,12 @@
                     data.grouping = 'None';
                     break;
                 case 'Rate':
-                    data.optionalArr = getRates().optionals;
-                    data.choiceArr = getRates().choices;
-                    data.scaleArr = getRates().scales;
+                    data.topWord = $('#rateTop').val();
+                    data.bottomWord = $('#rateBottom').val();
+                    data.optional = $('#rateOptional').is(':checked');
                     break;
                 case 'Freeform':
-                    data.types = getFreeformItems().types;
-                    data.values = getFreeformItems().values;
+                    data.freeformType = $('#freeformType').val()
                     break;
             }
 
@@ -526,6 +457,7 @@
             var qLabel = $('#questionLabel').val();
             if (qLabel == '') {
                 $('#question-label-error').html('<div class="alert alert-danger">This is a required field</div>');
+                window.scrollTo(0,0);
                 return;
             }
             if (qLabel.length > 300 || questionExists(qLabel))
@@ -533,8 +465,15 @@
                 return;
             }
             var rowCount = $('#table > tbody > tr').length;
-            if ($('#type').val() in {'Choice':1, 'Freeform':1, 'Rate':1} && rowCount < 1) {
+            if ($('#type').val() == 'Choice' && rowCount < 1) {
                 $('#table-error').html('<div class="alert alert-danger">You need to add some items</div>');
+                window.scrollTo(0,0);
+                return;
+            }
+
+            if (rowCount >= MAX_CHOICES && $('#grouping').val() in {'Rest':1, 'All':1, 'Label':1} && $('#type').val() == 'Choice') {
+                $('#table-error').html("<div class=\"alert alert-danger\">No more than " + MAX_CHOICES + " choices allowed in \'" + $('#grouping').val() + "\' grouping. Change to grouping \'None\' to add more.</div>");
+                window.scrollTo(0,0);
                 return;
             }
 
@@ -655,7 +594,7 @@
                                 onclick="addRow('', '#labelTable')">+ Add
                         </button>
                     </div>
-                    <div class="col-xs-8">
+                    <div class="col-xs-10">
                     </div>
                 </div>
                 <div class="col-xs-1">
@@ -663,7 +602,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-xs-5">
+                <div class="col-xs-6">
                     <div class="panel panel-default">
                         <div class="panel-body">
                             <table id="labelTable"
@@ -683,7 +622,7 @@
                         </div>
                     </div>
                 </div>                
-                <div class="col-xs-5">
+                <div class="col-xs-6">
                     <div class="panel panel-default">
                         <div class="panel-body">
                             <table id="table" class="table table-striped table-condensed table-hover btable">
@@ -692,7 +631,7 @@
                                     <th style="text-align: center; ">
                                         <div class="th-inner ">Choices</div>
                                         <div class="fht-cell"></div>
-                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
+                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">ddFr
                                             <div style="height: 34px;"></div>
                                         </div>
                                     </th>
@@ -751,6 +690,31 @@
             </div>
         </div>
         <div id="Rate">
+            <div class="row">
+                <div class="col-xs-4">
+                    <label for='rateTop'>Top End</label>
+                </div>
+                <div class="col-xs-4">
+                    <label for='rateBottom'>Bottom End</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4">
+                    <input class='form-control' type='text' id='rateTop'/>
+                </div>
+                <div class="col-xs-4">
+                    <input class='form-control' type='text' id='rateBottom'/>
+                </div>
+                <div class = "col-xs-1"></div>
+            </div>
+            <br/>
+            <div class="row">
+                <div class = "col-xs-3">
+                    <label for="rateOptional">Optional</label>
+                    <input type='checkbox' id="rateOptional">
+                </div>
+            </div>
+            <br/>
             <div id = "table-error">
             </div>
             <div class="row">
@@ -760,12 +724,9 @@
                 </div>
                 <div class="col-xs-10 labelTable">
                 </div>
-                <div class="col-xs-1">
-                    <button class="btn btn-primary" id="btn" type="button" onclick="addRow('', '#table')">+ Add</button>
-                </div>
             </div>
             <div class="row">
-                <div class="col-xs-5 labelTable">
+                <div class="labelTable col-xs-6">
                     <div class="panel panel-default">
                         <div class="panel-body">
                             <table id="labelTable" class="table table-striped table-condensed table-hover btable">
@@ -773,60 +734,6 @@
                                 <tr>
                                     <th style="text-align: center; ">
                                         <div class="th-inner ">Label</div>
-                                        <div class="fht-cell"></div>
-                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
-                                            <div style="height: 34px;"></div>
-                                        </div>
-                                    </th>
-                                </tr>
-                                </thead>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-7">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <table id="table" class="table table-striped table-condensed table-hover btable">
-                                <thead>
-                                <tr>
-                                    <th style="text-align: center; ">
-                                        <div class="th-inner ">Optional</div>
-                                        <div class="fht-cell"></div>
-                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
-                                            <div style="height: 34px;"></div>
-                                        </div>
-                                    </th>
-                                    <th style="text-align: center; ">
-                                        <div class="th-inner ">Scale</div>
-                                        <div class="fht-cell"></div>
-                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
-                                            <div style="height: 34px;"></div>
-                                        </div>
-                                    </th>
-                                    <th style="text-align: center; ">
-                                        <div class="th-inner ">Choice</div>
-                                        <div class="fht-cell"></div>
-                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
-                                            <div style="height: 34px;"></div>
-                                        </div>
-                                    </th>
-                                    <th style="text-align: center; width: 20px; ">
-                                        <div class="th-inner "></div>
-                                        <div class="fht-cell"></div>
-                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
-                                            <div style="height: 34px;"></div>
-                                        </div>
-                                    </th>
-                                    <th style="text-align: center; width: 20px; ">
-                                        <div class="th-inner "></div>
-                                        <div class="fht-cell"></div>
-                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
-                                            <div style="height: 34px;"></div>
-                                        </div>
-                                    </th>
-                                    <th style="text-align: center; width: 20px; ">
-                                        <div class="th-inner "></div>
                                         <div class="fht-cell"></div>
                                         <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
                                             <div style="height: 34px;"></div>
@@ -860,7 +767,7 @@
                 </div>
             </div>
             <br>
-
+            <div id = "table-error"></div>
             <div class="row">
                 <div class="col-xs-1">
                     <button class="btn btn-primary labelTable" id="btn" type="button" onclick="addRow('', '#labelTable')">+ Add
@@ -874,15 +781,15 @@
                             <table id="labelTable"
                                    class="table table-striped table-condensed table-hover btable labelTable">
                                 <thead>
-                                <tr>
-                                    <th style="text-align: center; ">
-                                        <div class="th-inner ">Label</div>
-                                        <div class="fht-cell"></div>
-                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
-                                            <div style="height: 34px;"></div>
-                                        </div>
-                                    </th>
-                                </tr>
+                                    <tr>
+                                        <th style="text-align: center; ">
+                                            <div class="th-inner ">Label</div>
+                                            <div class="fht-cell"></div>
+                                            <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
+                                                <div style="height: 34px;"></div>
+                                            </div>
+                                        </th>
+                                    </tr>
                                 </thead>
                             </table>
                         </div>
@@ -900,11 +807,6 @@
                                 onclick="addRow('', '#labelTable')">+ Add
                         </button>
                     </div>
-                    <div class="col-xs-8">
-                    </div>
-                </div>
-                <div class="col-xs-1">
-                    <button class="btn btn-primary" id="btn" type="button" onclick="addRow('', '#table')">+ Add</button>
                 </div>
             </div>
             <div class="row">
@@ -928,52 +830,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xs-5">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <table id="table" class="table table-striped table-condensed table-hover btable">
-                                <thead>
-                                <tr>
-                                    <th style="text-align: center; ">
-                                        <div class="th-inner ">Type</div>
-                                        <div class="fht-cell"></div>
-                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
-                                            <div style="height: 34px;"></div>
-                                        </div>
-                                    </th>
-                                    <th style="text-align: center; ">
-                                        <div class="th-inner ">Value</div>
-                                        <div class="fht-cell"></div>
-                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
-                                            <div style="height: 34px;"></div>
-                                        </div>
-                                    </th>
-                                    <th style="text-align: center; width: 20px; ">
-                                        <div class="th-inner "></div>
-                                        <div class="fht-cell"></div>
-                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
-                                            <div style="height: 34px;"></div>
-                                        </div>
-                                    </th>
-                                    <th style="text-align: center; width: 20px; ">
-                                        <div class="th-inner "></div>
-                                        <div class="fht-cell"></div>
-                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
-                                            <div style="height: 34px;"></div>
-                                        </div>
-                                    </th>
-                                    <th style="text-align: center; width: 20px; ">
-                                        <div class="th-inner "></div>
-                                        <div class="fht-cell"></div>
-                                        <div style="margin: 0px 2px 2px; display: none;" class="filterControl">
-                                            <div style="height: 34px;"></div>
-                                        </div>
-                                    </th>
-                                </tr>
-                                </thead>
-                            </table>
-                        </div>
-                    </div>
+            </div>
+            <div class = "row">  
+                <div class= "col-xs-2">
+                    <select class="form-control" id = "freeformType">
+                        <option value="Word">Word</option>
+                        <option value="Paragraph">Paragraph</option>
+                        <option value="Integer">Integer</option>
+                        <option value="Real">Real</option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -997,15 +862,6 @@
                             <br/>
                             <div class='table-responsive'>
                                 <table id = "questionList">
-                                    <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th></th>
-                                            <th></th>
-                                            <th></th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
                                 </table> 
                             </div>                           
                         </div>
