@@ -165,7 +165,11 @@
                     $.each(data, function(index, value) {
                         if(value.team != "emptyTeam") {
                             var row = table.row.add([
-                                "<a id='viewRound' data-id='" + value.teamId + "'>" + value.round + "</a>",
+                                "<form class='roundRedirect' action='/maintainTeam/' method='POST'>" +
+                                "{% csrf_token %}" +
+                                "<input type='hidden' name='roundPk' value='" + value.teamId + "'>" +
+                                "<a href='#' id='viewRound'>" + value.round + "</a>" +
+                                "</form>",
                                 value.team,
                             ]).draw(false).node();
 
@@ -203,20 +207,9 @@
             });
         });
 
-        $("#userRoundsTable").on("click", "#viewRound", function() {
-            var id = $(this).data("id");
-
-            $.ajax({
-                type: "POST",
-                url: "/maintainTeam/",
-                data: {
-                    "roundPk": id,
-                    "csrfmiddlewaretoken": "{{ csrf_token }}"
-                },
-                success: function(data) {
-                    alert("done");
-                }
-            });
+        $("#userRoundsTable").on("click", "#viewRound", function(e) {
+            e.preventDefault();
+            $(this).parent().submit();
         });
 
         $("#userRoundsTable").on('change', '.status', function() {

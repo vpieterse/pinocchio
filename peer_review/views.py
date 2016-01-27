@@ -117,7 +117,7 @@ def maintainTeam(request):
         context = {'users': User.objects.all(),
                    'rounds': RoundDetail.objects.all(),
                    'teams': TeamDetail.objects.all(),
-                   'roundPk': ""}
+                   'roundPk': "none"}
     return render(request, 'peer_review/maintainTeam.html', context)
 
 
