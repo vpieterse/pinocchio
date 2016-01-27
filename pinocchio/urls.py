@@ -25,6 +25,8 @@ urlpatterns = [
                   url(r'^login/$', views.login, name='login'),
                   url(r'^questionnaire/(?P<questionnairePk>[0-9]+)/?$', views.questionnaire, name='questionnaire'),
                   url(r'^activeRounds/$', views.activeRounds, name='activeRounds'),
+                  url(r'^teamMembers/$', views.teamMembers, name='teamMembers'),
+                  url(r'^accountDetails/$', views.accountDetails, name='accountDetails'),
 
                   url(r'^$', views.index, name='index'),
                   url(r'^(?P<question_id>[0-9]+)/$', views.detail, name='detail'),
@@ -48,7 +50,7 @@ urlpatterns = [
                   url(r'^maintainRound/update/(?P<roundPk>[0-9]+)/?$', views.roundUpdate),
                   url(r'^maintainTeam/getTeamsForRound/(?P<roundPk>[0-9]+)/?$', views.getTeamsForRound),
                   url(r'^maintainTeam/changeUserTeamForRound/(?P<roundPk>[0-9]+)/(?P<userPk>[0-9]+)/(?P<teamName>[a-zA-Z0-9]+)/?$', views.changeUserTeamForRound),
-                  url(r'^maintainTeam/getTeams/$', views.getTeams),
+                  url(r'^maintainTeam/getTeams/?$', views.getTeams),
                   url(r'^maintainTeam/changeTeamStatus/(?P<teamPk>[0-9]+)/(?P<status>[a-zA-Z0-9]+)/?$', views.changeTeamStatus),
                   url(r'^maintainTeam/submitTeamCSV/$', views.submitTeamCSV, name="submitTeamCSV"),
                   url(r'^login/auth/$', views.auth, name="auth"),
