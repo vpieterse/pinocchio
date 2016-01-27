@@ -287,8 +287,7 @@
         }
 
         $(document).ready(function () {
-            var roundName = "{{ roundName }}";
-            console.log(roundName);
+            var roundPk = "{{ roundPk }}";
 
             var teamViewTable = $("#teamViewTable").DataTable({
                 "orderClasses": false,
@@ -388,7 +387,6 @@
                 }
             });
 
-            
             $('#selectedRound').on('change', function() {
                 loading = true;
                 $("#teams").find("div.removeUser").click();
@@ -418,7 +416,7 @@
 
                                     selected = team["teamName"];
                                     $("#"+team["teamName"]).addClass("in");
-                                
+
                                     $("#users").find("#"+team["userId"]).find('div.addUser').click();
 
                                     $("#"+team["teamName"]).removeClass("in");
@@ -429,11 +427,13 @@
                         failure: function(data) {
                             console.log('Error: getTeamsForRound');
                         }
-                    }); 
+                    });
                 }
                 loading = false;
             });
-            
+
+            $("#selectedRound").val(roundPk).change();
+
             $("#collapseThree").on('shown.bs.collapse', function() {
                 $.ajax({
                     url: '/maintainTeam/getTeams/',
