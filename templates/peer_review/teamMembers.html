@@ -26,13 +26,11 @@
                             <script>
                                 console.log("{{ teams.team.roundName }}");
                             </script>
-                            <ul><!--
-                                {% for team in teamMembers %}
-                                {% if team.roundDetail.id == round.id and team.teamName != 'emptyTeam' %}
-                                    <li>{{ team.teamName }}: {{ team.userDetail }}</li>
-                                {% endif %}
-                            {% endfor %}
-                            --></ul>
+                            <ul>
+                                {% for teamMember in teams.team %}
+                                    <li>{{ teamMember.userId }}: {{ teamMember.name }} {{ teamMember.surname }}</li>
+                                {% endfor %}
+                            </ul>
                         </div>
                     </div>
                 </div>

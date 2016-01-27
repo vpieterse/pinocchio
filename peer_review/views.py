@@ -29,7 +29,7 @@ def activeRounds(request):
     
 def teamMembers(request):
     #TEST
-    user = User.objects.get(userId = '14031145')
+    user = User.objects.get(userId = '14035548')
     rounds = RoundDetail.objects.all()
     teamList = {}
     for team in TeamDetail.objects.filter(user=user):
@@ -37,10 +37,10 @@ def teamMembers(request):
         roundName = RoundDetail.objects.get(pk=team.roundDetail.pk).name
         teamName = roundName + ": " + team.teamName
         teamList[teamName] = []
-        #teamList[teamName]['teamMembers'] = {}
-        #for teamItem in TeamDetail.objects.filter(teamName=teamName):
-        #    if(teamItem.userDetail!=user.userDetail):
-        #        teamList[teamName]['teamMembers'][teamItem.pk] = teamItem
+        for teamItem in TeamDetail.objects.filter(teamName=team.teamName):
+            print(teamItem)
+            if(teamItem.user!=user):
+                teamList[teamName].append(teamItem.user)
     context={'teams':teamList}
     print(teamList)
     return render(request, 'peer_review/teamMembers.html',context)
@@ -152,11 +152,11 @@ def getTeams(request):
     if request.method == "GET":
         teams = TeamDetail.objects.all()
         for team in teams:
-            user = User.objects.get(user=team.user)
+            user = User.objects.get(pk=team.user.pk)
             response[team.pk] = {
                 'userId': user.userId,
                 'initials': team.user.initials,
-                'surname': team.usre.surname,
+                'surname': team.user.surname,
                 'round': team.roundDetail.name,
                 'team': team.teamName,
                 'status': team.status,
