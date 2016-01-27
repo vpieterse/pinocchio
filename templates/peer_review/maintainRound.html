@@ -3,15 +3,20 @@
 
 {% block extrahead %}
     <title>Rounds</title>
-    <script src="{% static "peer_review/search.js" %}"></script>
+   <!-- <script src="{% static "peer_review/search.js" %}"></script>-->
     <script src="{% static "peer_review/validation.js" %}"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#users tr').each(function () {
-                $(this).find('input[type="text"]').each(function () {
-                    $(this).attr('size', $(this).val().length);
-                });
-            });
+            
+           // addOnSubmitHandler();
+            $('#round').DataTable();
+
+            $('#search').keyup(function () {
+                t = $('#round').DataTable();
+                t.search($('#search').val()).draw();
+            })
+
+          
         });
     </script>
     <!--Edit navbar active-->
@@ -33,33 +38,28 @@
             $('#round tr:last').after('<tr>' + '<td style="text-align: center; width: 10px;">' +
                 '<input type="number" class="noBorder" style="text-align: center; "/>' +
                 '</td>'+'</tr>');
-/*$('#myTable tr:last').after('<tr>...</tr><tr>...</tr>');*/
-           
         
         }
     </script>
 
 <script type="text/javascript">
     
-
-/*
-function createNewQuestionnaire()
-        {
-               
-            var x = '';
-               var x = document.getElementById("questionn").value;
-              window.alert(x); 
-            if (x == "create questionnaire")
-                window.location.href = '/questionnaireAdmin';
-
-          /*  if (text == 'change')
-                window.alert("HEY YoU");*/
-           /* return (window.location.href='/questionnaireAdmin')*/
-//window.location = url;
-
        // }
 
+function addOnSubmitHandler() {
+            $('#roundForm').on('submit', function (event) {
+                event.preventDefault();
+            });
+            /*$('#round').on('submit', function (event) {
+                event.preventDefault();
+            });*/
+        }
 
+        function minusOnSubmitHandler(){
+            $('#round').on('submit', function (event) {
+                event.preventDefault();
+            });
+        }
     function editRound(pk)
         {
             isEditing = true;
@@ -83,101 +83,98 @@ function createNewQuestionnaire()
             
         }
 
-
-        /*function cancel()
-        {
-            if (isEditing)
-                $("#cancelButton").html('Clear');
-            clearPage();
-        }
-
-        function clearPage()
-        {
-            //Remove items from the choice, freeform and rate tables
-            $("#table").find("tr:gt(0)").remove();
-
-            //Clear inputs
-            $('#question').val([]);
-            $('#questionLabel').val([]);
-            $('#type').val('Label');
-            $('#grouping').val('None');
-            isEditing = false;
-            selected();
-
-            $("#type").prop("disabled", false);
-            $("#questionLabel").prop('disabled', false);
-            $('#table-error').html('');
-            $('#question-label-error').html('');
-        }*/
-//needs editing!!
-/*
-function cancel()
-        {
-            //alert('heya');
-            if (isEditing)
-                $("#cancelButton").html('Clear');
-            clearPage();
-        }
-
-//needs
-function clearPage()
-        {
-            //Remove items from the choice, freeform and rate tables
-           // $("#table").find("tr:gt(0)").remove();
-
-            //Clear inputs
-            $('#description').val([]);
-            $('#questionnaire').val([]);
-            $('#startingDate').val('none');
-            $('#endingDate').val('None');
-            isEditing = false;
-            selected();
-*/
-           /* $("#type").prop("disabled", false);
-            $("#questionLabel").prop('disabled', false);
-            $('#table-error').html('');
-            $('#question-label-error').html('');*/
-        //}
-
 function createJson() {
             alert("Create Json")
-            
-            //var cName = $('#name').val();
-            //alert(cName)
+        
 
             var data = {
                 description: $('#roundDescription').val(),
                 name: $('#roundName').val(),
                 questionnaire: $('#questionnaire').val(),
-                startingDate: $('#startdate').val(),
-                endingDate: $('#enddate').val(),
-               // isEditing: isEditing
+                startingDate: $('#startingDate').val(),
+                endingDate: $('#endingDate').val(),
             };
 
-            //var cName = $('#name').val();
-            //alert(cName)
-
             console.log(data);
-           // alert("Create Json")
             return data;
         }
 // AJAX for posting
         function create_post() {  
 
 
-            console.log('create_post')
+         alert('create_post')
             //Validation
-          /*  var cQuest = $('#questionnaire').val()
-            alert(cQuest)
+            var cname = $('#name').val()
+            var cdesc = $('#description').val()
+            var cquest = $('#questionnaire').val()
+            var cstart = $('#startingDate').val()
+            var cend = $('#endingDate').val()
+            var test =false
 
-            if (cQuest == '') {
+
+            if (cname == '') {
                 $('#round-label-error').html('<div class="alert alert-danger">This is a required field</div>')
+                test = true
+            }
+            else{
+                $('#round-label-error').html('')
+                test = false
+
+            }
+            if (cdesc == '') {
+                $('#round-label2-error').html('<div class="alert alert-danger">This is a required field</div>')
+                test = true
+
+            }
+            else{
+                $('#round-label2-error').html('')
+                test = false
+
+            }
+
+            
+
+            if (cquest == '') {
+                $('#round-label3-error').html('<div class="alert alert-danger">This is a required field</div>')
+                test = true
+            }
+            else{
+                $('#round-label3-error').html('')
+                test = false
+
+            }
+            
+
+            if (cstart == '') {
+                $('#round-label4-error').html('<div class="alert alert-danger">This is a required field</div>')
+                test = true
+            }
+            else{
+                $('#round-label4-error').html('')
+                test = false
+            }
+            
+
+            if (cend == '') {
+                $('#round-label5-error').html('<div class="alert alert-danger">This is a required field</div>')
+                test = true
+            }
+            else{
+                $('#round-label5-error').html('')
+                test = false
+
+            }
+            //alert(test)
+
+
+            if(test==true){
+
+                addOnSubmitHandler()
                 return
             }
 
-        
-            alert('Past')
-*/
+            //alert('Past')
+            minusOnSubmitHandler()
             var data = createJson();
             $.ajax({
                 url: "/createRound/", // the endpoint
@@ -204,31 +201,35 @@ function createJson() {
        function validate_date(d){
 
 
-            alert('pfft')
-
+            alert(d)
+            var cstart = $('#startingDate').val()
+            alert(cstart)
             try{
-                datetime.strptime(d, '%m/%d/%Y %I:%M %p')
+                datetime.strptime(d, '%Y/%m/%d %H:%i')
                 return True
             }
             catch( ValueError)
             {
+                alert("incorrect")
                 return False
             }
 
         };
 
         function test(){
-
-
-
             alert('meow')
         }
+
+
+
+
 </script>
 
 
     <script>
         title = "maintainRound";
     </script>
+
 {% endblock extrahead %}
 {% block context %}
 
@@ -250,13 +251,18 @@ function createJson() {
                 <div id="collapseOne" class="panel-collapse collapse in">
                     <div class="panel-body">
 
+
+             <form role="form" id="roundForm" action="/createRound/" method="GET">
+
                     {% csrf_token %}
                     <input type="hidden" id="tableData">
 
 
                     <div class="form-group">
                         <label for="name">Name</label>
-                        <textarea class="form-control" rows="1" style="resize:none;width:20%" id="roundName"
+
+                        <textarea class="form-control" rows="1" style="resize:none;width:20%" id="name"
+
                                   name="name"></textarea>
                         <div id = "round-label-error">
                         </div>
@@ -265,9 +271,11 @@ function createJson() {
 
                     <div class="form-group">
                         <label for="description">Description</label>
-                        <textarea class="form-control" rows="2" style="resize:none;width:45%" id="roundDescription"
+
+                        <textarea class="form-control" rows="2" style="resize:none;width:45%" id="description"
+
                                   name="description"></textarea>
-                        <div id = "round-label-error">
+                        <div id = "round-label2-error">
                         </div>
                         <br/>
 
@@ -290,17 +298,25 @@ function createJson() {
                                         
                             {% endfor %}
                                        </select> 
+                                       <div id = "round-label3-error">
 
                            <br/>
+                           </div>
                            <label for="startingDate">Starting Date</label>
                            <div>
-                            <input type="datetime-local"  name="startingDate" value="" id = "startdate"></input>
+
+                            <input type="datetime-local"  name="startingDate" value=""  id ="startingDate"></input>
+                                <div id = "round-label4-error"> </div>
+
                             </div>
 
                            <br/>
                            <label for="endingDate">Ending Date</label>
                            <div>
-                            <input type="datetime-local"  name="endingDate" value="" id = "enddate"></input>
+
+                            <input type="datetime-local"  name="endingDate" value=""  id ="endingDate"></input>
+                                <div id = "round-label5-error"></div>
+
                             </div>
 
 
@@ -314,6 +330,7 @@ function createJson() {
                     </div>
                 </div>
             </div>
+</form>
         </div>
     </div>
     </div>
@@ -329,11 +346,10 @@ function createJson() {
 	            <div id="collapseTwo" class="panel-collapse collapse">
                     <div class="panel-body">
 
-                    <input type="text" class="form-control" id="search" placeholder="Search" onkeyup="showResult(this.value)">
-
+                    
                     <div class='table-responsive'>
 
-                        <table class='table sortable' id='round'>
+                        <table  id='round'>
                             <thead>
                                 <tr>
                                     <th>Round Name</th>
@@ -365,27 +381,6 @@ function createJson() {
                                       
 
 <!--SELECT FOR QUESTIONNARE-->
-                  <!--                     
-                                   <td> <input type="text" class="noBorder" name="questionn"
-                                                       value="{{ round.questionnaire}}"></input>-->
-
-                        <!--   <td>
-                                <select id="type" class="form-control" style="width:auto" 
-                                        name="type" value= {{ Questionnaire }}>
-                                    {% if Questionnaire %}
-                                        {% for qt in Questionnaire %}
-                                            {% if qt == questionType %}
-                                                <option selected value="{{ qt.name }}">{{ qt.name }}</option>
-                                            {% else %}
-                                                <option value="{{ qt.name }}">{{ qt.name }}</option>
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% endif %}
-                                </select>
-                            
-                            </td>-->
-
-
                                         <td>
                                        <select id="questionn" name="questionn" class="form-control" 
                                 style="width:auto" onchange="CreateQuestionnaire(value)">
@@ -403,27 +398,13 @@ function createJson() {
                             {% endfor %}
                                          <option value="create">Create Questionnaire</option> 
                                        </select> 
-<!--Plus sign to go create a questionnaire-->
-
-
-
-                                  <!--        <input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="window.location.href='/questionnaireAdmin'"  />
-                                    </td>-->
-
-
 
 <!--STARTING DATE-->
 
 
-<!--
-                        <td>
-                         <input type="datetime" class="noBorder" name="startingDate"
-                                                       value="{{round.startingDate}}" ></input>
-                                                       </td>
--->
 
-                                               <td>
-                                                    <input type="datetime" style="width: 200px" class="noBorder" name="startingDate"
+                                               <td><input type="datetime" style="width: 200px" class="noBorder" name="startingDate"
+
                                                        value="{{round.startingDate|date:'DATETIME_FORMAT'}}" ></input>
                                                 </td>
 
@@ -433,14 +414,21 @@ function createJson() {
                                                 <td>
                                                     <input type="datetime" style="width: 200px" class="noBorder"
                                                            name="endingDate"
-                                                           value="{{ round.endingDate|date:'DATETIME_FORMAT' }}">
-                                                    </input>
-                                                </td> 
-                                                <td>
-                                                    <button type='submit' name="edit" class='btn btn-success btn-xs'
-                                                            id='edit' value="{{ round.description }}" onclick="validate_date(round.startingDate)">Edit
-                                                    </button>
-                                                </td>
+
+                                                           value="{{ round.endingDate|date:'DATETIME_FORMAT' }}"></input></td>
+
+
+<!--SPANNER-->
+        <!--                                        <td><button type='button' class='btn btn-default btn-xs' id='maintain'  onclick="window.location.href='/maintainTeam'"><span class="glyphicon glyphicon-wrench"></span></button></button></a></button></td>-->
+
+<!--EDIT-->
+                
+ <td>
+                                                <button type='submit' name="edit" class='btn btn-success btn-xs'
+                                                        id='edit' value="{{ round.description }}" onclick="validate_date(round.startingDate)" >Edit
+                                                </button>
+                                            </td>
+                                             </form>
 
 <!--DELETE-->
                                             <td>
