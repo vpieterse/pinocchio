@@ -125,7 +125,7 @@ class RoundDetail(models.Model):
 
 
 class TeamDetail(models.Model):
-    user = models.ForeignKey(User, null=True)
+    user = models.ForeignKey(User, null=False)
     roundDetail = models.ForeignKey(RoundDetail)
     teamName = models.CharField(max_length=200, default="emptyTeam")
     NOT_ATTEMPTED = "NA"
@@ -139,4 +139,4 @@ class TeamDetail(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=NOT_ATTEMPTED)
 
     def __str__(self):
-        return self.roundDetail.description + " " + self.teamName + " (" + self.userDetail.surname + ", " + self.userDetail.initials + ")"
+        return self.roundDetail.description + " " + self.teamName + " (" + self.user.surname + ", " + self.user.initials + ")"
