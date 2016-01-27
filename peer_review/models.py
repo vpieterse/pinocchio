@@ -137,7 +137,7 @@ class RoundDetail(models.Model):
 
 
 class TeamDetail(models.Model):
-    userDetail = models.ForeignKey(UserDetail, null=True)
+    user= models.ForeignKey(User, null=True)
     roundDetail = models.ForeignKey(RoundDetail)
     teamName = models.CharField(max_length=200, default="emptyTeam")
     NOT_ATTEMPTED = "NA"

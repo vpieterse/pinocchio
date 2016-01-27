@@ -88,7 +88,7 @@
                                                         {% for user in users %}
                                                             {% csrf_token %}
                                                             <tr id="{{ user.pk }}">
-                                                                <td>{{ user }}</td>
+                                                                <td>{{ user.userId }}</td>
                                                                 <td>{{ user.name }}</td>
                                                                 <td>{{ user.surname }}</td>
                                                                 <td></td>
