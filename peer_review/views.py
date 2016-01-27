@@ -108,10 +108,18 @@ def maintainRound(request):
 
 
 def maintainTeam(request):
-    context = {'users': User.objects.all(),
-                'rounds': RoundDetail.objects.all(),
-                'teams': TeamDetail.objects.all()}
-    print(context)
+    if request.method == "POST":
+        roundPk = request.POST.get("roundPk")
+
+        context = {'users': User.objects.all(),
+                   'rounds': RoundDetail.objects.all(),
+                   'teams': TeamDetail.objects.all(),
+                   'roundPk': roundPk}
+    else:
+        context = {'users': User.objects.all(),
+                   'rounds': RoundDetail.objects.all(),
+                   'teams': TeamDetail.objects.all(),
+                   'roundPk': "none"}
     return render(request, 'peer_review/maintainTeam.html', context)
 
 
@@ -166,7 +174,7 @@ def getTeams(request):
                 'round': team.roundDetail.name,
                 'team': team.teamName,
                 'status': team.status,
-                'teamId': team.pk
+                'teamId': team.pk,
             }
     elif request.method == "POST":
         userPk = request.POST.get("pk")
@@ -178,7 +186,8 @@ def getTeams(request):
                 'round': team.roundDetail.name,
                 'team': team.teamName,
                 'status': team.status,
-                'teamId': team.pk
+                'teamId': team.pk,
+                'roundPk': team.roundDetail.pk
             }
     return JsonResponse(response)
 
