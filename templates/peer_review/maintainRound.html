@@ -72,8 +72,8 @@ function addOnSubmitHandler() {
                     console.log(data);
                     $('#desc').val(data.description);
                     $('#quest').val(data.questionnaire);
-                    $('#start').val(data.startingDate);
-                    $('#end').val(data.endingDate);
+                    $('#startdate').val(data.startingDate);
+                    $('#endingDate').val(data.endingDate);
                     selected();
                 },
                 failure: function(data) { 
@@ -88,8 +88,8 @@ function createJson() {
         
 
             var data = {
-                description: $('#description').val(),
-                name: $('#name').val(),
+                description: $('#roundDescription').val(),
+                name: $('#roundName').val(),
                 questionnaire: $('#questionnaire').val(),
                 startingDate: $('#startingDate').val(),
                 endingDate: $('#endingDate').val(),
@@ -180,7 +180,7 @@ function createJson() {
                 url: "/createRound/", // the endpoint
                 type: "GET", // http method
                 data: data, // data sent with the post request
-                success: saveSuccess('Round was saved successfully.'),
+                success: function () {console.log('Round was saved successfully.')},
                 failure: function () {alert('Error occurred in saving the question');}
                 });
 
@@ -230,7 +230,6 @@ function createJson() {
         title = "maintainRound";
     </script>
 
-
 {% endblock extrahead %}
 {% block context %}
 
@@ -254,13 +253,16 @@ function createJson() {
 
 
              <form role="form" id="roundForm" action="/createRound/" method="GET">
+
                     {% csrf_token %}
                     <input type="hidden" id="tableData">
 
 
                     <div class="form-group">
                         <label for="name">Name</label>
+
                         <textarea class="form-control" rows="1" style="resize:none;width:20%" id="name"
+
                                   name="name"></textarea>
                         <div id = "round-label-error">
                         </div>
@@ -269,7 +271,9 @@ function createJson() {
 
                     <div class="form-group">
                         <label for="description">Description</label>
+
                         <textarea class="form-control" rows="2" style="resize:none;width:45%" id="description"
+
                                   name="description"></textarea>
                         <div id = "round-label2-error">
                         </div>
@@ -300,22 +304,26 @@ function createJson() {
                            </div>
                            <label for="startingDate">Starting Date</label>
                            <div>
+
                             <input type="datetime-local"  name="startingDate" value=""  id ="startingDate"></input>
                                 <div id = "round-label4-error"> </div>
+
                             </div>
 
                            <br/>
                            <label for="endingDate">Ending Date</label>
                            <div>
+
                             <input type="datetime-local"  name="endingDate" value=""  id ="endingDate"></input>
                                 <div id = "round-label5-error"></div>
+
                             </div>
 
 
                             <br/>
                            <div class = "row">
                             <div class = "col-xs-11">
-                                <button class="btn btn-primary" type="submit" onclick="create_post()">Save</button>
+                                <button class="btn btn-primary" onclick="create_post()">Save</button>
                             </div>
                            
                         </div>
@@ -357,7 +365,7 @@ function createJson() {
                             <tbody>
                             {% for round in roundDetail %}
                                 <tr id="{{ round.pk }}">
-                                    <form action="/maintainRound/update/{{ round.pk }}" method="post">
+                                    <form action = "/maintainRound/update/{{round.pk}}" method = "POST">
                                                 {% csrf_token %}
 
 <!--ROUND DESCRIPTION-->
@@ -394,14 +402,19 @@ function createJson() {
 <!--STARTING DATE-->
 
 
+
                                                <td><input type="datetime" style="width: 200px" class="noBorder" name="startingDate"
+
                                                        value="{{round.startingDate|date:'DATETIME_FORMAT'}}" ></input>
+                                                </td>
 
 
 
 <!--ENDINGDATE-->
-                                                <td><input type="datetime" style="width: 200px" class="noBorder"
+                                                <td>
+                                                    <input type="datetime" style="width: 200px" class="noBorder"
                                                            name="endingDate"
+
                                                            value="{{ round.endingDate|date:'DATETIME_FORMAT' }}"></input></td>
 
 
@@ -416,15 +429,13 @@ function createJson() {
                                                 </button>
                                             </td>
                                              </form>
+
 <!--DELETE-->
                                             <td>
-                                                <form action="/maintainRound/delete/{{ round.pk }}" method="post"
-                                                      onsubmit="return confirmDeletion()">
                                                     {% csrf_token %}
                                                     <button type='submit' name="delete" class='btn btn-warning btn-xs'
                                                             id='remove'>Delete
                                                     </button>
-                                                </form>
                                             </td>
 
                                         </tr>

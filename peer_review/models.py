@@ -54,7 +54,6 @@ class Choice(models.Model):
 
 class FreeformItem(models.Model):
     question = models.ForeignKey(Question)
-    value = models.CharField(max_length=200)
     freeformType = models.CharField(max_length=10)
 
     def __str__(self):
@@ -69,13 +68,11 @@ class Rank(models.Model):
     def __str__(self):
         return self.firstWord + " - " + self.secondWord
 
-
 class Rate(models.Model):
     question = models.ForeignKey(Question)
-    numberOfOptions = models.IntegerField(default=5)
+    topWord = models.CharField(max_length=25)
+    bottomWord = models.CharField(max_length=25)
     optional = models.BooleanField(default=False)
-    num = models.IntegerField(default=0)
-
 
 class Label(models.Model):
     question = models.ForeignKey(Question)
@@ -116,12 +113,16 @@ class Questionnaire(models.Model):
     label = models.CharField(max_length=300, unique=True)
     questionOrders = models.ManyToManyField(Question, through='QuestionOrder')
 
+    def __str__(self):
+        return self.label
 
 class QuestionOrder(models.Model):
     questionnaire = models.ForeignKey(Questionnaire)
     question = models.ForeignKey(Question)
     order = models.IntegerField(default=1)
 
+    def __str__(self):
+        return self.question.questionLabel
 
 class RoundDetail(models.Model):
     name = models.CharField(max_length = 15)

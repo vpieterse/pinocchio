@@ -1,0 +1,194 @@
+﻿{% extends "peer_review/baseAdmin.html" %}
+{% load staticfiles %}
+
+{% block extrahead %}
+    <title>User Profile</title>
+    <!--Edit navbar active-->
+    <script>
+        title = "";
+    </script>
+{% endblock extrahead %}
+
+{% block context %}
+    <div class="container">
+        <h1>{{ userDetail.name }} {{ userDetail.surname }}</h1>
+
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
+                    <h4 class="panel-title">
+                        <a>
+                            User Details<b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <form class="form-horizontal user-form" id="userForm" role="form">
+                            <div class="form-group">
+                                <label for="title" class="col-sm-2 control-label">Title:</label>
+                                <div class="col-sm-3">
+                                    <select class="form-control" id="title">
+                                        <option>Mr</option>
+                                        <option>Ms</option>
+                                        <option>Miss</option>
+                                        <option>Mrs</option>
+                                        <option>Dr</option>
+                                    </select>
+                                </div>
+
+                                <label for="initials" class="col-sm-2 control-label">Initials:</label>
+                                <div class="col-sm-3">
+                                    <input class="form-control" type="text" value="{{ userDetail.initials }}">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="firstName" class="col-sm-2 control-label">First Name:</label>
+                                <div class="col-sm-3">
+                                    <input class="form-control" type="text" value="{{ userDetail.name }}">
+                                </div>
+
+                                <label for="surname" class="col-sm-2 control-label">Surname:</label>
+                                <div class="col-sm-3">
+                                    <input class="form-control" type="text" value="{{ userDetail.surname }}">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email" class="col-sm-2 control-label">Email:</label>
+                                <div class="col-sm-3">
+                                    <input class="form-control" type="text" value="{{ userDetail.email }}">
+                                </div>
+
+                                <label for="cellNumber" class="col-sm-2 control-label">Cell Number:</label>
+                                <div class="col-sm-3">
+                                    <input class="form-control" type="text" value="{{ userDetail.cell }}">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="studentNumber" class="col-sm-2 control-label">Student Number:</label>
+                                <div class="col-sm-3">
+                                    <input class="form-control" type="text" value="{{ user.userId }}">
+                                </div>
+
+                                <label for="status" class="col-sm-2 control-label">Status:</label>
+                                <div class="col-sm-3">
+                                    <select>
+                                        <option value="S">Student</option>
+                                        <option value="A">Admin</option>
+                                    </select>
+                                    <input class="form-control" type="text" value="{{ user.status }}">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="submit" class="save btn btn-info" id="submitUser">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
+                    <h4 class="panel-title">
+                        <a>
+                            Box Two <b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapseTwo" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <table class="table" id="userRoundsTable" data-pk="{{ user.pk }}" data-csrf="{{ csrf_token }}">
+                            <thead>
+                                <tr>
+                                    <th>Round</th>
+                                    <th>Team</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseThree">
+                    <h4 class="panel-title">
+                        <a>
+                            Box Three <b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapseThree" class="panel-collapse collapse">
+                    <div class="panel-body">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#title").val("{{ userDetail.title }}");
+
+            var userRoundsTable = $("#userRoundsTable").DataTable({
+                "orderClasses": false,
+                "columnDefs": [{
+                    "orderable": true,
+                    "searchable": true,
+                    "render": function(data, type, full, meta){
+                        return  '<select class="form-control status">'+
+                                '    <option value="NA" class="NA">Not attempted</option>'+
+                                '    <option value="IP" class="IP">In progress</option>'+
+                                '    <option value="C" class="C">Completed</option>'+
+                                '</select>';
+                    },
+                    "targets": [2]
+                }]
+            });
+
+            var pk = $("#userRoundsTable").data("pk");
+            var token = $("#userRoundsTable").data("csrf");
+
+            var data = {
+                "pk": pk,
+                "csrfmiddlewaretoken": token
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '/maintainTeam/getTeams/',
+                data: data,
+                dataType: 'json',
+                success: function(data) {
+                    var table = $("#userRoundsTable").DataTable();
+                    table.clear().draw();
+
+                    $.each(data, function(index, value) {
+                        console.log(value.status);
+                        if(value.team != "emptyTeam") {
+                            var row = table.row.add([
+                                value.round,
+                                value.team,
+                            ]).draw(false).node();
+
+                            $(row).attr("id", value.teamId);
+                            $(row).find("." + value.status).attr("selected", "selected");
+                        }
+                    });
+                }
+            })
+        });
+    </script>
+{% endblock context %}
