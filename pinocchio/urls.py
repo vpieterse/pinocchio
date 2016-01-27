@@ -28,7 +28,7 @@ urlpatterns = [
                   url(r'^questionnaire/(?P<questionnairePk>[0-9]+)/?$', views.questionnaire, name='questionnaire'),
                   url(r'^activeRounds/$', views.activeRounds, name='activeRounds'),
                   url(r'^teamMembers/$', views.teamMembers, name='teamMembers'),
-                  url(r'^accountDetails/$', views.accountDetails, name='accountDetails'),
+                  url(r'^accountDetails/(?P<userId>[0-9]+)$', views.accountDetails, name='accountDetails'),
 
                   url(r'^$', views.index, name='index'),
                   url(r'^(?P<question_id>[0-9]+)/$', views.detail, name='detail'),
