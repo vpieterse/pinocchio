@@ -46,8 +46,9 @@ def teamMembers(request):
     print(teamMembers)
     return render(request, 'peer_review/teamMembers.html', context)
     
-def accountDetails(request):
-    context = {}
+def accountDetails(request, userId):
+    user = User.objects.get(userId=userId)
+    context = {'user': user}
     return render(request, 'peer_review/accountDetails.html',context)
 
 def login(request):

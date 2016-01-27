@@ -114,7 +114,7 @@ class QuestionOrder(models.Model):
         return self.question.questionLabel
 
 class RoundDetail(models.Model):
-    name = models.CharField(max_length = 15)
+    name = models.CharField(max_length = 15, unique=True)
     questionnaire = models.ForeignKey(Questionnaire, null =True)
     startingDate = models.DateTimeField('starting date')
     endingDate = models.DateTimeField('ending date')
