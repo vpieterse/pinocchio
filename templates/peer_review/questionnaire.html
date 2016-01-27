@@ -208,7 +208,11 @@ input[type=range]:focus::-ms-fill-upper {
     	
     	{% for questionnaires in questionnaire %}
 			{% ifequal questionnaires.id questionnairePk %}
-				<h1 style="font-size:150%">{{ questionnaires.intro }}</h1>
+            <div class="panel panel-primary">
+                <div class="panel-body">
+				    {{ questionnaires.intro|safe }}
+                </div>
+            </div>
 			{% endifequal %}
 		{% endfor %}
 
