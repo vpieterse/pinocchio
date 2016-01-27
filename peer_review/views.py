@@ -35,8 +35,8 @@ def teamMembers(request):
     for team in TeamDetail.objects.filter(user=user):
         teamName = team.teamName
         roundName = RoundDetail.objects.get(pk=team.roundDetail.pk).name
-        teamList[teamName] = {}
-        teamList[teamName]['roundName'] = roundName
+        teamName = roundName + ": " + team.teamName
+        teamList[teamName] = []
         #teamList[teamName]['teamMembers'] = {}
         #for teamItem in TeamDetail.objects.filter(teamName=teamName):
         #    if(teamItem.userDetail!=user.userDetail):
