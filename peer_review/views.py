@@ -250,9 +250,9 @@ def submitForm(request):
             post_cell = userForm.cleaned_data['cell']
             post_email = userForm.cleaned_data['email']
 
-            userDetail = UserDetail(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
+            user = User(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
                                     cell=post_cell, email=post_email)
-            userDetail.save()
+            user.save()
 
             post_userId = userForm.cleaned_data['userId']
 
@@ -270,11 +270,11 @@ def submitForm(request):
 
             post_status = userForm.cleaned_data['status']
 
-            user = User(userId=post_userId, password=post_password, status=post_status, userDetail=userDetail)
+            user = User(userId=post_userId, password=post_password, status=post_status)
             user.save()
 
             for roundObj in RoundDetail.objects.all():
-                team = TeamDetail(userDetail=userDetail, roundDetail=roundObj)
+                team = TeamDetail(user = user, roundDetail=roundObj)
                 team.save()
 
             return HttpResponseRedirect("../")
@@ -354,11 +354,9 @@ def addCSVInfo(userList):
         generate_email(OTP, row['name'], row['surname'], emailText)
         password = hash_password(OTP)
 
-        userDetail = UserDetail(title=row['title'], initials=row['initials'], name=row['name'], surname=row['surname'],
+        user = User(userId=row['user_id'], password=password, status=row['status'],title=row['title'], initials=row['initials'], name=row['name'], surname=row['surname'],
                                 cell=row['cell'], email=row['email'])
-        userDetail.save()
 
-        user = User(userId=row['user_id'], password=password, status=row['status'], userDetail=userDetail)
         user.save()
     return #todo return render request
 
