@@ -18,7 +18,7 @@
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
                     <h4 class="panel-title">
                         <a>
-                            User Details<b class="caret"></b>
+                            User Details <b class="caret"></b>
                         </a>
                     </h4>
                 </div>
@@ -40,53 +40,53 @@
 
                                 <label for="initials" class="col-sm-2 control-label">Initials:</label>
                                 <div class="col-sm-3">
-                                    <input class="form-control" type="text" value="{{ user.initials }}">
+
+                                    <input class="form-control" id="initials" type="text" value="{{ user.initials }}">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label for="firstName" class="col-sm-2 control-label">First Name:</label>
                                 <div class="col-sm-3">
-                                    <input class="form-control" type="text" value="{{ user.name }}">
+                                    <input class="form-control" id="firstName" type="text" value="{{ user.name }}">
                                 </div>
 
                                 <label for="surname" class="col-sm-2 control-label">Surname:</label>
                                 <div class="col-sm-3">
-                                    <input class="form-control" type="text" value="{{ user.surname }}">
+                                    <input class="form-control" id="surname" type="text" value="{{ user.surname }}">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label for="email" class="col-sm-2 control-label">Email:</label>
                                 <div class="col-sm-3">
-                                    <input class="form-control" type="text" value="{{ user.email }}">
+                                    <input class="form-control" id="email" type="text" value="{{ user.email }}">
                                 </div>
 
                                 <label for="cellNumber" class="col-sm-2 control-label">Cell Number:</label>
                                 <div class="col-sm-3">
-                                    <input class="form-control" type="text" value="{{ user.cell }}">
+                                    <input class="form-control" id="cellNumber" type="text" value="{{ user.cell }}">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label for="studentNumber" class="col-sm-2 control-label">Student Number:</label>
                                 <div class="col-sm-3">
-                                    <input class="form-control" type="text" value="{{ user.userId }}">
+                                    <input class="form-control" id="studentNumber" type="text" value="{{ user.userId }}">
                                 </div>
 
                                 <label for="status" class="col-sm-2 control-label">Status:</label>
                                 <div class="col-sm-3">
-                                    <select>
+                                    <select class="form-control" id="status">
                                         <option value="S">Student</option>
                                         <option value="A">Admin</option>
                                     </select>
-                                    <input class="form-control" type="text" value="{{ user.status }}">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <div class="col-sm-offset-2 col-sm-10">
-                                    <button type="submit" class="save btn btn-info" id="submitUser">Submit</button>
+                                    <button type="button" class="save btn btn-info" id="updateUser" data-pk="{{ user.pk }}">Update</button>
                                 </div>
                             </div>
                         </form>
@@ -98,7 +98,7 @@
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
                     <h4 class="panel-title">
                         <a>
-                            Box Two <b class="caret"></b>
+                            User's Rounds <b class="caret"></b>
                         </a>
                     </h4>
                 </div>
@@ -119,28 +119,13 @@
                     </div>
                 </div>
             </div>
-
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseThree">
-                    <h4 class="panel-title">
-                        <a>
-                            Box Three <b class="caret"></b>
-                        </a>
-                    </h4>
-                </div>
-
-                <div id="collapseThree" class="panel-collapse collapse">
-                    <div class="panel-body">
-
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
     <script type="text/javascript">
         $(document).ready(function() {
             $("#title").val("{{ user.title }}");
+            $("#status").val("{{ user.status }}");
 
             var userRoundsTable = $("#userRoundsTable").DataTable({
                 "orderClasses": false,
@@ -189,6 +174,32 @@
                     });
                 }
             })
+        });
+
+        $("#updateUser").on("click", function() {
+            var pk = $(this).data("pk");
+            var token = "{{ csrf_token }}";
+
+            var data = {
+                'userId': $("#studentNumber").val(),
+                'title': $("#title").val(),
+                'initials': $("#initials").val(),
+                'name': $("#firstName").val(),
+                'surname': $("#surname").val(),
+                'cell': $("#cellNumber").val(),
+                'email': $("#email").val(),
+                'status': $("#status").val(),
+                "csrfmiddlewaretoken": token
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: '/userAdmin/update/' + pk,
+                data: data,
+                success: function() {
+                    alert("Updated");
+                }
+            });
         });
     </script>
 {% endblock context %}
