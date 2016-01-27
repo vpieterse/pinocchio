@@ -84,7 +84,6 @@ class Label(models.Model):
     def __str__(self):
         return self.labelText
 
-
 class UserManager(BaseUserManager):
     def create_user(self, email, password, **kwargs):
         user = self.model(
