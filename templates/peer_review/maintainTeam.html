@@ -87,10 +87,10 @@
                                                     <tbody>
                                                         {% for user in users %}
                                                             {% csrf_token %}
-                                                            <tr id="{{ user.userDetail.pk }}">
-                                                                <td>{{ user.userId }}</td>
-                                                                <td>{{ user.userDetail.name }}</td>
-                                                                <td>{{ user.userDetail.surname }}</td>
+                                                            <tr id="{{ user.pk }}">
+                                                                <td>{{ user }}</td>
+                                                                <td>{{ user.name }}</td>
+                                                                <td>{{ user.surname }}</td>
                                                                 <td></td>
                                                             </tr>
                                                         {% endfor %}

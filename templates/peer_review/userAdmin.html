@@ -174,12 +174,12 @@
                                 {% for user in users %}
                                     <tr id="{{ user.pk }}">
                                         <td data-id="userId">{{ user.userId }}</td>
-                                        <td data-id="title">{{ user.userDetail.title }}</td>
-                                        <td data-id="initials">{{ user.userDetail.initials }}</td>
-                                        <td data-id="name">{{ user.userDetail.name }}</td>
-                                        <td data-id="surname">{{ user.userDetail.surname }}</td>
-                                        <td data-id="cell">{{ user.userDetail.cell }}</td>
-                                        <td data-id="email">{{ user.userDetail.email }}</td>
+                                        <td data-id="title">{{ user.title }}</td>
+                                        <td data-id="initials">{{ user.initials }}</td>
+                                        <td data-id="name">{{ user.name }}</td>
+                                        <td data-id="surname">{{ user.surname }}</td>
+                                        <td data-id="cell">{{ user.cell }}</td>
+                                        <td data-id="email">{{ user.email }}</td>
                                         <td data-id="status">{{ user.status }}</td>
                                         <td>
                                             <button type="button" name="edit" class='btn btn-success btn-xs edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ user.userId }}" data-pk="{{ user.pk }}">
