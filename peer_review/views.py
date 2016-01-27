@@ -128,7 +128,7 @@ def questionnaire(request, questionnairePk):
 			   'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk),
                'questionRanking' : Rank.objects.all(), 'questionChoices' : Choice.objects.all(),
                'questionRating' : Rate.objects.all(), 'userDetails' : User.objects.all(),
-               'freeformDetails' : freeformItem.objects.all(), 'questionLabels' : Label.objects.all(),
+               'freeformDetails' : FreeformItem.objects.all(), 'questionLabels' : Label.objects.all(),
                'roundDetails' : RoundDetail.objects.all(), 'teamDetails' : TeamDetail.objects.all()}
 		return render(request, 'peer_review/questionnaire.html', context)
 	else:
