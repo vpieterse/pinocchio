@@ -229,7 +229,6 @@ function createJson() {
     <script>
         title = "maintainRound";
     </script>
-
 {% endblock extrahead %}
 {% block context %}
 
@@ -252,8 +251,8 @@ function createJson() {
                     <div class="panel-body">
 
 
-             <form role="form" id="roundForm" action="/createRound/" method="GET">
 
+             <form role="form" id="roundForm" action="/createRound/" method="GET">
                     {% csrf_token %}
                     <input type="hidden" id="tableData">
 
@@ -261,9 +260,7 @@ function createJson() {
                     <div class="form-group">
                         <label for="name">Name</label>
 
-                        <textarea class="form-control" rows="1" style="resize:none;width:20%" id="name"
-
-                                  name="name"></textarea>
+                        <textarea class="form-control" rows="1" style="resize:none;width:20%" id="name" name="name"></textarea>
                         <div id = "round-label-error">
                         </div>
                         <br/>
@@ -273,7 +270,6 @@ function createJson() {
                         <label for="description">Description</label>
 
                         <textarea class="form-control" rows="2" style="resize:none;width:45%" id="description"
-
                                   name="description"></textarea>
                         <div id = "round-label2-error">
                         </div>
@@ -313,7 +309,6 @@ function createJson() {
                            <br/>
                            <label for="endingDate">Ending Date</label>
                            <div>
-
                             <input type="datetime-local"  name="endingDate" value=""  id ="endingDate"></input>
                                 <div id = "round-label5-error"></div>
 
@@ -428,7 +423,7 @@ function createJson() {
                                                         id='edit' value="{{ round.description }}" onclick="validate_date(round.startingDate)" >Edit
                                                 </button>
                                             </td>
-                                             </form>
+                                             
 
 <!--DELETE-->
                                             <td>
@@ -438,7 +433,7 @@ function createJson() {
                                                     </button>
                                             </td>
 
-                                        </tr>
+                                        </tr></form>
                                     {% endfor %}
                                    
                             </tbody>

@@ -932,8 +932,8 @@ def createRound(request):
                      )
         r.save()
     #
-    #return HttpResponseRedirect('../maintainRound')
-    return HttpResponse()
+    return HttpResponseRedirect('../maintainRound')
+    #return HttpResponse()
 
 
 
