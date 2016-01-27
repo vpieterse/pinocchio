@@ -126,7 +126,10 @@ def questionnaire(request, questionnairePk):
 		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
 			   'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
 			   'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk),
-               'questionRanking' : Rank.objects.all(), 'questionChoices' : Choice.objects.all()}
+               'questionRanking' : Rank.objects.all(), 'questionChoices' : Choice.objects.all(),
+               'questionRating' : Rate.objects.all(), 'userDetails' : User.objects.all(),
+               'freeformDetails' : FreeformItem.objects.all(), 'questionLabels' : Label.objects.all(),
+               'roundDetails' : RoundDetail.objects.all(), 'teamDetails' : TeamDetail.objects.all()}
 		return render(request, 'peer_review/questionnaire.html', context)
 	else:
 		return render(request, 'peer_review/userError.html')
@@ -884,7 +887,7 @@ def roundUpdate(request, roundPk):
 
         round.save()
     return HttpResponseRedirect('../')
-    #return HttpResponse()
+    # return HttpResponse()
 
 #Create a round
 def createRound(request):
