@@ -31,22 +31,24 @@ def teamMembers(request):
     #TEST
     user = User.objects.get(userId = '14035548')
     rounds = RoundDetail.objects.all()
-    teamList = {}
+    teamList = []
+    teamMembers = []
     for team in TeamDetail.objects.filter(user=user):
         teamName = team.teamName
         roundName = RoundDetail.objects.get(pk=team.roundDetail.pk).name
-        teamName = roundName + ": " + team.teamName
-        teamList[teamName] = []
+        teamList.append(team)
         for teamItem in TeamDetail.objects.filter(teamName=team.teamName):
-            print(teamItem)
             if(teamItem.user!=user):
-                teamList[teamName].append(teamItem.user)
-    context={'teams':teamList}
+                print(teamItem)
+                teamMembers.append(teamItem)
+    context={'teams': teamList, 'members': teamMembers}
     print(teamList)
-    return render(request, 'peer_review/teamMembers.html',context)
+    print(teamMembers)
+    return render(request, 'peer_review/teamMembers.html', context)
     
-def accountDetails(request):
-    context = {}
+def accountDetails(request, userId):
+    user = User.objects.get(userId=userId)
+    context = {'user': user}
     return render(request, 'peer_review/accountDetails.html',context)
 
 def login(request):
@@ -106,9 +108,18 @@ def maintainRound(request):
 
 
 def maintainTeam(request):
-    context = {'users': User.objects.all(),
-                'rounds': RoundDetail.objects.all(),
-                'teams': TeamDetail.objects.all()}
+    if request.method == "POST":
+        roundPk = request.POST.get("roundPk")
+
+        context = {'users': User.objects.all(),
+                   'rounds': RoundDetail.objects.all(),
+                   'teams': TeamDetail.objects.all(),
+                   'roundPk': roundPk}
+    else:
+        context = {'users': User.objects.all(),
+                   'rounds': RoundDetail.objects.all(),
+                   'teams': TeamDetail.objects.all(),
+                   'roundPk': "none"}
     return render(request, 'peer_review/maintainTeam.html', context)
 
 
@@ -163,7 +174,7 @@ def getTeams(request):
                 'round': team.roundDetail.name,
                 'team': team.teamName,
                 'status': team.status,
-                'teamId': team.pk
+                'teamId': team.pk,
             }
     elif request.method == "POST":
         userPk = request.POST.get("pk")
@@ -175,7 +186,8 @@ def getTeams(request):
                 'round': team.roundDetail.name,
                 'team': team.teamName,
                 'status': team.status,
-                'teamId': team.pk
+                'teamId': team.pk,
+                'roundPk': team.roundDetail.pk
             }
     return JsonResponse(response)
 

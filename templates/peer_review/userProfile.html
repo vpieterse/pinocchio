@@ -165,7 +165,11 @@
                     $.each(data, function(index, value) {
                         if(value.team != "emptyTeam") {
                             var row = table.row.add([
-                                value.round,
+                                "<form class='roundRedirect' action='/maintainTeam/' method='POST'>" +
+                                "{% csrf_token %}" +
+                                "<input type='hidden' name='roundPk' value='" + value.roundPk + "'>" +
+                                "<a href='#' id='viewRound'>" + value.round + "</a>" +
+                                "</form>",
                                 value.team,
                             ]).draw(false).node();
 
@@ -201,6 +205,11 @@
                     alert("Updated");
                 }
             });
+        });
+
+        $("#userRoundsTable").on("click", "#viewRound", function(e) {
+            e.preventDefault();
+            $(this).parent().submit();
         });
 
         $("#userRoundsTable").on('change', '.status', function() {
