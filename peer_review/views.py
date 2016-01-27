@@ -107,7 +107,6 @@ def maintainRound(request):
 
 
 def maintainTeam(request):
-<<<<<<< HEAD
     if request.method == "POST":
         roundPk = request.POST.get("roundPk")
         print(roundPk)
@@ -120,12 +119,6 @@ def maintainTeam(request):
                    'rounds': RoundDetail.objects.all(),
                    'teams': TeamDetail.objects.all(),
                    'roundPk': "none"}
-=======
-    context = {'users': User.objects.all(),
-                'rounds': RoundDetail.objects.all(),
-                'teams': TeamDetail.objects.all()}
-    print(context)
->>>>>>> 0f2c96f6a7443e0446eeaca5cea2ae9e15730450
     return render(request, 'peer_review/maintainTeam.html', context)
 
 
