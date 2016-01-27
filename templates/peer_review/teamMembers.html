@@ -26,7 +26,7 @@
                             <ul>
                                 {% for member in members %}
                                     {% if member.teamName == team.teamName %}
-                                        <li>{{ member.user.userId }}: {{ member.user.name }} {{ member.user.surname }}</li>
+                                        <li><a href="/accountDetails/{{ member.user.userId }}">{{ member.user.userId }}</a>: {{ member.user.name }} {{ member.user.surname }}</li>
                                     {% endif %}
                                 {% endfor %}
                             </ul>
