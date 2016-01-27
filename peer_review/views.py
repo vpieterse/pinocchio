@@ -488,7 +488,7 @@ def updateEmail(request):
 
 def addTeamCSVInfo(teamList):
     for row in teamList:
-        userDetID = User.objects.get(userId=row['userID']).userDetail_id
+        userDetID = User.objects.get(userId=row['userID']).pk
         roundDetID = RoundDetail.objects.get(name=row['roundDetail']).pk
         changeUserTeamForRound("", roundDetID, userDetID, row['teamName'])
     return 1
