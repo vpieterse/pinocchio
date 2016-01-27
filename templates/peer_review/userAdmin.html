@@ -173,7 +173,7 @@
                                 <tbody>
                                 {% for user in users %}
                                     <tr id="{{ user.pk }}">
-                                        <td data-id="userId"><a href="/userAdmin/userProfile/{{ user.pk }}">{{ user.userId }}</a></td>
+                                        <td data-id="userId">{{ user.userId }}</td>
                                         <td data-id="title">{{ user.userDetail.title }}</td>
                                         <td data-id="initials">{{ user.userDetail.initials }}</td>
                                         <td data-id="name">{{ user.userDetail.name }}</td>
@@ -261,6 +261,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-warning pull-left" id="resetPassword">Reset Password</button>
+                    <button type="button" class="btn btn-success" id="more">More</button>
                     <button type="button" class="btn btn-success" id="updateConfirm" data-dismiss="modal">Update</button>
                 </div>
             </div>
@@ -362,6 +363,7 @@
 
         $(".edit").on("click", function() {
             var pk = $(this).data("pk");
+            $("#more").attr("data-pk", pk);
             var token = $(this).data("csrf");
             var row = $("#users > tbody > tr#" + pk);
 
@@ -439,6 +441,11 @@
                         }
                     });
                 }
+            });
+
+            $("#more").on("click", function () {
+                var pk = $(this).data("pk");
+                window.location.href = "/userAdmin/userProfile/" + pk;
             });
         });
     </script>
