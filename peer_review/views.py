@@ -265,7 +265,7 @@ def submitForm(request):
             emailText = file.read()
             file.close()
 
-            generate_email(OTP, post_name, post_surname, emailText)
+            generate_email(OTP, post_name, post_surname, emailText, post_email)
             post_password = hash_password(OTP)
 
             post_status = userForm.cleaned_data['status']
