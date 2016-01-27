@@ -165,7 +165,7 @@
                     $.each(data, function(index, value) {
                         if(value.team != "emptyTeam") {
                             var row = table.row.add([
-                                value.round,
+                                "<a id='viewRound' data-id='" + value.teamId + "'>" + value.round + "</a>",
                                 value.team,
                             ]).draw(false).node();
 
@@ -199,6 +199,22 @@
                 data: data,
                 success: function() {
                     alert("Updated");
+                }
+            });
+        });
+
+        $("#userRoundsTable").on("click", "#viewRound", function() {
+            var id = $(this).data("id");
+
+            $.ajax({
+                type: "POST",
+                url: "/maintainTeam/",
+                data: {
+                    "roundPk": id,
+                    "csrfmiddlewaretoken": "{{ csrf_token }}"
+                },
+                success: function(data) {
+                    alert("done");
                 }
             });
         });

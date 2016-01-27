@@ -13,6 +13,7 @@ urlpatterns = [
                   url(r'^createRound/$', views.createRound, name='createRound'),
              
                   url(r'^maintainTeam/$', views.maintainTeam, name='maintainTeam'),
+                  url(r'^maintainTeam/(?P<roundPk>[0-9]+)/?$', views.maintainTeam, name='maintainTeamR'),
                   url(r'^questionnaireAdmin/$', views.questionnaireAdmin, name='questionnaireAdmin'),
 
                   url(r'^questionnaireAdmin/saveQuestionnaire/$', views.saveQuestionnaire, name='saveQuestionnaire'),
