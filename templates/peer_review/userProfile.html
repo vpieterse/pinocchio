@@ -167,7 +167,7 @@
                             var row = table.row.add([
                                 "<form class='roundRedirect' action='/maintainTeam/' method='POST'>" +
                                 "{% csrf_token %}" +
-                                "<input type='hidden' name='roundPk' value='" + value.teamId + "'>" +
+                                "<input type='hidden' name='roundPk' value='" + value.roundPk + "'>" +
                                 "<a href='#' id='viewRound'>" + value.round + "</a>" +
                                 "</form>",
                                 value.team,
