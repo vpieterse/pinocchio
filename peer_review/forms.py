@@ -1,11 +1,18 @@
 # -*- coding: utf-8 -*-
 from django import forms
 
+from peer_review.models import User
+
 
 class DocumentForm(forms.Form):
     docfile = forms.FileField(
         label='Select a file'
     )
+
+class RegistrationForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['email', ]
 
 class LoginForm(forms.Form):
     userType = forms.ChoiceField(

@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.core.management import call_command
 from django.db import models
 from django.utils import timezone
@@ -91,13 +92,13 @@ class UserDetail(models.Model):
     name = models.CharField(max_length=50)
     surname = models.CharField(max_length=50)
     cell = models.CharField(max_length=10)
-    email = models.CharField(max_length=60)
+    email = models.EmailField(max_length=254, unique=True)
 
     def __str__(self):
         return self.surname + " " + self.initials
 
 
-class User(models.Model):
+class User(AbstractBaseUser, PermissionsMixin):
     userId = models.CharField(max_length=8, unique=True)
     password = models.CharField(max_length=100)
     OTP = models.BooleanField(default=True)
@@ -107,9 +108,52 @@ class User(models.Model):
             on_delete=models.CASCADE
     )
 
-    def __str__(self):
-        return self.userId + " - " + self.userDetail.surname + " " + self.userDetail.initials
+    USERNAME_FIELD = 'userDetail.email'
+    # TODO Add more required fields maybe
+    #REQUIRED_FIELDS = ['status']
 
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True, help_text=_(
+        'Designates whether this user should be treated as '
+        'active. Unselect this instead of deleting accounts.'))
+
+    objects = UserManager()
+
+    # TODO Perhaps change this
+    def get_full_name(self):
+        """Return the email."""
+        return self.userDetail.email
+
+    def get_short_name(self):
+        """Return the email."""
+        return self.userDetail.email
+
+    def __str__(self):
+        return self.userDetail.email + " - " + self.userDetail.surname + " " + self.userDetail.initials
+
+class UserManager(BaseUserManager):
+
+    def create_user(self, email, password, **kwargs):
+        user = self.model(
+            email=self.normalize_email(email),
+            is_active=True,
+            **kwargs
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password, **kwargs):
+        user = self.model(
+            email=email,
+            is_staff=True,
+            is_superuser=True,
+            is_active=True,
+            **kwargs
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
 
 class Questionnaire(models.Model):
     intro = models.CharField(max_length=1000)
