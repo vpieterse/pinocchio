@@ -18,7 +18,6 @@
     <script>
         title = "maintainRound";
     </script>
-{% endblock extrahead %}
 
 <script type="text/javascript">
     function textBox(text) {
@@ -73,8 +72,8 @@ function createNewQuestionnaire()
                     console.log(data);
                     $('#desc').val(data.description);
                     $('#quest').val(data.questionnaire);
-                    $('#start').val(data.startingDate);
-                    $('#end').val(data.endingDate);
+                    $('#startdate').val(data.startingDate);
+                    $('#endingDate').val(data.endingDate);
                     selected();
                 },
                 failure: function(data) { 
@@ -147,11 +146,11 @@ function createJson() {
             //alert(cName)
 
             var data = {
-                description: $('#description').val(),
-                name: $('#name').val(),
+                description: $('#roundDescription').val(),
+                name: $('#roundName').val(),
                 questionnaire: $('#questionnaire').val(),
-                startingDate: $('#startingDate').val(),
-                endingDate: $('#endingDate').val(),
+                startingDate: $('#startdate').val(),
+                endingDate: $('#enddate').val(),
                // isEditing: isEditing
             };
 
@@ -166,7 +165,7 @@ function createJson() {
         function create_post() {  
 
 
-            alert('create_post')
+            console.log('create_post')
             //Validation
           /*  var cQuest = $('#questionnaire').val()
             alert(cQuest)
@@ -184,7 +183,7 @@ function createJson() {
                 url: "/createRound/", // the endpoint
                 type: "GET", // http method
                 data: data, // data sent with the post request
-                success: saveSuccess('Round was saved successfully.'),
+                success: function () {console.log('Round was saved successfully.')},
                 failure: function () {alert('Error occurred in saving the question');}
                 });
 
@@ -230,6 +229,7 @@ function createJson() {
     <script>
         title = "maintainRound";
     </script>
+{% endblock extrahead %}
 {% block context %}
 
 <!--Function to add row-->
@@ -250,15 +250,13 @@ function createJson() {
                 <div id="collapseOne" class="panel-collapse collapse in">
                     <div class="panel-body">
 
-
-                <form role="form" id="roundForm" action="/createRound/" method="GET">
                     {% csrf_token %}
                     <input type="hidden" id="tableData">
 
 
                     <div class="form-group">
                         <label for="name">Name</label>
-                        <textarea class="form-control" rows="1" style="resize:none;width:20%" id="roundLabel"
+                        <textarea class="form-control" rows="1" style="resize:none;width:20%" id="roundName"
                                   name="name"></textarea>
                         <div id = "round-label-error">
                         </div>
@@ -267,7 +265,7 @@ function createJson() {
 
                     <div class="form-group">
                         <label for="description">Description</label>
-                        <textarea class="form-control" rows="2" style="resize:none;width:45%" id="roundLabel"
+                        <textarea class="form-control" rows="2" style="resize:none;width:45%" id="roundDescription"
                                   name="description"></textarea>
                         <div id = "round-label-error">
                         </div>
@@ -296,25 +294,24 @@ function createJson() {
                            <br/>
                            <label for="startingDate">Starting Date</label>
                            <div>
-                            <input type="datetime-local"  name="startingDate" value="" ></input>
+                            <input type="datetime-local"  name="startingDate" value="" id = "startdate"></input>
                             </div>
 
                            <br/>
                            <label for="endingDate">Ending Date</label>
                            <div>
-                            <input type="datetime-local"  name="endingDate" value="" ></input>
+                            <input type="datetime-local"  name="endingDate" value="" id = "enddate"></input>
                             </div>
 
 
                             <br/>
                            <div class = "row">
                             <div class = "col-xs-11">
-                                <button class="btn btn-primary" type="submit" onclick="create_post()">Save</button>
+                                <button class="btn btn-primary" onclick="create_post()">Save</button>
                             </div>
                            
                         </div>
                     </div>
-                </form>
                 </div>
             </div>
         </div>
@@ -352,7 +349,7 @@ function createJson() {
                             <tbody>
                             {% for round in roundDetail %}
                                 <tr id="{{ round.pk }}">
-                                    <form action="/maintainRound/update/{{ round.pk }}" method="post">
+                                    <form action = "/maintainRound/update/{{round.pk}}" method = "POST">
                                                 {% csrf_token %}
 
 <!--ROUND DESCRIPTION-->
@@ -425,78 +422,32 @@ function createJson() {
                                                        </td>
 -->
 
-                                               <td><input type="datetime" style="width: 200px" class="noBorder" name="startingDate"
+                                               <td>
+                                                    <input type="datetime" style="width: 200px" class="noBorder" name="startingDate"
                                                        value="{{round.startingDate|date:'DATETIME_FORMAT'}}" ></input>
+                                                </td>
 
 
 
 <!--ENDINGDATE-->
-                                                <td><input type="datetime" style="width: 200px" class="noBorder"
+                                                <td>
+                                                    <input type="datetime" style="width: 200px" class="noBorder"
                                                            name="endingDate"
-                                                           value="{{ round.endingDate|date:'DATETIME_FORMAT' }}"></input></td>
-
-   <!--                                 <td><b><input type="text" class="noBorder" name="endingDisplay"
-                                                       value="{{round.endingDate}}" readonly></input></b>
-                                            <input type="datetime-local" class="noBorder" name="endingDate"
-                                                       value="{{ round.endingDate }}"></input>
-
-                                                       </td>
--->
-
-<!--HERE
-<td>
-                                        <form action="action_page.php">
-                                          <input type="datetime" name="ending" id = ="ending" value="{{ round.endingDate }}">
-                                        </form>
-                                    </td>-->
-
-
-<!--SPANNER-->
-        <!--                                        <td><button type='button' class='btn btn-default btn-xs' id='maintain'  onclick="window.location.href='/maintainTeam'"><span class="glyphicon glyphicon-wrench"></span></button></button></a></button></td>-->
-
-<!--EDIT-->
-                <!--
-                               <td>
-                                    <button type='submit' name="edit" class='btn btn-success btn-xs'
-                                    id='edit' value="{{ round.pk }}">Edit
-                                    </button>
-                                </td>-->
-
-                 <!--
-                    <td>
-                                                    <button class='btn btn-success btn-xs' type = "button" onclick = "editRound({{ round.pk }})">Edit
-                                                    </button>
-                                                </td>-->
-                                             <!--update function??-->
-                                         <!--       <td>
-                                                    <button name="edit" class='btn btn-success btn-xs' id='edit' onclick="window.location.href='/maintainRound/'">Edit
-                                                    </button>
-                                                </td>-->
-                         <!--                                               
-                        <td>
-                                                <form action="/maintainRound/update/{{ round.pk }}" method="post">
-                                                    {% csrf_token %}
+                                                           value="{{ round.endingDate|date:'DATETIME_FORMAT' }}">
+                                                    </input>
+                                                </td> 
+                                                <td>
                                                     <button type='submit' name="edit" class='btn btn-success btn-xs'
-                                                            id='edit'>Edit
+                                                            id='edit' value="{{ round.description }}" onclick="validate_date(round.startingDate)">Edit
                                                     </button>
-                                                </form>
-                                            </td>-->
- <td>
-                                                <button type='submit' name="edit" class='btn btn-success btn-xs'
-                                                        id='edit' value="{{ round.description }}" onclick="validate_date(round.startingDate)">Edit
-                                                </button>
-                                            </td>
-                                            </form>
+                                                </td>
 
 <!--DELETE-->
                                             <td>
-                                                <form action="/maintainRound/delete/{{ round.pk }}" method="post"
-                                                      onsubmit="return confirmDeletion()">
                                                     {% csrf_token %}
                                                     <button type='submit' name="delete" class='btn btn-warning btn-xs'
                                                             id='remove'>Delete
                                                     </button>
-                                                </form>
                                             </td>
 
                                         </tr>
