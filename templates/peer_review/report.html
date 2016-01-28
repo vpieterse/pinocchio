@@ -27,7 +27,7 @@
                     <div class="panel-body">
                         <h4>Select Round</h4>
                         <div>
-                           <select id='selectedRound' class="form-control" style="width:auto" name="type">
+                           <select id='roundSelect' class="form-control" style="width:auto" name="type">
                                <option value=""></option>
                                {% for round in rounds %}
                                    <option value="{{ round.pk }}" desc="{{ round.description }}">{{ round.name }}</option>
@@ -39,4 +39,14 @@
             </div>
         </div>
     </div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var roundPk = "{{ roundPk }}";
+
+            if (roundPk != "") {
+                $("#roundSelect").val(roundPk).change();
+            }
+        });
+    </script>
 {% endblock context %}
