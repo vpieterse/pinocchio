@@ -173,7 +173,8 @@
             tinymce.init({ selector:'#intro',
             statusbar: false, 
             menubar: '',
-            toolbar: 'undo redo bold italic alignleft aligncenter alignright bullist numlist outdent indent code hr ', });
+            plugins: "emoticons",
+            toolbar: 'undo redo bold italic styleselect fontsizeselect emoticons alignleft aligncenter alignright bullist numlist outdent indent code hr ', });
 
             $('.table').on("click", '.move', function () {
                 var row = $(this).closest('tr');
