@@ -9,8 +9,6 @@ urlpatterns = [
                   url(r'^admin/', include(admin.site.urls)),
                   url(r'^fileUpload', views.fileUpload, name='fileUpload'),
                   url(r'^createQuestion/$', views.createQuestion, name='createQuestion'),
-                  url(r'^maintainRound/$', views.maintainRound, name='maintainRound'),
-                  url(r'^createRound/$', views.createRound, name='createRound'),
              
                   url(r'^maintainTeam/$', views.maintainTeam, name='maintainTeam'),
                   url(r'^maintainTeam/(?P<roundPk>[0-9]+)/?$', views.maintainTeam, name='maintainTeamR'),
@@ -48,6 +46,7 @@ urlpatterns = [
                   url(r'^questionAdmin/getRates/(?P<qPk>[0-9]+)/?$', views.getRates, name = 'getRates'),
                   url(r'^questionAdmin/getFreeformItems/(?P<qPk>[0-9]+)/?$', views.getFreeformItems, name = 'getFreeformItems'),
                   url(r'^questionAdmin', views.questionAdmin, name='questionAdmin'),
+                  
                   url(r'^maintainRound/dump/?$', views.roundDump),
                   url(r'^maintainRound/delete/(?P<roundPk>[0-9]+)/?$', views.roundDelete),
                   url(r'^maintainRound/update/(?P<roundPk>[0-9]+)/?$', views.roundUpdate),
@@ -57,6 +56,14 @@ urlpatterns = [
                   url(r'^maintainTeam/changeTeamStatus/(?P<teamPk>[0-9]+)/(?P<status>[a-zA-Z0-9]+)/?$', views.changeTeamStatus),
                   url(r'^maintainTeam/submitTeamCSV/$', views.submitTeamCSV, name="submitTeamCSV"),
                   url(r'^login/auth/$', views.auth, name="auth"),
+
+
+                  url(r'^maintainRound/(?P<error>[0-9]+)/?$', views.maintainRoundWithError,name="maintainRoundWithError"),
+                  url(r'^maintainRound/delete/(?P<roundPk>[0-9]+)/?$', views.roundDelete),
+                  url(r'^maintainRound/update/(?P<roundPk>[0-9]+)/?$', views.roundUpdate),
+                  url(r'^maintainRound/$', views.maintainRound, name='maintainRound'),
+                  url(r'^createRound/$', views.createRound, name='createRound'),
+
 
 
 
