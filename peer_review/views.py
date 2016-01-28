@@ -23,8 +23,10 @@ from .models import Questionnaire, QuestionOrder
 from .forms import DocumentForm, UserForm, LoginForm
 
 def activeRounds(request):
-    rounds = RoundDetail.objects.all()
-    context = {'rounds': rounds}
+    #TEST
+    user = User.objects.get(userId = '14035548')
+    teams = TeamDetail.objects.filter(user=user)
+    context = {'teams': teams}
     return render(request, 'peer_review/activeRounds.html',context)
     
 def teamMembers(request):
@@ -530,12 +532,12 @@ def submitTeamCSV(request):
     global errortype
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
+        filePath = newdoc.docfile.url
+        filePath = filePath[1:]
+        
         if form.is_valid():
             newdoc = Document(docfile=request.FILES['docfile'])
             newdoc.save()
-
-            filePath = newdoc.docfile.url
-            filePath = filePath[1:]
 
             teamList = list()
             error = False
