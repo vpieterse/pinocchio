@@ -492,8 +492,17 @@ def validate(row):
 def roundDump(request):
     if request.method == "POST":
         roundPk = request.POST.get("roundPk")
-        print(roundPk)
-    return
+        writeDump(roundPk)
+    return HttpResponse()
+
+def writeDump(roundPk):
+    data = [['roundId', 'qId', 'q', 'answer']]
+
+    with open('media/dumps/' + roundPk + '.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        writer.writerows(data)
+
+    csvfile.close()
 
 def updateEmail(request):
     if request.method == "POST":

@@ -456,6 +456,20 @@ function createJson() {
         <script>
             $(".dump").on("click", function() {
                 var pk = $(this).data("pk");
+
+                var data = {
+                    "roundPk": pk,
+                    "csrfmiddlewaretoken": "{{ csrf_token }}"
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: "/maintainRound/dump/",
+                    data: data,
+                    success: function(data) {
+                        alert("Success");
+                    }
+                });
             });
         </script>
 {% endblock context %}
