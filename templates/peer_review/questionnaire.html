@@ -278,51 +278,118 @@ input[type=range]:focus::-ms-fill-upper {
 
                                         {% for qType in questionTypes %}
                                             {% ifequal qType.id QuestionsText.questionType_id %}
-                                                {% if qType.name == "Label" %}
+                                                {% if qType.name|lower == "label" %}
 
-                                                    <p>Label</p>
-
-
-
-                                                {% elif qType.name == "Choice" %}
-
-
-                                                    <p>Choice</p>
+                                                    <!-- Type: Label -->
 
 
 
+                                                {% elif qType.name|lower == "choice" %}
 
 
-                                                {% elif qType.name == "Rank" %}
-
-                                                    <p>Rank</p>
+                                                    <!-- Type: Choice -->
 
 
 
 
 
-                                                {% elif qType.name == "Rate" %}
+                                                {% elif qType.name|lower == "rank" %}
 
-                                                    <div>
-                                                        {% for ratings in questionRating %}
-                                                            {% ifequal ratings.question_id QuestionsOrder.question_id  %}
+                                                    <!-- Type: Rank -->
+
+
+
+
+
+                                                {% elif qType.name|lower == "rate" %}
+
+
+                                                    {% for qGroup in questionGrouping %}
+
+                                                        {% ifequal qGroup.id QuestionsText.questionGrouping_id  %}
+
+                                                            {% if qGroup.grouping|lower == "none" %}
+
+                                                                <!-- Grouping: None -->
+
+                                                                    
+                                                                <div>
+                                                                    {% for ratings in questionRating %}
+                                                                    {% ifequal ratings.question_id QuestionsOrder.question_id  %}
                                             
-                                                                <div style="float: left; width:48%"><b>{{ ratings.firstWord }}</b>
+                                                                <div style="float: left; width:48%"><b>{{ ratings.topWord }}</b>
                                                                 </div>
                                                                 <div style="float: left; width:4%" align="center">
                                                                     <label id="valueLabel"><b>&#x25BC</b></label><!-- Down Arrow -->
                                                                 </div>
                                                                 <div style="float: left; width:48%" align="right">
-                                                                <b>{{ ratings.secondWord }}</b></div>
+                                                                <b>{{ ratings.bottomWord }}</b></div>
                                                                 <br style="clear: left;"/>
 
                                                             {% endifequal %}
                                                         {% endfor %}
                                         
-                                                    <input id="rateSlider" type="range" min="0" max="100" value="50" step="1"/>
+                                                    <input id="rateSlider{{QuestionsText.id}}0" type="range" min="0" max="100" value="50" step="1"/>
                                             
                                                     </div>
-                                          
+
+
+
+
+                                                            {% elif qGroup.grouping|lower == "rest" %}
+
+                                                                <p>Grouping: Rest</p>
+
+                                                                <!-- Groupinh: Rest -->
+
+
+                                                            {% elif qGroup.grouping|lower == "all" %}
+
+                                                                <p>Grouping: All</p>
+
+                                                                <!-- Grouping: All -->
+
+                                                            {% elif qGroup.grouping|lower == "label" %}
+
+                                                        
+                                                                <!-- Grouping: Label -->
+
+
+
+                                                                    {% for qrLabels in questionLabels %}
+
+                                                                        {% ifequal qrLabels.question_id  QuestionsText.id %}
+
+                                                                            <h5><strong>{{ qrLabels.labelText }}</strong></h5>
+
+                                                                                <div>
+                                                                    {% for ratings in questionRating %}
+                                                                    {% ifequal ratings.question_id QuestionsOrder.question_id  %}
+                                            
+                                                                <div style="float: left; width:48%"><b>{{ ratings.topWord }}</b>
+                                                                </div>
+                                                                <div style="float: left; width:4%" align="center">
+                                                                    <label id="valueLabel"><b>&#x25BC</b></label><!-- Down Arrow -->
+                                                                </div>
+                                                                <div style="float: left; width:48%" align="right">
+                                                                <b>{{ ratings.bottomWord }}</b></div>
+                                                                <br style="clear: left;"/>
+
+                                                            {% endifequal %}
+                                                        {% endfor %}
+                                        
+                                                    <input id="rateSlider{{QuestionsText.id}}{{ qrLabels.id }}" type="range" min="0" max="100" value="50" step="1"/>
+                                            
+                                                    </div>
+
+
+
+
+
+                                                                        {% endifequal %}
+
+
+                                                                    {% endfor %}
 
 
 
@@ -332,9 +399,59 @@ input[type=range]:focus::-ms-fill-upper {
 
 
 
-                                                {% elif qType.name == "Freeform" %}
 
-                                                    <p>Freeform</p>
+
+
+
+
+
+
+
+
+                                                            {% else %}
+
+                                                                <p>Database Error</p>
+
+                                                            {% endif %}
+
+
+
+
+
+
+
+
+                                                        {% endifequal %}
+
+
+
+
+
+
+
+
+
+                                                    {% endfor %}
+              
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                {% elif qType.name|lower == "freeform" %}
+
+                                                    <!-- Type: Freeform -->
 
 
 
