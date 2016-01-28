@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.core.management import call_command
 from django.db import models
 from django.utils import timezone
@@ -68,11 +69,13 @@ class Rank(models.Model):
     def __str__(self):
         return self.firstWord + " - " + self.secondWord
 
+
 class Rate(models.Model):
     question = models.ForeignKey(Question)
     topWord = models.CharField(max_length=25)
     bottomWord = models.CharField(max_length=25)
     optional = models.BooleanField(default=False)
+
 
 class Label(models.Model):
     question = models.ForeignKey(Question)
@@ -81,20 +84,64 @@ class Label(models.Model):
     def __str__(self):
         return self.labelText
 
-class User(models.Model):
+
+class UserManager(BaseUserManager):
+    def create_user(self, email, password, **kwargs):
+        user = self.model(
+                email=self.normalize_email(email),
+                is_active=True,
+                **kwargs
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password, **kwargs):
+        user = self.model(
+                email=email,
+                is_staff=True,
+                is_superuser=True,
+                is_active=True,
+                **kwargs
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+
+class User(AbstractBaseUser, PermissionsMixin):
     title = models.CharField(max_length=4)
     initials = models.CharField(max_length=10)
     name = models.CharField(max_length=50)
     surname = models.CharField(max_length=50)
-    password = models.CharField(max_length=200)
     cell = models.CharField(max_length=10)
-    email = models.CharField(max_length=60)
+    email = models.EmailField(max_length=254, unique=True)
+
     userId = models.CharField(max_length=8, unique=True)
     OTP = models.BooleanField(default=True)
     status = models.CharField(max_length=1)
 
+    USERNAME_FIELD = 'email'
+    # TODO Add more required fields maybe
+    # REQUIRED_FIELDS = ['status']
+
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. '
+                                                            'Unselect this instead of deleting accounts.')
+
+    objects = UserManager()
+
+    # TODO Perhaps change this
+    def get_full_name(self):
+        """Return the email."""
+        return self.email
+
+    def get_short_name(self):
+        """Return the email."""
+        return self.email
+
     def __str__(self):
-        return self.userId + " - " + self.surname + " " + self.initials
+        return self.email + " - " + self.surname + " " + self.initials
 
 
 class Questionnaire(models.Model):
@@ -105,6 +152,7 @@ class Questionnaire(models.Model):
     def __str__(self):
         return self.label
 
+
 class QuestionOrder(models.Model):
     questionnaire = models.ForeignKey(Questionnaire)
     question = models.ForeignKey(Question)
@@ -112,6 +160,7 @@ class QuestionOrder(models.Model):
 
     def __str__(self):
         return self.question.questionLabel
+
 
 class RoundDetail(models.Model):
     name = models.CharField(max_length = 15, unique=True)
@@ -140,7 +189,7 @@ class TeamDetail(models.Model):
 
     def __str__(self):
         return self.roundDetail.description + " " + self.teamName + " (" + self.user.surname + ", " + self.user.initials + ")"
-        
+
 class Response(models.Model):
     question = models.ForeignKey(Question)                                      #The question
     roundDetail = models.ForeignKey(RoundDetail)                                #The round
