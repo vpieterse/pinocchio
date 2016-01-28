@@ -981,3 +981,7 @@ def createResponse(request):
                             label = label,
                             answer = answer)
     return HttpResponse()
+
+
+def report(request):
+    return render(request, 'peer_review/report.html', {})
