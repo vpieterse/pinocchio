@@ -182,6 +182,11 @@
                 else
                     row.next().after(row);
             });
+            
+            $('#search').keyup(function () {
+                t = $('#questionnaireList').DataTable();
+                t.search($('#search').val()).draw();
+            })
 
             var questionTable = $("#questionTable");
             resizeTableColumns(questionTable);
@@ -290,6 +295,7 @@
                     title: "Questionnaire Label",
                     data: "label", 
                     targets: [0],
+                    orderable: false,
                 },
                 {
                     title: "",
@@ -300,7 +306,8 @@
                             + "<button class=\"btn btn-warning btn-xs\" type = \"button\" onclick = \"deleteQuestionnaire(" + "\'" + row.DT_RowId + "\'" + ")\">Delete</button></div>";
                         },
                     targets: [1],
-                }]                
+                }],
+                dom: 't'                
             });
             updateQuestionnaireList();
         });
