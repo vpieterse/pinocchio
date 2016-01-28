@@ -88,7 +88,7 @@
                                                         {% for user in users %}
                                                             {% csrf_token %}
                                                             <tr id="{{ user.pk }}">
-                                                                <td>{{ user }}</td>
+                                                                <td>{{ user.userId }}</td>
                                                                 <td>{{ user.name }}</td>
                                                                 <td>{{ user.surname }}</td>
                                                                 <td></td>
@@ -194,9 +194,12 @@
             else
             {
                 var teamID = prompt('Team name:', 'Team'+(numTeams+1));
-                while($("#"+teamID).length != 0 || teamID == "emptyTeam")
+                while($("#"+teamID).length != 0 || teamID == "emptyTeam" || teamID.includes(' '))
                 {
-                    teamID = prompt('Team name already in use:', teamID);
+                    if(teamID.includes(' '))
+                        teamID = prompt('Spaces are not allowed. Please use the "_" or "-" character instead:', teamID);
+                    else
+                        teamID = prompt('Team name already in use:', teamID);
                 }
                 if(teamID != null)
                 {
@@ -287,6 +290,8 @@
         }
 
         $(document).ready(function () {
+            var roundPk = "{{ roundPk }}";
+
             var teamViewTable = $("#teamViewTable").DataTable({
                 "orderClasses": false,
                 "columnDefs": [{
@@ -385,7 +390,6 @@
                 }
             });
 
-            
             $('#selectedRound').on('change', function() {
                 loading = true;
                 $("#teams").find("div.removeUser").click();
@@ -415,7 +419,7 @@
 
                                     selected = team["teamName"];
                                     $("#"+team["teamName"]).addClass("in");
-                                
+
                                     $("#users").find("#"+team["userId"]).find('div.addUser').click();
 
                                     $("#"+team["teamName"]).removeClass("in");
@@ -426,11 +430,13 @@
                         failure: function(data) {
                             console.log('Error: getTeamsForRound');
                         }
-                    }); 
+                    });
                 }
                 loading = false;
             });
-            
+
+            $("#selectedRound").val(roundPk).change();
+
             $("#collapseThree").on('shown.bs.collapse', function() {
                 $.ajax({
                     url: '/maintainTeam/getTeams/',

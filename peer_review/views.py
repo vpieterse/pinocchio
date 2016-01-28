@@ -23,30 +23,34 @@ from .models import Questionnaire, QuestionOrder
 from .forms import DocumentForm, UserForm, LoginForm
 
 def activeRounds(request):
-    rounds = RoundDetail.objects.all()
-    context = {'rounds': rounds}
+    #TEST
+    user = User.objects.get(userId = '14035548')
+    teams = TeamDetail.objects.filter(user=user)
+    context = {'teams': teams}
     return render(request, 'peer_review/activeRounds.html',context)
     
 def teamMembers(request):
     #TEST
-    user = User.objects.get(userId = '14031145')
+    user = User.objects.get(userId = '14035548')
     rounds = RoundDetail.objects.all()
-    teamList = {}
+    teamList = []
+    teamMembers = []
     for team in TeamDetail.objects.filter(user=user):
         teamName = team.teamName
         roundName = RoundDetail.objects.get(pk=team.roundDetail.pk).name
-        teamList[teamName] = {}
-        teamList[teamName]['roundName'] = roundName
-        #teamList[teamName]['teamMembers'] = {}
-        #for teamItem in TeamDetail.objects.filter(teamName=teamName):
-        #    if(teamItem.userDetail!=user.userDetail):
-        #        teamList[teamName]['teamMembers'][teamItem.pk] = teamItem
-    context={'teams':teamList}
+        teamList.append(team)
+        for teamItem in TeamDetail.objects.filter(teamName=team.teamName):
+            if(teamItem.user!=user):
+                print(teamItem)
+                teamMembers.append(teamItem)
+    context={'teams': teamList, 'members': teamMembers}
     print(teamList)
-    return render(request, 'peer_review/teamMembers.html',context)
+    print(teamMembers)
+    return render(request, 'peer_review/teamMembers.html', context)
     
-def accountDetails(request):
-    context = {}
+def accountDetails(request, userId):
+    user = User.objects.get(userId=userId)
+    context = {'user': user}
     return render(request, 'peer_review/accountDetails.html',context)
 
 def login(request):
@@ -106,9 +110,18 @@ def maintainRound(request):
 
 
 def maintainTeam(request):
-    context = {'users': User.objects.all(),
-                'rounds': RoundDetail.objects.all(),
-                'teams': TeamDetail.objects.all()}
+    if request.method == "POST":
+        roundPk = request.POST.get("roundPk")
+
+        context = {'users': User.objects.all(),
+                   'rounds': RoundDetail.objects.all(),
+                   'teams': TeamDetail.objects.all(),
+                   'roundPk': roundPk}
+    else:
+        context = {'users': User.objects.all(),
+                   'rounds': RoundDetail.objects.all(),
+                   'teams': TeamDetail.objects.all(),
+                   'roundPk': "none"}
     return render(request, 'peer_review/maintainTeam.html', context)
 
 
@@ -126,7 +139,10 @@ def questionnaire(request, questionnairePk):
 		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
 			   'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
 			   'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk),
-               'questionRanking' : Rank.objects.all(), 'questionChoices' : Choice.objects.all()}
+               'questionRanking' : Rank.objects.all(), 'questionChoices' : Choice.objects.all(),
+               'questionRating' : Rate.objects.all(), 'userDetails' : User.objects.all(),
+               'freeformDetails' : FreeformItem.objects.all(), 'questionLabels' : Label.objects.all(),
+               'roundDetails' : RoundDetail.objects.all(), 'teamDetails' : TeamDetail.objects.all()}
 		return render(request, 'peer_review/questionnaire.html', context)
 	else:
 		return render(request, 'peer_review/userError.html')
@@ -152,15 +168,15 @@ def getTeams(request):
     if request.method == "GET":
         teams = TeamDetail.objects.all()
         for team in teams:
-            user = User.objects.get(user=team.user)
+            user = User.objects.get(pk=team.user.pk)
             response[team.pk] = {
                 'userId': user.userId,
                 'initials': team.user.initials,
-                'surname': team.usre.surname,
+                'surname': team.user.surname,
                 'round': team.roundDetail.name,
                 'team': team.teamName,
                 'status': team.status,
-                'teamId': team.pk
+                'teamId': team.pk,
             }
     elif request.method == "POST":
         userPk = request.POST.get("pk")
@@ -172,7 +188,8 @@ def getTeams(request):
                 'round': team.roundDetail.name,
                 'team': team.teamName,
                 'status': team.status,
-                'teamId': team.pk
+                'teamId': team.pk,
+                'roundPk': team.roundDetail.pk
             }
     return JsonResponse(response)
 
@@ -222,7 +239,7 @@ def check_password(hashed_password, user_password):
     password, salt = hashed_password.split(':')
     return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
 
-def generate_email(OTP, post_name, post_surname, email_text):
+def generate_email(OTP, post_name, post_surname, email_text, email):
     fn = "{firstname}"
     ln = "{lastname}"
     otp = "{otp}"
@@ -351,7 +368,7 @@ def addCSVInfo(userList):
         emailText = file.read()
         file.close()
 
-        generate_email(OTP, row['name'], row['surname'], emailText)
+        generate_email(OTP, row['name'], row['surname'], emailText, row['email'])
         password = hash_password(OTP)
 
         user = User(userId=row['user_id'], password=password, status=row['status'],title=row['title'], initials=row['initials'], name=row['name'], surname=row['surname'],
@@ -474,6 +491,24 @@ def validate(row):
 
     return 1
 
+def writeDump(roundPk):
+    data = [['roundId', 'qId', 'q', 'answer']]
+
+    data.append(['x', 'x', 'x', 'x'])
+    data.append(['y', 'y', 'y', 'y'])
+
+    with open('media/dumps/' + roundPk + '.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        writer.writerows(data)
+
+    csvfile.close()
+
+def roundDump(request):
+    if request.method == "POST":
+        roundPk = request.POST.get("roundPk")
+        writeDump(roundPk)
+    return HttpResponse()
+
 def updateEmail(request):
     if request.method == "POST":
         emailText = request.POST.get("emailText")
@@ -488,7 +523,7 @@ def updateEmail(request):
 
 def addTeamCSVInfo(teamList):
     for row in teamList:
-        userDetID = User.objects.get(userId=row['userID']).userDetail_id
+        userDetID = User.objects.get(userId=row['userID']).pk
         roundDetID = RoundDetail.objects.get(name=row['roundDetail']).pk
         changeUserTeamForRound("", roundDetID, userDetID, row['teamName'])
     return 1
@@ -497,12 +532,12 @@ def submitTeamCSV(request):
     global errortype
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
+        filePath = newdoc.docfile.url
+        filePath = filePath[1:]
+        
         if form.is_valid():
             newdoc = Document(docfile=request.FILES['docfile'])
             newdoc.save()
-
-            filePath = newdoc.docfile.url
-            filePath = filePath[1:]
 
             teamList = list()
             error = False
@@ -893,13 +928,24 @@ def maintainRoundWithError(request,error):
                     'error' : strError,}
         return render(request,'peer_review/maintainRound.html',context)
 
-
-
-
-
-
-    
-
-
-
-
+#Create a response
+#{responsdentPk, labelPk/userPk, roundPk, answer, questionPk}   
+def createResponse(request):
+    if 'labelPk' in request.POST:
+        target = request.POST['labelPk']
+    else:
+        target = request.POST['userPk']
+ 
+    question = Question.objects.get(pk = request.POST['questionPk'])
+    roundDetail = RoundDetail.objects.get(pk = request.POST['roundPk'])
+    user = User.objects.get(pk = request.POST['responsdentPk'])
+    otherUser = User.objects.get(pk = request.POST['userPk'])
+    label = Label.objects.get(pk = labelPk)
+ 
+    Response.objects.create(question = question,
+                            roundDetail = roundDetail,
+                            user = user,
+                            otherUser = otherUser,
+                            label = label,
+                            answer = answer)
+    return HttpResponse()

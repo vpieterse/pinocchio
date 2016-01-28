@@ -11,6 +11,7 @@ urlpatterns = [
                   url(r'^createQuestion/$', views.createQuestion, name='createQuestion'),
              
                   url(r'^maintainTeam/$', views.maintainTeam, name='maintainTeam'),
+                  url(r'^maintainTeam/(?P<roundPk>[0-9]+)/?$', views.maintainTeam, name='maintainTeamR'),
                   url(r'^questionnaireAdmin/$', views.questionnaireAdmin, name='questionnaireAdmin'),
 
                   url(r'^questionnaireAdmin/saveQuestionnaire/$', views.saveQuestionnaire, name='saveQuestionnaire'),
@@ -25,7 +26,7 @@ urlpatterns = [
                   url(r'^questionnaire/(?P<questionnairePk>[0-9]+)/?$', views.questionnaire, name='questionnaire'),
                   url(r'^activeRounds/$', views.activeRounds, name='activeRounds'),
                   url(r'^teamMembers/$', views.teamMembers, name='teamMembers'),
-                  url(r'^accountDetails/$', views.accountDetails, name='accountDetails'),
+                  url(r'^accountDetails/(?P<userId>[0-9]+)$', views.accountDetails, name='accountDetails'),
 
                   url(r'^$', views.index, name='index'),
                   url(r'^(?P<question_id>[0-9]+)/$', views.detail, name='detail'),
@@ -45,6 +46,10 @@ urlpatterns = [
                   url(r'^questionAdmin/getRates/(?P<qPk>[0-9]+)/?$', views.getRates, name = 'getRates'),
                   url(r'^questionAdmin/getFreeformItems/(?P<qPk>[0-9]+)/?$', views.getFreeformItems, name = 'getFreeformItems'),
                   url(r'^questionAdmin', views.questionAdmin, name='questionAdmin'),
+                  
+                  url(r'^maintainRound/dump/?$', views.roundDump),
+                  url(r'^maintainRound/delete/(?P<roundPk>[0-9]+)/?$', views.roundDelete),
+                  url(r'^maintainRound/update/(?P<roundPk>[0-9]+)/?$', views.roundUpdate),
                   url(r'^maintainTeam/getTeamsForRound/(?P<roundPk>[0-9]+)/?$', views.getTeamsForRound),
                   url(r'^maintainTeam/changeUserTeamForRound/(?P<roundPk>[0-9]+)/(?P<userPk>[0-9]+)/(?P<teamName>[a-zA-Z0-9]+)/?$', views.changeUserTeamForRound),
                   url(r'^maintainTeam/getTeams/?$', views.getTeams),

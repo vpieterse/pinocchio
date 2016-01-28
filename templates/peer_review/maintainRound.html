@@ -277,6 +277,7 @@
                                     <th>Ending Date</th>
                                     <th>Accept Edit</th>
                                     <th>Remove</th>
+                                    <th>Dump</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -358,6 +359,10 @@
                                                 </form>
                                             </td>
 
+                                            <td>
+                                                <input type="button" class="btn btn-info btn-xs dump" value="Data Dump" data-pk="{{ round.pk }}">
+                                            </td>
+
                                         </tr>
                                     {% endfor %}
                                    
@@ -367,10 +372,24 @@
                 </div>
             </div>
         </div>
-        <div class="navbar navbar-default navbar-fixed-bottom">
-            <div class="container">
-                <p class="navbar-text pull-left">&copy; Dillon Heins</p>
-                <a class="navbar-btn btn-danger btn pull-right">Log Out</a>
-            </div>
-        </div>
+
+        <script>
+            $(".dump").on("click", function() {
+                var pk = $(this).data("pk");
+
+                var data = {
+                    "roundPk": pk,
+                    "csrfmiddlewaretoken": "{{ csrf_token }}"
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: "/maintainRound/dump/",
+                    data: data,
+                    success: function(data) {
+                        alert("Success");
+                    }
+                });
+            });
+        </script>
 {% endblock context %}
