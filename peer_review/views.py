@@ -939,29 +939,3 @@ def createRound(request):
     #
     #return HttpResponseRedirect('../maintainRound')
     return HttpResponse()
-
-#Create a response
-#{responsdentPk, labelPk/userPk, roundPk, answer, questionPk}
-def createResponse(request):
-    if 'labelPk' in request.POST:
-        target = request.POST['labelPk']
-    else:
-        target = request.POST['userPk']
-
-    question = Question.objects.get(pk = request.POST['questionPk'])
-    roundDetail = RoundDetail.objects.get(pk = request.POST['roundPk'])
-    user = User.objects.get(pk = request.POST['responsdentPk'])
-    otherUser = User.objects.get(pk = request.POST['userPk'])
-    label = Label.objects.get(pk = labelPk)
-
-    Response.objects.create(question = question,
-                            roundDetail = roundDetail,
-                            user = user,
-                            otherUser = otherUser,
-                            label = label,
-                            answer = answer)
-
-
-
-
-
