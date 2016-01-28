@@ -23,8 +23,10 @@ from .models import Questionnaire, QuestionOrder
 from .forms import DocumentForm, UserForm, LoginForm
 
 def activeRounds(request):
-    rounds = RoundDetail.objects.all()
-    context = {'rounds': rounds}
+    #TEST
+    user = User.objects.get(userId = '14035548')
+    teams = TeamDetail.objects.filter(user=user)
+    context = {'teams': teams}
     return render(request, 'peer_review/activeRounds.html',context)
     
 def teamMembers(request):
