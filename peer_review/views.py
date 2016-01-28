@@ -952,5 +952,11 @@ def createResponse(request):
 
 
 def report(request):
-
-    return render(request, 'peer_review/report.html', {'rounds': RoundDetail.objects.all()})
+    if request.method == "POST":
+        roundPk = request.POST.get("roundPk")
+        print(roundPk)
+        context = {
+            "roundPk": roundPk,
+            "rounds": RoundDetail.objects.all()
+        }
+    return render(request, 'peer_review/report.html', context)

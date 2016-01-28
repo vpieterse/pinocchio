@@ -365,7 +365,11 @@
                                             </td>
 
                                             <td>
-                                                <input type="button" class="btn btn-info btn-xs report" value="Report" data-k="{{ round.pk }}">
+                                                <form action="/report/" method="POST">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="roundPk" value="{{ round.pk }}">
+                                                    <input type="submit" class="btn btn-info btn-xs report" value="Report">
+                                                </form>
                                             </td>
 
                                         </tr>
@@ -395,24 +399,6 @@
                         alert("Success");
                     }
                 });
-            });
-
-            $(".report").on("click", function() {
-                var pk = $(this).data("pk");
-
-                var data = {
-                    "roundPk": pk,
-                    "csrfmiddlewaretoken": "{{ csrf_token }}"
-                }
-
-                $.ajax({
-                    type: "POST",
-                    url: "/report/",
-                    data: data,
-                    success: function(data) {
-                        
-                    }
-                })
             });
         </script>
 {% endblock context %}
