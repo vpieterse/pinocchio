@@ -512,12 +512,12 @@ def submitTeamCSV(request):
     global errortype
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
+        filePath = newdoc.docfile.url
+        filePath = filePath[1:]
+        
         if form.is_valid():
             newdoc = Document(docfile=request.FILES['docfile'])
             newdoc.save()
-
-            filePath = newdoc.docfile.url
-            filePath = filePath[1:]
 
             teamList = list()
             error = False
