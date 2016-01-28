@@ -62,16 +62,16 @@ class FreeformItem(models.Model):
 
 class Rank(models.Model):
     question = models.ForeignKey(Question)
-    topWord = models.CharField(max_length=200)
-    bottomWord = models.CharField(max_length=200)
+    firstWord = models.CharField(max_length=200)
+    secondWord = models.CharField(max_length=200)
 
     def __str__(self):
         return self.firstWord + " - " + self.secondWord
 
 class Rate(models.Model):
     question = models.ForeignKey(Question)
-    firstWord = models.CharField(max_length=25)
-    secondWord = models.CharField(max_length=25)
+    topWord = models.CharField(max_length=25)
+    bottomWord = models.CharField(max_length=25)
     optional = models.BooleanField(default=False)
 
 class Label(models.Model):
@@ -140,3 +140,11 @@ class TeamDetail(models.Model):
 
     def __str__(self):
         return self.roundDetail.description + " " + self.teamName + " (" + self.user.surname + ", " + self.user.initials + ")"
+        
+class Response(models.Model):
+    question = models.ForeignKey(Question)                                      #The question
+    roundDetail = models.ForeignKey(RoundDetail)                                #The round
+    user = models.ForeignKey(User, null=False, related_name="user")             #The answererer
+    subjectUser = models.ForeignKey(User, null=False, related_name="otherUser") #The person the question is about.
+    label = models.ForeignKey(Label)                                            #The label the question is about.
+    answer = models.CharField(max_length=300)  
