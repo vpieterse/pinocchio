@@ -273,6 +273,105 @@ input[type=range]:focus::-ms-fill-upper {
 									{% ifequal QuestionsText.id QuestionsOrder.question_id %}
                                     <legend> </legend>
 										<p style="font-size:110%;">{{ QuestionsText.questionText }}</p>
+
+
+
+                                        {% for qType in questionTypes %}
+                                            {% ifequal qType.id QuestionsText.questionType_id %}
+                                                {% if qType.name == "Label" %}
+
+                                                    <p>Label</p>
+
+
+
+                                                {% elif qType.name == "Choice" %}
+
+
+                                                    <p>Choice</p>
+
+
+
+
+
+                                                {% elif qType.name == "Rank" %}
+
+                                                    <p>Rank</p>
+
+
+
+
+
+                                                {% elif qType.name == "Rate" %}
+
+                                                    <div>
+                                                        {% for ratings in questionRating %}
+                                                            {% ifequal ratings.question_id QuestionsOrder.question_id  %}
+                                            
+                                                                <div style="float: left; width:48%"><b>{{ ratings.firstWord }}</b>
+                                                                </div>
+                                                                <div style="float: left; width:4%" align="center">
+                                                                    <label id="valueLabel"><b>&#x25BC</b></label><!-- Down Arrow -->
+                                                                </div>
+                                                                <div style="float: left; width:48%" align="right">
+                                                                <b>{{ ratings.secondWord }}</b></div>
+                                                                <br style="clear: left;"/>
+
+                                                            {% endifequal %}
+                                                        {% endfor %}
+                                        
+                                                    <input id="rateSlider" type="range" min="0" max="100" value="50" step="1"/>
+                                            
+                                                    </div>
+                                          
+
+
+
+
+
+
+
+
+
+                                                {% elif qType.name == "Freeform" %}
+
+                                                    <p>Freeform</p>
+
+
+
+
+
+
+                                                {% else %}
+
+                                                    <p>Database Error</p>
+
+                                                {% endif %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                            {% endifequal %}
+                                        {% endfor %}
+
+
+
+
+
+
+
+
+
+
+
 										{% if QuestionsText.questionType_id == 2 %} <!-- CHOICE QUESTIONS-->
 
 											<fieldset>
