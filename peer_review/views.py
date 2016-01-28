@@ -6,7 +6,8 @@ import string
 import time
 import uuid
 
-from django.contrib.auth import authenticate, login as django_login
+from django.contrib.auth import authenticate, login as django_login, logout
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
@@ -54,6 +55,7 @@ def accountDetails(request):
 
 
 def login(request):
+    logout(request)
     loginForm = LoginForm()
     context = {'loginForm': loginForm}
     return render(request, 'peer_review/login.html', context)
@@ -120,7 +122,12 @@ def maintainTeam(request):
     return render(request, 'peer_review/maintainTeam.html', context)
 
 
+@login_required
 def questionAdmin(request):
+    # print(request.user.is_authenticated())
+    # if not request.user.is_authenticated():
+    #     return render(request, "peer_review/login.html")
+
     context = {'questionTypes': QuestionType.objects.all(), 'questions': Question.objects.all()}
     return render(request, 'peer_review/questionAdmin.html', context)
 
@@ -146,6 +153,7 @@ def userError(request):
     return render(request, 'peer_review/userError.html')
 
 
+@login_required
 def userList(request):
     users = User.objects.all
     userForm = UserForm()
