@@ -1,0 +1,42 @@
+{% extends "peer_review/baseAdmin.html" %}
+{% load staticfiles %}
+
+{% block extrahead %}
+    <title>Report</title>
+    <!--Edit navbar active-->
+    <script>
+        title = "report";
+    </script>
+{% endblock extrahead %}
+
+{% block context %}
+    <div class="container">
+        <h1>Report</h1>
+
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
+                    <h4 class="panel-title">
+                        <a>
+                            <b>Report </b> <b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <h4>Select Round</h4>
+                        <div>
+                           <select id='selectedRound' class="form-control" style="width:auto" name="type">
+                               <option value=""></option>
+                               {% for round in rounds %}
+                                   <option value="{{ round.pk }}" desc="{{ round.description }}">{{ round.name }}</option>
+                               {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock context %}
