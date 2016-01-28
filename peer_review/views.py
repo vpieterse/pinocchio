@@ -489,6 +489,12 @@ def validate(row):
 
     return 1
 
+def roundDump(request):
+    if request.method == "POST":
+        roundPk = request.POST.get("roundPk")
+        print(roundPk)
+    return
+
 def updateEmail(request):
     if request.method == "POST":
         emailText = request.POST.get("emailText")

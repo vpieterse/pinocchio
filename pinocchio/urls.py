@@ -48,6 +48,7 @@ urlpatterns = [
                   url(r'^questionAdmin/getRates/(?P<qPk>[0-9]+)/?$', views.getRates, name = 'getRates'),
                   url(r'^questionAdmin/getFreeformItems/(?P<qPk>[0-9]+)/?$', views.getFreeformItems, name = 'getFreeformItems'),
                   url(r'^questionAdmin', views.questionAdmin, name='questionAdmin'),
+                  url(r'^maintainRound/dump/?$', views.roundDump),
                   url(r'^maintainRound/delete/(?P<roundPk>[0-9]+)/?$', views.roundDelete),
                   url(r'^maintainRound/update/(?P<roundPk>[0-9]+)/?$', views.roundUpdate),
                   url(r'^maintainTeam/getTeamsForRound/(?P<roundPk>[0-9]+)/?$', views.getTeamsForRound),
