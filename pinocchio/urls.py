@@ -9,10 +9,12 @@ urlpatterns = [
                   url(r'^admin/', include(admin.site.urls)),
                   url(r'^fileUpload', views.fileUpload, name='fileUpload'),
                   url(r'^createQuestion/$', views.createQuestion, name='createQuestion'),
+
                   url(r'^maintainRound/$', views.maintainRound, name='maintainRound'),
                   url(r'^createRound/$', views.createRound, name='createRound'),
 
                   url(r'^maintainTeam/$', views.maintainTeam, name='maintainTeam'),
+                  url(r'^maintainTeam/(?P<roundPk>[0-9]+)/?$', views.maintainTeam, name='maintainTeamR'),
                   url(r'^questionnaireAdmin/$', views.questionnaireAdmin, name='questionnaireAdmin'),
 
                   url(r'^questionnaireAdmin/saveQuestionnaire/$', views.saveQuestionnaire, name='saveQuestionnaire'),
@@ -29,7 +31,7 @@ urlpatterns = [
                   url(r'^questionnaire/(?P<questionnairePk>[0-9]+)/?$', views.questionnaire, name='questionnaire'),
                   url(r'^activeRounds/$', views.activeRounds, name='activeRounds'),
                   url(r'^teamMembers/$', views.teamMembers, name='teamMembers'),
-                  url(r'^accountDetails/$', views.accountDetails, name='accountDetails'),
+                  url(r'^accountDetails/(?P<userId>[0-9]+)$', views.accountDetails, name='accountDetails'),
 
                   url(r'^$', views.index, name='index'),
                   url(r'^(?P<question_id>[0-9]+)/$', views.detail, name='detail'),
@@ -50,6 +52,8 @@ urlpatterns = [
                   url(r'^questionAdmin/getFreeformItems/(?P<qPk>[0-9]+)/?$', views.getFreeformItems,
                       name='getFreeformItems'),
                   url(r'^questionAdmin', views.questionAdmin, name='questionAdmin'),
+
+                  url(r'^maintainRound/dump/?$', views.roundDump),
                   url(r'^maintainRound/delete/(?P<roundPk>[0-9]+)/?$', views.roundDelete),
                   url(r'^maintainRound/update/(?P<roundPk>[0-9]+)/?$', views.roundUpdate),
                   url(r'^maintainTeam/getTeamsForRound/(?P<roundPk>[0-9]+)/?$', views.getTeamsForRound),
@@ -61,5 +65,15 @@ urlpatterns = [
                       views.changeTeamStatus),
                   url(r'^maintainTeam/submitTeamCSV/$', views.submitTeamCSV, name="submitTeamCSV"),
                   url(r'^login/auth/$', views.auth, name="auth"),
+
+
+                  url(r'^maintainRound/(?P<error>[0-9]+)/?$', views.maintainRoundWithError,name="maintainRoundWithError"),
+                  url(r'^maintainRound/delete/(?P<roundPk>[0-9]+)/?$', views.roundDelete),
+                  url(r'^maintainRound/update/(?P<roundPk>[0-9]+)/?$', views.roundUpdate),
+                  url(r'^maintainRound/$', views.maintainRound, name='maintainRound'),
+                  url(r'^createRound/$', views.createRound, name='createRound'),
+
+
+
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

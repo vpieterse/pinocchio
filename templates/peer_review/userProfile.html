@@ -133,7 +133,7 @@
                     "orderable": true,
                     "searchable": true,
                     "render": function(data, type, full, meta){
-                        return  '<select id="statusSelect" class="form-control status">'+
+                        return  '<select class="form-control status">'+
                                 '    <option value="NA" class="NA">Not attempted</option>'+
                                 '    <option value="IP" class="IP">In progress</option>'+
                                 '    <option value="C" class="C">Completed</option>'+
@@ -142,6 +142,8 @@
                     "targets": [2]
                 }]
             });
+
+
 
             var pk = $("#userRoundsTable").data("pk");
             var token = $("#userRoundsTable").data("csrf");
@@ -161,10 +163,13 @@
                     table.clear().draw();
 
                     $.each(data, function(index, value) {
-                        console.log(value.status);
                         if(value.team != "emptyTeam") {
                             var row = table.row.add([
-                                value.round,
+                                "<form class='roundRedirect' action='/maintainTeam/' method='POST'>" +
+                                "{% csrf_token %}" +
+                                "<input type='hidden' name='roundPk' value='" + value.roundPk + "'>" +
+                                "<a href='#' id='viewRound'>" + value.round + "</a>" +
+                                "</form>",
                                 value.team,
                             ]).draw(false).node();
 
@@ -198,6 +203,23 @@
                 data: data,
                 success: function() {
                     alert("Updated");
+                }
+            });
+        });
+
+        $("#userRoundsTable").on("click", "#viewRound", function(e) {
+            e.preventDefault();
+            $(this).parent().submit();
+        });
+
+        $("#userRoundsTable").on('change', '.status', function() {
+            var row = $(this).parents('tr');
+            var id = $(row).attr("id");
+
+            $.ajax({
+                type: "GET",
+                url: "/maintainTeam/changeTeamStatus/" + id + "/" + $(this).val(),
+                success: function(data) {
                 }
             });
         });

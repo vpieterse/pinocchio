@@ -16,23 +16,20 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ team.1.roundName }}">
-                                {{ team }}<b class="caret"></b>
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ team.pk }}">
+                                {{ team.roundDetail.name }}: {{ team.teamName }}<b class="caret"></b>
                             </a>
                         </h4>
                     </div>
-                    <div id="collapse{{ team.1.roundName }}" class="panel-collapse collapse">
+                    <div id="collapse{{ team.pk }}" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <script>
-                                console.log("{{ teams.team.roundName }}");
-                            </script>
-                            <ul><!--
-                                {% for team in teamMembers %}
-                                {% if team.roundDetail.id == round.id and team.teamName != 'emptyTeam' %}
-                                    <li>{{ team.teamName }}: {{ team.userDetail }}</li>
-                                {% endif %}
-                            {% endfor %}
-                            --></ul>
+                            <ul>
+                                {% for member in members %}
+                                    {% if member.teamName == team.teamName %}
+                                        <li><a href="/accountDetails/{{ member.user.userId }}">{{ member.user.userId }}</a>: {{ member.user.name }} {{ member.user.surname }}</li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
                         </div>
                     </div>
                 </div>

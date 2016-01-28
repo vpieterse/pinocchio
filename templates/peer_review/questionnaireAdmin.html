@@ -8,6 +8,7 @@
     <script src="{% static "peer_review/js/tinymce/tinymce.min.js" %}"></script>
 
     <script type="text/javascript">
+    //ToDo: Fix the order of questions saving/loading
         //TinyMCE html editor from https://www.tinymce.com/
         var currentlyEditing = -1;
         function makeOneRowSelectable(table, dataTable) {
@@ -113,15 +114,20 @@
 
             var table = $('#questionnaireTable').DataTable();
             var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
-            //var intro = $('#intro').val();
             var intro = tinyMCE.get('intro').getContent();
             var label = $('#label').val();
             var json = {"questionOrders":[], intro: intro, label: label, 'csrfmiddlewaretoken': token };
-            table.rows().every(function (rowIdx, tableLoop, rowLoop) {
-                var data = this.data();
-                var id = this.node().id;
+            table.rows().invalidate('dom');
+            $('#questionnaireTable > tbody > tr').each( function (index, value) {
+                var id = $(this).attr('id');
                 json["questionOrders"].push(id);
             });
+            /*table.rows().every(function (rowIdx, tableLoop, rowLoop) {
+                var id = this.node().id;
+                json["questionOrders"].push(id);
+                console.log(this.index());
+            });*/
+            console.log(json.questionOrders);
             if (currentlyEditing != -1) {
                 json.pk = currentlyEditing;
             }
@@ -360,7 +366,7 @@
                                 {% for question in questions %}
                                     <tr id="{{ question.pk }}">
                                         {% csrf_token %}
-                                        <td>{{ question.questionText }}</td>
+                                        <td>{{ question.questionLabel }}</td>
                                         <td>{{ question.pubDate }}</td>
                                         <td>{{ question.questionType.name }}</td>
                                         <td>{{ question.questionGrouping.grouping }}</td>

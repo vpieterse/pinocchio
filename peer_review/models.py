@@ -163,8 +163,8 @@ class QuestionOrder(models.Model):
 
 
 class RoundDetail(models.Model):
-    name = models.CharField(max_length=15)
-    questionnaire = models.ForeignKey(Questionnaire, null=True)
+    name = models.CharField(max_length = 15, unique=True)
+    questionnaire = models.ForeignKey(Questionnaire, null =True)
     startingDate = models.DateTimeField('starting date')
     endingDate = models.DateTimeField('ending date')
     description = models.CharField(max_length=300)
@@ -189,3 +189,11 @@ class TeamDetail(models.Model):
 
     def __str__(self):
         return self.roundDetail.description + " " + self.teamName + " (" + self.user.surname + ", " + self.user.initials + ")"
+
+class Response(models.Model):
+    question = models.ForeignKey(Question)                                      #The question
+    roundDetail = models.ForeignKey(RoundDetail)                                #The round
+    user = models.ForeignKey(User, null=False, related_name="user")             #The answererer
+    subjectUser = models.ForeignKey(User, null=False, related_name="otherUser") #The person the question is about.
+    label = models.ForeignKey(Label)                                            #The label the question is about.
+    answer = models.CharField(max_length=300)
