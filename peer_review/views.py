@@ -999,3 +999,14 @@ def createResponse(request):
                             label = label,
                             answer = answer)
     return HttpResponse()
+
+
+def report(request):
+    if request.method == "POST":
+        roundPk = request.POST.get("roundPk")
+        print(roundPk)
+        context = {
+            "roundPk": roundPk,
+            "rounds": RoundDetail.objects.all()
+        }
+    return render(request, 'peer_review/report.html', context)

@@ -64,6 +64,7 @@ urlpatterns = [
                   url(r'^maintainTeam/changeTeamStatus/(?P<teamPk>[0-9]+)/(?P<status>[a-zA-Z0-9]+)/?$',
                       views.changeTeamStatus),
                   url(r'^maintainTeam/submitTeamCSV/$', views.submitTeamCSV, name="submitTeamCSV"),
+                  url(r'^report/?$', views.report),
                   url(r'^login/auth/$', views.auth, name="auth"),
 
 

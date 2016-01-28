@@ -197,3 +197,6 @@ class Response(models.Model):
     subjectUser = models.ForeignKey(User, null=False, related_name="otherUser") #The person the question is about.
     label = models.ForeignKey(Label)                                            #The label the question is about.
     answer = models.CharField(max_length=300)
+
+    def __str__(self):
+        return self.label
