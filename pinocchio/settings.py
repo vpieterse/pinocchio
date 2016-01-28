@@ -15,7 +15,6 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
@@ -26,7 +25,6 @@ SECRET_KEY = '!lz*&*^pr_#a&277j6!hsif3*ueca+sg#&*j)k$1hu)2yhh6@v'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -72,7 +70,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'pinocchio.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
@@ -83,11 +80,11 @@ DATABASES = {
     }
 }
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
 from django.conf.locale.en import formats as en_formats
+
 en_formats.DATETIME_FORMAT = "Y-m-d H:i"
 
 LANGUAGE_CODE = 'en-us'
@@ -109,6 +106,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
 MEDIA_URL = '/media/'
 
+LOGIN_URL = '/'
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
@@ -119,6 +118,7 @@ STATICFILES_DIRS = (
     # '/var/www/static/',
 )
 
+AUTH_USER_MODEL = 'peer_review.User'
 EMAIL_USE_TLS = False
 EMAIL_HOST = "kendy.up.ac.za"
 EMAIL_PORT = 25
