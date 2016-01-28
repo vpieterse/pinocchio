@@ -194,9 +194,12 @@
             else
             {
                 var teamID = prompt('Team name:', 'Team'+(numTeams+1));
-                while($("#"+teamID).length != 0 || teamID == "emptyTeam")
+                while($("#"+teamID).length != 0 || teamID == "emptyTeam" || teamID.includes(' '))
                 {
-                    teamID = prompt('Team name already in use:', teamID);
+                    if(teamID.includes(' '))
+                        teamID = prompt('Spaces are not allowed. Please use the "_" or "-" character instead:', teamID);
+                    else
+                        teamID = prompt('Team name already in use:', teamID);
                 }
                 if(teamID != null)
                 {
