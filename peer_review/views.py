@@ -984,4 +984,5 @@ def createResponse(request):
 
 
 def report(request):
-    return render(request, 'peer_review/report.html', {})
+
+    return render(request, 'peer_review/report.html', {'rounds': RoundDetail.objects.all()})
