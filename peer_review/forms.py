@@ -15,11 +15,8 @@ class RegistrationForm(forms.ModelForm):
         fields = ['email', ]
 
 class LoginForm(forms.Form):
-    userType = forms.ChoiceField(
-        label="User Type:",
-        choices=(('A', 'Admin',), ('S', 'Student',)),
-        widget=forms.Select(attrs={'class': 'form-control', 'id': 'userType'}),
-    )
+    email = forms.EmailField()
+    password = forms.CharField(widget=forms.PasswordInput)
 
 class UserForm(forms.Form):
     userId = forms.CharField(

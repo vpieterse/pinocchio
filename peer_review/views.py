@@ -1,9 +1,12 @@
+from django.contrib.auth import authenticate, login as django_login
+from django.contrib.auth.forms import PasswordResetForm
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.shortcuts import render, redirect
 from django.template import RequestContext
 from django.http import JsonResponse
+from django.views.generic.detail import DetailView
 from django.core.mail import send_mail
 import random
 import string
@@ -15,12 +18,14 @@ import csv
 import os
 
 from django.utils import timezone
+from django.views.generic import CreateView
 
 from .models import Document
 from .models import Question, QuestionType, QuestionGrouping, Choice, Rank, Questionnaire, RoundDetail, TeamDetail, FreeformItem, Rate, Label
 from .models import User
 from .models import Questionnaire, QuestionOrder
-from .forms import DocumentForm, UserForm, LoginForm
+from .forms import DocumentForm, UserForm, LoginForm, RegistrationForm
+
 
 def activeRounds(request):
     rounds = RoundDetail.objects.all()
@@ -58,15 +63,14 @@ def auth(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            userType = form.cleaned_data['userType']
-            if userType == 'A':
-                return redirect('/userAdmin/')
-            elif userType == 'S':
-                return redirect('/activeRounds/')
-            else:
-                return redirect('/login/')
-        else:
-            return redirect('/login/')
+            email = request.POST.get('email')
+            password = request.POST.get('password')
+            user = authenticate(email=email, password=password)
+            if user:
+                if user.is_active:
+                    django_login(request, user)
+                    return redirect('userAdmin')
+        return redirect('/login/')
     else:
         return redirect('/login/')
 
@@ -249,12 +253,10 @@ def submitForm(request):
             post_surname = userForm.cleaned_data['surname']
             post_cell = userForm.cleaned_data['cell']
             post_email = userForm.cleaned_data['email']
+            post_userId = userForm.cleaned_data['userId']
 
             user = User(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
-                                    cell=post_cell, email=post_email)
-            user.save()
-
-            post_userId = userForm.cleaned_data['userId']
+                                    cell=post_cell, email=post_email, userId=post_userId)
 
             OTP = generate_OTP()
 
@@ -266,11 +268,12 @@ def submitForm(request):
             file.close()
 
             generate_email(OTP, post_name, post_surname, emailText, post_email)
-            post_password = hash_password(OTP)
+            post_password = OTP#hash_password(OTP)
 
             post_status = userForm.cleaned_data['status']
 
-            user = User(userId=post_userId, password=post_password, status=post_status)
+            user.password = post_password
+            user.status = post_status
             user.save()
 
             for roundObj in RoundDetail.objects.all():
@@ -285,7 +288,7 @@ def submitForm(request):
 def userProfile(request, userPk):
     if request.method == "GET":
         user = User.objects.get(pk=userPk)
-
+    #TODO Add else
     return render(request, 'peer_review/userProfile.html', {'user': user})
 
 
@@ -924,6 +927,3 @@ def createRound(request):
     #
     #return HttpResponseRedirect('../maintainRound')
     return HttpResponse()
-
-
-
