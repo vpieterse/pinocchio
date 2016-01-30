@@ -1,0 +1,115 @@
+﻿{% extends "peer_review/baseAdmin.html" %}
+{% load staticfiles %}
+{% block extrahead %}
+    <title>User Admin</title>
+
+    <script src="{% static "peer_review/search.js" %}"></script>
+    <script src="{% static "peer_review/validation.js" %}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#users tr').each(function () {
+                $(this).find('input[type="text"]').each(function () {
+                    $(this).attr('size', $(this).val().length);
+                });
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block context %}
+
+    <div class="container">
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
+                    <h4 class="panel-title">
+                        <a>
+                            Error <b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <h3>
+                            {{ message }}<br>
+                            <b>Error: </b>{{ error }}
+                        </h3>
+                        {% if row %}
+                            <h4>
+                                This is how we interpreted the CSV file at this row:
+                            </h4>
+                            <div class='table-responsive'>
+                                <table class='table sortable' id='users'>
+                                    <thead>
+                                    <tr>
+                                        <th>title</th>
+                                        <th>initials</th>
+                                        <th>name</th>
+                                        <th>surname</th>
+                                        <th>email</th>
+                                        <th>cell</th>
+                                        <th>user_id</th>
+                                        <th>status</th>
+                                    </thead>
+                                    <tr>
+                                        <td>
+                                            {{ row.0 }}
+                                        </td>
+                                        <td>
+                                            {{ row.1 }}
+                                        </td>
+                                        <td>
+                                            {{ row.2 }}
+                                        </td>
+                                        <td>
+                                            {{ row.3 }}
+                                        </td>
+                                        <td>
+                                            {{ row.4 }}
+                                        </td>
+                                        <td>
+                                            {{ row.5 }}
+                                        </td>
+                                        <td>
+                                            {{ row.6 }}
+                                        </td>
+                                        <td>
+                                            {{ row.7 }}
+                                        </td>
+                                        <td>
+                                            {{ row.8 }}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h4>Please take note of the format we use to interpret a CSV:</h4>
+
+                            <div>
+                                "title","initials","name","surname","email","cell","user_id","status","password"<br>
+                                "Mr","D","Dillon","Heins","dillonheins@gmail.com","0798016454","14035547","A","123456"<br>
+                                "Mr","M","Matthias","Harvey","m@gmail.com","0751457814","14578841","A","password125"<br>
+                                "Mr","M","Matthew","Botha","mb@gmail.com","0781245487","15671148","S","178415"<br>
+                            </div>
+                            <div>
+                                <br>
+                                <a href="/userAdmin/">Home</a>
+                                <a href="#">Template</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container">
+            <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
+            <a class="navbar-btn btn-danger btn pull-right">Log Out</a>
+        </div>
+    </div>
+
+{% endblock %}

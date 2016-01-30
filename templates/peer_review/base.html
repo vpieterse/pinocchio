@@ -1,0 +1,34 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script src="{% static "peer_review/jquery.min.js" %}"></script>
+    <link rel="stylesheet" href="{% static "peer_review/css/bootstrap.min.css" %}">
+    <script src="{% static "peer_review/js/bootstrap.min.js" %}"></script>
+    <link rel="stylesheet" href="{% static "peer_review/css/style.css" %}">
+    <link rel="stylesheet" href="{% static "peer_review/bootstrap-sortable.css" %}">
+    <link rel="icon" type="image/png" href="{% static "peer_review/favicon.png" %}">
+
+    <script src="{% static "peer_review/bootstrap-sortable.js" %}"></script>
+
+    <link rel="stylesheet" href="{% static "peer_review/css/datatables.min.css" %}"/>
+    <script src="{% static "peer_review/js/datatables.min.js" %}"></script>
+    {% block extrabasehead %} {% endblock %}
+</head>
+<body>
+
+{% block basecontext %}{% endblock %}
+<div class="navbar navbar-default navbar-fixed-bottom">
+    <div class="container">
+        <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
+        {% block logout %}{% endblock %}
+    </div>
+</div>
+ <!--Edit navbar active-->
+<script>
+    $("#"+title).addClass("active");
+</script>
+<!--end-->
+</body>
+</html>

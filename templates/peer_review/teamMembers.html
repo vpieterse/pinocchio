@@ -1,0 +1,39 @@
+{% extends "peer_review/baseUser.html" %}
+{% load staticfiles %}
+
+{% block extrahead %}
+	<title>Team Members</title>
+	<!--Edit navbar active-->
+    <script>
+        title = "teamMembers";
+    </script>
+    <!--end-->
+{% endblock extrahead %}
+{% block context %}
+    <div class="container">
+        <div class="panel-group" id="accordion">
+            {% for team in teams %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ team.pk }}">
+                                {{ team.roundDetail.name }}: {{ team.teamName }}<b class="caret"></b>
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapse{{ team.pk }}" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <ul>
+                                {% for member in members %}
+                                    {% if member.teamName == team.teamName %}
+                                        <li><a href="/accountDetails/{{ member.user.userId }}">{{ member.user.userId }}</a>: {{ member.user.name }} {{ member.user.surname }}</li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock context %}

@@ -1,0 +1,227 @@
+﻿{% extends "peer_review/baseAdmin.html" %}
+{% load staticfiles %}
+
+{% block extrahead %}
+    <title>User Profile</title>
+    <!--Edit navbar active-->
+    <script>
+        title = "";
+    </script>
+{% endblock extrahead %}
+
+{% block context %}
+    <div class="container">
+        <h1>{{ user.name }} {{ user.surname }}</h1>
+
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
+                    <h4 class="panel-title">
+                        <a>
+                            User Details <b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <form class="form-horizontal user-form" id="userForm" role="form">
+                            <div class="form-group">
+                                <label for="title" class="col-sm-2 control-label">Title:</label>
+                                <div class="col-sm-3">
+                                    <select class="form-control" id="title">
+                                        <option>Mr</option>
+                                        <option>Ms</option>
+                                        <option>Miss</option>
+                                        <option>Mrs</option>
+                                        <option>Dr</option>
+                                    </select>
+                                </div>
+
+                                <label for="initials" class="col-sm-2 control-label">Initials:</label>
+                                <div class="col-sm-3">
+
+                                    <input class="form-control" id="initials" type="text" value="{{ user.initials }}">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="firstName" class="col-sm-2 control-label">First Name:</label>
+                                <div class="col-sm-3">
+                                    <input class="form-control" id="firstName" type="text" value="{{ user.name }}">
+                                </div>
+
+                                <label for="surname" class="col-sm-2 control-label">Surname:</label>
+                                <div class="col-sm-3">
+                                    <input class="form-control" id="surname" type="text" value="{{ user.surname }}">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email" class="col-sm-2 control-label">Email:</label>
+                                <div class="col-sm-3">
+                                    <input class="form-control" id="email" type="text" value="{{ user.email }}">
+                                </div>
+
+                                <label for="cellNumber" class="col-sm-2 control-label">Cell Number:</label>
+                                <div class="col-sm-3">
+                                    <input class="form-control" id="cellNumber" type="text" value="{{ user.cell }}">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="studentNumber" class="col-sm-2 control-label">Student Number:</label>
+                                <div class="col-sm-3">
+                                    <input class="form-control" id="studentNumber" type="text" value="{{ user.userId }}">
+                                </div>
+
+                                <label for="status" class="col-sm-2 control-label">Status:</label>
+                                <div class="col-sm-3">
+                                    <select class="form-control" id="status">
+                                        <option value="S">Student</option>
+                                        <option value="A">Admin</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="button" class="save btn btn-info" id="updateUser" data-pk="{{ user.pk }}">Update</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
+                    <h4 class="panel-title">
+                        <a>
+                            User's Rounds <b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapseTwo" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <table class="table" id="userRoundsTable" data-pk="{{ user.pk }}" data-csrf="{{ csrf_token }}">
+                            <thead>
+                                <tr>
+                                    <th>Round</th>
+                                    <th>Team</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#title").val("{{ user.title }}");
+            $("#status").val("{{ user.status }}");
+
+            var userRoundsTable = $("#userRoundsTable").DataTable({
+                "orderClasses": false,
+                "columnDefs": [{
+                    "orderable": true,
+                    "searchable": true,
+                    "render": function(data, type, full, meta){
+                        return  '<select class="form-control status">'+
+                                '    <option value="NA" class="NA">Not attempted</option>'+
+                                '    <option value="IP" class="IP">In progress</option>'+
+                                '    <option value="C" class="C">Completed</option>'+
+                                '</select>';
+                    },
+                    "targets": [2]
+                }]
+            });
+
+
+
+            var pk = $("#userRoundsTable").data("pk");
+            var token = $("#userRoundsTable").data("csrf");
+
+            var data = {
+                "pk": pk,
+                "csrfmiddlewaretoken": token
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '/maintainTeam/getTeams/',
+                data: data,
+                dataType: 'json',
+                success: function(data) {
+                    var table = $("#userRoundsTable").DataTable();
+                    table.clear().draw();
+
+                    $.each(data, function(index, value) {
+                        if(value.team != "emptyTeam") {
+                            var row = table.row.add([
+                                "<form class='roundRedirect' action='/maintainTeam/' method='POST'>" +
+                                "{% csrf_token %}" +
+                                "<input type='hidden' name='roundPk' value='" + value.roundPk + "'>" +
+                                "<a href='#' id='viewRound'>" + value.round + "</a>" +
+                                "</form>",
+                                value.team,
+                            ]).draw(false).node();
+
+                            $(row).attr("id", value.teamId);
+                            $(row).find("." + value.status).attr("selected", "selected");
+                        }
+                    });
+                }
+            })
+        });
+
+        $("#updateUser").on("click", function() {
+            var pk = $(this).data("pk");
+            var token = "{{ csrf_token }}";
+
+            var data = {
+                'userId': $("#studentNumber").val(),
+                'title': $("#title").val(),
+                'initials': $("#initials").val(),
+                'name': $("#firstName").val(),
+                'surname': $("#surname").val(),
+                'cell': $("#cellNumber").val(),
+                'email': $("#email").val(),
+                'status': $("#status").val(),
+                "csrfmiddlewaretoken": token
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: '/userAdmin/update/' + pk,
+                data: data,
+                success: function() {
+                    alert("Updated");
+                }
+            });
+        });
+
+        $("#userRoundsTable").on("click", "#viewRound", function(e) {
+            e.preventDefault();
+            $(this).parent().submit();
+        });
+
+        $("#userRoundsTable").on('change', '.status', function() {
+            var row = $(this).parents('tr');
+            var id = $(row).attr("id");
+
+            $.ajax({
+                type: "GET",
+                url: "/maintainTeam/changeTeamStatus/" + id + "/" + $(this).val(),
+                success: function(data) {
+                }
+            });
+        });
+    </script>
+{% endblock context %}

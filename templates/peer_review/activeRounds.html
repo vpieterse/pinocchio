@@ -1,0 +1,62 @@
+{% extends "peer_review/baseUser.html" %}
+{% load staticfiles %}
+
+{% block extrahead %}
+	<title>Student Home Page</title>
+	<!--Edit navbar active-->
+    <script>
+        title = "activeRounds";
+    </script>
+    <!--end-->
+{% endblock extrahead %}
+{% block context %}
+	<div class="container">
+		<div class="panel-group">
+			<div class="panel  panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title"><b>Rounds</b></h4>
+				</div>
+				<div class="panel-body panel-group" id="accordion">
+					{% for team in teams %}
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h5 class="panel-title" style="font-size: 14px">
+									<a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ team.pk }}">{{ team.roundDetail.name }}: {{ team.teamName }}<b class="caret"></b></a>
+								</h5>
+							</div>
+							<div id="collapse{{ team.pk }}" class="panel-collapse collapse">
+								<div class="panel-body form-horizontal">
+									<div class="form-group">
+										<label for="team{{ team.pk }}" class="col-sm-2 control-label">Team:</label>
+										<div class="col-sm-2">
+											<input type="text" id="team{{ team.pk }}" class="form-control" readonly="readonly" value="{{ team.teamName }}" />
+										</div>
+										
+										<label for="questionnaire{{ team.pk }}" class="col-sm-2 control-label">Questionnaire:</label>
+										<div class="col-sm-3">
+											<input type="text" id="questionnaire{{ team.pk }}" class="form-control" readonly="readonly" value="{{ team.roundDetail.questionnaire.label }}" />
+										</div>
+										
+										<div class="col-sm-2">
+											{% ifequal team.status 'NA' %}
+												<input type="submit" class="form-control btn-warning" value="Not Attempted" />
+											{% endifequal %}
+											
+											{% ifequal team.status 'IP' %}
+												<input type="submit" class="form-control btn-danger" value="In Progress" />
+											{% endifequal %}
+											
+											{% ifequal team.status 'C' %}
+												<input type="submit" class="form-control btn-success disabled" value="Completed"/>
+											{% endifequal %}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock context %}

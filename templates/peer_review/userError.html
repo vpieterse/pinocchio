@@ -1,0 +1,27 @@
+{% extends "peer_review/baseUser.html" %}
+{% load staticfiles %}
+{% block extrahead %}
+    <title xmlns="http://www.w3.org/1999/html">404 - Page Not Found</title>
+
+    <!--Edit navbar active-->
+    <script>
+        title = "NULL";
+    </script>
+    <!--end-->
+{% endblock %}
+{% block context %}
+                <h1 style="font-size:300%">Error 404 - Page Not Found</h1>
+
+		<form action="/questionnaire/1" method="POST">
+			{% csrf_token %}
+    			<button name="Test" value="Test">Test</button>
+		</form>
+
+    <div class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container">
+            <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
+	    <a class="navbar-btn btn-danger btn pull-right" href="/logout">Log Out</a>
+        </div>
+    </div>
+    </div>
+{% endblock %}

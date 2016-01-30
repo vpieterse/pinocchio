@@ -1,0 +1,12 @@
+Good day {firstname} {lastname}.
+
+Your username for Pinocchio is:
+{login}
+
+Your one time password for Pinocchio is:
+{otp}
+
+This password is valid for 7 days as of {datetime}
+
+Kind regards,
+The Pinocchio Team
