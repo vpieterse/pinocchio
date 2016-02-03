@@ -162,6 +162,16 @@ def questionnaire(request, questionnairePk):
 	else:
 		return render(request, 'peer_review/userError.html')
 
+def getQuestionnaireForTeam(request):
+    if request.method == "POST":
+        print(request.POST.get("teamPk"))
+        team = TeamDetail.objects.get(pk=request.POST.get("teamPk"))
+        user = User.objects.get(pk=team.user.pk)
+        roundDetail = RoundDetail.objects.get(pk=team.roundDetail.pk)
+        print(user.name + " " + roundDetail.name)
+        return JsonResponse({'test':'test'})
+    else:
+        return JsonResponse({'test': 'test'})
 
 def userError(request):
     return render(request, 'peer_review/userError.html')
