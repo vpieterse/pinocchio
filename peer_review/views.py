@@ -337,6 +337,16 @@ def submitForm(request):
         userForm = UserForm()
     return HttpResponseRedirect("../")
 
+def getUser(request, userPk):
+    response = {}
+    if request.method == "GET":
+        user = User.objects.get(pk=userPk)
+        response = {
+            'userId': user.userId,
+            'name': user.name,
+            'surname': user.surname
+        }
+    return JsonResponse(response)
 
 def userProfile(request, userPk):
     if request.method == "GET":
