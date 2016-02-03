@@ -55,8 +55,18 @@ class Choice(models.Model):
 
 class FreeformItem(models.Model):
     question = models.ForeignKey(Question)
-    freeformType = models.CharField(max_length=10)
-
+    # Can only be of the following types:
+    PARAGRAPH = "Paragraph" # (300)
+    STRING = "String" # (25)
+    INTEGER = "Integer" # (int)
+    REAL = "Real" # (real)
+    TYPE_CHOICES = (
+        (PARAGRAPH, "Paragraph"),
+        (STRING, "String"),
+        (INTEGER, "Integer"),
+        (REAL, "Real"),
+    )
+    freeformType = models.CharField(max_length=300, choices=TYPE_CHOICES, default=PARAGRAPH)
     def __str__(self):
         return self.value
 
