@@ -74,7 +74,7 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-            $("#teamUsers").dataTable();
+            $("#teamUsers").DataTable();
 
             var roundPk = "{{ roundPk }}";
 
@@ -117,15 +117,30 @@
 
         $("#teamSelect").on("change", function() {
             var roundId = $("#roundSelect").val();
-            var teamName = $("teamSelect").val();
+            var teamName = $("#teamSelect").val();
 
             $.ajax({
                 type: 'GET',
                 url: '/maintainTeam/getTeamsForRound/' + roundId,
                 success: function(data) {
+                    var table = $("#teamUsers").DataTable();
+                    table.clear().draw();
+
                     for (var index in data) {
                         team = data[index];
                         if (teamName == team.teamName) {
+                            $.ajax({
+                                type: 'GET',
+                                url: '/report/getUser/' + team.userId,
+                                success: function(data) {
+                                    var row = table.row.add([
+                                        data.userId,
+                                        data.name,
+                                        data.surname
+                                    ]).draw(false).node();
+                                }
+                            });
+
 
                         }
                     }

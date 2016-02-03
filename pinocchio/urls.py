@@ -65,6 +65,7 @@ urlpatterns = [
                       views.changeTeamStatus),
                   url(r'^maintainTeam/submitTeamCSV/$', views.submitTeamCSV, name="submitTeamCSV"),
                   url(r'^report/?$', views.report),
+                  url(r'^report/getUser/(?P<userPk>[0-9]+)/?$', views.getUser),
                   url(r'^login/auth/$', views.auth, name="auth"),
 
 
