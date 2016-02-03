@@ -50,7 +50,22 @@
         });
 
         $("#roundSelect").on("change", function() {
+            var id = $(this).val();
+            var teams = [];
 
+            $.ajax({
+                type: 'GET',
+                url: '/maintainTeam/getTeamsForRound/' + id,
+                success: function(data) {
+                    for (var index in data) {
+                        team = data[index];
+                        if ($.inArray(team.teamName, teams) == -1) {
+                            teams.push(team.teamName);
+                        }
+                    }
+                    console.log(teams);
+                }
+            });
         });
     </script>
 {% endblock context %}
