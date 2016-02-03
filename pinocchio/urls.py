@@ -22,6 +22,8 @@ urlpatterns = [
                       name='getQuestionnaireList'),
                   url(r'^questionnaireAdmin/getQuestionnaire/(?P<qPk>[0-9]+)/?$', views.getQuestionnaire,
                       name='getQuestionnaire'),
+                  url(r'^getQuestionnaireForTeam/$', views.getQuestionnaireForTeam,
+                      name='getQuestionnaireForTeam'),
                   url(r'^questionnaireAdmin/deleteQuestionnaire/(?P<qPk>[0-9]+)/?$', views.deleteQuestionnaire,
                       name='deleteQuestionnaire'),
 
