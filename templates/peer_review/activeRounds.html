@@ -39,10 +39,7 @@
 										
 										<form role="form" id="editQuestionnaire" action="/getQuestionnaireForTeam/" method="POST">
 											{% csrf_token %}
-											<input id="teampk" name="teamPk" type="hidden" value="{{ team.pk }}" />
-											<script>
-												console.log("{{ team.pk }}");
-											</script>
+											<input name="teamPk" type="hidden" value="{{ team.pk }}" />
 											<div class="col-sm-2">
 												{% ifequal team.status 'NA' %}
 													<input type="submit" class="form-control btn-warning" value="Not Attempted" />

@@ -164,14 +164,15 @@ def questionnaire(request, questionnairePk):
 
 def getQuestionnaireForTeam(request):
     if request.method == "POST":
-        print(request.POST.get("teamPk"))
+        #TEST
         team = TeamDetail.objects.get(pk=request.POST.get("teamPk"))
         user = User.objects.get(pk=team.user.pk)
-        roundDetail = RoundDetail.objects.get(pk=team.roundDetail.pk)
-        print(user.name + " " + roundDetail.name)
-        return JsonResponse({'test':'test'})
+        questionnaire = Questionnaire.objects.get(pk=team.roundDetail.questionnaire.pk)
+        # TODO if team progress exists...
+        context = {'team': team, 'user': user, 'questionnaire': questionnaire}
+        return render(request, 'peer_review/questionnaireTest.html', context)
     else:
-        return JsonResponse({'test': 'test'})
+        return redirect('accountDetails')
 
 def userError(request):
     return render(request, 'peer_review/userError.html')
