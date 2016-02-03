@@ -125,6 +125,7 @@ def maintainTeam(request):
                    'rounds': RoundDetail.objects.all(),
                    'teams': TeamDetail.objects.all(),
                    'roundPk': roundPk}
+                   
     else:
         context = {'users': User.objects.all(),
                    'rounds': RoundDetail.objects.all(),
@@ -149,15 +150,19 @@ def questionnaireAdmin(request):
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
 
+@login_required
 def questionnaire(request, questionnairePk):
 	if request.method == "POST":
+        #print(request.user.email)
+
 		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
 			   'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
 			   'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk),
                'questionRanking' : Rank.objects.all(), 'questionChoices' : Choice.objects.all(),
                'questionRating' : Rate.objects.all(), 'userDetails' : User.objects.all(),
                'freeformDetails' : FreeformItem.objects.all(), 'questionLabels' : Label.objects.all(),
-               'roundDetails' : RoundDetail.objects.all(), 'teamDetails' : TeamDetail.objects.all()}
+               'roundDetails' : RoundDetail.objects.all(), 'teamDetails' : TeamDetail.objects.all(),
+               'userName' : request.user.email}
 		return render(request, 'peer_review/questionnaire.html', context)
 	else:
 		return render(request, 'peer_review/userError.html')
