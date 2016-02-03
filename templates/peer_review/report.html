@@ -34,6 +34,13 @@
                                {% endfor %}
                             </select>
                         </div>
+
+                        <h4>Select Team</h4>
+                        <div>
+                           <select id='teamSelect' class="form-control" style="width:auto" name="type">
+
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -51,21 +58,31 @@
 
         $("#roundSelect").on("change", function() {
             var id = $(this).val();
+            var teamSelect = $("#teamSelect");
             var teams = [];
 
-            $.ajax({
-                type: 'GET',
-                url: '/maintainTeam/getTeamsForRound/' + id,
-                success: function(data) {
-                    for (var index in data) {
-                        team = data[index];
-                        if ($.inArray(team.teamName, teams) == -1) {
-                            teams.push(team.teamName);
+            if (id == "") {
+                teamSelect.html("");
+            } else {
+                $.ajax({
+                    type: 'GET',
+                    url: '/maintainTeam/getTeamsForRound/' + id,
+                    success: function(data) {
+                        for (var index in data) {
+                            team = data[index];
+                            if ($.inArray(team.teamName, teams) == -1) {
+                                teams.push(team.teamName);
+                            }
                         }
+
+                        teamSelect.html("");
+
+                        $.each(teams, function(index, value) {
+                            teamSelect.append("<option>" + value + "</option>");
+                        });
                     }
-                    console.log(teams);
-                }
-            });
+                });
+            }
         });
     </script>
 {% endblock context %}
