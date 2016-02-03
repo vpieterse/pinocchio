@@ -25,21 +25,46 @@
 
                 <div id="collapseOne" class="panel-collapse collapse in">
                     <div class="panel-body">
-                        <h4>Select Round</h4>
-                        <div>
-                           <select id='roundSelect' class="form-control" style="width:auto" name="type">
-                               <option value=""></option>
-                               {% for round in rounds %}
-                                   <option value="{{ round.pk }}" desc="{{ round.description }}">{{ round.name }}</option>
-                               {% endfor %}
-                            </select>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Select Round</h4>
+                                <div>
+                                   <select id='roundSelect' class="form-control" style="width:auto" name="type">
+                                       <option value=""></option>
+                                       {% for round in rounds %}
+                                           <option value="{{ round.pk }}" desc="{{ round.description }}">{{ round.name }}</option>
+                                       {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <h4>Select Team</h4>
+                                <div>
+                                   <select disabled="true" id='teamSelect' class="form-control" style="width:auto" name="type">
+
+                                    </select>
+                                </div>
+                            </div>
                         </div>
 
-                        <h4>Select Team</h4>
-                        <div>
-                           <select id='teamSelect' class="form-control" style="width:auto" name="type">
+                        <br><br>
 
-                            </select>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class='table' id='teamUsers'>
+                                    <thead>
+                                        <tr>
+                                            <th>Student Number</th>
+                                            <th>Name</th>
+                                            <th>Surname</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -49,6 +74,8 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
+            $("#teamUsers").dataTable();
+
             var roundPk = "{{ roundPk }}";
 
             if (roundPk != "") {
@@ -63,6 +90,7 @@
 
             if (id == "") {
                 teamSelect.html("");
+                teamSelect.prop("disabled", true);
             } else {
                 $.ajax({
                     type: 'GET',
@@ -75,14 +103,34 @@
                             }
                         }
 
-                        teamSelect.html("");
+                        teamSelect.html("<option></option>");
 
                         $.each(teams, function(index, value) {
                             teamSelect.append("<option>" + value + "</option>");
                         });
+
+                        teamSelect.prop("disabled", false);
                     }
                 });
             }
+        });
+
+        $("#teamSelect").on("change", function() {
+            var roundId = $("#roundSelect").val();
+            var teamName = $("teamSelect").val();
+
+            $.ajax({
+                type: 'GET',
+                url: '/maintainTeam/getTeamsForRound/' + roundId,
+                success: function(data) {
+                    for (var index in data) {
+                        team = data[index];
+                        if (teamName == team.teamName) {
+
+                        }
+                    }
+                }
+            });
         });
     </script>
 {% endblock context %}
