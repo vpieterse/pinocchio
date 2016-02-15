@@ -167,6 +167,17 @@ def questionnaire(request, questionnairePk):
 	else:
 		return render(request, 'peer_review/userError.html')
 
+def getQuestionnaireForTeam(request):
+    if request.method == "POST":
+        #TEST
+        team = TeamDetail.objects.get(pk=request.POST.get("teamPk"))
+        user = User.objects.get(pk=team.user.pk)
+        questionnaire = Questionnaire.objects.get(pk=team.roundDetail.questionnaire.pk)
+        # TODO if team progress exists...
+        context = {'team': team, 'user': user, 'questionnaire': questionnaire}
+        return render(request, 'peer_review/questionnaireTest.html', context)
+    else:
+        return redirect('accountDetails')
 
 def userError(request):
     return render(request, 'peer_review/userError.html')
@@ -331,6 +342,16 @@ def submitForm(request):
         userForm = UserForm()
     return HttpResponseRedirect("../")
 
+def getUser(request, userPk):
+    response = {}
+    if request.method == "GET":
+        user = User.objects.get(pk=userPk)
+        response = {
+            'userId': user.userId,
+            'name': user.name,
+            'surname': user.surname
+        }
+    return JsonResponse(response)
 
 def userProfile(request, userPk):
     if request.method == "GET":

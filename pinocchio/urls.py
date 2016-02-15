@@ -22,6 +22,8 @@ urlpatterns = [
                       name='getQuestionnaireList'),
                   url(r'^questionnaireAdmin/getQuestionnaire/(?P<qPk>[0-9]+)/?$', views.getQuestionnaire,
                       name='getQuestionnaire'),
+                  url(r'^getQuestionnaireForTeam/$', views.getQuestionnaireForTeam,
+                      name='getQuestionnaireForTeam'),
                   url(r'^questionnaireAdmin/deleteQuestionnaire/(?P<qPk>[0-9]+)/?$', views.deleteQuestionnaire,
                       name='deleteQuestionnaire'),
 
@@ -65,6 +67,7 @@ urlpatterns = [
                       views.changeTeamStatus),
                   url(r'^maintainTeam/submitTeamCSV/$', views.submitTeamCSV, name="submitTeamCSV"),
                   url(r'^report/?$', views.report),
+                  url(r'^report/getUser/(?P<userPk>[0-9]+)/?$', views.getUser),
                   url(r'^login/auth/$', views.auth, name="auth"),
 
 
