@@ -57,12 +57,12 @@ class FreeformItem(models.Model):
     question = models.ForeignKey(Question)
     # Can only be of the following types:
     PARAGRAPH = "Paragraph" # (300)
-    STRING = "String" # (25)
+    WORD = "Word" # (25)
     INTEGER = "Integer" # (int)
     REAL = "Real" # (real)
     TYPE_CHOICES = (
         (PARAGRAPH, "Paragraph"),
-        (STRING, "String"),
+        (WORD, "Word"),
         (INTEGER, "Integer"),
         (REAL, "Real"),
     )
