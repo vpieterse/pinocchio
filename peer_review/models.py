@@ -209,4 +209,4 @@ class Response(models.Model):
     answer = models.CharField(max_length=300)
 
     def __str__(self):
-        return self.label
+        return self.label.labelText
