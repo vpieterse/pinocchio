@@ -29,12 +29,13 @@
                             <div class="col-md-6">
                                 <h4>Select Round</h4>
                                 <div>
-                                   <select id='roundSelect' class="form-control" style="width:auto" name="type">
+                                   <select id='roundSelect' class="form-control" style="width:auto; display:inline;" name="type">
                                        <option value=""></option>
                                        {% for round in rounds %}
                                            <option value="{{ round.pk }}" desc="{{ round.description }}">{{ round.name }}</option>
                                        {% endfor %}
                                     </select>
+                                    <p id="questionnaire" style="display:inline;"></p>
                                 </div>
                             </div>
 
@@ -86,6 +87,7 @@
         $("#roundSelect").on("change", function() {
             var id = $(this).val();
             var teamSelect = $("#teamSelect");
+            var questionnaire = $("#questionnaire");
             var teams = [];
 
             if (id == "") {
@@ -110,6 +112,14 @@
                         });
 
                         teamSelect.prop("disabled", false);
+
+                        $.ajax({
+                            type: 'GET',
+                            url: '/maintainTeam/getQuestionnaireForRound/' + id,
+                            success: function(data) {
+                                questionnaire.html(data.questionnaire);
+                            }
+                        });
                     }
                 });
             }

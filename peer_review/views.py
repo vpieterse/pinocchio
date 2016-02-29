@@ -225,6 +225,14 @@ def getTeams(request):
     return JsonResponse(response)
 
 
+def getQuestionnaireForRound(request, roundPk):
+    round = RoundDetail.objects.get(pk=roundPk)
+    if request.method == "GET":
+        response = {
+            'questionnaire': round.questionnaire.label
+        }
+    return JsonResponse(response)
+
 def getTeamsForRound(request, roundPk):
     teams = TeamDetail.objects.filter(roundDetail_id=roundPk)
     response = {}
@@ -232,7 +240,7 @@ def getTeamsForRound(request, roundPk):
         response[team.pk] = {
             'userId': team.user.pk,
             'teamName': team.teamName,
-            'status': team.status
+            'status': team.status,
         }
     # print(response)
     return JsonResponse(response)
