@@ -22,6 +22,8 @@ urlpatterns = [
                       name='getQuestionnaireList'),
                   url(r'^questionnaireAdmin/getQuestionnaire/(?P<qPk>[0-9]+)/?$', views.getQuestionnaire,
                       name='getQuestionnaire'),
+                  url(r'^getQuestionnaireForTeam/$', views.getQuestionnaireForTeam,
+                      name='getQuestionnaireForTeam'),
                   url(r'^questionnaireAdmin/deleteQuestionnaire/(?P<qPk>[0-9]+)/?$', views.deleteQuestionnaire,
                       name='deleteQuestionnaire'),
 
@@ -57,6 +59,7 @@ urlpatterns = [
                   url(r'^maintainRound/delete/(?P<roundPk>[0-9]+)/?$', views.roundDelete),
                   url(r'^maintainRound/update/(?P<roundPk>[0-9]+)/?$', views.roundUpdate),
                   url(r'^maintainTeam/getTeamsForRound/(?P<roundPk>[0-9]+)/?$', views.getTeamsForRound),
+                  url(r'^maintainTeam/getQuestionnaireForRound/(?P<roundPk>[0-9]+)/?$', views.getQuestionnaireForRound),
                   url(
                           r'^maintainTeam/changeUserTeamForRound/(?P<roundPk>[0-9]+)/(?P<userPk>[0-9]+)/(?P<teamName>[a-zA-Z0-9]+)/?$',
                           views.changeUserTeamForRound),
@@ -65,6 +68,7 @@ urlpatterns = [
                       views.changeTeamStatus),
                   url(r'^maintainTeam/submitTeamCSV/$', views.submitTeamCSV, name="submitTeamCSV"),
                   url(r'^report/?$', views.report),
+                  url(r'^report/getUser/(?P<userPk>[0-9]+)/?$', views.getUser),
                   url(r'^login/auth/$', views.auth, name="auth"),
 
 
