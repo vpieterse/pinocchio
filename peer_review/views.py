@@ -19,7 +19,7 @@ from django.utils import timezone
 from .forms import DocumentForm, UserForm, LoginForm
 from .models import Document
 from .models import Question, QuestionType, QuestionGrouping, Choice, Rank, RoundDetail, TeamDetail, FreeformItem, Rate, \
-    Label
+    Label, Response
 from .models import Questionnaire, QuestionOrder
 from .models import User
 
@@ -148,19 +148,74 @@ def questionnaireAdmin(request):
                'questions': Question.objects.all()}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
+def questionnaire(request, roundPk):
+    # if request.method == "POST":
+    user = User.objects.get(userId = '14035548') #TEST
+    questionnaire = RoundDetail.objects.get(pk = roundPk).questionnaire
+    qOrders = QuestionOrder.objects.filter(questionnaire = questionnaire)
+    teamName = TeamDetail.objects.get(user = user, roundDetail = RoundDetail.objects.get(pk = roundPk)).teamName
+    qTeam = TeamDetail.objects.filter(roundDetail = RoundDetail.objects.get(pk = roundPk), teamName = teamName)
 
-def questionnaire(request, questionnairePk):
-	if request.method == "POST":
-		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
-			   'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
-			   'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk),
-               'questionRanking' : Rank.objects.all(), 'questionChoices' : Choice.objects.all(),
-               'questionRating' : Rate.objects.all(), 'userDetails' : User.objects.all(),
-               'freeformDetails' : FreeformItem.objects.all(), 'questionLabels' : Label.objects.all(),
-               'roundDetails' : RoundDetail.objects.all(), 'teamDetails' : TeamDetail.objects.all()}
-		return render(request, 'peer_review/questionnaire.html', context)
-	else:
-		return render(request, 'peer_review/userError.html')
+    reponses = Response.objects.filter(user = request.user, roundDetail = RoundDetail.objects.get(pk = roundPk))
+    context = {'questionOrders': qOrders, 'teamMembers': qTeam, 'questionnaire': questionnaire, 'currentUser': user,
+                'round': roundPk}
+    print(context)
+    return render(request, 'peer_review/questionnaire.html', context)
+
+    # else:
+    #     return render(request, 'peer_review/userError.html')
+
+def saveQuestionnaireProgress(request):
+    if request.method == "POST":
+        question = Question.objects.get(pk = request.POST.get('questionPk'))
+        roundDetail = RoundDetail.objects.get(pk = request.POST.get('roundPk'))
+        user = request.user
+        # try:
+        #     subjectUser = User.objects.get(pk = request.POST.get('subjectUser'))
+        #     label = None
+        # except(User.DoesNotExist):
+        label = Label.objects.get(pk = request.POST.get('label'))
+        subjectUser = request.user
+            
+        answer = request.POST.get('answer')
+        Response.objects.create(question = question,
+                                roundDetail = roundDetail,
+                                user = user,
+                                subjectUser = subjectUser,
+                                label = label,
+                                answer = answer)
+        return JsonResponse({'result': 0})
+    else:
+        return JsonResponse({'result': 1})
+
+def getResponses(request):
+    question = Question.objects.get(pk = request.GET.get('questionPk'))
+    roundDetail = RoundDetail.objects.get(pk = request.GET.get('roundPk'))
+    responses = Response.objects.filter(user = request.user, roundDetail = roundDetail, question = question)
+
+    #Need to find a way to get the latest responses, instead of all of them
+    json = {'answers': [], 'labelIds': [], 'subjectUserIds':[], 'labelNames': [], 'subjectUserNames': []}
+    for r in responses:
+        json['answers'].append(r.answer)
+        json['labelIds'].append(r.label.id)
+        json['labelNames'].append(r.label.labelText)
+        json['subjectUserIds'].append(r.subjectUser.id)
+        json['subjectUserNames'].append(r.subjectUser.email)
+
+    return JsonResponse(json)
+
+# def questionnaire(request, questionnairePk):
+# 	if request.method == "POST":
+# 		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
+# 			   'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
+# 			   'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk),
+#                'questionRanking' : Rank.objects.all(), 'questionChoices' : Choice.objects.all(),
+#                'questionRating' : Rate.objects.all(), 'userDetails' : User.objects.all(),
+#                'freeformDetails' : FreeformItem.objects.all(), 'questionLabels' : Label.objects.all(),
+#                'roundDetails' : RoundDetail.objects.all(), 'teamDetails' : TeamDetail.objects.all()}
+# 		return render(request, 'peer_review/questionnaire.html', context)
+# 	else:
+# 		return render(request, 'peer_review/userError.html')
 
 def getQuestionnaireForTeam(request):
     if request.method == "POST":

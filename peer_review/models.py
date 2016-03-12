@@ -43,6 +43,21 @@ class Question(models.Model):
         call_command('dumpdata', 'Question', format='json', indent=4, stdout=output)
         output.close()
 
+    def getRank(self):
+        return Rank.objects.get(question = self)
+
+    def getLabels(self):
+        return Label.objects.filter(question = self)
+
+    def getChoices(self):
+        return Choice.objects.filter(question = self)
+
+    def getRate(self):
+        return Rate.objects.get(question = self)
+
+    def getFreeformItem(self):
+        return FreeformItem.objects.get(question = self)
+
 
 class Choice(models.Model):
     question = models.ForeignKey(Question)

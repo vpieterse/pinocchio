@@ -1,0 +1,96 @@
+<script>
+	//Add a function that saves every freeform-type question
+	//This function gets called when the Save button is pushed
+	var questionPk = {{ q.id }};
+	var freeformType = "{{ q.getFreeformItem.freeformType }}";
+	saveFunctions.push(function() {
+		var $question = $("#{{ q.id }}");
+		//The id of the round is saved in a variable called roundPk
+
+		$question.find('.answer').each(function (i, elem) {
+
+			var json = {'questionPk': questionPk,
+						'roundPk': roundPk,
+						'answer':elem.value,
+						'label': $(elem).closest('label').data('id'),
+						'subjectUser': $(elem).closest('label').data('id')};
+			sendToView(json);
+		});
+	});
+
+	getResponses(questionPk, function(responses) {	
+		//Todo: Fix this so that 'none' grouping works as well
+		//Todo: Make users save properly
+		console.log(responses);
+		for (var x = 0; x < responses.answers.length; x++)
+			$("#{{ q.id }}").find('label').each(function(i, elem) {
+				if (Number(elem.dataset.id) == Number(responses.labelIds[x])) {
+					console.log(responses.answers[x] + "   " + elem.dataset.id + "   " + responses.labelIds[x]);
+					$(elem).find('.answer')[0].value = responses.answers[x];
+				}
+			});
+	});	
+
+</script>
+<hr/>
+<p><strong>{{ number }}</strong>. {{ q.questionText }}</p>
+{% if q.questionGrouping.grouping == "None" %}
+	{% if q.getFreeformItem.freeformType == q.getFreeformItem.PARAGRAPH %}
+		<textarea class="form-control" rows="5" class = "answer"></textarea>
+	{% elif q.getFreeformItem.freeformType == q.getFreeformItem.WORD %}
+		<input type="text" maxlength="25" class = "answer"></input>
+	{% elif q.getFreeformItem.freeformType == q.getFreeformItem.INTEGER %}
+		<input type="number" step='1' class = "answer"></input>
+	{% elif q.getFreeformItem.freeformType == q.getFreeformItem.REAL %}
+		<input type="number" class = "answer"></input>
+	{% endif %}
+{% elif q.questionGrouping.grouping == "Label" %}
+	{% for l in q.getLabels %}
+		<p>
+			<label data-id = "{{ l.id }}">{{ l.labelText }}: 
+				{% if q.getFreeformItem.freeformType == q.getFreeformItem.PARAGRAPH %}
+					<textarea class="form-control" rows="5" cols = "150" class = "answer"></textarea>
+				{% elif q.getFreeformItem.freeformType == q.getFreeformItem.WORD %}
+					<input type="text" maxlength="25" class = "answer"></input>
+				{% elif q.getFreeformItem.freeformType == q.getFreeformItem.INTEGER %}
+					<input type="number" step='1' class = "answer"></input>
+				{% elif q.getFreeformItem.freeformType == q.getFreeformItem.REAL %}
+					<input type="number" class = "answer"></input>
+				{% endif %}
+			</label>
+		</p>
+	{% endfor %}
+{% elif q.questionGrouping.grouping == "All" %}
+	{% for u in teamMembers %}
+		<p>
+			<label data-id = "{{ u.user.id }}">{{ u.user.name }} {{ u.user.surname }}:
+				{% if q.getFreeformItem.freeformType == q.getFreeformItem.PARAGRAPH %}
+					<textarea class="form-control" rows="5" cols = "150" class = "answer"></textarea>
+				{% elif q.getFreeformItem.freeformType == q.getFreeformItem.WORD %}
+					<input type="text" maxlength="25" class = "answer"></input>
+				{% elif q.getFreeformItem.freeformType == q.getFreeformItem.INTEGER %}
+					<input type="number" step='1' class = "answer"></input>
+				{% elif q.getFreeformItem.freeformType == q.getFreeformItem.REAL %}
+					<input type="number" class = "answer"></input>
+				{% endif %}
+		</p>
+	{% endfor %}
+{% elif q.questionGrouping.grouping == "Rest" %}
+	{% for u in teamMembers %}
+		{% if u.user != currentUser %}
+			<p>
+				<label data-id = "{{ u.user.id }}">{{ u.user.name }} {{ u.user.surname }}:
+					{% if q.getFreeformItem.freeformType == q.getFreeformItem.PARAGRAPH %}
+						<textarea class="form-control" rows="5" cols = "150" class = "answer"></textarea>
+					{% elif q.getFreeformItem.freeformType == q.getFreeformItem.WORD %}
+						<input type="text" maxlength="25" class = "answer"></input>
+					{% elif q.getFreeformItem.freeformType == q.getFreeformItem.INTEGER %}
+						<input type="number" step='1' class = "answer"></input>
+					{% elif q.getFreeformItem.freeformType == q.getFreeformItem.REAL %}
+						<input type="number" class = "answer"></input>
+					{% endif %}
+			</p>
+		{% endif %}
+	{% endfor %}
+{% endif %}
+<br/>

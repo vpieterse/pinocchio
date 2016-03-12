@@ -28,7 +28,9 @@ urlpatterns = [
                       name='deleteQuestionnaire'),
 
                   url(r'^questionnaire/$', views.userError, name='userError'),
-                  url(r'^questionnaire/(?P<questionnairePk>[0-9]+)/?$', views.questionnaire, name='questionnaire'),
+                  url(r'^questionnaire/(?P<roundPk>[0-9]+)/?$', views.questionnaire, name='questionnaire'),
+                  url(r'^questionnaire/saveProgress', views.saveQuestionnaireProgress, name='saveQuestionnaireProgress'),
+                  url(r'^questionnaire/getResponses', views.getResponses, name='getResponses'),
                   url(r'^login/$', views.login, name='login'),
                   url(r'^questionnaire/(?P<questionnairePk>[0-9]+)/?$', views.questionnaire, name='questionnaire'),
                   url(r'^activeRounds/$', views.activeRounds, name='activeRounds'),

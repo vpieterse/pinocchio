@@ -1,0 +1,87 @@
+<script>
+	//Add a function that saves every rank-type question
+	//This function gets called when the Save button is pushed
+	var $question = $("#{{ q.id }}");
+	var questionPk = {{ q.id }};
+	saveFunctions.push(function() {
+
+		$question.find('.rankItem').each(function(i, rankItem) {
+			var json = {'questionPk': questionPk,
+						'roundPk': roundPk,
+						'label': rankItem.dataset.id,
+						'answer': i,
+						'subjectUser': rankItem.dataset.id};
+			console.log(json);
+			sendToView(json);
+		})
+	})
+
+	//The function to load the responses
+	getResponses(questionPk, function(responses) {		
+		if (responses.answers.length != 0) {
+			for (var x = 0; x < responses.answers.length; x++) {
+				row = $question.find('.rankTable tr').eq(responses.answers[x]).find('td');
+				row.eq(0).html(responses.labelNames[x]);
+				row.data('id', responses.labelIds[x]);
+			}
+		}
+	});
+</script>
+<hr/>
+<p><strong>{{ number }}</strong>. {{ q.questionText }}</p>
+<br/>
+<p><strong> {{ q.getRank.firstWord }} </strong></p>
+<table class = "table table-responsive rankTable">	
+	{% if q.questionGrouping.grouping == "Label" %}
+		{% for l in q.getLabels %}
+			<tr>
+				<td data-id = "{{ l.id }}" class = "rankItem">{{ l }}</td>
+				<td>
+					<div style="text-align: right; width: auto;">
+						<a class="move up" href="javascript:void(0)" title="move up">
+		                    <span class="glyphicon glyphicon-arrow-up"></span>
+		                </a>
+		                <a class="move down" href="javascript:void(0)" title="move down">
+		                    <span class="glyphicon glyphicon-arrow-down"></span>
+		                </a>
+		            </div>
+				</td>
+			</tr>
+		{% endfor %}
+	{% else %}
+		{% for u in teamMembers %}
+			{% if q.questionGrouping.grouping == "Rest" %}
+				{% if u.user != currentUser %}
+					<tr>
+							<td data-id = "{{ u.user.id }}" class = "rankItem">{{ u.name }}</td>
+						<td>
+							<div style="text-align: right; width: auto;">
+								<a class="move up" href="javascript:void(0)" title="move up">
+				                    <span class="glyphicon glyphicon-arrow-up"></span>
+				                </a>
+				                <a class="move down" href="javascript:void(0)" title="move down">
+				                    <span class="glyphicon glyphicon-arrow-down"></span>
+				                </a>
+				            </div>
+						</td>
+					</tr>
+				{% endif %}
+			{% else %}
+				<tr>
+						<td data-id = "{{ u.id }}" class = "rankItem">{{ u }}</td>
+					<td>
+						<div style="text-align: right; width: auto;">
+							<a class="move up" href="javascript:void(0)" title="move up">
+			                    <span class="glyphicon glyphicon-arrow-up"></span>
+			                </a>
+			                <a class="move down" href="javascript:void(0)" title="move down">
+			                    <span class="glyphicon glyphicon-arrow-down"></span>
+			                </a>
+			            </div>
+					</td>
+				</tr>
+			{% endif %}
+		{% endfor %}
+	{% endif %}
+</table>
+<p><strong> {{ q.getRank.secondWord }} </strong></p>
