@@ -37,7 +37,7 @@
 											<input type="text" id="questionnaire{{ team.pk }}" class="form-control" readonly="readonly" value="{{ team.roundDetail.questionnaire.label }}" />
 										</div>
 										
-										<form role="form" id="editQuestionnaire" action="/getQuestionnaireForTeam/" method="POST">
+										<form role="form" id="editQuestionnaire" action="/questionnaire/{{ team.roundDetail.id }}" method="POST">
 											{% csrf_token %}
 											<input name="teamPk" type="hidden" value="{{ team.pk }}" />
 											<div class="col-sm-2">

@@ -153,6 +153,8 @@ def questionnaire(request, roundPk):
     user = User.objects.get(userId = '14035548') #TEST
     questionnaire = RoundDetail.objects.get(pk = roundPk).questionnaire
     qOrders = QuestionOrder.objects.filter(questionnaire = questionnaire)
+    print(user)
+    print(RoundDetail.objects.get(pk = roundPk))
     teamName = TeamDetail.objects.get(user = user, roundDetail = RoundDetail.objects.get(pk = roundPk)).teamName
     qTeam = TeamDetail.objects.filter(roundDetail = RoundDetail.objects.get(pk = roundPk), teamName = teamName)
 
@@ -170,12 +172,19 @@ def saveQuestionnaireProgress(request):
         question = Question.objects.get(pk = request.POST.get('questionPk'))
         roundDetail = RoundDetail.objects.get(pk = request.POST.get('roundPk'))
         user = request.user
-        # try:
-        #     subjectUser = User.objects.get(pk = request.POST.get('subjectUser'))
-        #     label = None
-        # except(User.DoesNotExist):
-        label = Label.objects.get(pk = request.POST.get('label'))
-        subjectUser = request.user
+
+        #If grouping == None, there is no label or subjectUser
+        if question.questionGrouping.grouping == "None":
+            label = None #test
+            subjectUser = None #test
+        #If grouping == Label, there is a label but no subjectUser
+        elif question.questionGrouping.grouping == "Label":
+            label = Label.objects.get(pk = request.POST.get('label'))
+            subjectUser = None #test
+        #If grouping == Rest || All, there is a subjectUser but no label
+        else:
+            subjectUser = User.objects.get(pk = request.POST.get('subjectUser'))
+            label = None
             
         answer = request.POST.get('answer')
         Response.objects.create(question = question,
@@ -194,14 +203,15 @@ def getResponses(request):
     responses = Response.objects.filter(user = request.user, roundDetail = roundDetail, question = question)
 
     #Need to find a way to get the latest responses, instead of all of them
-    json = {'answers': [], 'labelIds': [], 'subjectUserIds':[], 'labelNames': [], 'subjectUserNames': []}
+    json = {'answers': [], 'labelOrUserIds':[], 'labelOrUserNames': []}
     for r in responses:
         json['answers'].append(r.answer)
-        json['labelIds'].append(r.label.id)
-        json['labelNames'].append(r.label.labelText)
-        json['subjectUserIds'].append(r.subjectUser.id)
-        json['subjectUserNames'].append(r.subjectUser.email)
-
+        if question.questionGrouping.grouping == "Label":
+            json['labelOrUserNames'].append(r.label.labelText)
+            json['labelOrUserIds'].append(r.label.id)
+        elif question.questionGrouping.grouping != "None":
+            json['labelOrUserNames'].append(r.subjectUser.name + ' ' + r.subjectUser.surname)
+            json['labelOrUserIds'].append(r.subjectUser.id)
     return JsonResponse(json)
 
 # def questionnaire(request, questionnairePk):

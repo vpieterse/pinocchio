@@ -219,9 +219,14 @@ class Response(models.Model):
     question = models.ForeignKey(Question)                                      #The question
     roundDetail = models.ForeignKey(RoundDetail)                                #The round
     user = models.ForeignKey(User, null=False, related_name="user")             #The answererer
-    subjectUser = models.ForeignKey(User, null=False, related_name="otherUser") #The person the question is about.
-    label = models.ForeignKey(Label)                                            #The label the question is about.
+    subjectUser = models.ForeignKey(User, null=True, related_name="otherUser") #The person the question is about.
+    label = models.ForeignKey(Label, null=True)                                            #The label the question is about.
     answer = models.CharField(max_length=300)
 
     def __str__(self):
-        return self.label.labelText
+        if self.label != None:
+            return self.label.labelText
+        elif self.subjectUser != None:
+            return self.subjectUser.name + ' ' + self.subjectUser.surname
+        else:
+            return self.answer

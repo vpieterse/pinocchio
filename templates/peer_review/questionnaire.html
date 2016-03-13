@@ -33,7 +33,7 @@
         <div id = "results" class = "row">
             <!-- The success or failure message will display here -->
         </div>
-        <div class = "panel-heading">
+        <div class = "panel-heading row">
             {{ questionnaire.intro|safe }}
         </div>
     {% for q in questionOrders %}  
@@ -64,8 +64,11 @@
         {% endifequal %}
         </div>
     {% endfor %} 
-        <button type='submit'class='btn btn-primary' onclick="saveProgress()">Save Progress</button>
-        <button type='submit'class='btn btn-success' onclick="return submitConfirm()">Submit</button>
+        <hr/>
+        <div class = "btn-group panel-body">
+            <button type='submit'class='btn btn-primary' onclick="saveProgress()">Save Progress</button>
+            <button type='submit'class='btn btn-success' onclick="saveProgress()">Submit</button>
+        </div>
     </div> 
 
     <script>      

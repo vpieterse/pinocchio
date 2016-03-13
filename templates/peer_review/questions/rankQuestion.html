@@ -1,33 +1,29 @@
 <script>
 	//Add a function that saves every rank-type question
 	//This function gets called when the Save button is pushed
-	var $question = $("#{{ q.id }}");
-	var questionPk = {{ q.id }};
 	saveFunctions.push(function() {
-
-		$question.find('.rankItem').each(function(i, rankItem) {
-			var json = {'questionPk': questionPk,
+		$("#{{ q.id }}").find('.rankItem').each(function(i, rankItem) {
+			var json = {'questionPk': {{ q.id }},
 						'roundPk': roundPk,
 						'label': rankItem.dataset.id,
 						'answer': i,
 						'subjectUser': rankItem.dataset.id};
-			console.log(json);
 			sendToView(json);
-		})
-	})
+		});
+	});
 
 	//The function to load the responses
-	getResponses(questionPk, function(responses) {		
+	getResponses({{ q.id }}, function(responses) {	
+		console.log(responses);
 		if (responses.answers.length != 0) {
 			for (var x = 0; x < responses.answers.length; x++) {
-				row = $question.find('.rankTable tr').eq(responses.answers[x]).find('td');
-				row.eq(0).html(responses.labelNames[x]);
-				row.data('id', responses.labelIds[x]);
+				row = $("#{{ q.id }}").find('.rankTable tr').eq(responses.answers[x]).find('td');
+				row.eq(0).html(responses.labelOrUserNames[x]);
+				row.data('id', responses.labelOrUserIds[x]);
 			}
 		}
 	});
 </script>
-<hr/>
 <p><strong>{{ number }}</strong>. {{ q.questionText }}</p>
 <br/>
 <p><strong> {{ q.getRank.firstWord }} </strong></p>
@@ -53,7 +49,7 @@
 			{% if q.questionGrouping.grouping == "Rest" %}
 				{% if u.user != currentUser %}
 					<tr>
-							<td data-id = "{{ u.user.id }}" class = "rankItem">{{ u.name }}</td>
+							<td data-id = "{{ u.user.id }}" class = "rankItem">{{ u.user.name }} {{ u.user.surname }}</td>
 						<td>
 							<div style="text-align: right; width: auto;">
 								<a class="move up" href="javascript:void(0)" title="move up">
@@ -68,7 +64,7 @@
 				{% endif %}
 			{% else %}
 				<tr>
-						<td data-id = "{{ u.id }}" class = "rankItem">{{ u }}</td>
+						<td data-id = "{{ u.id }}" class = "rankItem">{{ u.user.name }} {{ u.user.surname }}</td>
 					<td>
 						<div style="text-align: right; width: auto;">
 							<a class="move up" href="javascript:void(0)" title="move up">
