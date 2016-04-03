@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {% extends "peer_review/baseUser.html" %}
 {% load staticfiles %}
 {% block extrahead %}
@@ -581,3 +582,135 @@ input[type=range]:focus::-ms-fill-upper {
     </div>
     </div>
 {% endblock %}
+=======
+{% extends "peer_review/baseUser.html" %}
+{% load staticfiles %}
+{% block extrahead %}
+    <title xmlns="http://www.w3.org/1999/html">Questionnaire</title>
+    <script src="{% static "peer_review/jquery.min.js" %}"></script>
+    <script src="{% static "peer_review/js/bootstrap-slider.js" %}"></script>
+    <script>
+        //Edit navbar active
+        title = "questionnaire";
+
+        //Variables used for saving
+        var roundPk = "{{ round }}";
+        var saveFunctions = [];
+
+        //Gets the responses to a question
+        //Parameters are the question id, and a function that handles the responses (Loading them into inputs or whatever)
+        function getResponses(questionPk, funct) {
+            $.ajax({
+                url: "/questionnaire/getResponses/",
+                data: {'questionPk': questionPk, 'roundPk': roundPk},
+                success: function(data) { 
+                    funct(data);
+                },
+                failure: function() {
+                }                        
+            }) 
+        }
+    </script>
+{% endblock %}
+{% block context %}
+    {% csrf_token %}
+    <div class="container panel panel-default">
+        <div id = "results" class = "row">
+            <!-- The success or failure message will display here -->
+        </div>
+        <div class = "panel-heading row">
+            {{ questionnaire.intro|safe }}
+        </div>
+    {% for q in questionOrders %}  
+        <div id = "{{ q.question.id }}" class = "panel-body">
+    <!-- Label -->
+        {% ifequal q.question.questionType.name 'Label' %}
+            {% include "peer_review/questions/labelQuestion.html" with q=q.question number=q.order %}
+        {% endifequal %}
+
+    <!-- Rate -->
+        {% ifequal q.question.questionType.name 'Rate' %}
+            {% include "peer_review/questions/rateQuestion.html" with q=q.question number=q.order %}
+        {% endifequal %}
+
+    <!-- Rank -->
+        {% ifequal q.question.questionType.name 'Rank' %}
+            {% include "peer_review/questions/rankQuestion.html"  with q=q.question number=q.order %}
+        {% endifequal %}
+
+    <!-- Choice -->
+        {% ifequal q.question.questionType.name 'Choice' %}
+            {% include "peer_review/questions/choiceQuestion.html"  with q=q.question number=q.order %}
+        {% endifequal %}
+
+    <!-- Freeform -->
+        {% ifequal q.question.questionType.name 'Freeform' %}
+            {% include "peer_review/questions/freeformQuestion.html"  with q=q.question number=q.order %}
+        {% endifequal %}
+        </div>
+    {% endfor %} 
+        <hr/>
+        <div class = "btn-group panel-body">
+            <button type='submit'class='btn btn-primary' onclick="saveProgress()">Save Progress</button>
+            <button type='submit'class='btn btn-success' onclick="saveProgress()">Submit</button>
+        </div>
+    </div> 
+
+    <script>      
+        //Enables moving the labels in a rank question
+        $(document).ready(function () {
+            $('.rankTable').on("click", '.move', function () {
+                var row = $(this).closest('tr');
+                if ($(this).hasClass('up'))
+                    row.prev().before(row);
+                else
+                    row.next().after(row);
+            });
+        });
+
+        //Save each question
+        function saveProgress() {
+            for (var x = 0; x < saveFunctions.length; x++)
+                saveFunctions[x]();
+        }
+
+        //Sends the data to the view to be processed. Parameter data needs to be an object with fields:
+        //  questionPk : The id of the question.
+        //  roundPk : The id of the round.
+        //  label : The id of the label (In the case of Label grouping).
+        //  subjectUser : The id of the subject user (In the case of Rest or All groupings).
+        //  answer : The answer to the question
+        function sendToView(data) {
+            var failed = false;
+            data.csrfmiddlewaretoken = $('input[name="csrfmiddlewaretoken"]').prop('value');
+            $.ajax({
+                url: "/questionnaire/saveProgress/",
+                type: "POST",
+                data: data,
+                success: function(data) {              
+                    if (data.result === 1)
+                        failed = true;
+                },
+                failure: function() {
+                    failed = true;
+                }                        
+            })
+            if (failed)
+                //Show failure message
+                $('#results').html('<div class="alert alert-danger">Error: One or more answers failed to save</div>');
+            else
+                //Show success message
+                $('#results').html('<div class="alert alert-success">Progress successfully saved!</div>'); 
+
+            //Make the alert box disappear after 5 seconds
+            window.setTimeout(function () {
+                $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                    $(this).remove();
+                });
+            }, 5000);
+        }
+
+
+    </script>
+{% endblock %}
+>>>>>>> 5c9665f3a9ca13c465a890a3825bd9feecf7caa2

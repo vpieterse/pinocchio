@@ -1,0 +1,368 @@
+{% for questionnaires in questionnaire %}
+            {% ifequal questionnaires.id questionnairePk %}
+            <div class="panel panel-primary">
+                <div class="panel-body">
+                    {{ questionnaires.intro|safe }}
+                </div>
+            </div>
+            {% endifequal %}
+        {% endfor %}
+
+        <div class="container">
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel panel-default">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
+                         data-target="#collapseOne">
+                        <h4 class="panel-title">
+                            <a>
+                                Questions <b class="caret"></b>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <!--<div id="collapseOne" class="panel-collapse collapse in">-->
+                        <div class="panel-body">
+
+                            
+                            <div class='table-responsive'>
+                                
+                                   <!-- <tbody>
+                                        {% for question in questionnaire %}
+                                        <tr id="{{ question.pk }}">
+                                            
+                                                {% csrf_token %}
+                                                <br><td><input type="text" readonly style="width: 250px" class="noBorder"
+                                                           name="questionText"
+                                                           value="{{ question.questionText }}"></input>
+                        <label for="questionText">{{ question.intro }}</label>
+                                              
+                                               <!- <input type="text" style="width: 200px" class="noBorder"
+                                                           name="questionType"
+                                                           value="{{ question.questionType.name }}"></input></td> ***</br>
+                        {% if question.questionType.name = "Choice" %}
+                            <input type="text" style="width: 200px"
+                                                           name="questionGroup"></input>
+                        {% else %}
+                            <br>Else condition</br>
+                        {% endif %}
+                        <p>skip a line</p>
+                                                <td><input type="text" style="width: 200px" class="noBorder"
+                                                           name="questionGroup"
+                                                           value="{{ question.questionGrouping.grouping }}"></input>
+                                                </td>
+                                              
+                                            </form>
+                                            
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>  Replace *** with end annotation -->
+                    
+                    <tbody>
+                        {% for QuestionsOrder in questionOrder|dictsort:"order" %}
+                            {% ifequal QuestionsOrder.questionnaire_id questionnairePk %}
+                                {% for QuestionsText in questions %}
+                                    {% ifequal QuestionsText.id QuestionsOrder.question_id %}
+                                    <legend> </legend>
+                                        <p style="font-size:110%;">{{ QuestionsText.questionText }}</p>
+
+
+
+                                        {% for qType in questionTypes %}
+                                            {% ifequal qType.id QuestionsText.questionType_id %}
+                                                {% if qType.name|lower == "label" %}
+
+                                                    <!-- Type: Label -->
+
+
+
+                                                {% elif qType.name|lower == "choice" %}
+
+
+                                                    <!-- Type: Choice -->
+
+
+
+
+
+                                                {% elif qType.name|lower == "rank" %}
+
+                                                    <!-- Type: Rank -->
+
+
+
+
+
+                                                {% elif qType.name|lower == "rate" %}
+
+
+                                                    {% for qGroup in questionGrouping %}
+
+                                                        {% ifequal qGroup.id QuestionsText.questionGrouping_id  %}
+
+                                                            {% if qGroup.grouping|lower == "none" %}
+
+                                                                <!-- Grouping: None -->
+
+                                                                    
+                                                                <div>
+                                                                    {% for ratings in questionRating %}
+                                                                    {% ifequal ratings.question_id QuestionsOrder.question_id  %}
+                                            
+                                                                <div style="float: left; width:48%"><b>{{ ratings.topWord }}</b>
+                                                                </div>
+                                                                <div style="float: left; width:4%" align="center">
+                                                                    <label id="valueLabel"><b>&#x25BC</b></label><!-- Down Arrow -->
+                                                                </div>
+                                                                <div style="float: left; width:48%" align="right">
+                                                                <b>{{ ratings.bottomWord }}</b></div>
+                                                                <br style="clear: left;"/>
+
+                                                            {% endifequal %}
+                                                        {% endfor %}
+                                        
+                                                    <input id="rateSlider{{QuestionsText.id}}-0" type="range" min="0" max="100" value="50" step="1"/>
+                                            
+                                                    </div>
+
+
+
+
+                                                            {% elif qGroup.grouping|lower == "rest" %}
+
+                                                                <p>Grouping: Rest</p>
+
+                                                                <!-- Groupinh: Rest -->
+
+
+                                                            {% elif qGroup.grouping|lower == "all" %}
+
+                                                                <p>Grouping: All</p>
+
+                                                                <!-- Grouping: All -->
+
+                                                            {% elif qGroup.grouping|lower == "label" %}
+
+                                                        
+                                                                <!-- Grouping: Label -->
+
+
+
+                                                                    {% for qrLabels in questionLabels %}
+
+                                                                        {% ifequal qrLabels.question_id  QuestionsText.id %}
+
+                                                                            <h5><strong>{{ qrLabels.labelText }}</strong></h5>
+
+                                                                                <div>
+                                                                    {% for ratings in questionRating %}
+                                                                    {% ifequal ratings.question_id QuestionsOrder.question_id  %}
+                                            
+                                                                <div style="float: left; width:48%"><b>{{ ratings.topWord }}</b>
+                                                                </div>
+                                                                <div style="float: left; width:4%" align="center">
+                                                                    <label id="valueLabel"><b>&#x25BC</b></label><!-- Down Arrow -->
+                                                                </div>
+                                                                <div style="float: left; width:48%" align="right">
+                                                                <b>{{ ratings.bottomWord }}</b></div>
+                                                                <br style="clear: left;"/>
+
+                                                            {% endifequal %}
+                                                        {% endfor %}
+                                        
+                                                    <input id="rateSlider{{QuestionsText.id}}-{{ qrLabels.id }}" type="range" min="0" max="100" value="50" step="1"/>
+                                            
+                                                    </div>
+
+
+
+
+
+                                                                        {% endifequal %}
+
+
+                                                                    {% endfor %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                            {% else %}
+
+                                                                <p>Database Error</p>
+
+                                                            {% endif %}
+
+
+
+
+
+
+
+
+                                                        {% endifequal %}
+
+
+
+
+
+
+
+
+
+                                                    {% endfor %}
+              
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                {% elif qType.name|lower == "freeform" %}
+
+                                                    <!-- Type: Freeform -->
+
+
+
+
+
+
+                                                {% else %}
+
+                                                    <p>Database Error</p>
+
+                                                {% endif %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                            {% endifequal %}
+                                        {% endfor %}
+
+
+
+
+
+
+
+
+
+
+
+                                        {% if QuestionsText.questionType_id == 2 %} <!-- CHOICE QUESTIONS-->
+
+                                            <fieldset>
+                                                <legend>Options</legend>
+                                                {% for QuestionsChoice in questionChoices %}
+                                                <form>
+                                                    {% ifequal QuestionChoice.question_id QuestionsOrder.question_id %}
+                                                        <input type="radio" name="questionChoice"
+                                                        value="{{ QuestionsChoice.choiceText }}">{{ QuestionsChoice.choiceText }}<br>
+                                                    {% endifequal %}
+                                                </form> 
+                                            </fieldset>
+                                                {% endfor %}
+
+                                        {% elif QuestionsText.questionType_id == 3 %} <!-- RANK QUESTIONS-->
+                                        <div>
+                                        
+                                        {% for Ranks in questionRanking %}
+                                            {% ifequal Ranks.question_id QuestionsOrder.question_id  %}
+                                            
+                                        <div style="float: left; width:48%"><b>{{ Ranks.firstWord }}</b></div>
+                                        <div style="float: left; width:4%" align="center">
+                                        <label id="valueLabel{{ QuestionsOrder.order }}"><b>5</b></label></div>
+                                        <div style="float: left; width:48%" align="right"><b>{{ Ranks.secondWord }}</b></div>
+                                        <br style="clear: left;"/>
+
+                                          
+                                            {% endifequal %}
+                                        {% endfor %}
+                                        
+                                            <input type="range" min="0" max="10" value="5" step="1" onchange="updateLabel(this.value, {{ QuestionsOrder.order }})" />
+                                            
+                                            <script type="text/javascript">
+                                            function updateLabel(LabelValue, LabelID)
+                                            {
+                                                document.getElementById('valueLabel' + LabelID).innerHTML=LabelValue;
+                                            }
+                                                </script>
+                                        </div>
+                                        
+                                        
+
+
+
+                                        {% endif %}
+
+                                    {% endifequal %}
+                                {% endfor %}
+                            {% endifequal %}
+                            
+                        {% endfor %}
+                    </tbody>
+                    
+                                
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+    <div class="btn-group col-xs-5" style="margin: 7px 0;">
+    <button type='submit' name="create" class='btn btn-primary btn-md' id='saveProgress'
+                                onclick="window.location.href='/questionnaire/save'">Save Progress
+                          </button>
+                <script>
+                    function submitConfirm()
+                    {
+                        if(confirmSubmit())
+                            window.location.href='/questionnaire/submit';
+                    }
+                </script>
+                <button type='submit' name="create" class='btn btn-success btn-md' id='submitQuestionnaire'
+                                onclick="return submitConfirm()">Submit
+                          </button>
+    </div>
+
+
+
+    <div class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container">
+            <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
+            <a class="navbar-btn btn-danger btn pull-right" href="/logout">Log Out</a>
+        </div>
+    </div>
+    </div> 

@@ -8,7 +8,10 @@
     <script src="{% static "peer_review/js/tinymce/tinymce.min.js" %}"></script>
 
     <script type="text/javascript">
-    //ToDo: Fix the order of questions saving/loading
+    /* Todo:
+    * Fix the order of questions saving/loading
+    * Fix that only one page of questions gets saved
+    */
         //TinyMCE html editor from https://www.tinymce.com/
         var currentlyEditing = -1;
         function makeOneRowSelectable(table, dataTable) {
@@ -173,7 +176,8 @@
             tinymce.init({ selector:'#intro',
             statusbar: false, 
             menubar: '',
-            toolbar: 'undo redo bold italic alignleft aligncenter alignright bullist numlist outdent indent code hr ', });
+            plugins: "emoticons",
+            toolbar: 'undo redo bold italiclignleft aligncenter alignright bullist numlist outdent indent styleselect fontsizeselect emoticons a', });
 
             $('.table').on("click", '.move', function () {
                 var row = $(this).closest('tr');
@@ -182,6 +186,11 @@
                 else
                     row.next().after(row);
             });
+            
+            $('#search').keyup(function () {
+                t = $('#questionnaireList').DataTable();
+                t.search($('#search').val()).draw();
+            })
 
             var questionTable = $("#questionTable");
             resizeTableColumns(questionTable);
@@ -205,6 +214,7 @@
             var dTableQuestionnaire = questionnaireTable.DataTable({
                 "orderClasses": false,
                 "order": [], // No initial sorting
+                "bFilter": false,
                 "columnDefs": [
                     {
                         "orderable": false,
@@ -290,6 +300,7 @@
                     title: "Questionnaire Label",
                     data: "label", 
                     targets: [0],
+                    orderable: false,
                 },
                 {
                     title: "",
@@ -300,7 +311,8 @@
                             + "<button class=\"btn btn-warning btn-xs\" type = \"button\" onclick = \"deleteQuestionnaire(" + "\'" + row.DT_RowId + "\'" + ")\">Delete</button></div>";
                         },
                     targets: [1],
-                }]                
+                }],
+                dom: 't'                
             });
             updateQuestionnaireList();
         });
