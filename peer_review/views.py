@@ -215,7 +215,6 @@ def getResponses(request):
             json['labelOrUserIds'].append(r.subjectUser.id)
     return JsonResponse(json)
 
-<<<<<<< HEAD
 @login_required
 def questionnaire(request, questionnairePk):
 	if request.method == "POST":
@@ -232,7 +231,7 @@ def questionnaire(request, questionnairePk):
 		return render(request, 'peer_review/questionnaire.html', context)
 	else:
 		return render(request, 'peer_review/userError.html')
-=======
+
 # def questionnaire(request, questionnairePk):
 # 	if request.method == "POST":
 # 		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
@@ -245,7 +244,6 @@ def questionnaire(request, questionnairePk):
 # 		return render(request, 'peer_review/questionnaire.html', context)
 # 	else:
 # 		return render(request, 'peer_review/userError.html')
->>>>>>> 5c9665f3a9ca13c465a890a3825bd9feecf7caa2
 
 def getQuestionnaireForTeam(request):
     if request.method == "POST":
