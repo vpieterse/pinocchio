@@ -125,6 +125,7 @@ def maintainTeam(request):
                    'rounds': RoundDetail.objects.all(),
                    'teams': TeamDetail.objects.all(),
                    'roundPk': roundPk}
+                   
     else:
         context = {'users': User.objects.all(),
                    'rounds': RoundDetail.objects.all(),
@@ -213,6 +214,23 @@ def getResponses(request):
             json['labelOrUserNames'].append(r.subjectUser.name + ' ' + r.subjectUser.surname)
             json['labelOrUserIds'].append(r.subjectUser.id)
     return JsonResponse(json)
+
+@login_required
+def questionnaire(request, questionnairePk):
+	if request.method == "POST":
+        #print(request.user.email)
+
+		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
+			   'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
+			   'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk),
+               'questionRanking' : Rank.objects.all(), 'questionChoices' : Choice.objects.all(),
+               'questionRating' : Rate.objects.all(), 'userDetails' : User.objects.all(),
+               'freeformDetails' : FreeformItem.objects.all(), 'questionLabels' : Label.objects.all(),
+               'roundDetails' : RoundDetail.objects.all(), 'teamDetails' : TeamDetail.objects.all(),
+               'userName' : request.user.email}
+		return render(request, 'peer_review/questionnaire.html', context)
+	else:
+		return render(request, 'peer_review/userError.html')
 
 # def questionnaire(request, questionnairePk):
 # 	if request.method == "POST":
