@@ -17,7 +17,7 @@
 				<h4 class="panel-title">Create Question</h4>
 			</div>
 			<div class="panel-body">
-				<form onsubmit="save()" id = "form-save" method="POST" action="/questionAdmin/save">
+				<form onsubmit="return save()" id = "form-save" method="POST" action="/questionAdmin/save">
 					{% csrf_token %}
 					<fieldset class="form-group">
 						<!-- Title -->
@@ -86,7 +86,9 @@
 					<input type="hidden" name="question-type" id="question-type" value="Choice">
 					<input type="hidden" id="question-choices" name="question-choices">
 					<input type="hidden" id="question-labels" name="question-labels">
-					<input type="hidden" name="question-pk" value="{{ question.pk }}">
+					{% if question %}
+						<input type="hidden" name="question-pk" value="{{ question.pk }}">
+					{% endif %}
 					<br/>
 					<div id = "content">
 						<!-- Put the choice stuff in here so that it doesn't flash on load -->
@@ -310,8 +312,7 @@
 		{% else %}
 			changeType('Choice');
 		{% endif %}
-			
-
+		
 		function changeType(type) {
 			$('#types > label').removeClass('active');
 			$('#types > label:contains("'+type+'")').addClass('active');
@@ -347,7 +348,6 @@
 			row.append('<span onclick="removeRow(this)" class = "glyphicon glyphicon-remove-circle pull-right text-primary" style="cursor:pointer"></span>');
 			row.append('<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-up pull-left text-primary" style="cursor:pointer"></span>');
 			row.append('<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-down pull-left text-primary" style="cursor:pointer"></span>');
-
 			
 			$(el).closest('table').find('tbody').append(row);
 			row.wrap('<tr></tr>');
@@ -366,7 +366,16 @@
 	            row.next().after(row);
 		}
 
-		function save() {
+		function save(event) {
+			if ($('#question-type').val() == "Rank" && $('#question-grouping').val() == "Label") {
+				if ($('#labeltable > tbody > tr > td > input').size() < 2) {
+					a = $('.container').eq(1).prepend('<div class = "alert alert-warning">Error: Rank with label grouping needs at least two labels.</div>');
+					setTimeout(function() {
+						$('.container').eq(1).find('.alert').hide(100);
+					}, 5000);
+					return false;
+				}
+			}
 			if ($('#question-type').val() == "Choice") {
 				var choices = "";
 				$('#content').find('#choice-table > tbody > tr > td > input').each(function(i, el) {
@@ -382,6 +391,7 @@
 				});
 				$('#question-labels').val(labels.slice(0, -2));
 			}
+			return true;
 		}
 
 		function edit(pk) {
@@ -394,8 +404,11 @@
 		}
 
 		$(document).ready(function(){
-			//Search
-			//ToDo: Make this search the other columns as well
+			//Hide alerts
+			setTimeout(function() {
+				$('.alert').hide(100);
+			}, 10000);
+			//ToDo: Search the other columns as well
 			$("#question-search").keyup(function() {
 			    var value = this.value;
 			    $("#question-list").find("tr").each(function(index) {
