@@ -15,6 +15,7 @@ from django.shortcuts import render, redirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.utils import timezone
+from django.contrib import messages
 
 from .forms import DocumentForm, UserForm, LoginForm
 from .models import Document
@@ -140,7 +141,17 @@ def questionAdmin(request):
     # if not request.user.is_authenticated():
     #     return render(request, "peer_review/login.html")
 
-    context = {'questionTypes': QuestionType.objects.all(), 'questions': Question.objects.all()}
+    context = {'questions': Question.objects.all()}
+    return render(request, 'peer_review/questionAdmin.html', context)
+
+def editQuestion(request, questionPk):
+    question = Question.objects.get(pk=questionPk)
+    context = {'question': question,
+               'questions': Question.objects.all(),
+               'labels': Label.objects.filter(question=question),
+               'choices': Choice.objects.filter(question=question),
+               'freeformType': str(FreeformItem.objects.filter(question=question).first())}
+    print('Editing ' + questionPk)
     return render(request, 'peer_review/questionAdmin.html', context)
 
 
@@ -878,86 +889,49 @@ def questionDelete(request, qPk):
     else:
         return HttpResponse('Error.')
 
-
-# Create a question
-def createQuestion(request):
+#Save question
+def saveQuestion(request):
     if request.method == "POST":
-        qText = request.POST['question']
-        qType = QuestionType.objects.get(name=request.POST['questionType'])
-        qGrouping = QuestionGrouping.objects.get(grouping=request.POST['grouping'])
-        qLabel = request.POST['questionLabel']
-        qPubDate = timezone.now()
-        print("Saving new question: Type = '%s', Label = '%s', Grouping = '%s'" % (qType, qLabel, qGrouping))
+        print(request.POST)
+        questionText = str(request.POST['question-content'])
+        questionTitle = str(request.POST['question-title'])
+        questionType = str(request.POST['question-type'])
+        questionGrouping = str(request.POST['question-grouping'])
 
-        if 'pk' in request.POST:
-            print('Deleting old question')
-            q = Question.objects.get(pk=request.POST['pk'])
-            qPubDate = q.pubDate
-            q.delete()
+        if Question.objects.filter(questionLabel=questionTitle).exists():
+            messages.add_message(request, messages.WARNING, "Error: A question with that title already exists.")
+            return HttpResponseRedirect('/questionAdmin')
 
-        # Save the question
-        print('Creating question')
-        q = Question(questionText=qText,
-                     # pubDate = timezone.now() - datetime.timedelta(days=1),
-                     pubDate=qPubDate,
-                     questionType=qType,
-                     questionGrouping=qGrouping,
-                     questionLabel=qLabel
+        q = Question.objects.create(questionText=questionText,
+                     pubDate=timezone.now(),
+                     questionType=QuestionType.objects.get(name=questionType),
+                     questionGrouping=QuestionGrouping.objects.get(grouping=questionGrouping),
+                     questionLabel=questionTitle
                      )
-        q.save()
 
-        if str(qGrouping) == 'Label':
-            qLabels = request.POST.getlist('labelArr[]')
-            print("Grouping is label: %s" % qLabels)
+        if questionGrouping == 'Label':
+            labels = str(request.POST['question-labels']).split(";#")
+            for label in labels:
+                Label.objects.create(question=q, labelText=label)
 
-            for label in qLabels:
-                l = Label(question=q, labelText=label)
-                l.save()
-
-        # Choice
-        if str(qType) == 'Choice':
-            choices = request.POST.getlist('choices[]')
-            print("Choices = %s" % choices)
-
-            # Save the choices
-            rank = 0
-            for choice in choices:
-                c = Choice(question=q,
-                           choiceText=choice,
-                           num=rank)
-                rank += 1
-                # print(c)
-                c.save()
-
-        # Rank
-        elif str(qType) == 'Rank':
-            wordOne = request.POST["firstWord"]
-            wordTwo = request.POST["secondWord"]
-            print("First Word: '%s', Second Word: '%s'" % (wordOne, wordTwo))
-
-            # Save the rank
-            r = Rank(question=q,
-                     firstWord=wordOne,
-                     secondWord=wordTwo)
-            r.save()
-
-        # Freeform
-        elif str(qType) == 'Freeform':
-            FreeformItem.objects.create(question=q, freeformType=request.POST['freeformType'])
-
-        # Rate
-        elif str(qType) == 'Rate':
-            if request.POST['optional'] == "false":
-                optional = False
-            else:
-                optional = True
-
+        if questionType == 'Choice':
+            choices = str(request.POST['question-choices']).split(";#")
+            for index, choice in enumerate(choices):
+                Choice.objects.create(question=q, choiceText=choice, num=index)
+        elif questionType == 'Rank':
+            Rank.objects.create(question=q,
+                                firstWord=str(request.POST["rank-first"]),
+                                secondWord=str(request.POST["rank-second"]))
+        elif questionType == 'Rate':
             Rate.objects.create(question=q,
-                                topWord=request.POST['topWord'],
-                                bottomWord=request.POST['bottomWord'],
-                                optional=optional)
-    return HttpResponse()
+                                topWord=request.POST['rate-first'],
+                                bottomWord=request.POST['rate-second'],
+                                optional=('rate-optional' in request.POST))
+        elif questionType == 'Freeform':
+            FreeformItem.objects.create(question=q, freeformType=request.POST['freeform-type'])
 
+    messages.add_message(request, messages.SUCCESS, "Question saved successfully")
+    return HttpResponseRedirect('/questionAdmin')
 
 def saveQuestionnaire(request):
     if request.method == 'POST':

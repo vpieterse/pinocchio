@@ -7,94 +7,120 @@
 
 {% block context %}
 	<div class = "container">
+		{% if messages %}
+		    {% for message in messages %}
+		    <div class = "alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
+		    {% endfor %}
+		{% endif %}
 		<div class = "panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">Create Question</h4>
 			</div>
 			<div class="panel-body">
-				<!-- Title -->
-				<fieldset class="form-group">
-					<label for="question-label">Title</label>
-					<input type="text" class="form-control" id="question-label" placeholder="Enter title">
-					<small class="text-muted">A short identifying name to be used in making questionnaires</small>
-					</fieldset>
-					<!-- Question Content -->
+				<form onsubmit="save()" id = "form-save" method="POST" action="/questionAdmin/save">
+					{% csrf_token %}
 					<fieldset class="form-group">
-					<label for="question-content">Question</label>
-					<textarea class="form-control" id="question-content" name="question-content" rows="3" style="resize:none;width:100%">
-					</textarea>
-					</fieldset>
-					<!-- Grouping/Type headings -->
-					<div class="row">
-						<div class="col-xs-6">
-							<div class="pull-left">	  								
-								<label>Question Grouping</label>
+						<!-- Title -->
+						<label for="question-title">Title</label>
+						<input type="text" name="question-title" class="form-control" id="question-title" placeholder="Enter title" value="{{question.questionLabel}}" required>
+						<small class="text-muted">A short identifying name to be used in making questionnaires</small>
+						</fieldset>
+						<!-- Question Content -->
+						<fieldset class="form-group">
+						<label for="question-content">Question</label>
+						<textarea class="form-control" id="question-content" name="question-content" rows="3" style="resize:none;width:100%" required>
+						{{ question.questionText }}
+						</textarea>
+						</fieldset>
+						<!-- Grouping/Type headings -->
+						<div class="row">
+							<div class="col-xs-6">
+								<div class="pull-left">	  								
+									<label>Question Grouping</label>
+								</div>
+							</div>
+							<div class="col-xs-6">
+								<div class="pull-right">	  								
+									<label>Question Type</label>
+								</div>
 							</div>
 						</div>
-						<div class="col-xs-6">
-							<div class="pull-right">	  								
-								<label>Question Type</label>
+						<div class="row">
+							<!-- Groupings -->
+	  					<div class="col-xs-6">
+		  					<div class="btn-group pull-left" id = "groupings">
+								<label class="btn btn-default active" onclick="changeGrouping('Rest')">
+									Rest
+								</label>
+								<label class="btn btn-default" onclick="changeGrouping('None')">
+									None
+								</label>
+								<label class="btn btn-default" onclick="changeGrouping('All')">
+									All
+								</label>
+								<label class="btn btn-default" onclick="changeGrouping('Label')">
+									Label
+								</label>
+							</div>
+						</div>
+						<!-- Types -->
+	  					<div class="col-xs-6">
+	  						<div class="btn-group pull-right" id = "types">
+								<label class="btn btn-default active" onclick="changeType('Choice')">
+									Choice
+								</label>
+								<label class="btn btn-default" onclick="changeType('Freeform')">
+									Freeform
+								</label>
+								<label class="btn btn-default" onclick="changeType('Rank')">
+									Rank
+								</label>
+								<label class="btn btn-default" onclick="changeType('Rate')">
+									Rate
+								</label>
+								<label class="btn btn-default" onclick="changeType('Label')">
+									Label
+								</label>
 							</div>
 						</div>
 					</div>
-					<div class="row">
-						<!-- Groupings -->
-  					<div class="col-xs-6">
-	  					<div class="btn-group pull-left" id = "groupings" data-toggle="buttons">
-							<label class="btn btn-default active">
-								<input type="radio" onchange="changeGrouping(this, 'rest')" autocomplete="off" checked> Rest
-							</label>
-							<label class="btn btn-default">
-								<input type="radio" onchange="changeGrouping(this, 'none')" autocomplete="off"> None
-							</label>
-							<label class="btn btn-default">
-								<input type="radio" onchange="changeGrouping(this, 'all')" autocomplete="off"> All
-							</label>
-							<label class="btn btn-default">
-								<input type="radio" onchange="changeGrouping(this, 'label')" autocomplete="off"> Label
-							</label>
+					<input type="hidden" name="question-grouping" id="question-grouping" value="Rest">
+					<input type="hidden" name="question-type" id="question-type" value="Choice">
+					<input type="hidden" id="question-choices" name="question-choices">
+					<input type="hidden" id="question-labels" name="question-labels">
+					<br/>
+					<div id = "content">
+						<!-- Put the choice stuff in here so that it doesn't flash on load -->
+						<div class = "row">
+							<div class = "col-xs-6">
+								<small>Loading..</small>
+								<table class = "table table-bordered">
+									<thead>
+										<tr>
+											<th class = "text-center">
+												<span>Choices</span>
+												<span style = "cursor: pointer" onclick = "addRowToTable(this)" class="glyphicon glyphicon-plus-sign pull-right text-primary"></span>
+											</th>
+										</tr>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+							</div>
+							<div class = "col-xs-6 labels-go-here">
+							</div>
 						</div>
 					</div>
-					<!-- Types -->
-  					<div class="col-xs-6">
-  						<div class="btn-group pull-right" data-toggle="buttons">
-							<label class="btn btn-default active">
-								<input type="radio" autocomplete="off" onchange="changeType(this, 'choice')" checked>
-								Choice
-							</label>
-							<label class="btn btn-default">
-								<input type="radio" autocomplete="off" onchange="changeType(this, 'freeform')">
-								Freeform
-							</label>
-							<label class="btn btn-default">
-								<input type="radio" autocomplete="off" onchange="changeType(this, 'rank')">
-								Rank
-							</label>
-							<label class="btn btn-default">
-								<input type="radio" autocomplete="off" onchange="changeType(this, 'rate')">
-								Rate
-							</label>
-							<label class="btn btn-default">
-								<input type="radio" autocomplete="off" onchange="changeType(this, 'label')">
-								Label
-							</label>
-						</div>
-					</div>
-					<input type="hidden" id="question-grouping">
-					<input type="hidden" id="question-type">
-				</div>
-				<br/>
-				<div id = "content">
-				</div>
-				<br/>
-				<button type="button" class = "btn btn-primary">
-					<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-					Submit
-				</button>
-				<button type="button" class = "btn btn-primary pull-right">
-					<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-					Clear
-				</button>
+					<br/>
+					<button type="submit" class = "btn btn-primary">
+						<span class="glyphicon glyphicon-ok"></span>
+						Submit
+					</button>
+					<button type="button" class = "btn btn-primary pull-right">
+						<span class="glyphicon glyphicon-remove"></span>
+						Clear
+					</button>
+				</form>
 			</div>
 		</div>
 		<div class="panel-group" id="accordion">
@@ -106,28 +132,46 @@
                     </div>
                     <div id="collapseOne" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <input type="text" class="form-control" id="search" placeholder="Search">
+                            <input type="text" class="form-control" id="question-search" placeholder="Search">
                         </div>
-                        <table id = "questionList" class="table">
+                        <table id = "question-list" class="table">
+                        <thead>
                         	<tr>
-                        		<td>h</td>
+                        		<th>Title</th>
+                        		<th>Grouping</th>
+                        		<th>Type</th>
+                        		<th>Publish Date</th>
                         	</tr>
-                        </table>                         
+                        </thead>
+                        <tbody>
+                        	{% for question in questions %}
+								<tr>
+									<td>{{ question.questionLabel }}</td>
+									<td>{{ question.questionGrouping }}</td>
+									<td>{{ question.questionType }}</td>
+									<td>{{ question.pubDate }}
+										<span style = "cursor: pointer" onclick = "" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
+										<span style = "cursor: pointer" onclick = "edit('{{question.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+                        </table>    
                     </div>
                 </div>
         </div>
 	</div>
 
 	<!-- Label -->
-	<div id = "label">
+	<div id = "Label">
 	</div>
 
 	<!-- Choice -->
-	<div id = "choice" class = "hidden">
+	<div id = "Choice" class = "hidden">
 		<div class = "row">
 			<div class = "col-xs-6">
-				<small>Click the <span class="glyphicon glyphicon-plus-sign text-primary"></span> icon to add choices.</small>
-				<table class = "table table-bordered">
+				<small class="text-muted">Click the <span class="glyphicon glyphicon-plus-sign text-primary"></span> icon to add choices.</small>
+				<table class = "table table-bordered" id = "choice-table">
 					<thead>
 						<tr>
 							<th class = "text-center">
@@ -137,6 +181,16 @@
 						</tr>
 					</thead>
 					<tbody>
+						{% for choice in choices %}
+							<tr class = "text-center">
+								<td>
+									<input type="text" placeholder="Enter choice" style="border:none;" value="{{ choice }}"/>
+									<span onclick="removeRow(this)" class = "glyphicon glyphicon-remove-circle pull-right text-primary" style="cursor:pointer"></span>
+									<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-up pull-left text-primary" style="cursor:pointer"></span>
+									<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-down pull-left text-primary" style="cursor:pointer"></span>
+								</td>
+							</tr>
+						{% endfor %}
 					</tbody>
 				</table>
 			</div>
@@ -146,17 +200,25 @@
 	</div>
 
 	<!-- Freeform -->
-	<div id = "freeform" class = "hidden">
+	<div id = "Freeform" class = "hidden">
 		<div class="row">
 			<div class = "col-xs-4">
 				<label for = "freeform-type">Freeform type</label>
-					<select id="freeform-type" class = "form-control" onchange="changeFreeform(this)">
-						<option value="integer">Integer</option>
-						<option value="real">Real</option>
-						<option value="paragraph">Paragraph</option>
-						<option value="word">Word</option>
-					</select>	
-					<small>The type of answer the student is expected to give.</small>
+				<select class = "form-control" name="freeform-type">
+					<option value="Integer" {% if freeformType == "Integer" %} selected {% endif %} >
+						Integer
+					</option>
+					<option value="Real" {% if freeformType == "Real" %} selected {% endif %} >
+						Real
+					</option>
+					<option value="Paragraph" {% if freeformType == "Paragraph" %} selected {% endif %} >
+						Paragraph
+					</option>
+					<option value="Word"  {% if freeformType == "Word" %} selected {% endif %} >
+						Word
+					</option>
+				</select>	
+				<small>The type of answer the student is expected to give.</small>
 			</div>
 			<div class = "col-xs-2"></div>
 			<div class = "col-xs-6 labels-go-here">
@@ -165,13 +227,13 @@
 	</div>
 
 	<!-- Rank -->
-	<div id = "rank" class="hidden">
+	<div id = "Rank" class="hidden">
 		<div class = "row">
 			<div class = "col-xs-6">
-				<input type="text" name="" class="form-control" placeholder="Enter top word">
+				<input type="text" name="rank-first" class="form-control" placeholder="Enter top word">
 			</div>
 			<div class = "col-xs-6">
-				<input type="text" name="" class="form-control" placeholder="Enter bottom word">
+				<input type="text" name="rank-second" class="form-control" placeholder="Enter bottom word">
 			</div>
 		</div>
 		<div class = "row">
@@ -182,13 +244,13 @@
 	</div>
 
 	<!-- Rate -->
-	<div id = "rate" class = "hidden">
+	<div id = "Rate" class = "hidden">
 		<div class = "row">
 			<div class = "col-xs-6">
-				<input type="text" name="" class="form-control" placeholder="Enter first value">
+				<input type="text" name="rate-first" class="form-control" placeholder="Enter first value">
 			</div>
 			<div class = "col-xs-6">
-				<input type="text" name="" class="form-control" placeholder="Enter second value">
+				<input type="text" name="rate-second" class="form-control" placeholder="Enter second value">
 			</div>			
 		</div>
 		<br>
@@ -196,15 +258,15 @@
 			<div class = "col-xs-6 labels-go-here">
 			</div>
 			<div class="col-xs-6">				
-				<label>Optional: <input type="checkbox" name="rate-optional" value="Optional"></label>
+				<label>Optional: <input type="checkbox" name="rate-optional" value="a"></label>
 			</div>
 		</div>
 	</div>
 
 	<!-- Label table -->
 	<div class = "hidden" id ="label-table">
-		<small>Click the <span class="glyphicon glyphicon-plus-sign text-primary"></span> icon to add labels.</small>
-		<table class = "table table-bordered">
+		<small class="text-muted">Click the <span class="glyphicon glyphicon-plus-sign text-primary"></span> icon to add labels.</small>
+		<table class = "table table-bordered" id = "labeltable">
 			<thead>
 				<tr>
 					<th class = "text-center">
@@ -214,6 +276,16 @@
 				</tr>
 			</thead>
 			<tbody>
+				{% for label in labels %}
+					<tr class = "text-center">
+						<td>
+							<input type="text" placeholder="Enter choice" style="border:none;" value="{{ label }}"/>
+							<span onclick="removeRow(this)" class = "glyphicon glyphicon-remove-circle pull-right text-primary" style="cursor:pointer"></span>
+							<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-up pull-left text-primary" style="cursor:pointer"></span>
+							<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-down pull-left text-primary" style="cursor:pointer"></span>
+						</td>
+					</tr>
+				{% endfor %}
 			</tbody>
 		</table>
 	</div>
@@ -221,39 +293,41 @@
 
 	<script>
 		// Temporary
-		$('#content').html($('#choice').html());
 		$('.labels-go-here').hide();
 		$('.labels-go-here').html($('#label-table').html());
+		{% if question %}
+			changeType('{{ question.questionType }}');
+			changeGrouping('{{ question.questionGrouping }}');
+		{% else %}
+			changeType('Choice');
+		{% endif %}
+			
 
-		function changeType(el, type) {
-			if ($(el).is(':checked')) {
-				$('#content').html($('#'+type).html());
-				$('#groupings').find('label').show(100);
-				if (type == 'label') {
-					$('#groupings').find('label').removeClass('active');
-					$('#groupings').find('label').eq(1).addClass('active');
-					$('#groupings').find('label').not(":eq(1)").hide(100);
-				} else if (type == 'rank') {
-					if ($('#groupings').find('label').eq(1).hasClass('active')) {
-						$('#groupings').find('label').eq(0).addClass('active');
-						$('#groupings').find('label').eq(1).removeClass('active');
-					}
-					$('#groupings').find('label').eq(1).hide(100);
-				} else {
-					// $('#groupings').find('label').removeClass('active');
+		function changeType(type) {
+			$('#types > label').removeClass('active');
+			$('#types > label:contains("'+type+'")').addClass('active');
+			$('#question-type').val(type);			
+			$('#content').html($('#'+type).html());
+			$('#groupings').find('label').show(100);
+			if (type == 'Label') {
+				changeGrouping('None');
+				$('#groupings').find('label').not(":eq(1)").hide(100);
+			} else if (type == 'Rank') {
+				if ($('#groupings').find('label').eq(1).hasClass('active')) {
+					changeGrouping('Rest');
 				}
-				$('#question-type').val(type);
-			}
+				$('#groupings').find('label').eq(1).hide(100);
+			}		
 		}
 
-		function changeGrouping(el, group) {
-			if ($(el).is(':checked')) {
-				if (group == 'label') {
-					$('.labels-go-here').show(100);
-				} else {
-					$('.labels-go-here').hide(100);					
-				}
-				$('#question-grouping').val(group);
+		function changeGrouping(group) {
+			$('#groupings > label').removeClass('active');
+			$('#groupings > label:contains("'+group+'")').addClass('active');
+			$('#question-grouping').val(group);
+			if (group == 'Label') {
+				$('.labels-go-here').show(100);
+			} else {
+				$('.labels-go-here').hide(100);					
 			}
 		}
 
@@ -283,6 +357,40 @@
 	            row.next().after(row);
 		}
 
+		function save() {
+			if ($('#question-type').val() == "Choice") {
+				var choices = "";
+				$('#choice-table > tbody > tr > td > input').each(function(i, el) {
+					choices += el.value + ';#';
+				});
+				$('#question-choices').val(choices.slice(0, -2));
+			}
+			if ($('#question-grouping').val() == "Label") {
+				var labels = "";
+				$('#labeltable > tbody > tr > td > input').each(function(i, el) {
+					console.log(el.value);
+					labels += el.value + ';#';
+				});
+				$('#question-labels').val(labels.slice(0, -2));
+			}
+		}
+
+		function edit(pk) {
+			window.location = '/questionAdmin/edit/'+pk;
+		}
+
+		$(document).ready(function(){
+			//Search
+			//ToDo: Make this search the other columns as well
+			$("#question-search").keyup(function() {
+			    var value = this.value;
+			    $("#question-list").find("tr").each(function(index) {
+			        if (!index) return;
+			        var id = $(this).find("td").first().text();
+			        $(this).toggle(id.toLowerCase().indexOf(value.toLowerCase()) !== -1);
+			    });
+			});
+		})
 
 	</script>
 {% endblock %}
