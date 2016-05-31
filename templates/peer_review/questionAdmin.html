@@ -131,7 +131,8 @@
                     </div>
                     <div id="collapseOne" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <input type="text" class="form-control" id="question-search" placeholder="Search">
+                            <input type="text" class="form-control" id="question-search" placeholder="Start typing to search">
+                        	<small class = "text-muted">Click the <span class="glyphicon glyphicon glyphicon-pencil text-primary"></span> icon to edit questions, and the <span class="glyphicon glyphicon glyphicon-remove-circle text-primary"></span> icon to remove questions.</small>
                         </div>
                         <table id = "question-list" class="table">
                         <thead>
@@ -145,17 +146,26 @@
                         <tbody>
                         	{% for question in questions %}
 								<tr>
-									<td>{{ question.questionLabel }}</td>
-									<td>{{ question.questionGrouping }}</td>
-									<td>{{ question.questionType }}</td>
-									<td>{{ question.pubDate }}
-										<span style = "cursor: pointer" onclick = "" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
+									<td>{{ question.title }}</td>
+									<td>{{ question.grouping }}</td>
+									<td>{{ question.type }}</td>
+									<td>{{ question.inAQuestionnaire }}</td>
+									<td>{{ question.date }}
+										{% if question.inAQuestionnaire %}
+											<span class="glyphicon glyphicon glyphicon-remove-circle pull-right text-muted" title="This question has been used in a questionnaire and cannot be deleted."></span>
+										{% else %}
+											<span style = "cursor: pointer" onclick = "deleteQuestion('{{question.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
+										{% endif %}
 										<span style = "cursor: pointer" onclick = "edit('{{question.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
 									</td>
 								</tr>
 							{% endfor %}
 						</tbody>
-                        </table>    
+                        </table> 
+                        <form id = "form-delete" action = "/questionAdmin/delete" method="POST">
+							{% csrf_token %}
+							<input type="hidden" name = "question-pk" id = "question-pk">
+						</form>   
                     </div>
                 </div>
         </div>
@@ -287,7 +297,7 @@
 				{% endfor %}
 			</tbody>
 		</table>
-	</div>
+			</div>
 
 
 	<script>
@@ -359,7 +369,7 @@
 		function save() {
 			if ($('#question-type').val() == "Choice") {
 				var choices = "";
-				$('#choice-table > tbody > tr > td > input').each(function(i, el) {
+				$('#content').find('#choice-table > tbody > tr > td > input').each(function(i, el) {
 					choices += el.value + ';#';
 				});
 				$('#question-choices').val(choices.slice(0, -2));
@@ -376,6 +386,11 @@
 
 		function edit(pk) {
 			window.location = '/questionAdmin/edit/'+pk;
+		}
+
+		function deleteQuestion(pk) {
+			$('#question-pk').val(pk);
+			$('#form-delete').submit();
 		}
 
 		$(document).ready(function(){

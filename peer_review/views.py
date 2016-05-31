@@ -141,13 +141,14 @@ def questionAdmin(request):
     # if not request.user.is_authenticated():
     #     return render(request, "peer_review/login.html")
 
-    context = {'questions': Question.objects.all()}
+    context = {'questions': getQuestions()}
     return render(request, 'peer_review/questionAdmin.html', context)
 
 def editQuestion(request, questionPk):
     question = Question.objects.get(pk=questionPk)
+    print(getQuestions())
     context = {'question': question,
-               'questions': Question.objects.all(),
+               'questions': getQuestions(),
                'labels': Label.objects.filter(question=question),
                'choices': Choice.objects.filter(question=question),
                'freeformType': str(FreeformItem.objects.filter(question=question).first()),
@@ -801,93 +802,25 @@ def getGroupID(questionGroup):
     else:
         return -1
 
-
-# Get the list of questions (Label, Publish Date, Type, Grouping)
-def getQuestionList(request):
-    questions = Question.objects.all()
-    labels = []
-    publishDates = []
-    types = []
-    groupings = []
-    ids = []
-
-    for question in questions:
-        labels.append(question.questionLabel)
-        publishDates.append(question.pubDate)
-        types.append(str(question.questionType))
-        groupings.append(str(question.questionGrouping))
-        ids.append(question.pk)
-
-    return JsonResponse({'labels': labels,
-                         'publishDates': publishDates,
-                         'types': types,
-                         'groupings': groupings,
-                         'ids': ids})
-
-
-# Get a question and it's details
-def getQuestion(request, qPk):
-    question = Question.objects.get(pk=qPk)
-    qGrouping = question.questionGrouping.grouping
-    labels = []
-    if qGrouping == 'Label':
-        qLabels = Label.objects.filter(question=question)
-        index = 0
-        for label in qLabels:
-            labels.append(label.labelText)
-            index += 1
-
-    response = {'questionText': question.questionText,
-                'questionType': question.questionType.name,
-                'questionGrouping': qGrouping,
-                'questionLabel': question.questionLabel,
-                'labels': labels,
-                }
-
-    return JsonResponse(response)
-
-
-# Get the Choice objects associated with a Choice question
-def getChoices(request, qPk):
-    question = Question.objects.get(pk=qPk)
-    choices = Choice.objects.filter(question=question)
-    response = {};
-    for choice in choices:
-        response[choice.num] = choice.choiceText
-    return JsonResponse(response)
-
-
-# Get the Rank object associated with a Rank question
-def getRank(request, qPk):
-    q = Question.objects.get(pk=qPk)
-    rank = Rank.objects.get(question=q)
-    return JsonResponse({'firstWord': rank.firstWord, 'secondWord': rank.secondWord})
-
-
-# Gets the Rate objects associated with a Rate question
-def getRates(request, qPk):
-    q = Question.objects.get(pk=qPk)
-    rate = Rate.objects.get(question=q)
-
-    return JsonResponse({'topWord': rate.topWord,
-                         'bottomWord': rate.bottomWord,
-                         'optional': rate.optional})
-
-
-# Gets the Freeform objects associated with a Rate question
-def getFreeformItems(request, qPk):
-    q = Question.objects.get(pk=qPk)
-    freeformItem = FreeformItem.objects.get(question=q)
-
-    return JsonResponse({'freeformType': freeformItem.freeformType})
-
+def getQuestions():
+    response = [];
+    for question in Question.objects.all():
+        response.append({'title': question.questionLabel,
+                       'date': question.pubDate,
+                       'type': str(question.questionType),
+                       'grouping': str(question.questionGrouping),
+                       'pk': question.pk,
+                       'inAQuestionnaire': QuestionOrder.objects.filter(question=question).exists()})
+    return response
 
 # Delete a question
-def questionDelete(request, qPk):
+def deleteQuestion(request):
     if request.method == "POST":
-        question = Question.objects.get(pk=qPk)
-        question.delete()
-        return HttpResponse('Success! Question was deleted successfully.')
+        print(request.POST)
+        print('hello')
+        Question.objects.get(pk=request.POST['question-pk']).delete()
+        messages.add_message(request, messages.SUCCESS, "Question deleted successfully")
+        return HttpResponseRedirect('/questionAdmin')
     else:
         return HttpResponse('Error.')
 

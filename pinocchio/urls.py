@@ -46,15 +46,9 @@ urlpatterns = [
                   url(r'^userAdmin/resetPassword/(?P<userPk>[0-9]+)/?$', views.resetPassword),
                   url(r'^userAdmin/updateEmail/$', views.updateEmail),
                   url(r'^userAdmin/$', views.userList, name='userAdmin'),
-                  url(r'^questionAdmin/delete/(?P<qPk>[0-9]+)/?$', views.questionDelete, name='questionDelete'),
-                  url(r'^questionAdmin/getQuestion/(?P<qPk>[0-9]+)/?$', views.getQuestion, name='getQuestion'),
-                  url(r'^questionAdmin/getQuestionList/$', views.getQuestionList, name='getQuestionList'),
-                  url(r'^questionAdmin/getChoices/(?P<qPk>[0-9]+)/?$', views.getChoices, name='getChoices'),
-                  url(r'^questionAdmin/getRank/(?P<qPk>[0-9]+)/?$', views.getRank, name='getRank'),
-                  url(r'^questionAdmin/getRates/(?P<qPk>[0-9]+)/?$', views.getRates, name='getRates'),
-                  url(r'^questionAdmin/getFreeformItems/(?P<qPk>[0-9]+)/?$', views.getFreeformItems,
-                      name='getFreeformItems'),
+
                   url(r'^questionAdmin/save', views.saveQuestion, name='saveQuestion'),
+                  url(r'^questionAdmin/delete', views.deleteQuestion, name='deleteQuestion'),
                   url(r'^questionAdmin/edit/(?P<questionPk>[0-9]+)/?$', views.editQuestion, name='editQuestion'),
                   url(r'^questionAdmin', views.questionAdmin, name='questionAdmin'),
 
