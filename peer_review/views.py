@@ -832,6 +832,10 @@ def saveQuestion(request):
         questionTitle = str(request.POST['question-title'])
         questionType = str(request.POST['question-type'])
         questionGrouping = str(request.POST['question-grouping'])
+        if not QuestionType.objects.filter(name=questionType).exists():
+            QuestionType.objects.create(name = questionType)
+        if not QuestionGrouping.objects.filter(grouping=questionGrouping).exists():
+            QuestionGrouping.objects.create(grouping=questionGrouping)
 
         if ('question-pk' in request.POST):
             print('updating')
