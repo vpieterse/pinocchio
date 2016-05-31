@@ -150,7 +150,9 @@ def editQuestion(request, questionPk):
                'questions': Question.objects.all(),
                'labels': Label.objects.filter(question=question),
                'choices': Choice.objects.filter(question=question),
-               'freeformType': str(FreeformItem.objects.filter(question=question).first())}
+               'freeformType': str(FreeformItem.objects.filter(question=question).first()),
+               'rate': Rate.objects.filter(question = question).first(),
+               'rank': Rank.objects.filter(question = question).first()}
     print('Editing ' + questionPk)
     return render(request, 'peer_review/questionAdmin.html', context)
 
@@ -898,16 +900,33 @@ def saveQuestion(request):
         questionType = str(request.POST['question-type'])
         questionGrouping = str(request.POST['question-grouping'])
 
-        if Question.objects.filter(questionLabel=questionTitle).exists():
+        if ('question-pk' in request.POST):
+            print('updating')
+            q = Question.objects.get(pk= request.POST['question-pk'])
+            print(Choice.objects.filter(question = q))
+            Choice.objects.filter(question = q).delete()
+            print(Choice.objects.filter(question = q))
+            Rank.objects.filter(question = q).delete()
+            Rate.objects.filter(question = q).delete()
+            FreeformItem.objects.filter(question = q).delete()
+            Label.objects.filter(question = q).delete()
+            q.questionText = questionText
+            q.questionLabel = questionTitle
+            q.questionGrouping = QuestionGrouping.objects.get(grouping=questionGrouping)
+            q.pubDate = timezone.now()
+            q.save()
+        elif Question.objects.filter(questionLabel=questionTitle).exists():
+            print('duplicate')
             messages.add_message(request, messages.WARNING, "Error: A question with that title already exists.")
             return HttpResponseRedirect('/questionAdmin')
-
-        q = Question.objects.create(questionText=questionText,
-                     pubDate=timezone.now(),
-                     questionType=QuestionType.objects.get(name=questionType),
-                     questionGrouping=QuestionGrouping.objects.get(grouping=questionGrouping),
-                     questionLabel=questionTitle
-                     )
+        else:
+            print('inserting')
+            q = Question.objects.create(questionText=questionText,
+                         pubDate=timezone.now(),
+                         questionType=QuestionType.objects.get(name=questionType),
+                         questionGrouping=QuestionGrouping.objects.get(grouping=questionGrouping),
+                         questionLabel=questionTitle
+                         )
 
         if questionGrouping == 'Label':
             labels = str(request.POST['question-labels']).split(";#")

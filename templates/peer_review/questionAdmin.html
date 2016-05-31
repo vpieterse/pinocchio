@@ -28,9 +28,7 @@
 						<!-- Question Content -->
 						<fieldset class="form-group">
 						<label for="question-content">Question</label>
-						<textarea class="form-control" id="question-content" name="question-content" rows="3" style="resize:none;width:100%" required>
-						{{ question.questionText }}
-						</textarea>
+						<textarea class="form-control" id="question-content" name="question-content" rows="3" style="resize:none;width:100%" required>{{ question.questionText }}</textarea>
 						</fieldset>
 						<!-- Grouping/Type headings -->
 						<div class="row">
@@ -88,6 +86,7 @@
 					<input type="hidden" name="question-type" id="question-type" value="Choice">
 					<input type="hidden" id="question-choices" name="question-choices">
 					<input type="hidden" id="question-labels" name="question-labels">
+					<input type="hidden" name="question-pk" value="{{ question.pk }}">
 					<br/>
 					<div id = "content">
 						<!-- Put the choice stuff in here so that it doesn't flash on load -->
@@ -230,10 +229,10 @@
 	<div id = "Rank" class="hidden">
 		<div class = "row">
 			<div class = "col-xs-6">
-				<input type="text" name="rank-first" class="form-control" placeholder="Enter top word">
+				<input type="text" name="rank-first" class="form-control" placeholder="Enter top word" value="{{ rank.firstWord }}">
 			</div>
 			<div class = "col-xs-6">
-				<input type="text" name="rank-second" class="form-control" placeholder="Enter bottom word">
+				<input type="text" name="rank-second" class="form-control" placeholder="Enter bottom word" value = "{{ rank.secondWord }}">
 			</div>
 		</div>
 		<div class = "row">
@@ -247,10 +246,10 @@
 	<div id = "Rate" class = "hidden">
 		<div class = "row">
 			<div class = "col-xs-6">
-				<input type="text" name="rate-first" class="form-control" placeholder="Enter first value">
+				<input type="text" name="rate-first" class="form-control" placeholder="Enter first value" value="{{ rate.topWord }}">
 			</div>
 			<div class = "col-xs-6">
-				<input type="text" name="rate-second" class="form-control" placeholder="Enter second value">
+				<input type="text" name="rate-second" class="form-control" placeholder="Enter second value" value = "{{ rate.bottomWord }}">
 			</div>			
 		</div>
 		<br>
@@ -258,7 +257,7 @@
 			<div class = "col-xs-6 labels-go-here">
 			</div>
 			<div class="col-xs-6">				
-				<label>Optional: <input type="checkbox" name="rate-optional" value="a"></label>
+				<label>Optional: <input type="checkbox" name="rate-optional" value="a" {% if rate.optional %} checked {% endif %}></label>
 			</div>
 		</div>
 	</div>
