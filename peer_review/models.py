@@ -83,7 +83,7 @@ class FreeformItem(models.Model):
     )
     freeformType = models.CharField(max_length=300, choices=TYPE_CHOICES, default=PARAGRAPH)
     def __str__(self):
-        return self.value
+        return self.freeformType
 
 
 class Rank(models.Model):
