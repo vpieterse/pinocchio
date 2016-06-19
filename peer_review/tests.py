@@ -19,6 +19,7 @@ class UserTests(TestCase):
 		response = self.client.get(url)
 		self.assertEqual(response.status_code, 200)
 		self.assertTemplateUsed(response, 'peer_review/questionAdmin.html')
+		print('questionAdmin rendered correctly')
 
 	# Simple test to see if questionnaireAdmin is rendered
 	def test_questionnaireAdmin(self):
@@ -26,3 +27,4 @@ class UserTests(TestCase):
 		response = self.client.get(url)
 		self.assertEqual(response.status_code, 200)
 		self.assertTemplateUsed(response, 'peer_review/questionnaireAdmin.html')
+		print('questionnaireAdmin rendered correctly')
