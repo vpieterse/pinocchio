@@ -926,7 +926,7 @@ def deleteQuestionnaire(request):
             messages.add_message(request, messages.SUCCESS, "Questionnaire deleted successfully")
             return HttpResponseRedirect('/questionnaireAdmin')
         else:
-            messages.add_message(request, messages.WARNING, "Error: Something went wrong when deleting questionnaire")
+            messages.add_message(request, messages.WARNING, "Error: Something went wrong when deleting the questionnaire")
             return HttpResponseRedirect('/questionnaireAdmin')
     else:
         return HttpResponseRedirect('/questionnaireAdmin')
