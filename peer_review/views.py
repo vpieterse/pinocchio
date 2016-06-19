@@ -134,8 +134,6 @@ def maintainTeam(request):
                    'roundPk': "none"}
     return render(request, 'peer_review/maintainTeam.html', context)
 
-
-@login_required
 def questionAdmin(request):
     # print(request.user.is_authenticated())
     # if not request.user.is_authenticated():
@@ -155,19 +153,6 @@ def editQuestion(request, questionPk):
                'rate': Rate.objects.filter(question = question).first(),
                'rank': Rank.objects.filter(question = question).first()}
     return render(request, 'peer_review/questionAdmin.html', context)
-
-def editQuestionnaire(request, questionnairePk):
-    context = {'questions': Question.objects.all(),
-               'questionnaires': Questionnaire.objects.all(),
-               'questionnaire': Questionnaire.objects.get(pk=questionnairePk),
-               'questionOrders': QuestionOrder.objects.filter(questionnaire=Questionnaire.objects.get(pk=questionnairePk))}
-    return render(request, 'peer_review/questionnaireAdmin.html', context)
-
-
-def questionnaireAdmin(request):
-    context = {'questions': Question.objects.all(),
-               'questionnaires': Questionnaire.objects.all()}
-    return render(request, 'peer_review/questionnaireAdmin.html', context)
 
 def questionnaire(request, roundPk):
     # if request.method == "POST":
@@ -503,7 +488,6 @@ def userUpdate(request, userPk):
 
         user.save()
     return HttpResponseRedirect('../')
-
 
 def resetPassword(request, userPk):
     if request.method == "POST":
@@ -922,6 +906,18 @@ def saveQuestionnaire(request):
         messages.add_message(request, messages.SUCCESS, "Questionnaire saved successfully.")
     return HttpResponseRedirect('/questionnaireAdmin')
 
+def questionnaireAdmin(request):
+    context = {'questions': Question.objects.all(),
+               'questionnaires': Questionnaire.objects.all()}
+    return render(request, 'peer_review/questionnaireAdmin.html', context)
+    
+def editQuestionnaire(request, questionnairePk):
+    context = {'questions': Question.objects.all(),
+               'questionnaires': Questionnaire.objects.all(),
+               'questionnaire': Questionnaire.objects.get(pk=questionnairePk),
+               'questionOrders': QuestionOrder.objects.filter(questionnaire=Questionnaire.objects.get(pk=questionnairePk))}
+    return render(request, 'peer_review/questionnaireAdmin.html', context)
+
 def deleteQuestionnaire(request):
     if request.method == "POST":
         print(request.POST)
@@ -934,40 +930,6 @@ def deleteQuestionnaire(request):
             return HttpResponseRedirect('/questionnaireAdmin')
     else:
         return HttpResponseRedirect('/questionnaireAdmin')
-
-def getQuestionnaireList(request):
-    questionnaires = Questionnaire.objects.all();
-    json = {'labels': [], 'ids': []}
-    for q in questionnaires:
-        json['labels'].append(q.label)
-        json['ids'].append(q.pk)
-    return JsonResponse(json)
-
-
-def getQuestionnaire(request, qPk):
-    questionnaire = Questionnaire.objects.get(pk=qPk)
-    questions = QuestionOrder.objects.filter(questionnaire=questionnaire)
-    questionLabels = []
-    questionPubDates = []
-    questionTypes = []
-    questionGroupings = []
-    questionIds = []
-    for q in questions:
-        questionLabels.append(q.question.questionLabel)
-        questionGroupings.append(q.question.questionGrouping.grouping)
-        questionTypes.append(q.question.questionType.name)
-        questionPubDates.append(q.question.pubDate)
-        questionIds.append(q.question.pk)
-
-    json = {'label': questionnaire.label,
-            'intro': questionnaire.intro,
-            'questionLabels': questionLabels,
-            'questionPubDates': questionPubDates,
-            'questionTypes': questionTypes,
-            'questionGroupings': questionGroupings,
-            'questionIds': questionIds}
-    return JsonResponse(json)
-
 
 def roundDelete(request, roundPk):
     round = RoundDetail.objects.get(pk=roundPk)
