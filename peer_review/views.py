@@ -157,16 +157,15 @@ def editQuestion(request, questionPk):
     return render(request, 'peer_review/questionAdmin.html', context)
 
 def editQuestionnaire(request, questionnairePk):
-    context = {'rounds': RoundDetail.objects.all(),
-               'questions': Question.objects.all(),
+    context = {'questions': Question.objects.all(),
                'questionnaires': Questionnaire.objects.all(),
-               'questionnaire': Questionnaire.objects.get(pk=questionnairePk)}
+               'questionnaire': Questionnaire.objects.get(pk=questionnairePk),
+               'questionOrders': QuestionOrder.objects.filter(questionnaire=Questionnaire.objects.get(pk=questionnairePk))}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
 
 def questionnaireAdmin(request):
-    context = {'rounds': RoundDetail.objects.all(),
-               'questions': Question.objects.all(),
+    context = {'questions': Question.objects.all(),
                'questionnaires': Questionnaire.objects.all()}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
@@ -236,7 +235,7 @@ def getResponses(request):
             json['labelOrUserIds'].append(r.subjectUser.id)
     return JsonResponse(json)
 
-# Commented out temporarily as there are two of these and I have no idea which one is the right one -Jason
+# Commented out temporarily as there are three(?!) definitions of questionnaire and I have no idea which one is the right one -Jason
 # @login_required
 # def questionnaire(request, questionnairePk):
 # 	if request.method == "POST":
@@ -825,12 +824,11 @@ def getQuestions():
 def deleteQuestion(request):
     if request.method == "POST":
         print(request.POST)
-        print('hello')
         Question.objects.get(pk=request.POST['question-pk']).delete()
         messages.add_message(request, messages.SUCCESS, "Question deleted successfully")
         return HttpResponseRedirect('/questionAdmin')
     else:
-        return HttpResponse('Error.')
+        return HttpResponseRedirect('/questionAdmin')
 
 #Save question
 def saveQuestion(request):
@@ -921,41 +919,21 @@ def saveQuestionnaire(request):
                 qo = QuestionOrder.objects.create(questionnaire=q,
                                                   question=Question.objects.get(pk=question),
                                                   order=index)
+        messages.add_message(request, messages.SUCCESS, "Questionnaire saved successfully.")
     return HttpResponseRedirect('/questionnaireAdmin')
 
-
-
-    # if request.method == 'POST':
-    #     intro = request.POST.get("intro")
-    #     label = request.POST.get("label")
-    #     print(label)
-
-    #     if 'pk' in request.POST:
-    #         q = Questionnaire.objects.get(pk=request.POST.get('pk'))
-    #         q.intro = intro
-    #         q.label = label
-    #         QuestionOrder.objects.filter(questionnaire=q).delete()
-    #         q.save()
-    #     else:
-    #         q = Questionnaire.objects.create(intro=intro, label=label)
-
-    #     index = 0
-    #     questionOrders = request.POST.getlist('questionOrders[]')
-    #     for question in questionOrders:
-    #         qO = QuestionOrder.objects.create(questionnaire=q,
-    #                                           question=Question.objects.get(pk=question),
-    #                                           order=index)
-    #         index += 1
-
-    # return HttpResponse('Success')
-
-
-def deleteQuestionnaire(request, qPk):
+def deleteQuestionnaire(request):
     if request.method == "POST":
-        q = Questionnaire.objects.get(pk=qPk)
-        q.delete()
-    return HttpResponse()
-
+        print(request.POST)
+        if str(request.POST['pk']).isdigit():
+            Questionnaire.objects.get(pk=request.POST['pk']).delete()
+            messages.add_message(request, messages.SUCCESS, "Questionnaire deleted successfully")
+            return HttpResponseRedirect('/questionnaireAdmin')
+        else:
+            messages.add_message(request, messages.WARNING, "Error: Something went wrong when deleting questionnaire")
+            return HttpResponseRedirect('/questionnaireAdmin')
+    else:
+        return HttpResponseRedirect('/questionnaireAdmin')
 
 def getQuestionnaireList(request):
     questionnaires = Questionnaire.objects.all();

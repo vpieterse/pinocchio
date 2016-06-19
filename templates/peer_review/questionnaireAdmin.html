@@ -23,7 +23,7 @@ Todo:
 				<h4 class="panel-title">Create Questionnaire</h4>
 			</div>
 			<div class="panel-body">
-				<form onsubmit="return save()" id = "form-save" method="POST" action="/questionnaireAdmin/save">
+				<form onsubmit="return save()" onreset="empty()" id = "form-save" method="POST" action="/questionnaireAdmin/save">
 					{% csrf_token %}
 					<label for="title">Title</label>
 					<input type="text" name="title" class="form-control" id="title" placeholder="Enter title" value="{{questionnaire.label}}" required>
@@ -70,19 +70,41 @@ Todo:
 		                        		<th></th>
 		                            </tr>
 	                        	</thead>
+	                        	<tbody>
+	                        		{% for question in questionOrders %}
+	                        			<tr id = "{{ question.question.pk }}">
+	                        				<td>
+	                        					<span onclick="moveRow(this)" class="glyphicon glyphicon glyphicon-arrow-up text-primary pull-left"  style="cursor:pointer"></span>
+	                        					<span onclick="moveRow(this)" class="glyphicon glyphicon glyphicon-arrow-down text-primary pull-left"  style="cursor:pointer"></span>
+	                        				</td>
+	                        				<td class = "question-label">{{ question.question.questionLabel }}</td>
+	                        				<td class = "question-type">{{ question.question.questionType.name }}</td>
+	                        				<td class = "question-grouping">{{ question.question.questionGrouping.grouping }}</td>
+	                        				<td>
+	                        					<span onclick="removeQuestion(this)" class="glyphicon glyphicon glyphicon-minus-sign text-primary pull-right"  style="cursor:pointer"></span>
+	                        				</td>
+	                        			</tr>
+	                        		{% endfor %}
+	                        	</tbody>
 	                        </table>
 	                    </div>
 	                </div>
 	                <br/>
 	                <input type="hidden" name="questions" id = "questions">	
-	                <input type="hidden" name="pk" value="{{ questionnaire.pk }}">                
+	                {% if questionnaire %}
+	                	<input type="hidden" name="pk" value="{{ questionnaire.pk }}">                
+	                {% endif %}
 	                <button type="submit" class = "btn btn-primary">
 						<span class="glyphicon glyphicon-ok"></span>
 						Submit
 					</button>
-					<button type="button" class = "btn btn-primary pull-right">
+					<button type="reset" class = "btn btn-primary pull-right">
 						<span class="glyphicon glyphicon-remove"></span>
-						Clear
+						{% if questionnaire %}
+						Cancel Edit
+						{% else %}
+							Clear
+						{% endif %}
 					</button>
 	            </form>
 			</div>
@@ -96,7 +118,7 @@ Todo:
                     </div>
                     <div id="collapseOne" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <input type="text" class="form-control" id="question-search" placeholder="Start typing to search">
+                            <input type="text" class="form-control" id="search" placeholder="Start typing to search">
                         	<small class = "text-muted">Click the <span class="glyphicon glyphicon glyphicon-pencil text-primary"></span> icon to edit questionnaires, and the <span class="glyphicon glyphicon glyphicon-remove-circle text-primary"></span> icon to remove questionnaires.</small>
                         </div>
                         <table id = "questionnaire-list" class="table">
@@ -107,21 +129,23 @@ Todo:
                         	</tr>
                         </thead>
                         <tbody>
-                        	<!-- for-loop to load in questionnaires goes here -->
                         	{% for questionnaire in questionnaires %}
                         		<tr>
-                        			<td>{{ questionnaire.label }}</td>
-                        			<td>{{ questionnaire.questionOrders.count }}
-                        			<span style = "cursor: pointer" onclick = "deleteQuestion('{{question.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
-                        			<span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
+                        			<td>
+                        				{{ questionnaire.label }}
+                        			</td>
+                        			<td>
+                        				{{ questionnaire.questionOrders.count }}
+                        				<span style = "cursor: pointer" onclick = "deleteQuestionnaire('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
+                        				<span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
                         			</td>
                         		</tr>	
                         	{% endfor %}
 						</tbody>
                         </table> 
-                        <form id = "form-delete" action = "/questionAdmin/delete" method="POST">
+                        <form id = "form-delete" action = "/questionnaireAdmin/delete" method="POST">
 							{% csrf_token %}
-							<input type="hidden" name = "questionnaire-pk" id = "questionnaire-pk">
+							<input type="hidden" name = "pk" id = "questionnaire-pk">
 						</form>   
                     </div>
                 </div>
@@ -135,6 +159,19 @@ Todo:
             menubar: '',
             plugins: "emoticons",
             toolbar: 'undo redo bold italiclignleft aligncenter alignright bullist numlist outdent indent styleselect fontsizeselect emoticons a', });
+            //Hide alerts
+			setTimeout(function() {
+				$('.alert').hide(100);
+			}, 10000);
+			//Todo: Search the other columns as well
+            $("#search").keyup(function() {
+			    var value = this.value;
+			    $("#questionnaire-list").find("tr").each(function(index) {
+			        if (!index) return;
+			        var id = $(this).find("td").first().text();
+			        $(this).toggle(id.toLowerCase().indexOf(value.toLowerCase()) !== -1);
+			    });
+			});
 		})
 
 		function moveRow(el) {
@@ -155,12 +192,12 @@ Todo:
 				tr.append('<td>'+row.find('.question-grouping').html()+'</td>');
 				tr.append('<td><span onclick="removeQuestion(this)" class="glyphicon glyphicon glyphicon-minus-sign text-primary pull-right"  style="cursor:pointer"></span></td>');
 				$('#selected-questions').append(tr);
-				$(el).removeClass('text-primary').addClass('text-muted');
+				// $(el).removeClass('text-primary').addClass('text-muted');
 			}
 		}
 
 		function removeQuestion(el) {
-			$('#question-table > tbody > tr:contains("'+$(el).closest('tr').find('.question-label').html()+'")').find('span.glyphicon-plus-sign').addClass('text-primary').removeClass('text-muted');
+			// $('#question-table > tbody > tr:contains("'+$(el).closest('tr').find('.question-label').html()+'")').find('span.glyphicon-plus-sign').addClass('text-primary').removeClass('text-muted');
 			$(el).closest('tr').remove();
 		}
 
@@ -168,14 +205,24 @@ Todo:
 			window.location = '/questionnaireAdmin/edit/'+pk;
 		}
 
+		function deleteQuestionnaire(pk) {
+			$('#questionnaire-pk').val(pk);
+			$('#form-delete').submit();
+		}
 
 		function save() {
 			var questions = "";
 			$('#selected-questions > tbody > tr').each(function(i, el) {
 				questions += el.id + ';#';
 			});
-			console.log(questions);
 			$('#questions').val(questions);
+		}
+
+		function empty() {
+			{% if questionnaire %}
+				window.location = '/questionnaireAdmin/';
+			{% endif %}
+			$('#selected-questions > tbody').empty();
 		}
 	</script>
 {% endblock %}

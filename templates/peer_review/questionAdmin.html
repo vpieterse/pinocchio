@@ -308,15 +308,7 @@ Todo:
 
 
 	<script>
-		// Temporary
-		$('.labels-go-here').hide();
-		$('.labels-go-here').html($('#label-table').html());
-		{% if question %}
-			changeType('{{ question.questionType }}');
-			changeGrouping('{{ question.questionGrouping }}');
-		{% else %}
-			changeType('Choice');
-		{% endif %}
+		
 		
 		function changeType(type) {
 			$('#types > label').removeClass('active');
@@ -409,6 +401,14 @@ Todo:
 		}
 
 		$(document).ready(function() {
+			$('.labels-go-here').hide();
+			$('.labels-go-here').html($('#label-table').html());
+			{% if question %}
+				changeType('{{ question.questionType }}');
+				changeGrouping('{{ question.questionGrouping }}');
+			{% else %}
+				changeType('Choice');
+			{% endif %}
 			//Hide alerts
 			setTimeout(function() {
 				$('.alert').hide(100);
