@@ -1,4 +1,9 @@
 {% extends "peer_review/baseAdmin.html" %}
+{% comment %}
+Todo:
+	Clear button
+	Delete multiple questions
+{% endcomment %}
 {% load staticfiles %}
 
 {% block extrahead %}
@@ -403,7 +408,7 @@
 			$('#form-delete').submit();
 		}
 
-		$(document).ready(function(){
+		$(document).ready(function() {
 			//Hide alerts
 			setTimeout(function() {
 				$('.alert').hide(100);
