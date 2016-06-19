@@ -154,13 +154,20 @@ def editQuestion(request, questionPk):
                'freeformType': str(FreeformItem.objects.filter(question=question).first()),
                'rate': Rate.objects.filter(question = question).first(),
                'rank': Rank.objects.filter(question = question).first()}
-    print('Editing ' + questionPk)
     return render(request, 'peer_review/questionAdmin.html', context)
+
+def editQuestionnaire(request, questionnairePk):
+    context = {'rounds': RoundDetail.objects.all(),
+               'questions': Question.objects.all(),
+               'questionnaires': Questionnaire.objects.all(),
+               'questionnaire': Questionnaire.objects.get(pk=questionnairePk)}
+    return render(request, 'peer_review/questionnaireAdmin.html', context)
 
 
 def questionnaireAdmin(request):
     context = {'rounds': RoundDetail.objects.all(),
-               'questions': Question.objects.all()}
+               'questions': Question.objects.all(),
+               'questionnaires': Questionnaire.objects.all()}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
 def questionnaire(request, roundPk):
@@ -839,7 +846,6 @@ def saveQuestion(request):
             QuestionGrouping.objects.create(grouping=questionGrouping)
 
         if ('question-pk' in request.POST):
-            print('updating')
             q = Question.objects.get(pk= request.POST['question-pk'])
             print(Choice.objects.filter(question = q))
             Choice.objects.filter(question = q).delete()
@@ -854,11 +860,9 @@ def saveQuestion(request):
             q.pubDate = timezone.now()
             q.save()
         elif Question.objects.filter(questionLabel=questionTitle).exists():
-            print('duplicate')
             messages.add_message(request, messages.WARNING, "Error: A question with that title already exists.")
             return HttpResponseRedirect('/questionAdmin')
         else:
-            print('inserting')
             q = Question.objects.create(questionText=questionText,
                          pubDate=timezone.now(),
                          questionType=QuestionType.objects.get(name=questionType),
@@ -893,27 +897,57 @@ def saveQuestion(request):
 def saveQuestionnaire(request):
     if request.method == 'POST':
         intro = request.POST.get("intro")
-        label = request.POST.get("label")
-        print(label)
-
-        if 'pk' in request.POST:
-            q = Questionnaire.objects.get(pk=request.POST.get('pk'))
-            q.intro = intro
-            q.label = label
+        title = request.POST.get("title") 
+        questions = str(request.POST.get('questions')).split(";#");
+        print(intro)
+        print(title)
+        print(questions)
+        if ('pk' in request.POST):
+            print('updating')
+            q = Questionnaire.objects.get(pk=request.POST.get("pk"))
             QuestionOrder.objects.filter(questionnaire=q).delete()
+            q.intro = intro
+            q.label = title
             q.save()
+        elif Questionnaire.objects.filter(label=title).exists():
+            print('questionnaire with this title already exists')
+            messages.add_message(request, messages.WARNING, "Error: A question with that title already exists.")
+            return HttpResponseRedirect('/questionnaireAdmin')
         else:
-            q = Questionnaire.objects.create(intro=intro, label=label)
+            q = Questionnaire.objects.create(intro=intro, label=title)
 
-        index = 0
-        questionOrders = request.POST.getlist('questionOrders[]')
-        for question in questionOrders:
-            qO = QuestionOrder.objects.create(questionnaire=q,
-                                              question=Question.objects.get(pk=question),
-                                              order=index)
-            index += 1
+        for index, question in enumerate(questions):
+            if question.isdigit():
+                qo = QuestionOrder.objects.create(questionnaire=q,
+                                                  question=Question.objects.get(pk=question),
+                                                  order=index)
+    return HttpResponseRedirect('/questionnaireAdmin')
 
-    return HttpResponse('Success')
+
+
+    # if request.method == 'POST':
+    #     intro = request.POST.get("intro")
+    #     label = request.POST.get("label")
+    #     print(label)
+
+    #     if 'pk' in request.POST:
+    #         q = Questionnaire.objects.get(pk=request.POST.get('pk'))
+    #         q.intro = intro
+    #         q.label = label
+    #         QuestionOrder.objects.filter(questionnaire=q).delete()
+    #         q.save()
+    #     else:
+    #         q = Questionnaire.objects.create(intro=intro, label=label)
+
+    #     index = 0
+    #     questionOrders = request.POST.getlist('questionOrders[]')
+    #     for question in questionOrders:
+    #         qO = QuestionOrder.objects.create(questionnaire=q,
+    #                                           question=Question.objects.get(pk=question),
+    #                                           order=index)
+    #         index += 1
+
+    # return HttpResponse('Success')
 
 
 def deleteQuestionnaire(request, qPk):

@@ -52,6 +52,9 @@ urlpatterns = [
                   url(r'^questionAdmin/edit/(?P<questionPk>[0-9]+)/?$', views.editQuestion, name='editQuestion'),
                   url(r'^questionAdmin', views.questionAdmin, name='questionAdmin'),
 
+                  url(r'^questionnaireAdmin/save$', views.saveQuestionnaire, name='saveQuestionnaire'),
+                  url(r'^questionnaireAdmin/edit/(?P<questionnairePk>[0-9]+)/?$', views.editQuestionnaire, name='editQuestionnairre'),
+
                   url(r'^maintainRound/dump/?$', views.roundDump),
                   url(r'^maintainRound/delete/(?P<roundPk>[0-9]+)/?$', views.roundDelete),
                   url(r'^maintainRound/update/(?P<roundPk>[0-9]+)/?$', views.roundUpdate),
