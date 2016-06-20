@@ -1,13 +1,15 @@
 {% extends "peer_review/baseAdmin.html" %}
 {% comment %}
 Todo:
-	Clear button
-	Delete multiple questions
+	Fix search so that it searches multiple columns
 {% endcomment %}
 {% load staticfiles %}
 
 {% block extrahead %}
 	<title>Question Admin</title>
+	<script>
+		var title="questionAdmin";
+	</script>
 {% endblock %}
 
 {% block context %}
@@ -22,7 +24,7 @@ Todo:
 				<h4 class="panel-title">Create Question</h4>
 			</div>
 			<div class="panel-body">
-				<form onsubmit="return save()" id = "form-save" method="POST" action="/questionAdmin/save">
+				<form onsubmit="return save()" onreset="empty()" id = "form-save" method="POST" action="/questionAdmin/save">
 					{% csrf_token %}
 					<fieldset class="form-group">
 						<!-- Title -->
@@ -96,7 +98,6 @@ Todo:
 					{% endif %}
 					<br/>
 					<div id = "content">
-						<!-- Put the choice stuff in here so that it doesn't flash on load -->
 						<div class = "row">
 							<div class = "col-xs-6">
 								<small>Loading..</small>
@@ -122,9 +123,13 @@ Todo:
 						<span class="glyphicon glyphicon-ok"></span>
 						Submit
 					</button>
-					<button type="button" class = "btn btn-primary pull-right">
+					<button type="reset" class = "btn btn-primary pull-right">
 						<span class="glyphicon glyphicon-remove"></span>
-						Clear
+						{% if question %}
+							Cancel Edit
+						{% else %}
+							Clear
+						{% endif %}
 					</button>
 				</form>
 			</div>
@@ -141,22 +146,27 @@ Todo:
                             <input type="text" class="form-control" id="question-search" placeholder="Start typing to search">
                         	<small class = "text-muted">Click the <span class="glyphicon glyphicon glyphicon-pencil text-primary"></span> icon to edit questions, and the <span class="glyphicon glyphicon glyphicon-remove-circle text-primary"></span> icon to remove questions. Note that questions that have been added to questionnaires cannot be deleted.</small>
                         </div>
-                        <table id = "question-list" class="table">
+                        <table id = "question-list" class="table table-hover">
                         <thead>
                         	<tr>
                         		<th>Title</th>
                         		<th>Grouping</th>
                         		<th>Type</th>
-                        		<th>Publish Date</th>
+                        		<th>Publish Date<span class="glyphicon glyphicon glyphicon-remove-circle text-primary pull-right" id = "delete-many" onclick="deleteMany()" style = "cursor:pointer"></th>
                         	</tr>
                         </thead>
                         <tbody>
                         	{% for question in questions %}
-								<tr>
+								<tr {% if not question.inAQuestionnaire %} 
+										class="deleteable" 
+									{% else %} 
+										title="This question has been used in a questionnaire and cannot be deleted."
+									{% endif %}
+									id = "{{ question.pk }}"
+								>
 									<td>{{ question.title }}</td>
 									<td>{{ question.grouping }}</td>
 									<td>{{ question.type }}</td>
-									<td>{{ question.inAQuestionnaire }}</td>
 									<td>{{ question.date }}
 										{% if question.inAQuestionnaire %}
 											<span class="glyphicon glyphicon glyphicon-remove-circle pull-right text-muted" title="This question has been used in a questionnaire and cannot be deleted."></span>
@@ -234,7 +244,7 @@ Todo:
 						Word
 					</option>
 				</select>	
-				<small>The type of answer the student is expected to give.</small>
+				<small>The type of answer the respondent is expected to give.</small>
 			</div>
 			<div class = "col-xs-2"></div>
 			<div class = "col-xs-6 labels-go-here">
@@ -305,10 +315,7 @@ Todo:
 			</tbody>
 		</table>
 			</div>
-
-
-	<script>
-		
+	<script>		
 		
 		function changeType(type) {
 			$('#types > label').removeClass('active');
@@ -395,9 +402,28 @@ Todo:
 			window.location = '/questionAdmin/edit/'+pk;
 		}
 
+		function empty() {
+			$('.labels-go-here').html($('#label-table').html());
+			$('#content').html($('#'+$('#question-type').val()).html());
+			{% if question %}
+				window.location = '/questionAdmin/';
+			{% endif %}
+
+		}
+
 		function deleteQuestion(pk) {
 			$('#question-pk').val(pk);
 			$('#form-delete').submit();
+		}
+
+		function deleteMany() {
+			var pks = "";
+			$('#question-list > tbody > tr.active').each(function(i, el) {
+				pks += el.id + ';#';
+			});
+			$('#question-pk').val(pks.slice(0, -2));
+			$('#form-delete').submit();
+
 		}
 
 		$(document).ready(function() {
@@ -421,6 +447,21 @@ Todo:
 			        var id = $(this).find("td").first().text();
 			        $(this).toggle(id.toLowerCase().indexOf(value.toLowerCase()) !== -1);
 			    });
+			});
+			//Allows selecting of questions to delete multiple questions
+			$('#delete-many').hide();
+			$('#question-list').on('click', '.deleteable', function(event) {
+				if ($(this).hasClass('active')) {
+			 		$(this).removeClass('active')
+				} else {
+			 		$(this).addClass('active')
+				}	
+			 	if ($('#question-list').find('.active').length > 0) {
+			 		$('#delete-many').show(100);
+			 	} else {
+			 		$('#delete-many').hide(100);			 		
+			 	}
+
 			});
 		})
 

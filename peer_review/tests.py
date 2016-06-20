@@ -1,4 +1,5 @@
 from django.test import TestCase, Client
+from models import User
 from django.core.urlresolvers import reverse
 
 class UserTests(TestCase):
@@ -11,20 +12,20 @@ class UserTests(TestCase):
 
 	def setUp(self):
 		self.client = Client()
-		self.client.login(username='admin@admin.com', password='admin')
+		self.user = User.objects.create_user('bob@bob.com', 'bob')
 
 	# Simple test to see if questionAdmin is rendered
 	def test_questionAdmin(self):
+		self.client.login(username='bob@bob.com', password='bob')
 		url = reverse('questionAdmin')
 		response = self.client.get(url)
 		self.assertEqual(response.status_code, 200)
 		self.assertTemplateUsed(response, 'peer_review/questionAdmin.html')
-		print('questionAdmin rendered correctly')
 
 	# Simple test to see if questionnaireAdmin is rendered
 	def test_questionnaireAdmin(self):
+		self.client.login(username='bob@bob.com', password='bob')
 		url = reverse('questionnaireAdmin')
 		response = self.client.get(url)
 		self.assertEqual(response.status_code, 200)
 		self.assertTemplateUsed(response, 'peer_review/questionnaireAdmin.html')
-		print('questionnaireAdmin rendered correctly')

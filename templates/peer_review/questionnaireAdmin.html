@@ -1,14 +1,17 @@
 {% extends "peer_review/baseAdmin.html" %}
 {% comment %}
 Todo:
-    Clear button
-    Delete multiple questionnaires
+    Search question lists
 {% endcomment %}
 {% load staticfiles %}
 
 {% block extrahead %}
     <script src="{% static "peer_review/js/tinymce/tinymce.min.js" %}"></script>
     <title>Questionnaire Admin</title>
+    <script>
+        var title="questionnaireAdmin";
+    </script>
+
 {% endblock %}
 
 {% block context %}
@@ -121,27 +124,39 @@ Todo:
                             <input type="text" class="form-control" id="search" placeholder="Start typing to search">
                             <small class = "text-muted">Click the <span class="glyphicon glyphicon glyphicon-pencil text-primary"></span> icon to edit questionnaires, and the <span class="glyphicon glyphicon glyphicon-remove-circle text-primary"></span> icon to remove questionnaires.</small>
                         </div>
-                        <table id = "questionnaire-list" class="table">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Number of Questions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for questionnaire in questionnaires %}
+                        <table id = "questionnaire-list" class="table table-hover">
+                            <thead>
                                 <tr>
-                                    <td>
-                                        {{ questionnaire.label }}
-                                    </td>
-                                    <td>
-                                        {{ questionnaire.questionOrders.count }}
-                                        <span style = "cursor: pointer" onclick = "deleteQuestionnaire('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
-                                        <span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
-                                    </td>
-                                </tr>   
-                            {% endfor %}
-                        </tbody>
+                                    <th>Title</th>
+                                    <th>
+                                        Number of Questions
+                                        <span id="delete-many" style = "cursor: pointer" onclick = "deleteMany()" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for questionnaire in questionnaires %}
+                                    <tr
+                                        {% if questionnaire.inARound  %} title="This questionnaire is in a round and cannot be deleted."
+                                        {% else %} class = "deleteable" 
+                                        {% endif %}
+                                        id = "{{ questionnaire.pk }}"
+                                    >
+                                        <td>
+                                            {{ questionnaire.title }}
+                                        </td>
+                                        <td>
+                                            {{ questionnaire.questionOrders.count }}
+                                            {% if questionnaire.inARound %}
+                                                <span class="glyphicon glyphicon glyphicon-remove-circle pull-right text-muted"></span>
+                                            {% else %}
+                                                <span style = "cursor: pointer" onclick = "deleteQuestionnaire('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
+                                            {% endif %}
+                                            <span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
+                                        </td>
+                                    </tr>   
+                                {% endfor %}
+                            </tbody>
                         </table> 
                         <form id = "form-delete" action = "/questionnaireAdmin/delete" method="POST">
                             {% csrf_token %}
@@ -172,6 +187,22 @@ Todo:
                     $(this).toggle(id.toLowerCase().indexOf(value.toLowerCase()) !== -1);
                 });
             });
+
+            //Allows selecting of questions to delete multiple questions
+            $('#delete-many').hide();
+            $('#questionnaire-list').on('click', '.deleteable', function(event) {
+                if ($(this).hasClass('active')) {
+                    $(this).removeClass('active')
+                } else {
+                    $(this).addClass('active')
+                }   
+                if ($('#questionnaire-list').find('.active').length > 0) {
+                    $('#delete-many').show(100);
+                } else {
+                    $('#delete-many').hide(100);                    
+                }
+
+            });
         })
 
         function moveRow(el) {
@@ -192,11 +223,13 @@ Todo:
                 tr.append('<td>'+row.find('.question-grouping').html()+'</td>');
                 tr.append('<td><span onclick="removeQuestion(this)" class="glyphicon glyphicon glyphicon-minus-sign text-primary pull-right"  style="cursor:pointer"></span></td>');
                 $('#selected-questions').append(tr);
+                //To ensure only one of each question in questionnaire
                 // $(el).removeClass('text-primary').addClass('text-muted');
             }
         }
 
         function removeQuestion(el) {
+            //To ensure one of each question in questionnaire
             // $('#question-table > tbody > tr:contains("'+$(el).closest('tr').find('.question-label').html()+'")').find('span.glyphicon-plus-sign').addClass('text-primary').removeClass('text-muted');
             $(el).closest('tr').remove();
         }
@@ -207,6 +240,15 @@ Todo:
 
         function deleteQuestionnaire(pk) {
             $('#questionnaire-pk').val(pk);
+            $('#form-delete').submit();
+        }
+
+        function deleteMany() {
+            var pks = "";
+            $('#questionnaire-list > tbody > tr.active').each(function(i, el) {
+                pks += el.id + ';#';
+            });
+            $('#questionnaire-pk').val(pks.slice(0, -2));
             $('#form-delete').submit();
         }
 
