@@ -22,7 +22,7 @@ Todo:
 				<h4 class="panel-title">Create Question</h4>
 			</div>
 			<div class="panel-body">
-				<form onsubmit="return save()" id = "form-save" method="POST" action="/questionAdmin/save">
+				<form onsubmit="return save()" onreset="empty()" id = "form-save" method="POST" action="/questionAdmin/save">
 					{% csrf_token %}
 					<fieldset class="form-group">
 						<!-- Title -->
@@ -122,9 +122,13 @@ Todo:
 						<span class="glyphicon glyphicon-ok"></span>
 						Submit
 					</button>
-					<button type="button" class = "btn btn-primary pull-right">
+					<button type="reset" class = "btn btn-primary pull-right">
 						<span class="glyphicon glyphicon-remove"></span>
-						Clear
+						{% if question %}
+							Cancel Edit
+						{% else %}
+							Clear
+						{% endif %}
 					</button>
 				</form>
 			</div>
@@ -234,7 +238,7 @@ Todo:
 						Word
 					</option>
 				</select>	
-				<small>The type of answer the student is expected to give.</small>
+				<small>The type of answer the respondent is expected to give.</small>
 			</div>
 			<div class = "col-xs-2"></div>
 			<div class = "col-xs-6 labels-go-here">
@@ -393,6 +397,15 @@ Todo:
 
 		function edit(pk) {
 			window.location = '/questionAdmin/edit/'+pk;
+		}
+
+		function empty() {
+			$('.labels-go-here').html($('#label-table').html());
+			$('#content').html($('#'+$('#question-type').val()).html());
+			{% if question %}
+				window.location = '/questionAdmin/';
+			{% endif %}
+
 		}
 
 		function deleteQuestion(pk) {
