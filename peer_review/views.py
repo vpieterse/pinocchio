@@ -807,9 +807,10 @@ def getQuestions():
 # Delete a question
 def deleteQuestion(request):
     if request.method == "POST":
-        print(request.POST)
-        Question.objects.get(pk=request.POST['question-pk']).delete()
-        messages.add_message(request, messages.SUCCESS, "Question deleted successfully")
+        pks = request.POST['question-pk'].split(';#')
+        for pk in pks:
+            Question.objects.get(pk=pk).delete()
+        messages.add_message(request, messages.SUCCESS, str(len(pks)) + " question(s) deleted successfully")
         return HttpResponseRedirect('/questionAdmin')
     else:
         return HttpResponseRedirect('/questionAdmin')
