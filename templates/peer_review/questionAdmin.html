@@ -7,6 +7,9 @@ Todo:
 
 {% block extrahead %}
 	<title>Question Admin</title>
+	<script>
+		var title="questionAdmin";
+	</script>
 {% endblock %}
 
 {% block context %}
@@ -312,10 +315,7 @@ Todo:
 			</tbody>
 		</table>
 			</div>
-
-
-	<script>
-		
+	<script>		
 		
 		function changeType(type) {
 			$('#types > label').removeClass('active');
