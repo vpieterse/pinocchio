@@ -134,8 +134,6 @@ def maintainTeam(request):
                    'roundPk': "none"}
     return render(request, 'peer_review/maintainTeam.html', context)
 
-
-@login_required
 def questionAdmin(request):
     # print(request.user.is_authenticated())
     # if not request.user.is_authenticated():
@@ -154,14 +152,7 @@ def editQuestion(request, questionPk):
                'freeformType': str(FreeformItem.objects.filter(question=question).first()),
                'rate': Rate.objects.filter(question = question).first(),
                'rank': Rank.objects.filter(question = question).first()}
-    print('Editing ' + questionPk)
     return render(request, 'peer_review/questionAdmin.html', context)
-
-
-def questionnaireAdmin(request):
-    context = {'rounds': RoundDetail.objects.all(),
-               'questions': Question.objects.all()}
-    return render(request, 'peer_review/questionnaireAdmin.html', context)
 
 def questionnaire(request, roundPk):
     # if request.method == "POST":
@@ -229,7 +220,7 @@ def getResponses(request):
             json['labelOrUserIds'].append(r.subjectUser.id)
     return JsonResponse(json)
 
-# Commented out temporarily as there are two of these and I have no idea which one is the right one -Jason
+# Commented out temporarily as there are three(?!) definitions of questionnaire and I have no idea which one is the right one -Jason
 # @login_required
 # def questionnaire(request, questionnairePk):
 # 	if request.method == "POST":
@@ -497,7 +488,6 @@ def userUpdate(request, userPk):
 
         user.save()
     return HttpResponseRedirect('../')
-
 
 def resetPassword(request, userPk):
     if request.method == "POST":
@@ -818,12 +808,11 @@ def getQuestions():
 def deleteQuestion(request):
     if request.method == "POST":
         print(request.POST)
-        print('hello')
         Question.objects.get(pk=request.POST['question-pk']).delete()
         messages.add_message(request, messages.SUCCESS, "Question deleted successfully")
         return HttpResponseRedirect('/questionAdmin')
     else:
-        return HttpResponse('Error.')
+        return HttpResponseRedirect('/questionAdmin')
 
 #Save question
 def saveQuestion(request):
@@ -839,7 +828,6 @@ def saveQuestion(request):
             QuestionGrouping.objects.create(grouping=questionGrouping)
 
         if ('question-pk' in request.POST):
-            print('updating')
             q = Question.objects.get(pk= request.POST['question-pk'])
             print(Choice.objects.filter(question = q))
             Choice.objects.filter(question = q).delete()
@@ -854,11 +842,9 @@ def saveQuestion(request):
             q.pubDate = timezone.now()
             q.save()
         elif Question.objects.filter(questionLabel=questionTitle).exists():
-            print('duplicate')
             messages.add_message(request, messages.WARNING, "Error: A question with that title already exists.")
             return HttpResponseRedirect('/questionAdmin')
         else:
-            print('inserting')
             q = Question.objects.create(questionText=questionText,
                          pubDate=timezone.now(),
                          questionType=QuestionType.objects.get(name=questionType),
@@ -893,69 +879,57 @@ def saveQuestion(request):
 def saveQuestionnaire(request):
     if request.method == 'POST':
         intro = request.POST.get("intro")
-        label = request.POST.get("label")
-        print(label)
-
-        if 'pk' in request.POST:
-            q = Questionnaire.objects.get(pk=request.POST.get('pk'))
-            q.intro = intro
-            q.label = label
+        title = request.POST.get("title") 
+        questions = str(request.POST.get('questions')).split(";#");
+        print(intro)
+        print(title)
+        print(questions)
+        if ('pk' in request.POST):
+            print('updating')
+            q = Questionnaire.objects.get(pk=request.POST.get("pk"))
             QuestionOrder.objects.filter(questionnaire=q).delete()
+            q.intro = intro
+            q.label = title
             q.save()
+        elif Questionnaire.objects.filter(label=title).exists():
+            print('questionnaire with this title already exists')
+            messages.add_message(request, messages.WARNING, "Error: A question with that title already exists.")
+            return HttpResponseRedirect('/questionnaireAdmin')
         else:
-            q = Questionnaire.objects.create(intro=intro, label=label)
+            q = Questionnaire.objects.create(intro=intro, label=title)
 
-        index = 0
-        questionOrders = request.POST.getlist('questionOrders[]')
-        for question in questionOrders:
-            qO = QuestionOrder.objects.create(questionnaire=q,
-                                              question=Question.objects.get(pk=question),
-                                              order=index)
-            index += 1
+        for index, question in enumerate(questions):
+            if question.isdigit():
+                qo = QuestionOrder.objects.create(questionnaire=q,
+                                                  question=Question.objects.get(pk=question),
+                                                  order=index)
+        messages.add_message(request, messages.SUCCESS, "Questionnaire saved successfully.")
+    return HttpResponseRedirect('/questionnaireAdmin')
 
-    return HttpResponse('Success')
+def questionnaireAdmin(request):
+    context = {'questions': Question.objects.all(),
+               'questionnaires': Questionnaire.objects.all()}
+    return render(request, 'peer_review/questionnaireAdmin.html', context)
+    
+def editQuestionnaire(request, questionnairePk):
+    context = {'questions': Question.objects.all(),
+               'questionnaires': Questionnaire.objects.all(),
+               'questionnaire': Questionnaire.objects.get(pk=questionnairePk),
+               'questionOrders': QuestionOrder.objects.filter(questionnaire=Questionnaire.objects.get(pk=questionnairePk))}
+    return render(request, 'peer_review/questionnaireAdmin.html', context)
 
-
-def deleteQuestionnaire(request, qPk):
+def deleteQuestionnaire(request):
     if request.method == "POST":
-        q = Questionnaire.objects.get(pk=qPk)
-        q.delete()
-    return HttpResponse()
-
-
-def getQuestionnaireList(request):
-    questionnaires = Questionnaire.objects.all();
-    json = {'labels': [], 'ids': []}
-    for q in questionnaires:
-        json['labels'].append(q.label)
-        json['ids'].append(q.pk)
-    return JsonResponse(json)
-
-
-def getQuestionnaire(request, qPk):
-    questionnaire = Questionnaire.objects.get(pk=qPk)
-    questions = QuestionOrder.objects.filter(questionnaire=questionnaire)
-    questionLabels = []
-    questionPubDates = []
-    questionTypes = []
-    questionGroupings = []
-    questionIds = []
-    for q in questions:
-        questionLabels.append(q.question.questionLabel)
-        questionGroupings.append(q.question.questionGrouping.grouping)
-        questionTypes.append(q.question.questionType.name)
-        questionPubDates.append(q.question.pubDate)
-        questionIds.append(q.question.pk)
-
-    json = {'label': questionnaire.label,
-            'intro': questionnaire.intro,
-            'questionLabels': questionLabels,
-            'questionPubDates': questionPubDates,
-            'questionTypes': questionTypes,
-            'questionGroupings': questionGroupings,
-            'questionIds': questionIds}
-    return JsonResponse(json)
-
+        print(request.POST)
+        if str(request.POST['pk']).isdigit():
+            Questionnaire.objects.get(pk=request.POST['pk']).delete()
+            messages.add_message(request, messages.SUCCESS, "Questionnaire deleted successfully")
+            return HttpResponseRedirect('/questionnaireAdmin')
+        else:
+            messages.add_message(request, messages.WARNING, "Error: Something went wrong when deleting the questionnaire")
+            return HttpResponseRedirect('/questionnaireAdmin')
+    else:
+        return HttpResponseRedirect('/questionnaireAdmin')
 
 def roundDelete(request, roundPk):
     round = RoundDetail.objects.get(pk=roundPk)
