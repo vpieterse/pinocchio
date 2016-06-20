@@ -142,9 +142,14 @@ def questionAdmin(request):
     context = {'questions': getQuestions()}
     return render(request, 'peer_review/questionAdmin.html', context)
 
+def questionnaireAdmin(request):
+    print(getQuestionnaires())
+    context = {'questions': Question.objects.all(),
+               'questionnaires': getQuestionnaires()}
+    return render(request, 'peer_review/questionnaireAdmin.html', context)
+
 def editQuestion(request, questionPk):
     question = Question.objects.get(pk=questionPk)
-    print(getQuestions())
     context = {'question': question,
                'questions': getQuestions(),
                'labels': Label.objects.filter(question=question),
@@ -804,6 +809,16 @@ def getQuestions():
                        'inAQuestionnaire': QuestionOrder.objects.filter(question=question).exists()})
     return response
 
+def getQuestionnaires():
+    response = []
+    for questionnaire in Questionnaire.objects.all():
+        response.append({'title': questionnaire.label,
+                        'intro': questionnaire.intro,
+                        'pk': questionnaire.pk,
+                        'inARound': RoundDetail.objects.filter(questionnaire=questionnaire).exists()
+                        })
+    return response
+
 # Delete a question
 def deleteQuestion(request):
     if request.method == "POST":
@@ -907,14 +922,11 @@ def saveQuestionnaire(request):
         messages.add_message(request, messages.SUCCESS, "Questionnaire saved successfully.")
     return HttpResponseRedirect('/questionnaireAdmin')
 
-def questionnaireAdmin(request):
-    context = {'questions': Question.objects.all(),
-               'questionnaires': Questionnaire.objects.all()}
-    return render(request, 'peer_review/questionnaireAdmin.html', context)
+
     
 def editQuestionnaire(request, questionnairePk):
     context = {'questions': Question.objects.all(),
-               'questionnaires': Questionnaire.objects.all(),
+               'questionnaires': getQuestionnaires,
                'questionnaire': Questionnaire.objects.get(pk=questionnairePk),
                'questionOrders': QuestionOrder.objects.filter(questionnaire=Questionnaire.objects.get(pk=questionnairePk))}
     return render(request, 'peer_review/questionnaireAdmin.html', context)

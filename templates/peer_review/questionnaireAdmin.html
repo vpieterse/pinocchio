@@ -1,7 +1,6 @@
 {% extends "peer_review/baseAdmin.html" %}
 {% comment %}
 Todo:
-    Clear button
     Delete multiple questionnaires
 {% endcomment %}
 {% load staticfiles %}
@@ -130,13 +129,21 @@ Todo:
                         </thead>
                         <tbody>
                             {% for questionnaire in questionnaires %}
-                                <tr>
+                                <tr
+                                    {% if questionnaire.inARound  %} title="This questionnaire is in a round and cannot be deleted."
+                                    {% else %} class = "deleteable" 
+                                    {% endif %}
+                                >
                                     <td>
-                                        {{ questionnaire.label }}
+                                        {{ questionnaire.title }}
                                     </td>
                                     <td>
                                         {{ questionnaire.questionOrders.count }}
-                                        <span style = "cursor: pointer" onclick = "deleteQuestionnaire('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
+                                        {% if questionnaire.inARound %}
+                                            <span class="glyphicon glyphicon glyphicon-remove-circle pull-right text-muted"></span>
+                                        {% else %}
+                                            <span style = "cursor: pointer" onclick = "deleteQuestionnaire('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
+                                        {% endif %}
                                         <span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
                                     </td>
                                 </tr>   
@@ -192,11 +199,13 @@ Todo:
                 tr.append('<td>'+row.find('.question-grouping').html()+'</td>');
                 tr.append('<td><span onclick="removeQuestion(this)" class="glyphicon glyphicon glyphicon-minus-sign text-primary pull-right"  style="cursor:pointer"></span></td>');
                 $('#selected-questions').append(tr);
+                //To ensure only one of each question in questionnaire
                 // $(el).removeClass('text-primary').addClass('text-muted');
             }
         }
 
         function removeQuestion(el) {
+            //To ensure one of each question in questionnaire
             // $('#question-table > tbody > tr:contains("'+$(el).closest('tr').find('.question-label').html()+'")').find('span.glyphicon-plus-sign').addClass('text-primary').removeClass('text-muted');
             $(el).closest('tr').remove();
         }
