@@ -25,8 +25,8 @@ from .models import Questionnaire, QuestionOrder
 from .models import User
 
 #Moved these views into seperate files
-from view.questionAdmin import questionAdmin, editQuestion, saveQuestion, deleteQuestion
-from view.questionnaireAdmin import questionnaireAdmin, editQuestionnaire, saveQuestionnaire, deleteQuestionnaire
+from .view.questionAdmin import questionAdmin, editQuestion, saveQuestion, deleteQuestion
+from .view.questionnaireAdmin import questionnaireAdmin, editQuestionnaire, saveQuestionnaire, deleteQuestionnaire
 
 def activeRounds(request):
     #TEST
