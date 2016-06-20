@@ -1,5 +1,5 @@
 from django.test import TestCase, Client
-from models import User
+from .models import User
 from django.core.urlresolvers import reverse
 
 class UserTests(TestCase):
