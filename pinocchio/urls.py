@@ -14,17 +14,9 @@ urlpatterns = [
 
                   url(r'^maintainTeam/$', views.maintainTeam, name='maintainTeam'),
                   url(r'^maintainTeam/(?P<roundPk>[0-9]+)/?$', views.maintainTeam, name='maintainTeamR'),
-                  url(r'^questionnaireAdmin/$', views.questionnaireAdmin, name='questionnaireAdmin'),
 
-                  url(r'^questionnaireAdmin/saveQuestionnaire/$', views.saveQuestionnaire, name='saveQuestionnaire'),
-                  url(r'^questionnaireAdmin/getQuestionnaireList/$', views.getQuestionnaireList,
-                      name='getQuestionnaireList'),
-                  url(r'^questionnaireAdmin/getQuestionnaire/(?P<qPk>[0-9]+)/?$', views.getQuestionnaire,
-                      name='getQuestionnaire'),
                   url(r'^getQuestionnaireForTeam/$', views.getQuestionnaireForTeam,
                       name='getQuestionnaireForTeam'),
-                  url(r'^questionnaireAdmin/deleteQuestionnaire/(?P<qPk>[0-9]+)/?$', views.deleteQuestionnaire,
-                      name='deleteQuestionnaire'),
 
                   url(r'^questionnaire/$', views.userError, name='userError'),
                   url(r'^questionnaire/(?P<roundPk>[0-9]+)/?$', views.questionnaire, name='questionnaire'),
@@ -51,6 +43,11 @@ urlpatterns = [
                   url(r'^questionAdmin/delete', views.deleteQuestion, name='deleteQuestion'),
                   url(r'^questionAdmin/edit/(?P<questionPk>[0-9]+)/?$', views.editQuestion, name='editQuestion'),
                   url(r'^questionAdmin', views.questionAdmin, name='questionAdmin'),
+
+                  url(r'^questionnaireAdmin/save$', views.saveQuestionnaire, name='saveQuestionnaire'),
+                  url(r'^questionnaireAdmin/edit/(?P<questionnairePk>[0-9]+)/?$', views.editQuestionnaire, name='editQuestionnairre'),
+                  url(r'^questionnaireAdmin/delete', views.deleteQuestionnaire, name='deleteQuestionnaire'),
+                  url(r'^questionnaireAdmin/$', views.questionnaireAdmin, name='questionnaireAdmin'),
 
                   url(r'^maintainRound/dump/?$', views.roundDump),
                   url(r'^maintainRound/delete/(?P<roundPk>[0-9]+)/?$', views.roundDelete),

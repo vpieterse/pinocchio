@@ -24,6 +24,9 @@ from .models import Question, QuestionType, QuestionGrouping, Choice, Rank, Roun
 from .models import Questionnaire, QuestionOrder
 from .models import User
 
+#Moved these views into seperate files
+from .view.questionAdmin import questionAdmin, editQuestion, saveQuestion, deleteQuestion
+from .view.questionnaireAdmin import questionnaireAdmin, editQuestionnaire, saveQuestionnaire, deleteQuestionnaire
 
 def activeRounds(request):
     #TEST
@@ -134,34 +137,13 @@ def maintainTeam(request):
                    'roundPk': "none"}
     return render(request, 'peer_review/maintainTeam.html', context)
 
+# def questionAdmin(request):
+#     # print(request.user.is_authenticated())
+#     # if not request.user.is_authenticated():
+#     #     return render(request, "peer_review/login.html")
 
-@login_required
-def questionAdmin(request):
-    # print(request.user.is_authenticated())
-    # if not request.user.is_authenticated():
-    #     return render(request, "peer_review/login.html")
-
-    context = {'questions': getQuestions()}
-    return render(request, 'peer_review/questionAdmin.html', context)
-
-def editQuestion(request, questionPk):
-    question = Question.objects.get(pk=questionPk)
-    print(getQuestions())
-    context = {'question': question,
-               'questions': getQuestions(),
-               'labels': Label.objects.filter(question=question),
-               'choices': Choice.objects.filter(question=question),
-               'freeformType': str(FreeformItem.objects.filter(question=question).first()),
-               'rate': Rate.objects.filter(question = question).first(),
-               'rank': Rank.objects.filter(question = question).first()}
-    print('Editing ' + questionPk)
-    return render(request, 'peer_review/questionAdmin.html', context)
-
-
-def questionnaireAdmin(request):
-    context = {'rounds': RoundDetail.objects.all(),
-               'questions': Question.objects.all()}
-    return render(request, 'peer_review/questionnaireAdmin.html', context)
+#     context = {'questions': getQuestions()}
+#     return render(request, 'peer_review/questionAdmin.html', context)
 
 def questionnaire(request, roundPk):
     # if request.method == "POST":
@@ -229,22 +211,23 @@ def getResponses(request):
             json['labelOrUserIds'].append(r.subjectUser.id)
     return JsonResponse(json)
 
-@login_required
-def questionnaire(request, questionnairePk):
-	if request.method == "POST":
-        #print(request.user.email)
+# Commented out temporarily as there are three(?!) definitions of questionnaire and I have no idea which one is the right one -Jason
+# @login_required
+# def questionnaire(request, questionnairePk):
+# 	if request.method == "POST":
+#         #print(request.user.email)
 
-		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
-			   'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
-			   'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk),
-               'questionRanking' : Rank.objects.all(), 'questionChoices' : Choice.objects.all(),
-               'questionRating' : Rate.objects.all(), 'userDetails' : User.objects.all(),
-               'freeformDetails' : FreeformItem.objects.all(), 'questionLabels' : Label.objects.all(),
-               'roundDetails' : RoundDetail.objects.all(), 'teamDetails' : TeamDetail.objects.all(),
-               'userName' : request.user.email}
-		return render(request, 'peer_review/questionnaire.html', context)
-	else:
-		return render(request, 'peer_review/userError.html')
+# 		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
+# 			   'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
+# 			   'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk),
+#                'questionRanking' : Rank.objects.all(), 'questionChoices' : Choice.objects.all(),
+#                'questionRating' : Rate.objects.all(), 'userDetails' : User.objects.all(),
+#                'freeformDetails' : FreeformItem.objects.all(), 'questionLabels' : Label.objects.all(),
+#                'roundDetails' : RoundDetail.objects.all(), 'teamDetails' : TeamDetail.objects.all(),
+#                'userName' : request.user.email}
+# 		return render(request, 'peer_review/questionnaire.html', context)
+# 	else:
+# 		return render(request, 'peer_review/userError.html')
 
 # def questionnaire(request, questionnairePk):
 # 	if request.method == "POST":
@@ -496,7 +479,6 @@ def userUpdate(request, userPk):
 
         user.save()
     return HttpResponseRedirect('../')
-
 
 def resetPassword(request, userPk):
     if request.method == "POST":
@@ -801,159 +783,6 @@ def getGroupID(questionGroup):
         return 3
     else:
         return -1
-
-def getQuestions():
-    response = [];
-    for question in Question.objects.all():
-        response.append({'title': question.questionLabel,
-                       'date': question.pubDate,
-                       'type': str(question.questionType),
-                       'grouping': str(question.questionGrouping),
-                       'pk': question.pk,
-                       'inAQuestionnaire': QuestionOrder.objects.filter(question=question).exists()})
-    return response
-
-# Delete a question
-def deleteQuestion(request):
-    if request.method == "POST":
-        print(request.POST)
-        print('hello')
-        Question.objects.get(pk=request.POST['question-pk']).delete()
-        messages.add_message(request, messages.SUCCESS, "Question deleted successfully")
-        return HttpResponseRedirect('/questionAdmin')
-    else:
-        return HttpResponse('Error.')
-
-#Save question
-def saveQuestion(request):
-    if request.method == "POST":
-        print(request.POST)
-        questionText = str(request.POST['question-content'])
-        questionTitle = str(request.POST['question-title'])
-        questionType = str(request.POST['question-type'])
-        questionGrouping = str(request.POST['question-grouping'])
-        if not QuestionType.objects.filter(name=questionType).exists():
-            QuestionType.objects.create(name = questionType)
-        if not QuestionGrouping.objects.filter(grouping=questionGrouping).exists():
-            QuestionGrouping.objects.create(grouping=questionGrouping)
-
-        if ('question-pk' in request.POST):
-            print('updating')
-            q = Question.objects.get(pk= request.POST['question-pk'])
-            print(Choice.objects.filter(question = q))
-            Choice.objects.filter(question = q).delete()
-            print(Choice.objects.filter(question = q))
-            Rank.objects.filter(question = q).delete()
-            Rate.objects.filter(question = q).delete()
-            FreeformItem.objects.filter(question = q).delete()
-            Label.objects.filter(question = q).delete()
-            q.questionText = questionText
-            q.questionLabel = questionTitle
-            q.questionGrouping = QuestionGrouping.objects.get(grouping=questionGrouping)
-            q.pubDate = timezone.now()
-            q.save()
-        elif Question.objects.filter(questionLabel=questionTitle).exists():
-            print('duplicate')
-            messages.add_message(request, messages.WARNING, "Error: A question with that title already exists.")
-            return HttpResponseRedirect('/questionAdmin')
-        else:
-            print('inserting')
-            q = Question.objects.create(questionText=questionText,
-                         pubDate=timezone.now(),
-                         questionType=QuestionType.objects.get(name=questionType),
-                         questionGrouping=QuestionGrouping.objects.get(grouping=questionGrouping),
-                         questionLabel=questionTitle
-                         )
-
-        if questionGrouping == 'Label':
-            labels = str(request.POST['question-labels']).split(";#")
-            for label in labels:
-                Label.objects.create(question=q, labelText=label)
-
-        if questionType == 'Choice':
-            choices = str(request.POST['question-choices']).split(";#")
-            for index, choice in enumerate(choices):
-                Choice.objects.create(question=q, choiceText=choice, num=index)
-        elif questionType == 'Rank':
-            Rank.objects.create(question=q,
-                                firstWord=str(request.POST["rank-first"]),
-                                secondWord=str(request.POST["rank-second"]))
-        elif questionType == 'Rate':
-            Rate.objects.create(question=q,
-                                topWord=request.POST['rate-first'],
-                                bottomWord=request.POST['rate-second'],
-                                optional=('rate-optional' in request.POST))
-        elif questionType == 'Freeform':
-            FreeformItem.objects.create(question=q, freeformType=request.POST['freeform-type'])
-
-    messages.add_message(request, messages.SUCCESS, "Question saved successfully")
-    return HttpResponseRedirect('/questionAdmin')
-
-def saveQuestionnaire(request):
-    if request.method == 'POST':
-        intro = request.POST.get("intro")
-        label = request.POST.get("label")
-        print(label)
-
-        if 'pk' in request.POST:
-            q = Questionnaire.objects.get(pk=request.POST.get('pk'))
-            q.intro = intro
-            q.label = label
-            QuestionOrder.objects.filter(questionnaire=q).delete()
-            q.save()
-        else:
-            q = Questionnaire.objects.create(intro=intro, label=label)
-
-        index = 0
-        questionOrders = request.POST.getlist('questionOrders[]')
-        for question in questionOrders:
-            qO = QuestionOrder.objects.create(questionnaire=q,
-                                              question=Question.objects.get(pk=question),
-                                              order=index)
-            index += 1
-
-    return HttpResponse('Success')
-
-
-def deleteQuestionnaire(request, qPk):
-    if request.method == "POST":
-        q = Questionnaire.objects.get(pk=qPk)
-        q.delete()
-    return HttpResponse()
-
-
-def getQuestionnaireList(request):
-    questionnaires = Questionnaire.objects.all();
-    json = {'labels': [], 'ids': []}
-    for q in questionnaires:
-        json['labels'].append(q.label)
-        json['ids'].append(q.pk)
-    return JsonResponse(json)
-
-
-def getQuestionnaire(request, qPk):
-    questionnaire = Questionnaire.objects.get(pk=qPk)
-    questions = QuestionOrder.objects.filter(questionnaire=questionnaire)
-    questionLabels = []
-    questionPubDates = []
-    questionTypes = []
-    questionGroupings = []
-    questionIds = []
-    for q in questions:
-        questionLabels.append(q.question.questionLabel)
-        questionGroupings.append(q.question.questionGrouping.grouping)
-        questionTypes.append(q.question.questionType.name)
-        questionPubDates.append(q.question.pubDate)
-        questionIds.append(q.question.pk)
-
-    json = {'label': questionnaire.label,
-            'intro': questionnaire.intro,
-            'questionLabels': questionLabels,
-            'questionPubDates': questionPubDates,
-            'questionTypes': questionTypes,
-            'questionGroupings': questionGroupings,
-            'questionIds': questionIds}
-    return JsonResponse(json)
 
 
 def roundDelete(request, roundPk):
