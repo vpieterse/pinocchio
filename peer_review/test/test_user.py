@@ -4,6 +4,12 @@ from django.test import TestCase, Client
 from peer_review.models import User
 
 
+#
+#from django.test.utils import setup_test_environment
+#setup_test_environment()
+#
+
+
 class UserTests(TestCase):
     def test_test(self):
         """
@@ -31,3 +37,10 @@ class UserTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'peer_review/questionnaireAdmin.html')
+
+    def test_user_list(self):
+        self.client.login(username='bob@bob.com', password='bob')
+        url = reverse('userAdmin')
+        response = self.client.get(url)
+        print(response.context['users']())
+        self.assertIn(self.user, response.context['users']())
