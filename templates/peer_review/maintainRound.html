@@ -31,16 +31,16 @@
                     text +
                     '" style="text-align: center; "/>' +
                     '</td>';
-    };
+    }
     function addRow(text, selector) {
 
             $table = $(selector);
             $('#round tr:last').after('<tr>' + '<td style="text-align: center; width: 10px;">' +
                 '<input type="number" class="noBorder" style="text-align: center; "/>' +
                 '</td>'+'</tr>');
-        
-    };
-    </script>
+
+}
+</script>
 
 <script type="text/javascript">
 
@@ -48,12 +48,11 @@
                 $('#roundForm').on('submit', function (event) {
                     event.preventDefault();
                 });
-    };
-
+    }
     function minusOnSubmitHandler(){
 
         $('#roundForm').unbind('submit').submit();
-    };
+    }
     function createJson() {
                 var data = {
                     description: $('#roundDescription').val(),
@@ -65,9 +64,8 @@
 
                 console.log(data);
                 return data;
-    };
-
-// AJAX for posting
+    }
+    // AJAX for posting
     function create_post() {  
         var cname = $('#name').val();
         var cdesc = $('#description').val();
@@ -83,7 +81,7 @@
                 
                 test2 = true;
                 }
-        })
+        });
         if (cname == '') {
             $('#round-label-error').html('<div class="alert alert-danger">This is a required field</div>');
             test = true;
@@ -141,8 +139,9 @@
             data: data, // data sent with the post request
             success: function () {console.log('Round was saved successfully.')},
             failure: function () {alert('Error occurred in saving the question');}
-            });   
-    };
+            });
+
+    }
     function CreateQuestionnaire(text){
 
 
@@ -151,7 +150,7 @@
             }
 
 
-    };
+    }
 </script>
 
 

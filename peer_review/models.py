@@ -44,19 +44,19 @@ class Question(models.Model):
         output.close()
 
     def getRank(self):
-        return Rank.objects.get(question = self)
+        return Rank.objects.get(question=self)
 
     def getLabels(self):
-        return Label.objects.filter(question = self)
+        return Label.objects.filter(question=self)
 
     def getChoices(self):
-        return Choice.objects.filter(question = self)
+        return Choice.objects.filter(question=self)
 
     def getRate(self):
-        return Rate.objects.get(question = self)
+        return Rate.objects.get(question=self)
 
     def getFreeformItem(self):
-        return FreeformItem.objects.get(question = self)
+        return FreeformItem.objects.get(question=self)
 
 
 class Choice(models.Model):
@@ -71,10 +71,10 @@ class Choice(models.Model):
 class FreeformItem(models.Model):
     question = models.ForeignKey(Question)
     # Can only be of the following types:
-    PARAGRAPH = "Paragraph" # (300)
-    WORD = "Word" # (25)
-    INTEGER = "Integer" # (int)
-    REAL = "Real" # (real)
+    PARAGRAPH = "Paragraph"  # (300)
+    WORD = "Word"  # (25)
+    INTEGER = "Integer"  # (int)
+    REAL = "Real"  # (real)
     TYPE_CHOICES = (
         (PARAGRAPH, "Paragraph"),
         (WORD, "Word"),
@@ -82,6 +82,7 @@ class FreeformItem(models.Model):
         (REAL, "Real"),
     )
     freeformType = models.CharField(max_length=300, choices=TYPE_CHOICES, default=PARAGRAPH)
+
     def __str__(self):
         return self.freeformType
 
@@ -113,9 +114,9 @@ class Label(models.Model):
 class UserManager(BaseUserManager):
     def create_user(self, email, password, **kwargs):
         user = self.model(
-                email=self.normalize_email(email),
-                is_active=True,
-                **kwargs
+            email=self.normalize_email(email),
+            is_active=True,
+            **kwargs
         )
         user.set_password(password)
         user.save(using=self._db)
@@ -123,11 +124,11 @@ class UserManager(BaseUserManager):
 
     def create_superuser(self, email, password, **kwargs):
         user = self.model(
-                email=email,
-                is_staff=True,
-                is_superuser=True,
-                is_active=True,
-                **kwargs
+            email=email,
+            is_staff=True,
+            is_superuser=True,
+            is_active=True,
+            **kwargs
         )
         user.set_password(password)
         user.save(using=self._db)
@@ -188,8 +189,8 @@ class QuestionOrder(models.Model):
 
 
 class RoundDetail(models.Model):
-    name = models.CharField(max_length = 15, unique=True)
-    questionnaire = models.ForeignKey(Questionnaire, null =True)
+    name = models.CharField(max_length=15, unique=True)
+    questionnaire = models.ForeignKey(Questionnaire, null=True)
     startingDate = models.DateTimeField('starting date')
     endingDate = models.DateTimeField('ending date')
     description = models.CharField(max_length=300)
@@ -215,12 +216,13 @@ class TeamDetail(models.Model):
     def __str__(self):
         return self.roundDetail.description + " " + self.teamName + " (" + self.user.surname + ", " + self.user.initials + ")"
 
+
 class Response(models.Model):
-    question = models.ForeignKey(Question)                                      #The question
-    roundDetail = models.ForeignKey(RoundDetail)                                #The round
-    user = models.ForeignKey(User, null=False, related_name="user")             #The answererer
-    subjectUser = models.ForeignKey(User, null=True, related_name="otherUser") #The person the question is about.
-    label = models.ForeignKey(Label, null=True)                                            #The label the question is about.
+    question = models.ForeignKey(Question)  # The question
+    roundDetail = models.ForeignKey(RoundDetail)  # The round
+    user = models.ForeignKey(User, null=False, related_name="user")  # The answererer
+    subjectUser = models.ForeignKey(User, null=True, related_name="otherUser")  # The person the question is about.
+    label = models.ForeignKey(Label, null=True)  # The label the question is about.
     answer = models.CharField(max_length=300)
 
     def __str__(self):

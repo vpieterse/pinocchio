@@ -16,60 +16,60 @@
             $.ajax({
                 url: "/questionnaire/getResponses/",
                 data: {'questionPk': questionPk, 'roundPk': roundPk},
-                success: function(data) { 
+                success: function (data) {
                     funct(data);
                 },
-                failure: function() {
-                }                        
-            }) 
+                failure: function () {
+                }
+            })
         }
     </script>
 {% endblock %}
 {% block context %}
     {% csrf_token %}
     <div class="container panel panel-default">
-        <div id = "results" class = "row">
+        <div id="results" class="row">
             <!-- The success or failure message will display here -->
         </div>
-        <div class = "panel-heading row">
+        <div class="panel-heading row">
             {{ questionnaire.intro|safe }}
         </div>
-    {% for q in questionOrders %}  
-        <div id = "{{ q.question.id }}" class = "panel-body">
-    <!-- Label -->
-        {% ifequal q.question.questionType.name 'Label' %}
-            {% include "peer_review/questions/labelQuestion.html" with q=q.question number=q.order %}
-        {% endifequal %}
+        {% for q in questionOrders %}
+            <div id="{{ q.question.id }}" class="panel-body">
+                <!-- Label -->
+                {% ifequal q.question.questionType.name 'Label' %}
+                    {% include "peer_review/questions/labelQuestion.html" with q=q.question number=q.order %}
+                {% endifequal %}
 
-    <!-- Rate -->
-        {% ifequal q.question.questionType.name 'Rate' %}
-            {% include "peer_review/questions/rateQuestion.html" with q=q.question number=q.order %}
-        {% endifequal %}
+                <!-- Rate -->
+                {% ifequal q.question.questionType.name 'Rate' %}
+                    {% include "peer_review/questions/rateQuestion.html" with q=q.question number=q.order %}
+                {% endifequal %}
 
-    <!-- Rank -->
-        {% ifequal q.question.questionType.name 'Rank' %}
-            {% include "peer_review/questions/rankQuestion.html"  with q=q.question number=q.order %}
-        {% endifequal %}
+                <!-- Rank -->
+                {% ifequal q.question.questionType.name 'Rank' %}
+                    {% include "peer_review/questions/rankQuestion.html"  with q=q.question number=q.order %}
+                {% endifequal %}
 
-    <!-- Choice -->
-        {% ifequal q.question.questionType.name 'Choice' %}
-            {% include "peer_review/questions/choiceQuestion.html"  with q=q.question number=q.order %}
-        {% endifequal %}
+                <!-- Choice -->
+                {% ifequal q.question.questionType.name 'Choice' %}
+                    {% include "peer_review/questions/choiceQuestion.html"  with q=q.question number=q.order %}
+                {% endifequal %}
 
-    <!-- Freeform -->
-        {% ifequal q.question.questionType.name 'Freeform' %}
-            {% include "peer_review/questions/freeformQuestion.html"  with q=q.question number=q.order %}
-        {% endifequal %}
-        <hr/>
+                <!-- Freeform -->
+                {% ifequal q.question.questionType.name 'Freeform' %}
+                    {% include "peer_review/questions/freeformQuestion.html"  with q=q.question number=q.order %}
+                {% endifequal %}
+                <hr/>
+            </div>
+        {% endfor %}
+        <div class="btn-group panel-body">
+            <button type='submit' class='btn btn-primary' onclick="saveProgress()">Save Progress</button>
+            <button type='submit' class='btn btn-success' onclick="saveProgress()">Submit</button>
         </div>
-    {% endfor %} 
-        <div class = "btn-group panel-body">
-            <button type='submit'class='btn btn-primary' onclick="saveProgress()">Save Progress</button>
-            <button type='submit'class='btn btn-success' onclick="saveProgress()">Submit</button>
-        </div>
-    </div> 
+    </div>
 
-    <script>      
+    <script>
         //Enables moving the labels in a rank question
         $(document).ready(function () {
             $('.rankTable').on("click", '.move', function () {
@@ -98,20 +98,20 @@
                 url: "/questionnaire/saveProgress/",
                 type: "POST",
                 data: data,
-                success: function(data) {              
+                success: function (data) {
                     if (data.result === 1)
                         failed = true;
                 },
-                failure: function() {
+                failure: function () {
                     failed = true;
-                }                        
-            })
+                }
+            });
             if (failed)
-                //Show failure message
+            //Show failure message
                 $('#results').html('<div class="alert alert-danger">Error: One or more answers failed to save</div>');
             else
-                //Show success message
-                $('#results').html('<div class="alert alert-success">Progress successfully saved!</div>'); 
+            //Show success message
+                $('#results').html('<div class="alert alert-success">Progress successfully saved!</div>');
             //Make the alert box disappear after 5 seconds
             window.setTimeout(function () {
                 $(".alert").fadeTo(500, 0).slideUp(500, function () {

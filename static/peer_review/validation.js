@@ -76,17 +76,9 @@ function validateUserForm() {
 	Delete Confirmation function for form submission
 */
 function confirmDeletion() {
-	if(confirm('Are you sure you wish to delete this?')){
-		return true;
-	} else {
-		return false;
-	}
+	return confirm('Are you sure you wish to delete this?');
 }
 
 function confirmSubmit() {
-	if(confirm('Are you sure you wish to submit this?')){
-		return true;
-	} else {
-		return false;
-	}
+	return confirm('Are you sure you wish to submit this?');
 }

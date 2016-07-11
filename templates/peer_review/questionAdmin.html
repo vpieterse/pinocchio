@@ -6,464 +6,502 @@ Todo:
 {% load staticfiles %}
 
 {% block extrahead %}
-	<title>Question Admin</title>
-	<script>
-		var title="questionAdmin";
-	</script>
+    <title>Question Admin</title>
+    <script>
+        var title = "questionAdmin";
+    </script>
 {% endblock %}
 
 {% block context %}
-	<div class = "container">
-		{% if messages %}
-		    {% for message in messages %}
-		    <div class = "alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
-		    {% endfor %}
-		{% endif %}
-		<div class = "panel panel-default">
-			<div class="panel-heading">
-				<h4 class="panel-title">Create Question</h4>
-			</div>
-			<div class="panel-body">
-				<form onsubmit="return save()" onreset="empty()" id = "form-save" method="POST" action="/questionAdmin/save">
-					{% csrf_token %}
-					<fieldset class="form-group">
-						<!-- Title -->
-						<label for="question-title">Title</label>
-						<input type="text" name="question-title" class="form-control" id="question-title" placeholder="Enter title" value="{{question.questionLabel}}" required>
-						<small class="text-muted">A short identifying name to be used in making questionnaires</small>
-						</fieldset>
-						<!-- Question Content -->
-						<fieldset class="form-group">
-						<label for="question-content">Question</label>
-						<textarea class="form-control" id="question-content" name="question-content" rows="3" style="resize:none;width:100%" required>{{ question.questionText }}</textarea>
-						</fieldset>
-						<!-- Grouping/Type headings -->
-						<div class="row">
-							<div class="col-xs-6">
-								<div class="pull-left">	  								
-									<label>Question Grouping</label>
-								</div>
-							</div>
-							<div class="col-xs-6">
-								<div class="pull-right">	  								
-									<label>Question Type</label>
-								</div>
-							</div>
-						</div>
-						<div class="row">
-							<!-- Groupings -->
-	  					<div class="col-xs-6">
-		  					<div class="btn-group pull-left" id = "groupings">
-								<label class="btn btn-default active" onclick="changeGrouping('Rest')">
-									Rest
-								</label>
-								<label class="btn btn-default" onclick="changeGrouping('None')">
-									None
-								</label>
-								<label class="btn btn-default" onclick="changeGrouping('All')">
-									All
-								</label>
-								<label class="btn btn-default" onclick="changeGrouping('Label')">
-									Label
-								</label>
-							</div>
-						</div>
-						<!-- Types -->
-	  					<div class="col-xs-6">
-	  						<div class="btn-group pull-right" id = "types">
-								<label class="btn btn-default active" onclick="changeType('Choice')">
-									Choice
-								</label>
-								<label class="btn btn-default" onclick="changeType('Freeform')">
-									Freeform
-								</label>
-								<label class="btn btn-default" onclick="changeType('Rank')">
-									Rank
-								</label>
-								<label class="btn btn-default" onclick="changeType('Rate')">
-									Rate
-								</label>
-								<label class="btn btn-default" onclick="changeType('Label')">
-									Label
-								</label>
-							</div>
-						</div>
-					</div>
-					<input type="hidden" name="question-grouping" id="question-grouping" value="Rest">
-					<input type="hidden" name="question-type" id="question-type" value="Choice">
-					<input type="hidden" id="question-choices" name="question-choices">
-					<input type="hidden" id="question-labels" name="question-labels">
-					{% if question %}
-						<input type="hidden" name="question-pk" value="{{ question.pk }}">
-					{% endif %}
-					<br/>
-					<div id = "content">
-						<div class = "row">
-							<div class = "col-xs-6">
-								<small>Loading..</small>
-								<table class = "table table-bordered">
-									<thead>
-										<tr>
-											<th class = "text-center">
-												<span>Choices</span>
-												<span style = "cursor: pointer" onclick = "addRowToTable(this)" class="glyphicon glyphicon-plus-sign pull-right text-primary"></span>
-											</th>
-										</tr>
-									</thead>
-									<tbody>
-									</tbody>
-								</table>
-							</div>
-							<div class = "col-xs-6 labels-go-here">
-							</div>
-						</div>
-					</div>
-					<br/>
-					<button type="submit" class = "btn btn-primary">
-						<span class="glyphicon glyphicon-ok"></span>
-						Submit
-					</button>
-					<button type="reset" class = "btn btn-primary pull-right">
-						<span class="glyphicon glyphicon-remove"></span>
-						{% if question %}
-							Cancel Edit
-						{% else %}
-							Clear
-						{% endif %}
-					</button>
-				</form>
-			</div>
-		</div>
-		<div class="panel-group" id="accordion">
-                <div class="panel panel-default">
-                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
-                        <h4 class="panel-title">
-                            Maintain Questions <b class="caret"></b>
-                        </h4>
-                    </div>
-                    <div id="collapseOne" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <input type="text" class="form-control" id="question-search" placeholder="Start typing to search">
-                        	<small class = "text-muted">Click the <span class="glyphicon glyphicon glyphicon-pencil text-primary"></span> icon to edit questions, and the <span class="glyphicon glyphicon glyphicon-remove-circle text-primary"></span> icon to remove questions. Note that questions that have been added to questionnaires cannot be deleted.</small>
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
+            {% endfor %}
+        {% endif %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">Create Question</h4>
+            </div>
+            <div class="panel-body">
+                <form onsubmit="return save()" onreset="empty()" id="form-save" method="POST"
+                      action="/questionAdmin/save">
+                    {% csrf_token %}
+                    <fieldset class="form-group">
+                        <!-- Title -->
+                        <label for="question-title">Title</label>
+                        <input type="text" name="question-title" class="form-control" id="question-title"
+                               placeholder="Enter title" value="{{ question.questionLabel }}" required>
+                        <small class="text-muted">A short identifying name to be used in making questionnaires</small>
+                    </fieldset>
+                    <!-- Question Content -->
+                    <fieldset class="form-group">
+                        <label for="question-content">Question</label>
+                        <textarea class="form-control" id="question-content" name="question-content" rows="3"
+                                  style="resize:none;width:100%" required>{{ question.questionText }}</textarea>
+                    </fieldset>
+                    <!-- Grouping/Type headings -->
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div class="pull-left">
+                                <label>Question Grouping</label>
+                            </div>
                         </div>
-                        <table id = "question-list" class="table table-hover">
+                        <div class="col-xs-6">
+                            <div class="pull-right">
+                                <label>Question Type</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <!-- Groupings -->
+                        <div class="col-xs-6">
+                            <div class="btn-group pull-left" id="groupings">
+                                <label class="btn btn-default active" onclick="changeGrouping('Rest')">
+                                    Rest
+                                </label>
+                                <label class="btn btn-default" onclick="changeGrouping('None')">
+                                    None
+                                </label>
+                                <label class="btn btn-default" onclick="changeGrouping('All')">
+                                    All
+                                </label>
+                                <label class="btn btn-default" onclick="changeGrouping('Label')">
+                                    Label
+                                </label>
+                            </div>
+                        </div>
+                        <!-- Types -->
+                        <div class="col-xs-6">
+                            <div class="btn-group pull-right" id="types">
+                                <label class="btn btn-default active" onclick="changeType('Choice')">
+                                    Choice
+                                </label>
+                                <label class="btn btn-default" onclick="changeType('Freeform')">
+                                    Freeform
+                                </label>
+                                <label class="btn btn-default" onclick="changeType('Rank')">
+                                    Rank
+                                </label>
+                                <label class="btn btn-default" onclick="changeType('Rate')">
+                                    Rate
+                                </label>
+                                <label class="btn btn-default" onclick="changeType('Label')">
+                                    Label
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="question-grouping" id="question-grouping" value="Rest">
+                    <input type="hidden" name="question-type" id="question-type" value="Choice">
+                    <input type="hidden" id="question-choices" name="question-choices">
+                    <input type="hidden" id="question-labels" name="question-labels">
+                    {% if question %}
+                        <input type="hidden" name="question-pk" value="{{ question.pk }}">
+                    {% endif %}
+                    <br/>
+                    <div id="content">
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <small>Loading..</small>
+                                <table class="table table-bordered">
+                                    <thead>
+                                    <tr>
+                                        <th class="text-center">
+                                            <span>Choices</span>
+                                            <span style="cursor: pointer" onclick="addRowToTable(this)"
+                                                  class="glyphicon glyphicon-plus-sign pull-right text-primary"></span>
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-xs-6 labels-go-here">
+                            </div>
+                        </div>
+                    </div>
+                    <br/>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-ok"></span>
+                        Submit
+                    </button>
+                    <button type="reset" class="btn btn-primary pull-right">
+                        <span class="glyphicon glyphicon-remove"></span>
+                        {% if question %}
+                            Cancel Edit
+                        {% else %}
+                            Clear
+                        {% endif %}
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
+                    <h4 class="panel-title">
+                        Maintain Questions <b class="caret"></b>
+                    </h4>
+                </div>
+                <div id="collapseOne" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <input type="text" class="form-control" id="question-search"
+                               placeholder="Start typing to search">
+                        <small class="text-muted">Click the <span
+                                class="glyphicon glyphicon glyphicon-pencil text-primary"></span> icon to edit
+                            questions, and the <span
+                                    class="glyphicon glyphicon glyphicon-remove-circle text-primary"></span> icon to
+                            remove questions. Note that questions that have been added to questionnaires cannot be
+                            deleted.
+                        </small>
+                    </div>
+                    <table id="question-list" class="table table-hover">
                         <thead>
-                        	<tr>
-                        		<th>Title</th>
-                        		<th>Grouping</th>
-                        		<th>Type</th>
-                        		<th>Publish Date<span class="glyphicon glyphicon glyphicon-remove-circle text-primary pull-right" id = "delete-many" onclick="deleteMany()" style = "cursor:pointer"></th>
-                        	</tr>
+                        <tr>
+                            <th>Title</th>
+                            <th>Grouping</th>
+                            <th>Type</th>
+                            <th>Publish Date<span
+                                    class="glyphicon glyphicon glyphicon-remove-circle text-primary pull-right"
+                                    id="delete-many" onclick="deleteMany()" style="cursor:pointer"></th>
+                        </tr>
                         </thead>
                         <tbody>
-                        	{% for question in questions %}
-								<tr {% if not question.inAQuestionnaire %} 
-										class="deleteable" 
-									{% else %} 
-										title="This question has been used in a questionnaire and cannot be deleted."
-									{% endif %}
-									id = "{{ question.pk }}"
-								>
-									<td>{{ question.title }}</td>
-									<td>{{ question.grouping }}</td>
-									<td>{{ question.type }}</td>
-									<td>{{ question.date }}
-										{% if question.inAQuestionnaire %}
-											<span class="glyphicon glyphicon glyphicon-remove-circle pull-right text-muted" title="This question has been used in a questionnaire and cannot be deleted."></span>
-										{% else %}
-											<span style = "cursor: pointer" onclick = "deleteQuestion('{{question.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
-										{% endif %}
-										<span style = "cursor: pointer" onclick = "edit('{{question.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
-									</td>
-								</tr>
-							{% endfor %}
-						</tbody>
-                        </table> 
-                        <form id = "form-delete" action = "/questionAdmin/delete" method="POST">
-							{% csrf_token %}
-							<input type="hidden" name = "question-pk" id = "question-pk">
-						</form>   
-                    </div>
+                        {% for question in questions %}
+                            <tr {% if not question.inAQuestionnaire %}
+                                class="deleteable"
+                            {% else %}
+                                title="This question has been used in a questionnaire and cannot be deleted."
+                            {% endif %}
+                                id="{{ question.pk }}"
+                            >
+                                <td>{{ question.title }}</td>
+                                <td>{{ question.grouping }}</td>
+                                <td>{{ question.type }}</td>
+                                <td>{{ question.date }}
+                                    {% if question.inAQuestionnaire %}
+                                        <span class="glyphicon glyphicon glyphicon-remove-circle pull-right text-muted"
+                                              title="This question has been used in a questionnaire and cannot be deleted."></span>
+                                    {% else %}
+                                        <span style="cursor: pointer" onclick="deleteQuestion('{{ question.pk }}')"
+                                              class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
+                                    {% endif %}
+                                    <span style="cursor: pointer" onclick="edit('{{ question.pk }}')"
+                                          class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <form id="form-delete" action="/questionAdmin/delete" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="question-pk" id="question-pk">
+                    </form>
                 </div>
+            </div>
         </div>
-	</div>
+    </div>
 
-	<!-- Label -->
-	<div id = "Label">
-	</div>
+    <!-- Label -->
+    <div id="Label">
+    </div>
 
-	<!-- Choice -->
-	<div id = "Choice" class = "hidden">
-		<div class = "row">
-			<div class = "col-xs-6">
-				<small class="text-muted">Click the <span class="glyphicon glyphicon-plus-sign text-primary"></span> icon to add choices.</small>
-				<table class = "table table-bordered" id = "choice-table">
-					<thead>
-						<tr>
-							<th class = "text-center">
-								<span>Choices</span>
-								<span style = "cursor: pointer" onclick = "addRowToTable(this)" class="glyphicon glyphicon-plus-sign pull-right text-primary"></span>
-							</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% for choice in choices %}
-							<tr class = "text-center">
-								<td>
-									<input type="text" placeholder="Enter choice" style="border:none;" value="{{ choice }}"/>
-									<span onclick="removeRow(this)" class = "glyphicon glyphicon-remove-circle pull-right text-primary" style="cursor:pointer"></span>
-									<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-up pull-left text-primary" style="cursor:pointer"></span>
-									<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-down pull-left text-primary" style="cursor:pointer"></span>
-								</td>
-							</tr>
-						{% endfor %}
-					</tbody>
-				</table>
-			</div>
-			<div class = "col-xs-6 labels-go-here">
-			</div>
-		</div>
-	</div>
+    <!-- Choice -->
+    <div id="Choice" class="hidden">
+        <div class="row">
+            <div class="col-xs-6">
+                <small class="text-muted">Click the <span class="glyphicon glyphicon-plus-sign text-primary"></span>
+                    icon to add choices.
+                </small>
+                <table class="table table-bordered" id="choice-table">
+                    <thead>
+                    <tr>
+                        <th class="text-center">
+                            <span>Choices</span>
+                            <span style="cursor: pointer" onclick="addRowToTable(this)"
+                                  class="glyphicon glyphicon-plus-sign pull-right text-primary"></span>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for choice in choices %}
+                        <tr class="text-center">
+                            <td>
+                                <input type="text" placeholder="Enter choice" style="border:none;"
+                                       value="{{ choice }}"/>
+                                <span onclick="removeRow(this)"
+                                      class="glyphicon glyphicon-remove-circle pull-right text-primary"
+                                      style="cursor:pointer"></span>
+                                <span onclick="moveRow(this)"
+                                      class="glyphicon glyphicon-arrow-up pull-left text-primary"
+                                      style="cursor:pointer"></span>
+                                <span onclick="moveRow(this)"
+                                      class="glyphicon glyphicon-arrow-down pull-left text-primary"
+                                      style="cursor:pointer"></span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-xs-6 labels-go-here">
+            </div>
+        </div>
+    </div>
 
-	<!-- Freeform -->
-	<div id = "Freeform" class = "hidden">
-		<div class="row">
-			<div class = "col-xs-4">
-				<label for = "freeform-type">Freeform type</label>
-				<select class = "form-control" name="freeform-type">
-					<option value="Integer" {% if freeformType == "Integer" %} selected {% endif %} >
-						Integer
-					</option>
-					<option value="Real" {% if freeformType == "Real" %} selected {% endif %} >
-						Real
-					</option>
-					<option value="Paragraph" {% if freeformType == "Paragraph" %} selected {% endif %} >
-						Paragraph
-					</option>
-					<option value="Word"  {% if freeformType == "Word" %} selected {% endif %} >
-						Word
-					</option>
-				</select>	
-				<small>The type of answer the respondent is expected to give.</small>
-			</div>
-			<div class = "col-xs-2"></div>
-			<div class = "col-xs-6 labels-go-here">
-			</div>
-		</div>
-	</div>
+    <!-- Freeform -->
+    <div id="Freeform" class="hidden">
+        <div class="row">
+            <div class="col-xs-4">
+                <label for="freeform-type">Freeform type</label>
+                <select class="form-control" name="freeform-type">
+                    <option value="Integer" {% if freeformType == "Integer" %} selected {% endif %} >
+                        Integer
+                    </option>
+                    <option value="Real" {% if freeformType == "Real" %} selected {% endif %} >
+                        Real
+                    </option>
+                    <option value="Paragraph" {% if freeformType == "Paragraph" %} selected {% endif %} >
+                        Paragraph
+                    </option>
+                    <option value="Word"  {% if freeformType == "Word" %} selected {% endif %} >
+                        Word
+                    </option>
+                </select>
+                <small>The type of answer the respondent is expected to give.</small>
+            </div>
+            <div class="col-xs-2"></div>
+            <div class="col-xs-6 labels-go-here">
+            </div>
+        </div>
+    </div>
 
-	<!-- Rank -->
-	<div id = "Rank" class="hidden">
-		<div class = "row">
-			<div class = "col-xs-6">
-				<input type="text" name="rank-first" class="form-control" placeholder="Enter top word" value="{{ rank.firstWord }}">
-			</div>
-			<div class = "col-xs-6">
-				<input type="text" name="rank-second" class="form-control" placeholder="Enter bottom word" value = "{{ rank.secondWord }}">
-			</div>
-		</div>
-		<div class = "row">
-			<br/>
-			<div class = "col-xs-6 labels-go-here">
-			</div>
-		</div>
-	</div>
+    <!-- Rank -->
+    <div id="Rank" class="hidden">
+        <div class="row">
+            <div class="col-xs-6">
+                <input type="text" name="rank-first" class="form-control" placeholder="Enter top word"
+                       value="{{ rank.firstWord }}">
+            </div>
+            <div class="col-xs-6">
+                <input type="text" name="rank-second" class="form-control" placeholder="Enter bottom word"
+                       value="{{ rank.secondWord }}">
+            </div>
+        </div>
+        <div class="row">
+            <br/>
+            <div class="col-xs-6 labels-go-here">
+            </div>
+        </div>
+    </div>
 
-	<!-- Rate -->
-	<div id = "Rate" class = "hidden">
-		<div class = "row">
-			<div class = "col-xs-6">
-				<input type="text" name="rate-first" class="form-control" placeholder="Enter first value" value="{{ rate.topWord }}">
-			</div>
-			<div class = "col-xs-6">
-				<input type="text" name="rate-second" class="form-control" placeholder="Enter second value" value = "{{ rate.bottomWord }}">
-			</div>			
-		</div>
-		<br>
-		<div class = "row">
-			<div class = "col-xs-6 labels-go-here">
-			</div>
-			<div class="col-xs-6">				
-				<label>Optional: <input type="checkbox" name="rate-optional" value="a" {% if rate.optional %} checked {% endif %}></label>
-			</div>
-		</div>
-	</div>
+    <!-- Rate -->
+    <div id="Rate" class="hidden">
+        <div class="row">
+            <div class="col-xs-6">
+                <input type="text" name="rate-first" class="form-control" placeholder="Enter first value"
+                       value="{{ rate.topWord }}">
+            </div>
+            <div class="col-xs-6">
+                <input type="text" name="rate-second" class="form-control" placeholder="Enter second value"
+                       value="{{ rate.bottomWord }}">
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-xs-6 labels-go-here">
+            </div>
+            <div class="col-xs-6">
+                <label>Optional: <input type="checkbox" name="rate-optional" value="a" {% if rate.optional %}
+                                        checked {% endif %}></label>
+            </div>
+        </div>
+    </div>
 
-	<!-- Label table -->
-	<div class = "hidden" id ="label-table">
-		<small class="text-muted">Click the <span class="glyphicon glyphicon-plus-sign text-primary"></span> icon to add labels.</small>
-		<table class = "table table-bordered" id = "labeltable">
-			<thead>
-				<tr>
-					<th class = "text-center">
-						<span>Labels</span>
-						<span style = "cursor: pointer" onclick = "addRowToTable(this)" class="glyphicon glyphicon-plus-sign pull-right text-primary"></span>
-					</th>
-				</tr>
-			</thead>
-			<tbody>
-				{% for label in labels %}
-					<tr class = "text-center">
-						<td>
-							<input type="text" placeholder="Enter choice" style="border:none;" value="{{ label }}"/>
-							<span onclick="removeRow(this)" class = "glyphicon glyphicon-remove-circle pull-right text-primary" style="cursor:pointer"></span>
-							<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-up pull-left text-primary" style="cursor:pointer"></span>
-							<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-down pull-left text-primary" style="cursor:pointer"></span>
-						</td>
-					</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-			</div>
-	<script>		
-		
-		function changeType(type) {
-			$('#types > label').removeClass('active');
-			$('#types > label:contains("'+type+'")').addClass('active');
-			$('#question-type').val(type);			
-			$('#content').html($('#'+type).html());
-			$('#groupings').find('label').show(100);
-			if (type == 'Label') {
-				changeGrouping('None');
-				$('#groupings').find('label').not(":eq(1)").hide(100);
-			} else if (type == 'Rank') {
-				if ($('#groupings').find('label').eq(1).hasClass('active')) {
-					changeGrouping('Rest');
-				}
-				$('#groupings').find('label').eq(1).hide(100);
-			}		
-		}
+    <!-- Label table -->
+    <div class="hidden" id="label-table">
+        <small class="text-muted">Click the <span class="glyphicon glyphicon-plus-sign text-primary"></span> icon to add
+            labels.
+        </small>
+        <table class="table table-bordered" id="labeltable">
+            <thead>
+            <tr>
+                <th class="text-center">
+                    <span>Labels</span>
+                    <span style="cursor: pointer" onclick="addRowToTable(this)"
+                          class="glyphicon glyphicon-plus-sign pull-right text-primary"></span>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for label in labels %}
+                <tr class="text-center">
+                    <td>
+                        <input type="text" placeholder="Enter choice" style="border:none;" value="{{ label }}"/>
+                        <span onclick="removeRow(this)"
+                              class="glyphicon glyphicon-remove-circle pull-right text-primary"
+                              style="cursor:pointer"></span>
+                        <span onclick="moveRow(this)" class="glyphicon glyphicon-arrow-up pull-left text-primary"
+                              style="cursor:pointer"></span>
+                        <span onclick="moveRow(this)" class="glyphicon glyphicon-arrow-down pull-left text-primary"
+                              style="cursor:pointer"></span>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
 
-		function changeGrouping(group) {
-			$('#groupings > label').removeClass('active');
-			$('#groupings > label:contains("'+group+'")').addClass('active');
-			$('#question-grouping').val(group);
-			if (group == 'Label') {
-				$('.labels-go-here').show(100);
-			} else {
-				$('.labels-go-here').hide(100);					
-			}
-		}
+        function changeType(type) {
+            $('#types > label').removeClass('active');
+            $('#types > label:contains("' + type + '")').addClass('active');
+            $('#question-type').val(type);
+            $('#content').html($('#' + type).html());
+            $('#groupings').find('label').show(100);
+            if (type == 'Label') {
+                changeGrouping('None');
+                $('#groupings').find('label').not(":eq(1)").hide(100);
+            } else if (type == 'Rank') {
+                if ($('#groupings').find('label').eq(1).hasClass('active')) {
+                    changeGrouping('Rest');
+                }
+                $('#groupings').find('label').eq(1).hide(100);
+            }
+        }
 
-		//** Functions used for table manipulations **//
-		function addRowToTable(el) {
-			var row = $('<td></td>');
-			row.append('<input type="text" placeholder="Enter choice" style="border:none;"/>');
-			row.append('<span onclick="removeRow(this)" class = "glyphicon glyphicon-remove-circle pull-right text-primary" style="cursor:pointer"></span>');
-			row.append('<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-up pull-left text-primary" style="cursor:pointer"></span>');
-			row.append('<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-down pull-left text-primary" style="cursor:pointer"></span>');
-			
-			$(el).closest('table').find('tbody').append(row);
-			row.wrap('<tr></tr>');
-			row.addClass('text-center');
-		}
+        function changeGrouping(group) {
+            $('#groupings > label').removeClass('active');
+            $('#groupings > label:contains("' + group + '")').addClass('active');
+            $('#question-grouping').val(group);
+            if (group == 'Label') {
+                $('.labels-go-here').show(100);
+            } else {
+                $('.labels-go-here').hide(100);
+            }
+        }
 
-		function removeRow(el) {
-			$(el).closest('tr').remove();
-		}
+        //** Functions used for table manipulations **//
+        function addRowToTable(el) {
+            var row = $('<td></td>');
+            row.append('<input type="text" placeholder="Enter choice" style="border:none;"/>');
+            row.append('<span onclick="removeRow(this)" class = "glyphicon glyphicon-remove-circle pull-right text-primary" style="cursor:pointer"></span>');
+            row.append('<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-up pull-left text-primary" style="cursor:pointer"></span>');
+            row.append('<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-down pull-left text-primary" style="cursor:pointer"></span>');
 
-		function moveRow(el) {
-			var row = $(el).closest('tr');
-	        if ($(el).hasClass('glyphicon-arrow-up'))
-	            row.prev().before(row);
-	        else if ($(el).hasClass('glyphicon-arrow-down'))
-	            row.next().after(row);
-		}
+            $(el).closest('table').find('tbody').append(row);
+            row.wrap('<tr></tr>');
+            row.addClass('text-center');
+        }
 
-		function save(event) {
-			if ($('#question-type').val() == "Rank" && $('#question-grouping').val() == "Label") {
-				if ($('#labeltable > tbody > tr > td > input').size() < 2) {
-					a = $('.container').eq(1).prepend('<div class = "alert alert-warning">Error: Rank with label grouping needs at least two labels.</div>');
-					setTimeout(function() {
-						$('.container').eq(1).find('.alert').hide(100);
-					}, 5000);
-					return false;
-				}
-			}
-			if ($('#question-type').val() == "Choice") {
-				var choices = "";
-				$('#content').find('#choice-table > tbody > tr > td > input').each(function(i, el) {
-					choices += el.value + ';#';
-				});
-				$('#question-choices').val(choices.slice(0, -2));
-			}
-			if ($('#question-grouping').val() == "Label") {
-				var labels = "";
-				$('#labeltable > tbody > tr > td > input').each(function(i, el) {
-					console.log(el.value);
-					labels += el.value + ';#';
-				});
-				$('#question-labels').val(labels.slice(0, -2));
-			}
-			return true;
-		}
+        function removeRow(el) {
+            $(el).closest('tr').remove();
+        }
 
-		function edit(pk) {
-			window.location = '/questionAdmin/edit/'+pk;
-		}
+        function moveRow(el) {
+            var row = $(el).closest('tr');
+            if ($(el).hasClass('glyphicon-arrow-up'))
+                row.prev().before(row);
+            else if ($(el).hasClass('glyphicon-arrow-down'))
+                row.next().after(row);
+        }
 
-		function empty() {
-			$('.labels-go-here').html($('#label-table').html());
-			$('#content').html($('#'+$('#question-type').val()).html());
-			{% if question %}
-				window.location = '/questionAdmin/';
-			{% endif %}
+        function save(event) {
+            if ($('#question-type').val() == "Rank" && $('#question-grouping').val() == "Label") {
+                if ($('#labeltable > tbody > tr > td > input').size() < 2) {
+                    a = $('.container').eq(1).prepend('<div class = "alert alert-warning">Error: Rank with label grouping needs at least two labels.</div>');
+                    setTimeout(function () {
+                        $('.container').eq(1).find('.alert').hide(100);
+                    }, 5000);
+                    return false;
+                }
+            }
+            if ($('#question-type').val() == "Choice") {
+                var choices = "";
+                $('#content').find('#choice-table > tbody > tr > td > input').each(function (i, el) {
+                    choices += el.value + ';#';
+                });
+                $('#question-choices').val(choices.slice(0, -2));
+            }
+            if ($('#question-grouping').val() == "Label") {
+                var labels = "";
+                $('#labeltable > tbody > tr > td > input').each(function (i, el) {
+                    console.log(el.value);
+                    labels += el.value + ';#';
+                });
+                $('#question-labels').val(labels.slice(0, -2));
+            }
+            return true;
+        }
 
-		}
+        function edit(pk) {
+            window.location = '/questionAdmin/edit/' + pk;
+        }
 
-		function deleteQuestion(pk) {
-			$('#question-pk').val(pk);
-			$('#form-delete').submit();
-		}
+        function empty() {
+            $('.labels-go-here').html($('#label-table').html());
+            $('#content').html($('#' + $('#question-type').val()).html());
+            {% if question %}
+                window.location = '/questionAdmin/';
+            {% endif %}
 
-		function deleteMany() {
-			var pks = "";
-			$('#question-list > tbody > tr.active').each(function(i, el) {
-				pks += el.id + ';#';
-			});
-			$('#question-pk').val(pks.slice(0, -2));
-			$('#form-delete').submit();
+        }
 
-		}
+        function deleteQuestion(pk) {
+            $('#question-pk').val(pk);
+            $('#form-delete').submit();
+        }
 
-		$(document).ready(function() {
-			$('.labels-go-here').hide();
-			$('.labels-go-here').html($('#label-table').html());
-			{% if question %}
-				changeType('{{ question.questionType }}');
-				changeGrouping('{{ question.questionGrouping }}');
-			{% else %}
-				changeType('Choice');
-			{% endif %}
-			//Hide alerts
-			setTimeout(function() {
-				$('.alert').hide(100);
-			}, 10000);
-			//ToDo: Search the other columns as well
-			$("#question-search").keyup(function() {
-			    var value = this.value;
-			    $("#question-list").find("tr").each(function(index) {
-			        if (!index) return;
-			        var id = $(this).find("td").first().text();
-			        $(this).toggle(id.toLowerCase().indexOf(value.toLowerCase()) !== -1);
-			    });
-			});
-			//Allows selecting of questions to delete multiple questions
-			$('#delete-many').hide();
-			$('#question-list').on('click', '.deleteable', function(event) {
-				if ($(this).hasClass('active')) {
-			 		$(this).removeClass('active')
-				} else {
-			 		$(this).addClass('active')
-				}	
-			 	if ($('#question-list').find('.active').length > 0) {
-			 		$('#delete-many').show(100);
-			 	} else {
-			 		$('#delete-many').hide(100);			 		
-			 	}
+        function deleteMany() {
+            var pks = "";
+            $('#question-list > tbody > tr.active').each(function (i, el) {
+                pks += el.id + ';#';
+            });
+            $('#question-pk').val(pks.slice(0, -2));
+            $('#form-delete').submit();
 
-			});
-		})
+        }
 
-	</script>
+        $(document).ready(function () {
+            $('.labels-go-here').hide();
+            $('.labels-go-here').html($('#label-table').html());
+            {% if question %}
+                changeType('{{ question.questionType }}');
+                changeGrouping('{{ question.questionGrouping }}');
+            {% else %}
+                changeType('Choice');
+            {% endif %}
+            //Hide alerts
+            setTimeout(function () {
+                $('.alert').hide(100);
+            }, 10000);
+            //ToDo: Search the other columns as well
+            $("#question-search").keyup(function () {
+                var value = this.value;
+                $("#question-list").find("tr").each(function (index) {
+                    if (!index) return;
+                    var id = $(this).find("td").first().text();
+                    $(this).toggle(id.toLowerCase().indexOf(value.toLowerCase()) !== -1);
+                });
+            });
+            //Allows selecting of questions to delete multiple questions
+            $('#delete-many').hide();
+            $('#question-list').on('click', '.deleteable', function (event) {
+                if ($(this).hasClass('active')) {
+                    $(this).removeClass('active')
+                } else {
+                    $(this).addClass('active')
+                }
+                if ($('#question-list').find('.active').length > 0) {
+                    $('#delete-many').show(100);
+                } else {
+                    $('#delete-many').hide(100);
+                }
+
+            });
+        })
+
+    </script>
 {% endblock %}

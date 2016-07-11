@@ -2,8 +2,8 @@
 {% load staticfiles %}
 
 {% block extrahead %}
-	<title>Team Members</title>
-	<!--Edit navbar active-->
+    <title>Team Members</title>
+    <!--Edit navbar active-->
     <script>
         title = "teamMembers";
     </script>
@@ -26,7 +26,9 @@
                             <ul>
                                 {% for member in members %}
                                     {% if member.teamName == team.teamName %}
-                                        <li><a href="/accountDetails/{{ member.user.userId }}">{{ member.user.userId }}</a>: {{ member.user.name }} {{ member.user.surname }}</li>
+                                        <li>
+                                            <a href="/accountDetails/{{ member.user.userId }}">{{ member.user.userId }}</a>: {{ member.user.name }} {{ member.user.surname }}
+                                        </li>
                                     {% endif %}
                                 {% endfor %}
                             </ul>

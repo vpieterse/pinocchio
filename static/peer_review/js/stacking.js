@@ -51,11 +51,11 @@ function initialiseStacking() {
     //Remove row from table
     $('table').on('click', '.remove', function ()
     {
-        var rowCount = $('#labelTable > tbody > tr').length;
+        var rowCount = $('#labelTable').find('> tbody > tr').length;
         if (rowCount <= 2) {
             console.log(rowCount);
             $('#table-error').html("<div class=\"alert alert-danger\">There needs to be at least 2 labels in the Rank type.</div>");
-            return;
+            
         } else {
             $(this).closest('tr').remove(); 
         }
@@ -79,4 +79,4 @@ function initialiseStacking() {
         }
     });
 
-};
+}

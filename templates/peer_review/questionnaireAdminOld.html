@@ -190,7 +190,7 @@
             $('#search').keyup(function () {
                 t = $('#questionnaireList').DataTable();
                 t.search($('#search').val()).draw();
-            })
+            });
 
             var questionTable = $("#questionTable");
             resizeTableColumns(questionTable);

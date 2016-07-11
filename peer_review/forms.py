@@ -6,7 +6,7 @@ from peer_review.models import User
 
 class DocumentForm(forms.Form):
     docfile = forms.FileField(
-            label='Select a file'
+        label='Select a file'
     )
 
 
@@ -23,49 +23,49 @@ class LoginForm(forms.Form):
 
 class UserForm(forms.Form):
     userId = forms.CharField(
-            label="Username:",
-            max_length=30,
-            widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'userId',}),
+        label="Username:",
+        max_length=30,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'userId',}),
     )
 
     status = forms.ChoiceField(
-            label="Status:",
-            choices=(('', '',), ('S', 'Student',), ('A', 'Admin',)),
-            widget=forms.Select(attrs={'class': 'form-control', 'id': 'status'}),
+        label="Status:",
+        choices=(('', '',), ('S', 'Student',), ('A', 'Admin',)),
+        widget=forms.Select(attrs={'class': 'form-control', 'id': 'status'}),
     )
 
     title = forms.ChoiceField(
-            label="Title:",
-            choices=(('', '',), ('Mr', 'Mr',), ('Ms', 'Ms',), ('Miss', 'Miss',), ('Mrs', 'Mrs',), ('Dr', 'Dr',)),
-            widget=forms.Select(attrs={'class': 'form-control', 'id': 'title'}),
+        label="Title:",
+        choices=(('', '',), ('Mr', 'Mr',), ('Ms', 'Ms',), ('Miss', 'Miss',), ('Mrs', 'Mrs',), ('Dr', 'Dr',)),
+        widget=forms.Select(attrs={'class': 'form-control', 'id': 'title'}),
     )
 
     initials = forms.CharField(
-            label="Initials:",
-            max_length=5,
-            widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'initials',}),
+        label="Initials:",
+        max_length=5,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'initials',}),
     )
 
     name = forms.CharField(
-            label="First Name:",
-            max_length=50,
-            widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'name',}),
+        label="First Name:",
+        max_length=50,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'name',}),
     )
 
     surname = forms.CharField(
-            label="Surname:",
-            max_length=50,
-            widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'surname',}),
+        label="Surname:",
+        max_length=50,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'surname',}),
     )
 
     cell = forms.CharField(
-            label="Cell Number:",
-            max_length=10,
-            widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'cell',}),
+        label="Cell Number:",
+        max_length=10,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'cell',}),
     )
 
     email = forms.EmailField(
-            label="Email:",
-            max_length=100,
-            widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'email',}),
+        label="Email:",
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'email',}),
     )
