@@ -14,22 +14,18 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.utils import timezone
-from django.contrib import messages
 
 from .forms import DocumentForm, UserForm, LoginForm
 from .models import Document
-from .models import Question, QuestionType, QuestionGrouping, Choice, Rank, RoundDetail, TeamDetail, FreeformItem, Rate, \
-    Label, Response
+from .models import Question, RoundDetail, TeamDetail, Label, Response
 from .models import Questionnaire, QuestionOrder
 from .models import User
 
+
 # Moved these views into seperate files
-from .view.questionAdmin import questionAdmin, editQuestion, saveQuestion, deleteQuestion
-from .view.questionnaireAdmin import questionnaireAdmin, editQuestionnaire, saveQuestionnaire, deleteQuestionnaire
 
 
-def activeRounds(request):
+def active_rounds(request):
     # TEST
     user = User.objects.get(userId='14035548')
     teams = TeamDetail.objects.filter(user=user)
@@ -37,27 +33,27 @@ def activeRounds(request):
     return render(request, 'peer_review/activeRounds.html', context)
 
 
-def teamMembers(request):
+def team_members(request):
     # TEST
     user = User.objects.get(userId='14035548')
     rounds = RoundDetail.objects.all()
-    teamList = []
-    teamMembers = []
+    team_list = []
+    team_members = []
     for team in TeamDetail.objects.filter(user=user):
         teamName = team.teamName
         roundName = RoundDetail.objects.get(pk=team.roundDetail.pk).name
-        teamList.append(team)
+        team_list.append(team)
         for teamItem in TeamDetail.objects.filter(teamName=team.teamName):
-            if (teamItem.user != user):
+            if teamItem.user != user:
                 print(teamItem)
-                teamMembers.append(teamItem)
-    context = {'teams': teamList, 'members': teamMembers}
-    print(teamList)
-    print(teamMembers)
+                team_members.append(teamItem)
+    context = {'teams': team_list, 'members': team_members}
+    print(team_list)
+    print(team_members)
     return render(request, 'peer_review/teamMembers.html', context)
 
 
-def accountDetails(request, userId):
+def account_details(request, userId):
     user = User.objects.get(userId=userId)
     context = {'user': user}
     return render(request, 'peer_review/accountDetails.html', context)
@@ -94,13 +90,13 @@ def index(request):
     return login(request)
 
 
-def fileUpload(request):
+def file_upload(request):
     # Handle file upload
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
         if form.is_valid():
-            newdoc = Document(docfile=request.FILES['docfile'])
-            newdoc.save()
+            new_doc = Document(docfile=request.FILES['docfile'])
+            new_doc.save()
 
             # Redirect to the document list after POST
             return HttpResponseRedirect('')
@@ -118,20 +114,20 @@ def fileUpload(request):
     )
 
 
-def maintainRound(request):
+def maintain_round(request):
     context = {'roundDetail': RoundDetail.objects.all(),
                'questionnaires': Questionnaire.objects.all()}
     return render(request, 'peer_review/maintainRound.html', context)
 
 
-def maintainTeam(request):
+def maintain_team(request):
     if request.method == "POST":
-        roundPk = request.POST.get("roundPk")
+        round_pk = request.POST.get("roundPk")
 
         context = {'users': User.objects.all(),
                    'rounds': RoundDetail.objects.all(),
                    'teams': TeamDetail.objects.all(),
-                   'roundPk': roundPk}
+                   'roundPk': round_pk}
 
     else:
         context = {'users': User.objects.all(),
@@ -149,19 +145,19 @@ def maintainTeam(request):
 #     context = {'questions': getQuestions()}
 #     return render(request, 'peer_review/questionAdmin.html', context)
 
-def questionnaire(request, roundPk):
+def questionnaire(request, round_pk):
     # if request.method == "POST":
     user = User.objects.get(userId='14035548')  # TEST
-    questionnaire = RoundDetail.objects.get(pk=roundPk).questionnaire
-    qOrders = QuestionOrder.objects.filter(questionnaire=questionnaire)
+    questionnaire = RoundDetail.objects.get(pk=round_pk).questionnaire
+    q_orders = QuestionOrder.objects.filter(questionnaire=questionnaire)
     print(user)
-    print(RoundDetail.objects.get(pk=roundPk))
-    teamName = TeamDetail.objects.get(user=user, roundDetail=RoundDetail.objects.get(pk=roundPk)).teamName
-    qTeam = TeamDetail.objects.filter(roundDetail=RoundDetail.objects.get(pk=roundPk), teamName=teamName)
+    print(RoundDetail.objects.get(pk=round_pk))
+    team_name = TeamDetail.objects.get(user=user, roundDetail=RoundDetail.objects.get(pk=round_pk)).teamName
+    q_team = TeamDetail.objects.filter(roundDetail=RoundDetail.objects.get(pk=round_pk), teamName=team_name)
 
-    reponses = Response.objects.filter(user=request.user, roundDetail=RoundDetail.objects.get(pk=roundPk))
-    context = {'questionOrders': qOrders, 'teamMembers': qTeam, 'questionnaire': questionnaire, 'currentUser': user,
-               'round': roundPk}
+    reponses = Response.objects.filter(user=request.user, roundDetail=RoundDetail.objects.get(pk=round_pk))
+    context = {'questionOrders': q_orders, 'teamMembers': q_team, 'questionnaire': questionnaire, 'currentUser': user,
+               'round': round_pk}
     print(context)
     return render(request, 'peer_review/questionnaire.html', context)
 
@@ -169,30 +165,30 @@ def questionnaire(request, roundPk):
     #     return render(request, 'peer_review/userError.html')
 
 
-def saveQuestionnaireProgress(request):
+def save_questionnaire_progress(request):
     if request.method == "POST":
         question = Question.objects.get(pk=request.POST.get('questionPk'))
-        roundDetail = RoundDetail.objects.get(pk=request.POST.get('roundPk'))
+        round_detail = RoundDetail.objects.get(pk=request.POST.get('roundPk'))
         user = request.user
 
         # If grouping == None, there is no label or subjectUser
         if question.questionGrouping.grouping == "None":
             label = None  # test
-            subjectUser = None  # test
+            subject_user = None  # test
         # If grouping == Label, there is a label but no subjectUser
         elif question.questionGrouping.grouping == "Label":
             label = Label.objects.get(pk=request.POST.get('label'))
-            subjectUser = None  # test
+            subject_user = None  # test
         # If grouping == Rest || All, there is a subjectUser but no label
         else:
-            subjectUser = User.objects.get(pk=request.POST.get('subjectUser'))
+            subject_user = User.objects.get(pk=request.POST.get('subjectUser'))
             label = None
 
         answer = request.POST.get('answer')
         Response.objects.create(question=question,
-                                roundDetail=roundDetail,
+                                roundDetail=round_detail,
                                 user=user,
-                                subjectUser=subjectUser,
+                                subjectUser=subject_user,
                                 label=label,
                                 answer=answer)
         return JsonResponse({'result': 0})
@@ -200,10 +196,10 @@ def saveQuestionnaireProgress(request):
         return JsonResponse({'result': 1})
 
 
-def getResponses(request):
+def get_responses(request):
     question = Question.objects.get(pk=request.GET.get('questionPk'))
-    roundDetail = RoundDetail.objects.get(pk=request.GET.get('roundPk'))
-    responses = Response.objects.filter(user=request.user, roundDetail=roundDetail, question=question)
+    round_detail = RoundDetail.objects.get(pk=request.GET.get('roundPk'))
+    responses = Response.objects.filter(user=request.user, roundDetail=round_detail, question=question)
 
     # Need to find a way to get the latest responses, instead of all of them
     json = {'answers': [], 'labelOrUserIds': [], 'labelOrUserNames': []}
@@ -249,7 +245,7 @@ def getResponses(request):
 # 	else:
 # 		return render(request, 'peer_review/userError.html')
 
-def getQuestionnaireForTeam(request):
+def get_questionnaire_for_team(request):
     if request.method == "POST":
         # TEST
         team = TeamDetail.objects.get(pk=request.POST.get("teamPk"))
@@ -262,27 +258,27 @@ def getQuestionnaireForTeam(request):
         return redirect('accountDetails')
 
 
-def userError(request):
+def user_error(request):
     return render(request, 'peer_review/userError.html')
 
 
 @login_required
-def userList(request):
+def user_list(request):
     users = User.objects.all
-    userForm = UserForm()
-    docForm = DocumentForm()
+    user_form = UserForm()
+    doc_form = DocumentForm()
 
     module_dir = os.path.dirname(__file__)
     file_path = os.path.join(module_dir)
     file = open(file_path + '/text/email.txt', 'r+')
-    emailText = file.read()
+    email_text = file.read()
     file.close()
 
     return render(request, 'peer_review/userAdmin.html',
-                  {'users': users, 'userForm': userForm, 'docForm': docForm, 'email_text': emailText})
+                  {'users': users, 'userForm': user_form, 'docForm': doc_form, 'email_text': email_text})
 
 
-def getTeams(request):
+def get_teams(request):
     response = {}
     if request.method == "GET":
         teams = TeamDetail.objects.all()
@@ -298,8 +294,8 @@ def getTeams(request):
                 'teamId': team.pk,
             }
     elif request.method == "POST":
-        userPk = request.POST.get("pk")
-        user = User.objects.get(pk=userPk)
+        user_pk = request.POST.get("pk")
+        user = User.objects.get(pk=user_pk)
 
         teams = TeamDetail.objects.filter(user=user)
         for team in teams:
@@ -313,8 +309,8 @@ def getTeams(request):
     return JsonResponse(response)
 
 
-def getQuestionnaireForRound(request, roundPk):
-    round = RoundDetail.objects.get(pk=roundPk)
+def get_questionnaire_for_round(request, round_pk):
+    round = RoundDetail.objects.get(pk=round_pk)
     if request.method == "GET":
         response = {
             'questionnaire': round.questionnaire.label
@@ -322,8 +318,8 @@ def getQuestionnaireForRound(request, roundPk):
     return JsonResponse(response)
 
 
-def getTeamsForRound(request, roundPk):
-    teams = TeamDetail.objects.filter(roundDetail_id=roundPk)
+def get_teams_for_round(request, round_pk):
+    teams = TeamDetail.objects.filter(roundDetail_id=round_pk)
     response = {}
     for team in teams:
         response[team.pk] = {
@@ -335,33 +331,33 @@ def getTeamsForRound(request, roundPk):
     return JsonResponse(response)
 
 
-def changeUserTeamForRound(request, roundPk, userPk, teamName):
+def change_user_team_for_round(request, round_pk, user_pk, team_name):
     try:
-        team = TeamDetail.objects.filter(user_id=userPk).get(roundDetail_id=roundPk)
+        team = TeamDetail.objects.filter(user_id=user_pk).get(roundDetail_id=round_pk)
     except TeamDetail.DoesNotExist:
         team = TeamDetail(
-            user=User.objects.get(pk=userPk),
-            roundDetail=RoundDetail.objects.get(pk=roundPk)
+            user=User.objects.get(pk=user_pk),
+            roundDetail=RoundDetail.objects.get(pk=round_pk)
         )
-    team.teamName = teamName
-    if teamName == 'emptyTeam':
+    team.teamName = team_name
+    if team_name == 'emptyTeam':
         team.status = 'NA'
     team.save()
     return JsonResponse({'success': True})
 
 
-def changeTeamStatus(request, teamPk, status):
-    team = TeamDetail.objects.get(pk=teamPk)
+def change_team_status(request, team_pk, status):
+    team = TeamDetail.objects.get(pk=team_pk)
     team.status = status
     team.save()
     return JsonResponse({'success': True})
 
 
-def generate_OTP():
-    N = random.randint(4, 10)
-    OTP = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits + string.ascii_lowercase)
-                  for _ in range(N))
-    return OTP
+def generate_otp():
+    n = random.randint(4, 10)
+    otp = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits + string.ascii_lowercase)
+                  for _ in range(n))
+    return otp
 
 
 def hash_password(password):
@@ -374,7 +370,7 @@ def check_password(hashed_password, user_password):
     return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
 
 
-def generate_email(OTP, post_name, post_surname, email_text, email):
+def generate_email(otp, post_name, post_surname, email_text, email):
     fn = "{firstname}"
     ln = "{lastname}"
     otp = "{otp}"
@@ -383,7 +379,7 @@ def generate_email(OTP, post_name, post_surname, email_text, email):
 
     email_text = email_text.replace(fn, post_name)
     email_text = email_text.replace(ln, post_surname)
-    email_text = email_text.replace(otp, OTP)
+    email_text = email_text.replace(otp, otp)
     email_text = email_text.replace(datetime, time.strftime("%H:%M:%S %d/%m/%Y"))
     email_text = email_text.replace(login, email)
 
@@ -392,34 +388,34 @@ def generate_email(OTP, post_name, post_surname, email_text, email):
     # send_mail(email_subject, email_text, 'no-reply@pinocchio.up.ac.za', [email], fail_silently=False)
 
 
-def submitForm(request):
+def submit_form(request):
     if request.method == "POST":
-        userForm = UserForm(request.POST)
-        if userForm.is_valid():
-            post_title = userForm.cleaned_data['title']
-            post_initials = userForm.cleaned_data['initials']
-            post_name = userForm.cleaned_data['name']
-            post_surname = userForm.cleaned_data['surname']
-            post_cell = userForm.cleaned_data['cell']
-            post_email = userForm.cleaned_data['email']
-            post_userId = userForm.cleaned_data['userId']
+        user_form = UserForm(request.POST)
+        if user_form.is_valid():
+            post_title = user_form.cleaned_data['title']
+            post_initials = user_form.cleaned_data['initials']
+            post_name = user_form.cleaned_data['name']
+            post_surname = user_form.cleaned_data['surname']
+            post_cell = user_form.cleaned_data['cell']
+            post_email = user_form.cleaned_data['email']
+            post_user_id = user_form.cleaned_data['userId']
 
             user = User(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
-                        cell=post_cell, email=post_email, userId=post_userId)
+                        cell=post_cell, email=post_email, userId=post_user_id)
 
-            OTP = generate_OTP()
+            otp = generate_otp()
 
             module_dir = os.path.dirname(__file__)
             file_path = os.path.join(module_dir)
             file = open(file_path + '/text/email.txt', 'a+')
             file.seek(0)
-            emailText = file.read()
+            email_text = file.read()
             file.close()
 
-            generate_email(OTP, post_name, post_surname, emailText, post_email)
-            post_password = OTP  # hash_password(OTP)
+            generate_email(otp, post_name, post_surname, email_text, post_email)
+            post_password = otp  # hash_password(otp)
 
-            post_status = userForm.cleaned_data['status']
+            post_status = user_form.cleaned_data['status']
 
             user.password = post_password
             user.status = post_status
@@ -431,14 +427,14 @@ def submitForm(request):
 
             return HttpResponseRedirect("../")
     else:
-        userForm = UserForm()
+        user_form = UserForm()
     return HttpResponseRedirect("../")
 
 
-def getUser(request, userPk):
+def get_user(request, user_pk):
     response = {}
     if request.method == "GET":
-        user = User.objects.get(pk=userPk)
+        user = User.objects.get(pk=user_pk)
         response = {
             'userId': user.userId,
             'name': user.name,
@@ -447,18 +443,18 @@ def getUser(request, userPk):
     return JsonResponse(response)
 
 
-def userProfile(request, userPk):
+def user_profile(request, user_pk):
     if request.method == "GET":
-        user = User.objects.get(pk=userPk)
+        user = User.objects.get(pk=user_pk)
     # TODO Add else
     return render(request, 'peer_review/userProfile.html', {'user': user})
 
 
-def userDelete(request):
+def user_delete(request):
     if request.method == "POST":
-        toDelete = request.POST.getlist("toDelete[]")
+        to_delete = request.POST.getlist("toDelete[]")
 
-        for userPk in toDelete:
+        for userPk in to_delete:
             user = User.objects.get(pk=userPk)
 
             user.delete()
@@ -466,11 +462,11 @@ def userDelete(request):
     return HttpResponseRedirect('../')
 
 
-def userUpdate(request, userPk):
+def user_update(request, user_pk):
     if request.method == "POST":
-        user = User.objects.get(pk=userPk)
+        user = User.objects.get(pk=user_pk)
 
-        post_userId = request.POST.get("userId")
+        post_user_id = request.POST.get("userId")
         post_title = request.POST.get("title")
         post_initials = request.POST.get("initials")
         post_name = request.POST.get("name")
@@ -479,7 +475,7 @@ def userUpdate(request, userPk):
         post_email = request.POST.get("email")
         post_status = request.POST.get("status")
 
-        user.userId = post_userId
+        user.userId = post_user_id
         user.status = post_status
         user.title = post_title
         user.initials = post_initials
@@ -492,35 +488,35 @@ def userUpdate(request, userPk):
     return HttpResponseRedirect('../')
 
 
-def resetPassword(request, userPk):
+def reset_password(request, user_pk):
     if request.method == "POST":
-        user = User.objects.get(pk=userPk)
+        user = User.objects.get(pk=user_pk)
 
-        OTP = generate_OTP()
-        generate_email(OTP, user.name, user.surname)
-        password = hash_password(OTP)
+        otp = generate_otp()
+        generate_email(otp, user.name, user.surname)
+        password = hash_password(otp)
 
         user.password = password
         user.save()
 
-        print(OTP)
+        print(otp)
         print(password)
-        print(check_password(password, OTP))
+        print(check_password(password, otp))
         return HttpResponseRedirect('../')
 
 
-def addCSVInfo(userList):
-    for row in userList:
-        OTP = generate_OTP()
+def add_csv_info(user_list):
+    for row in user_list:
+        otp = generate_otp()
         module_dir = os.path.dirname(__file__)
         file_path = os.path.join(module_dir)
         file = open(file_path + '/text/email.txt', 'a+')
         file.seek(0)
-        emailText = file.read()
+        email_text = file.read()
         file.close()
 
-        generate_email(OTP, row['name'], row['surname'], emailText, row['email'])
-        password = hash_password(OTP)
+        generate_email(otp, row['name'], row['surname'], email_text, row['email'])
+        password = hash_password(otp)
 
         user = User(userId=row['user_id'], password=password, status=row['status'], title=row['title'],
                     initials=row['initials'], name=row['name'], surname=row['surname'],
@@ -530,7 +526,7 @@ def addCSVInfo(userList):
     return  # todo return render request
 
 
-def submitCSV(request):
+def submit_csv(request):
     global errortype
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
@@ -538,16 +534,16 @@ def submitCSV(request):
             newdoc = Document(docfile=request.FILES['docfile'])
             newdoc.save()
 
-            filePath = newdoc.docfile.url
-            filePath = filePath[1:]
+            file_path = newdoc.docfile.url
+            file_path = file_path[1:]
 
-            userList = list()
+            user_list = list()
             error = False
 
             documents = Document.objects.all()
 
             count = 0
-            with open(filePath) as csvfile:
+            with open(file_path) as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
                     valid = validate(row)
@@ -566,7 +562,7 @@ def submitCSV(request):
                         # generate_email(OTP, name, surname)
                         # password = hash_password(OTP)
 
-                        userList.append(row)
+                        user_list.append(row)
                         # ToDo check for errors in multiple rows
                     else:
                         error = True
@@ -597,8 +593,8 @@ def submitCSV(request):
 
                         csvfile.close()
 
-                        if os.path.isfile(filePath):
-                            os.remove(filePath)
+                        if os.path.isfile(file_path):
+                            os.remove(file_path)
 
                         return render(request, 'peer_review/csvError.html',
                                       {'message': message, 'row': rowlist, 'error': errortype})
@@ -609,10 +605,10 @@ def submitCSV(request):
             return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
 
         if not (error):
-            addCSVInfo(userList)
+            add_csv_info(user_list)
 
-    if os.path.isfile(filePath):
-        os.remove(filePath)
+    if os.path.isfile(file_path):
+        os.remove(file_path)
     return HttpResponseRedirect('../')
 
 
@@ -645,80 +641,79 @@ def validate(row):
     return 1
 
 
-def writeDump(roundPk):
-    data = [['roundId', 'qId', 'q', 'answer']]
+def write_dump(round_pk):
+    data = [['roundId', 'qId', 'q', 'answer'],
+            ['x', 'x', 'x', 'x'],
+            ['y', 'y', 'y', 'y']]
 
-    data.append(['x', 'x', 'x', 'x'])
-    data.append(['y', 'y', 'y', 'y'])
-
-    with open('media/dumps/' + roundPk + '.csv', 'w', newline='') as csvfile:
+    with open('media/dumps/' + round_pk + '.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         writer.writerows(data)
 
     csvfile.close()
 
 
-def roundDump(request):
+def round_dump(request):
     if request.method == "POST":
         roundPk = request.POST.get("roundPk")
-        writeDump(roundPk)
+        write_dump(roundPk)
     return HttpResponse()
 
 
-def updateEmail(request):
+def update_email(request):
     if request.method == "POST":
-        emailText = request.POST.get("emailText")
+        email_text = request.POST.get("emailText")
 
         module_dir = os.path.dirname(__file__)
         file_path = os.path.join(module_dir)
         file = open(file_path + '/text/email.txt', 'w+')
 
-        file.write(emailText)
+        file.write(email_text)
         file.close()
     return HttpResponseRedirect('../')
 
 
-def addTeamCSVInfo(teamList):
-    for row in teamList:
-        userDetID = User.objects.get(userId=row['userID']).pk
-        roundDetID = RoundDetail.objects.get(name=row['roundDetail']).pk
-        changeUserTeamForRound("", roundDetID, userDetID, row['teamName'])
+def add_team_csv_info(team_list):
+    for row in team_list:
+        user_det_id = User.objects.get(userId=row['userID']).pk
+        round_det_id = RoundDetail.objects.get(name=row['roundDetail']).pk
+        change_user_team_for_round("", round_det_id, user_det_id, row['teamName'])
     return 1
 
 
-def submitTeamCSV(request):
+def submit_team_csv(request):
     global errortype
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
-        filePath = newdoc.docfile.url
-        filePath = filePath[1:]
+        file_path = newdoc.docfile.url
+        file_path = file_path[1:]
 
         if form.is_valid():
             newdoc = Document(docfile=request.FILES['docfile'])
             newdoc.save()
 
-            teamList = list()
+            team_list = list()
             error = False
 
             documents = Document.objects.all()
 
             count = 0
-            with open(filePath) as csvfile:
+            with open(file_path) as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
                     count += 1
-                    valid = validateTeamCSV(row)
+                    valid = validate_team_csv(row)
                     if valid == 0:
                         print(row['userID'])
-                        teamList.append(row)
+                        team_list.append(row)
                     else:
                         error = True
                         message = "Oops! Something seems to be wrong with the CSV file at row " + str(count) + "."
 
-                        rowlist = list()
-                        rowlist.append(row['userID'])
-                        rowlist.append(row['roundDetail'])
-                        rowlist.append(row['teamName'])
+                        row_list = list()
+                        row_list.append(row['userID'])
+                        row_list.append(row['roundDetail'])
+                        row_list.append(row['teamName'])
 
                         if valid == 1:
                             errortype = "Incorrect number of fields."
@@ -727,23 +722,23 @@ def submitTeamCSV(request):
                         elif valid == 3:
                             errortype = "user ID is not a number."
 
-                        os.remove(filePath)
+                        os.remove(file_path)
                         return render(request, 'peer_review/csvError.html',
-                                      {'message': message, 'row': rowlist, 'error': errortype})
+                                      {'message': message, 'row': row_list, 'error': errortype})
         else:
             form = DocumentForm()
             message = "Oops! Something seems to be wrong with the CSV file."
             errortype = "No file selected."
-            os.remove(filePath)
+            os.remove(file_path)
             return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
 
-        if not (error):
-            addTeamCSVInfo(teamList)
-    os.remove(filePath)
+        if not error:
+            add_team_csv_info(team_list)
+    os.remove(file_path)
     return HttpResponseRedirect('../')
 
 
-def validateTeamCSV(row):
+def validate_team_csv(row):
     # 0 = correct
     # 1 = incorrect number of fields
     # 2 = missing value/s
@@ -762,7 +757,7 @@ def validateTeamCSV(row):
     return 0
 
 
-def getTypeID(questionType):
+def get_type_id(question_type):
     # -1 = Error
     # 1 = Choice
     # 2 = Rank
@@ -770,57 +765,57 @@ def getTypeID(questionType):
     # 4 = Rate
     # 5 = Freeform
 
-    if questionType == "Choice":
+    if question_type == "Choice":
         return 1
-    elif questionType == "Rank":
+    elif question_type == "Rank":
         return 2
-    elif questionType == "Label":
+    elif question_type == "Label":
         return 3
-    elif questionType == "Rate":
+    elif question_type == "Rate":
         return 4
-    elif questionType == "Freeform":
+    elif question_type == "Freeform":
         return 5
     else:
         return -1
 
 
-def getGroupID(questionGroup):
+def get_group_id(question_group):
     # -1 = Error
     # 1 = None
     # 2 = Rest
     # 3 = All
 
-    if questionGroup == "None":
+    if question_group == "None":
         return 1
-    elif questionGroup == "Rest":
+    elif question_group == "Rest":
         return 2
-    elif questionGroup == "All":
+    elif question_group == "All":
         return 3
     else:
         return -1
 
 
-def roundDelete(request, roundPk):
-    round = RoundDetail.objects.get(pk=roundPk)
+def round_delete(request, round_pk):
+    round = RoundDetail.objects.get(pk=round_pk)
     round.delete()
     return HttpResponseRedirect('../')
 
 
-def roundUpdate(request, roundPk):
+def round_update(request, round_pk):
     try:
         if request.method == "POST":
-            round = RoundDetail.objects.get(pk=roundPk)
+            round = RoundDetail.objects.get(pk=round_pk)
 
-            post_startingDate = request.POST.get("startingDate")
+            post_starting_date = request.POST.get("startingDate")
             post_description = request.POST.get("desc")
             post_questionnaire = request.POST.get("questionn")
             post_name = request.POST.get("Roundname")
-            post_endingDate = request.POST.get("endingDate")
+            post_ending_date = request.POST.get("endingDate")
             round.description = post_description
             round.questionnaire = Questionnaire.objects.get(pk=post_questionnaire)
             round.name = post_name
-            round.startingDate = post_startingDate
-            round.endingDate = post_endingDate
+            round.startingDate = post_starting_date
+            round.endingDate = post_ending_date
             round.save()
         return HttpResponseRedirect('../')
     except:
@@ -828,23 +823,23 @@ def roundUpdate(request, roundPk):
 
 
 # Create a round
-def createRound(request):
+def create_round(request):
     try:
 
         if 'description' in request.GET:
-            rDescription = request.GET['description']
+            r_description = request.GET['description']
             try:
-                rQuestionnaire = Questionnaire.objects.get(pk=request.GET['questionnaire'])
+                r_questionnaire = Questionnaire.objects.get(pk=request.GET['questionnaire'])
             except Questionnaire.DoesNotExist:
-                rQuestionnaire = None
-            rStartingDate = request.GET['startingDate']
-            rEndingDate = request.GET['endingDate']
-            rName = request.GET['name']
-            r = RoundDetail(description=rDescription,
-                            questionnaire=rQuestionnaire,
-                            startingDate=rStartingDate,
-                            name=rName,
-                            endingDate=rEndingDate,
+                r_questionnaire = None
+            r_starting_date = request.GET['startingDate']
+            r_ending_date = request.GET['endingDate']
+            r_name = request.GET['name']
+            r = RoundDetail(description=r_description,
+                            questionnaire=r_questionnaire,
+                            startingDate=r_starting_date,
+                            name=r_name,
+                            endingDate=r_ending_date,
                             )
             r.save()
         return HttpResponseRedirect('../maintainRound')
@@ -852,37 +847,37 @@ def createRound(request):
         return HttpResponseRedirect('../maintainRound/1')
 
 
-def maintainRoundWithError(request, error):
+def maintain_round_with_error(request, error):
     print(error)
     if error == '1':  # Incorrect Date format
-        strError = "Incorrect Date Format yyyy-mm-dd hh"
+        str_error = "Incorrect Date Format yyyy-mm-dd hh"
     else:
-        strError = "Unknown Error"
+        str_error = "Unknown Error"
 
     context = {'roundDetail': RoundDetail.objects.all(),
                'questionnaires': Questionnaire.objects.all(),
-               'error': strError,}
+               'error': str_error,}
     return render(request, 'peer_review/maintainRound.html', context)
 
 
 # Create a response
 # {responsdentPk, labelPk/userPk, roundPk, answer, questionPk}
-def createResponse(request):
+def create_response(request):
     if 'labelPk' in request.POST:
         target = request.POST['labelPk']
     else:
         target = request.POST['userPk']
 
     question = Question.objects.get(pk=request.POST['questionPk'])
-    roundDetail = RoundDetail.objects.get(pk=request.POST['roundPk'])
+    round_detail = RoundDetail.objects.get(pk=request.POST['roundPk'])
     user = User.objects.get(pk=request.POST['responsdentPk'])
-    otherUser = User.objects.get(pk=request.POST['userPk'])
+    other_user = User.objects.get(pk=request.POST['userPk'])
     label = Label.objects.get(pk=labelPk)
 
     Response.objects.create(question=question,
-                            roundDetail=roundDetail,
+                            roundDetail=round_detail,
                             user=user,
-                            otherUser=otherUser,
+                            otherUser=other_user,
                             label=label,
                             answer=answer)
     return HttpResponse()
@@ -890,9 +885,9 @@ def createResponse(request):
 
 def report(request):
     if request.method == "POST":
-        roundPk = request.POST.get("roundPk")
+        round_pk = request.POST.get("roundPk")
         context = {
-            "roundPk": roundPk,
+            "roundPk": round_pk,
             "rounds": RoundDetail.objects.all()
         }
     else:
