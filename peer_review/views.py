@@ -23,7 +23,8 @@ from .models import User
 
 
 # Moved these views into seperate files
-
+from .view.questionAdmin import question_admin, edit_question, save_question, delete_question
+from .view.questionnaireAdmin import questionnaireAdmin, editQuestionnaire, saveQuestionnaire, deleteQuestionnaire
 
 def active_rounds(request):
     # TEST

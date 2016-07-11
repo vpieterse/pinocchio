@@ -40,10 +40,10 @@ urlpatterns = [
                   url(r'^userAdmin/updateEmail/$', views.update_email),
                   url(r'^userAdmin/$', views.user_list, name='userAdmin'),
 
-                  url(r'^questionAdmin/save', views.saveQuestion, name='saveQuestion'),
-                  url(r'^questionAdmin/delete', views.deleteQuestion, name='deleteQuestion'),
-                  url(r'^questionAdmin/edit/(?P<questionPk>[0-9]+)/?$', views.editQuestion, name='editQuestion'),
-                  url(r'^questionAdmin', views.questionAdmin, name='questionAdmin'),
+                  url(r'^questionAdmin/save', views.save_question, name='saveQuestion'),
+                  url(r'^questionAdmin/delete', views.delete_question, name='deleteQuestion'),
+                  url(r'^questionAdmin/edit/(?P<questionPk>[0-9]+)/?$', views.edit_question, name='editQuestion'),
+                  url(r'^questionAdmin', views.question_admin, name='questionAdmin'),
 
                   url(r'^questionnaireAdmin/save$', views.saveQuestionnaire, name='saveQuestionnaire'),
                   url(r'^questionnaireAdmin/edit/(?P<questionnairePk>[0-9]+)/?$', views.editQuestionnaire,

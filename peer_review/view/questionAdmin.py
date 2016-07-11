@@ -9,21 +9,21 @@ from ..models import Question, QuestionOrder, QuestionType, QuestionGrouping, Ch
 
 # Render the questionAdmin template
 @login_required
-def questionAdmin(request):
+def question_admin(request):
     # print(request.user.is_authenticated())
     # if not request.user.is_authenticated():
     #     return render(request, "peer_review/login.html")
 
-    context = {'questions': getQuestions()}
+    context = {'questions': get_questions()}
     return render(request, 'peer_review/questionAdmin.html', context)
 
 
 # Render the questionAdmin template with the questions detailed loaded in
 @login_required
-def editQuestion(request, questionPk):
-    question = Question.objects.get(pk=questionPk)
+def edit_question(request, question_pk):
+    question = Question.objects.get(pk=question_pk)
     context = {'question': question,
-               'questions': getQuestions(),
+               'questions': get_questions(),
                'labels': Label.objects.filter(question=question),
                'choices': Choice.objects.filter(question=question),
                'freeformType': str(FreeformItem.objects.filter(question=question).first()),
@@ -33,7 +33,7 @@ def editQuestion(request, questionPk):
 
 
 # Delete a question
-def deleteQuestion(request):
+def delete_question(request):
     if request.method == "POST":
         pks = request.POST['question-pk'].split(';#')
         for pk in pks:
@@ -45,7 +45,7 @@ def deleteQuestion(request):
 
 
 # Save question
-def saveQuestion(request):
+def save_question(request):
     if request.method == "POST":
         questionText = str(request.POST['question-content'])
         questionTitle = str(request.POST['question-title'])
@@ -105,7 +105,7 @@ def saveQuestion(request):
 
 
 # Return a dict with all the questions, including whether each one is contained in a round
-def getQuestions():
+def get_questions():
     response = [];
     for question in Question.objects.all():
         response.append({'title': question.questionLabel,
