@@ -43,19 +43,19 @@ class Question(models.Model):
         call_command('dumpdata', 'Question', format='json', indent=4, stdout=output)
         output.close()
 
-    def getRank(self):
+    def get_rank(self):
         return Rank.objects.get(question=self)
 
-    def getLabels(self):
+    def get_labels(self):
         return Label.objects.filter(question=self)
 
-    def getChoices(self):
+    def get_choices(self):
         return Choice.objects.filter(question=self)
 
-    def getRate(self):
+    def get_rate(self):
         return Rate.objects.get(question=self)
 
-    def getFreeformItem(self):
+    def get_freeform_item(self):
         return FreeformItem.objects.get(question=self)
 
 
@@ -153,7 +153,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. '
-                                                            'Unselect this instead of deleting accounts.')
+                                                            'Deselect this instead of deleting accounts.')
 
     objects = UserManager()
 
@@ -214,21 +214,22 @@ class TeamDetail(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=NOT_ATTEMPTED)
 
     def __str__(self):
-        return self.roundDetail.description + " " + self.teamName + " (" + self.user.surname + ", " + self.user.initials + ")"
+        return self.roundDetail.description + " " + self.teamName + " (" + self.user.surname + ", " \
+               + self.user.initials + ")"
 
 
 class Response(models.Model):
     question = models.ForeignKey(Question)  # The question
     roundDetail = models.ForeignKey(RoundDetail)  # The round
-    user = models.ForeignKey(User, null=False, related_name="user")  # The answererer
+    user = models.ForeignKey(User, null=False, related_name="user")  # The answerer
     subjectUser = models.ForeignKey(User, null=True, related_name="otherUser")  # The person the question is about.
     label = models.ForeignKey(Label, null=True)  # The label the question is about.
     answer = models.CharField(max_length=300)
 
     def __str__(self):
-        if self.label != None:
+        if self.label is not None:
             return self.label.labelText
-        elif self.subjectUser != None:
+        elif self.subjectUser is not None:
             return self.subjectUser.name + ' ' + self.subjectUser.surname
         else:
             return self.answer
