@@ -47,57 +47,57 @@ def delete_question(request):
 # Save question
 def save_question(request):
     if request.method == "POST":
-        questionText = str(request.POST['question-content'])
-        questionTitle = str(request.POST['question-title'])
-        questionType = str(request.POST['question-type'])
-        questionGrouping = str(request.POST['question-grouping'])
-        if not QuestionType.objects.filter(name=questionType).exists():
-            QuestionType.objects.create(name=questionType)
-        if not QuestionGrouping.objects.filter(grouping=questionGrouping).exists():
-            QuestionGrouping.objects.create(grouping=questionGrouping)
+        question_text = str(request.POST['question-content'])
+        question_title = str(request.POST['question-title'])
+        question_type = str(request.POST['question-type'])
+        question_grouping = str(request.POST['question-grouping'])
+        if not QuestionType.objects.filter(name=question_type).exists():
+            QuestionType.objects.create(name=question_type)
+        if not QuestionGrouping.objects.filter(grouping=question_grouping).exists():
+            QuestionGrouping.objects.create(grouping=question_grouping)
 
-        if ('question-pk' in request.POST):
+        if 'question-pk' in request.POST:
             q = Question.objects.get(pk=request.POST['question-pk'])
             Choice.objects.filter(question=q).delete()
             Rank.objects.filter(question=q).delete()
             Rate.objects.filter(question=q).delete()
             FreeformItem.objects.filter(question=q).delete()
             Label.objects.filter(question=q).delete()
-            q.questionText = questionText
-            q.questionLabel = questionTitle
-            q.questionGrouping = QuestionGrouping.objects.get(grouping=questionGrouping)
+            q.questionText = question_text
+            q.questionLabel = question_title
+            q.questionGrouping = QuestionGrouping.objects.get(grouping=question_grouping)
             q.pubDate = timezone.now()
             q.save()
-        elif Question.objects.filter(questionLabel=questionTitle).exists():
+        elif Question.objects.filter(questionLabel=question_title).exists():
             messages.add_message(request, messages.WARNING, "Error: A question with that title already exists.")
             return HttpResponseRedirect('/questionAdmin')
         else:
-            q = Question.objects.create(questionText=questionText,
+            q = Question.objects.create(questionText=question_text,
                                         pubDate=timezone.now(),
-                                        questionType=QuestionType.objects.get(name=questionType),
-                                        questionGrouping=QuestionGrouping.objects.get(grouping=questionGrouping),
-                                        questionLabel=questionTitle
+                                        questionType=QuestionType.objects.get(name=question_type),
+                                        questionGrouping=QuestionGrouping.objects.get(grouping=question_grouping),
+                                        questionLabel=question_title
                                         )
 
-        if questionGrouping == 'Label':
+        if question_grouping == 'Label':
             labels = str(request.POST['question-labels']).split(";#")
             for label in labels:
                 Label.objects.create(question=q, labelText=label)
 
-        if questionType == 'Choice':
+        if question_type == 'Choice':
             choices = str(request.POST['question-choices']).split(";#")
             for index, choice in enumerate(choices):
                 Choice.objects.create(question=q, choiceText=choice, num=index)
-        elif questionType == 'Rank':
+        elif question_type == 'Rank':
             Rank.objects.create(question=q,
                                 firstWord=str(request.POST["rank-first"]),
                                 secondWord=str(request.POST["rank-second"]))
-        elif questionType == 'Rate':
+        elif question_type == 'Rate':
             Rate.objects.create(question=q,
                                 topWord=request.POST['rate-first'],
                                 bottomWord=request.POST['rate-second'],
                                 optional=('rate-optional' in request.POST))
-        elif questionType == 'Freeform':
+        elif question_type == 'Freeform':
             FreeformItem.objects.create(question=q, freeformType=request.POST['freeform-type'])
 
     messages.add_message(request, messages.SUCCESS, "Question saved successfully")
@@ -106,7 +106,7 @@ def save_question(request):
 
 # Return a dict with all the questions, including whether each one is contained in a round
 def get_questions():
-    response = [];
+    response = []
     for question in Question.objects.all():
         response.append({'title': question.questionLabel,
                          'date': question.pubDate,

@@ -45,11 +45,11 @@ urlpatterns = [
                   url(r'^questionAdmin/edit/(?P<question_pk>[0-9]+)/?$', views.edit_question, name='editQuestion'),
                   url(r'^questionAdmin', views.question_admin, name='questionAdmin'),
 
-                  url(r'^questionnaireAdmin/save$', views.saveQuestionnaire, name='saveQuestionnaire'),
-                  url(r'^questionnaireAdmin/edit/(?P<questionnaire_pk>[0-9]+)/?$', views.editQuestionnaire,
+                  url(r'^questionnaireAdmin/save$', views.save_questionnaire, name='saveQuestionnaire'),
+                  url(r'^questionnaireAdmin/edit/(?P<questionnaire_pk>[0-9]+)/?$', views.edit_questionnaire,
                       name='editQuestionnairre'),
-                  url(r'^questionnaireAdmin/delete', views.deleteQuestionnaire, name='deleteQuestionnaire'),
-                  url(r'^questionnaireAdmin/$', views.questionnaireAdmin, name='questionnaireAdmin'),
+                  url(r'^questionnaireAdmin/delete', views.delete_questionnaire, name='deleteQuestionnaire'),
+                  url(r'^questionnaireAdmin/$', views.questionnaire_admin, name='questionnaireAdmin'),
 
                   url(r'^maintainRound/dump/?$', views.round_dump),
                   url(r'^maintainRound/delete/(?P<round_pk>[0-9]+)/?$', views.round_delete),

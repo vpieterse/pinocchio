@@ -8,19 +8,19 @@ from ..models import Question, Questionnaire, RoundDetail, QuestionOrder
 
 # Render the questionnaireAdmin template
 @login_required
-def questionnaireAdmin(request):
+def questionnaire_admin(request):
     context = {'questions': Question.objects.all(),
-               'questionnaires': getQuestionnaires()}
+               'questionnaires': get_questionnaires()}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
 
 # Save a questionnaire
-def saveQuestionnaire(request):
+def save_questionnaire(request):
     if request.method == 'POST':
         intro = request.POST.get("intro")
         title = request.POST.get("title")
-        questions = str(request.POST.get('questions')).split(";#");
-        if ('pk' in request.POST):
+        questions = str(request.POST.get('questions')).split(";#")
+        if 'pk' in request.POST:
             q = Questionnaire.objects.get(pk=request.POST.get("pk"))
             QuestionOrder.objects.filter(questionnaire=q).delete()
             q.intro = intro
@@ -43,17 +43,17 @@ def saveQuestionnaire(request):
 
 # Render the questionnaireAdmin template with the questionnaires details filled in
 @login_required
-def editQuestionnaire(request, questionnairePk):
+def edit_questionnaire(request, questionnaire_pk):
     context = {'questions': Question.objects.all(),
-               'questionnaires': getQuestionnaires,
-               'questionnaire': Questionnaire.objects.get(pk=questionnairePk),
+               'questionnaires': get_questionnaires,
+               'questionnaire': Questionnaire.objects.get(pk=questionnaire_pk),
                'questionOrders': QuestionOrder.objects.filter(
-                   questionnaire=Questionnaire.objects.get(pk=questionnairePk))}
+                   questionnaire=Questionnaire.objects.get(pk=questionnaire_pk))}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
 
 # Delete a questionnaire
-def deleteQuestionnaire(request):
+def delete_questionnaire(request):
     if request.method == "POST":
         pks = request.POST['pk'].split(';#')
         for pk in pks:
@@ -70,7 +70,7 @@ def deleteQuestionnaire(request):
 
 
 # Return a dict with all the questionnaires, including whether each one is contained in a round
-def getQuestionnaires():
+def get_questionnaires():
     response = []
     for questionnaire in Questionnaire.objects.all():
         response.append({'title': questionnaire.label,
