@@ -23,15 +23,31 @@
                     </div>
                     <div id="collapse{{ team.pk }}" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <ul>
-                                {% for member in members %}
-                                    {% if member.teamName == team.teamName %}
-                                        <li>
-                                            <a href="/accountDetails/{{ member.user.userId }}">{{ member.user.userId }}</a>: {{ member.user.name }} {{ member.user.surname }}
-                                        </li>
-                                    {% endif %}
-                                {% endfor %}
-                            </ul>
+                            <table id="table{{ team.pk }}">
+                                <thead>
+                                    <tr>
+                                        <th>Student Number</th>
+                                        <th>Name</th>
+                                        <th>Email Address</th>
+                                        <th>Cell Number</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for member in members %}
+                                        {% if member.teamName == team.teamName %}
+                                            <tr>
+                                                <td><a href="/accountDetails/{{ member.user.userId }}">{{ member.user.userId }}</a></td>
+                                                <td>{{ member.user.name }} {{ member.user.surname }}</td>
+                                                <td>{{ member.user.email }}</td>
+                                                <td>{{ member.user.cell }}</td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <script>
+                                $("#table{{ team.pk }}").DataTable();
+                            </script>
                         </div>
                     </div>
                 </div>
