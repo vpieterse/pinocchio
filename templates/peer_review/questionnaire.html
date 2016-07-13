@@ -91,21 +91,7 @@
         //  label : The id of the label (In the case of Label grouping).
         //  subjectUser : The id of the subject user (In the case of Rest or All groupings).
         //  answer : The answer to the question
-        function sendToView(data) {
-            var failed = false;
-            data.csrfmiddlewaretoken = $('input[name="csrfmiddlewaretoken"]').prop('value');
-            $.ajax({
-                url: "/questionnaire/saveProgress/",
-                type: "POST",
-                data: data,
-                success: function (data) {
-                    if (data.result === 1)
-                        failed = true;
-                },
-                failure: function () {
-                    failed = true;
-                }
-            });
+        function showSuccessMessage(failed) {
             if (failed)
             //Show failure message
                 $('#results').html('<div class="alert alert-danger">Error: One or more answers failed to save</div>');
@@ -118,6 +104,23 @@
                     $(this).remove();
                 });
             }, 5000);
+        }
+        function sendToView(data) {
+            var failed = false;
+            data.csrfmiddlewaretoken = $('input[name="csrfmiddlewaretoken"]').prop('value');
+            $.ajax({
+                url: "/questionnaire/saveProgress/",
+                type: "POST",
+                data: data,
+                success: function (data) {
+                    if (data.result === 1)
+                        failed = true;
+                    showSuccessMessage(failed);
+                },
+                failure: function () {
+                    showSuccessMessage(true);
+                }
+            });
         }
     </script>
 {% endblock %}
