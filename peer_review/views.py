@@ -372,16 +372,23 @@ def check_password(hashed_password, user_password):
     return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
 
 
-def generate_email(otp, post_name, post_surname, email_text, email):
+def generate_email(user_otp, post_name, post_surname, email):
     fn = "{firstname}"
     ln = "{lastname}"
     otp = "{otp}"
     datetime = "{datetime}"
     login = "{login}"
 
+    module_dir = os.path.dirname(__file__)
+    file_path = os.path.join(module_dir)
+    file = open(file_path + '/text/email.txt', 'a+')
+    file.seek(0)
+    email_text = file.read()
+    file.close()
+
     email_text = email_text.replace(fn, post_name)
     email_text = email_text.replace(ln, post_surname)
-    email_text = email_text.replace(otp, otp)
+    email_text = email_text.replace(otp, user_otp)
     email_text = email_text.replace(datetime, time.strftime("%H:%M:%S %d/%m/%Y"))
     email_text = email_text.replace(login, email)
 
@@ -407,14 +414,8 @@ def submit_form(request):
 
             otp = generate_otp()
 
-            module_dir = os.path.dirname(__file__)
-            file_path = os.path.join(module_dir)
-            file = open(file_path + '/text/email.txt', 'a+')
-            file.seek(0)
-            email_text = file.read()
-            file.close()
+            generate_email(otp, post_name, post_surname, post_email)
 
-            generate_email(otp, post_name, post_surname, email_text, post_email)
             post_password = otp  # hash_password(otp)
 
             post_status = user_form.cleaned_data['status']
@@ -494,16 +495,16 @@ def reset_password(request, user_pk):
     if request.method == "POST":
         user = User.objects.get(pk=user_pk)
 
-        otp = generate_otp()
-        generate_email(otp, user.name, user.surname)
-        password = hash_password(otp)
+        new_otp = generate_otp()
+        generate_email(new_otp, user.name, user.surname, user.email)
+        password = hash_password(new_otp)
 
         user.password = password
         user.save()
 
-        print(otp)
+        print(new_otp)
         print(password)
-        print(check_password(password, otp))
+        print(check_password(password, new_otp))
         return HttpResponseRedirect('../')
 
 
