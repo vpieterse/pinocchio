@@ -53,5 +53,5 @@ class UserTests(TestCase):
         response = self.client.get('/users/')
         request = response.wsgi_request
         response2 = get_user(request, 1)
-        print "User Email: " + response2.email.encode('ascii','ignore')
-        print "H-Password: " + response2.password.encode('ascii','ignore')
+        print("User Email: " + response2.email.encode('ascii','ignore'))
+        print("H-Password: " + response2.password.encode('ascii','ignore'))

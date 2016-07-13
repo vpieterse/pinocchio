@@ -22,10 +22,10 @@ from .models import Question, RoundDetail, TeamDetail, Label, Response
 from .models import Questionnaire, QuestionOrder
 from .models import User
 
-
 # Moved these views into seperate files
 from .view.questionAdmin import question_admin, edit_question, save_question, delete_question
 from .view.questionnaireAdmin import questionnaire_admin, edit_questionnaire, save_questionnaire, delete_questionnaire
+
 
 def active_rounds(request):
     # TEST
@@ -157,7 +157,7 @@ def questionnaire(request, round_pk):
     team_name = TeamDetail.objects.get(user=user, roundDetail=RoundDetail.objects.get(pk=round_pk)).teamName
     q_team = TeamDetail.objects.filter(roundDetail=RoundDetail.objects.get(pk=round_pk), teamName=team_name)
 
-    reponses = Response.objects.filter(user=request.user, roundDetail=RoundDetail.objects.get(pk=round_pk))
+    # reponses = Response.objects.filter(user=request.user, roundDetail=RoundDetail.objects.get(pk=round_pk))
     context = {'questionOrders': q_orders, 'teamMembers': q_team, 'questionnaire': questionnaire, 'currentUser': user,
                'round': round_pk}
     print(context)
@@ -171,7 +171,8 @@ def save_questionnaire_progress(request):
     if request.method == "POST":
         question = Question.objects.get(pk=request.POST.get('questionPk'))
         round_detail = RoundDetail.objects.get(pk=request.POST.get('roundPk'))
-        user = request.user
+        # user = request.user
+        user = User.objects.get(userId='14035548')  # TEST
 
         # If grouping == None, there is no label or subjectUser
         if question.questionGrouping.grouping == "None":
@@ -187,6 +188,7 @@ def save_questionnaire_progress(request):
             label = None
 
         answer = request.POST.get('answer')
+        print(user)
         Response.objects.create(question=question,
                                 roundDetail=round_detail,
                                 user=user,
@@ -201,6 +203,8 @@ def save_questionnaire_progress(request):
 def get_responses(request):
     question = Question.objects.get(pk=request.GET.get('questionPk'))
     round_detail = RoundDetail.objects.get(pk=request.GET.get('roundPk'))
+    # user = request.user
+    user = User.objects.get(userId='14035548')  # TEST
     responses = Response.objects.filter(user=request.user, roundDetail=round_detail, question=question)
 
     # Need to find a way to get the latest responses, instead of all of them

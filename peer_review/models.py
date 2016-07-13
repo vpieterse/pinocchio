@@ -143,7 +143,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     cell = models.CharField(max_length=10)
     email = models.EmailField(max_length=254, unique=True)
 
-    userId = models.CharField(max_length=8, unique=True)
+    userId = models.CharField(max_length=12, primary_key=True)
     OTP = models.BooleanField(default=True)
     status = models.CharField(max_length=1)
 
