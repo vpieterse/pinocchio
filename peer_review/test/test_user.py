@@ -3,6 +3,8 @@ from django.test import TestCase, Client
 
 from peer_review.models import User
 
+from peer_review.views import *
+import json
 
 #
 #from django.test.utils import setup_test_environment
@@ -21,6 +23,7 @@ class UserTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user('bob@bob.com', 'bob')
+        self.user2 = User.objects.create_user('joe@joe.com', 'joe')
 
     # Simple test to see if questionAdmin is rendered
     def test_questionAdmin(self):
@@ -42,5 +45,13 @@ class UserTests(TestCase):
         self.client.login(username='bob@bob.com', password='bob')
         url = reverse('userAdmin')
         response = self.client.get(url)
-        print(response.context['users']())
+        #print(response.context['users']())
         self.assertIn(self.user, response.context['users']())
+
+    def test_get_user(self):
+        self.client.login(username='bob@bob.com', password='bob')
+        response = self.client.get('/users/')
+        request = response.wsgi_request
+        response2 = get_user(request, 1)
+        print "User Email: " + response2.email.encode('ascii','ignore')
+        print "H-Password: " + response2.password.encode('ascii','ignore')
