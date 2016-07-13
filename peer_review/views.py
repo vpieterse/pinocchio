@@ -29,7 +29,7 @@ from .view.questionnaireAdmin import questionnaire_admin, edit_questionnaire, sa
 def active_rounds(request):
     # TEST
     user = User.objects.get(userId='14035548')
-    teams = TeamDetail.objects.filter(user=user)
+    teams = TeamDetail.objects.filter(user=user).order_by('roundDetail__startingDate')
     context = {'teams': teams}
     return render(request, 'peer_review/activeRounds.html', context)
 
