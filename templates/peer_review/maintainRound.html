@@ -224,7 +224,7 @@
                            <label for="startingDate">Starting Date</label>
                            <div>
 
-                            <input type="datetime-local"  name="startingDate" value=""  id ="startingDate"></input>
+                            <input type="datetimepicker" type="text"  name="startingDate" value=""  id ="startingDate"></input>
                                 <div id = "round-label4-error"> </div>
 
                             </div>
@@ -232,7 +232,7 @@
                            <br/>
                            <label for="endingDate">Ending Date</label>
                            <div>
-                            <input type="datetime-local"  name="endingDate" value=""  id ="endingDate"></input>
+                            <input type="datetimepicker"  type="text" name="endingDate" value=""  id ="endingDate"></input>
                                 <div id = "round-label5-error"></div>
 
                             </div>
@@ -383,6 +383,11 @@
         </div>
 
         <script>
+
+            // Init date-time-picker
+            $("#startingDate").datetimepicker({format: "Y-m-d H:i"});
+            $("#endingDate").datetimepicker({format: "Y-m-d H:i"});
+
             $(".dump").on("click", function() {
                 var pk = $(this).data("pk");
 
