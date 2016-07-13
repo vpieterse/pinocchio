@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate, login as django_login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.shortcuts import render_to_response
@@ -29,7 +30,7 @@ from .view.questionnaireAdmin import questionnaire_admin, edit_questionnaire, sa
 def active_rounds(request):
     # TEST
     user = User.objects.get(userId='14035548')
-    teams = TeamDetail.objects.filter(user=user)
+    teams = TeamDetail.objects.filter(user=user).order_by('roundDetail__startingDate')
     context = {'teams': teams}
     return render(request, 'peer_review/activeRounds.html', context)
 
