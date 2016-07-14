@@ -6,6 +6,55 @@
         var title = "login";
     </script>
     <!--end-->
+
+    <!-- CSS for login form -->
+    <style>
+        .form-signin {
+            max-width: 330px;
+            padding: 15px;
+            margin: 0 auto;
+        }
+
+        .form-signin .form-signin-heading,
+        .form-signin .checkbox {
+            margin-bottom: 10px;
+        }
+
+        .form-signin .checkbox {
+            font-weight: normal;
+        }
+
+        .form-signin .form-control {
+            position: relative;
+            height: auto;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .form-signin .form-control:focus {
+            z-index: 2;
+        }
+
+        .form-signin
+
+        #
+        {{ loginForm.email.id_for_label }}
+        input[type="email"] {
+            margin-bottom: -1px;
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        .form-signin #{{ loginForm.password.id_for_label }}input[type="password"] {
+            margin-bottom: 10px;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+
+    </style>
 {% endblock %}
 {% block basecontext %}
     <nav class="navbar navbar-inverse navbar-static-top">
@@ -21,7 +70,7 @@
             <div class="collapse navbar-collapse navHeaderCollapse">
                 <ul class="nav navbar-nav navbar-left" style="padding-left:100px">
                     <li id="login"><a href="/login">Login</a></li>
-                    >
+                </ul>
             </div>
         </div>
     </nav>
@@ -32,18 +81,18 @@
                     <h4 class="panel-title"><b>Login</b></h4>
                 </div>
                 <div class="panel-body">
-                    Please log in below
 
-                    <form role="form" method="post" action="/login/auth/">
+                    <form class="form-signin" role="form" method="post" action="/login/auth/">
                         {% csrf_token %}
-                        <div class="form-group">
-                            {{ loginForm.as_table }}
+                        <h2 class="form-signin-heading">Please sign in</h2>
+                        <label for="{{loginForm.email.id_for_label}}" class="sr-only">Email address</label>
+                        <input name="{{loginForm.email.html_name}}" type="email" id="{{loginForm.email.id_for_label}}" class="form-control" placeholder="Email address" required
+                               autofocus>
+                        <label for="{{loginForm.password.id_for_label}}" class="sr-only">Password</label>
+                        <input name="{{loginForm.password.html_name}}" type="password" id="{{loginForm.password.id_for_label}}" class="form-control" placeholder="Password" required>
 
-                            <div class="col-sm-1">
-                                <button type="submit" class="btn btn-info" id="submit">Login</button>
-                            </div>
-                        </div>
-                    </form>
+                        <br>
+                        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
                 </div>
             </div>
         </div>
