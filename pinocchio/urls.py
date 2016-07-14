@@ -18,7 +18,6 @@ urlpatterns = [
                   url(r'^getQuestionnaireForTeam/$', views.get_questionnaire_for_team,
                       name='getQuestionnaireForTeam'),
 
-                  url(r'^questionnaire/$', views.user_error, name='userError'),
                   url(r'^questionnaire/(?P<round_pk>[0-9]+)/?$', views.questionnaire, name='questionnaire'),
                   url(r'^questionnaire/saveProgress', views.save_questionnaire_progress,
                       name='saveQuestionnaireProgress'),
