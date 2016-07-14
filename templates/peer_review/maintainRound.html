@@ -289,19 +289,19 @@
 
 <!--ROUND DESCRIPTION-->
                                          <td><input type="text" style="width: 100px" class="noBorder"
-                                                 name="Roundname" id ="roundName"
+                                                 name="roundName" id ="roundName"
                                                 value="{{ round.name }}" readonly>
                                             </input ></td>
 
                                         <td><input type="text" style="width: 150px" class="noBorder"
-                                                 name="desc"
+                                                 name="description"
                                                 value="{{ round.description }}">
                                             </input ></td>
                                       
 
 <!--SELECT FOR QUESTIONNARE-->
                                         <td>
-                                       <select id="questionn" name="questionn" class="form-control" 
+                                       <select id="questionn" name="questionnaire" class="form-control"
                                 style="width:auto" onchange="CreateQuestionnaire(value)">
 
                                 <option selected value="{{round.questionnaire.pk}}">{{ round.questionnaire.intro}}</option>

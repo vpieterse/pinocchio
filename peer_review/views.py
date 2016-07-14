@@ -337,12 +337,12 @@ def get_teams_for_round(request, round_pk):
     return JsonResponse(response)
 
 
-def change_user_team_for_round(request, round_pk, user_pk, team_name):
+def change_user_team_for_round(request, round_pk, userId, team_name):
     try:
-        team = TeamDetail.objects.filter(user_id=user_pk).get(roundDetail_id=round_pk)
+        team = TeamDetail.objects.filter(user_id=userId).get(roundDetail_id=round_pk)
     except TeamDetail.DoesNotExist:
         team = TeamDetail(
-            user=User.objects.get(pk=user_pk),
+            user=User.objects.get(pk=userId),
             roundDetail=RoundDetail.objects.get(pk=round_pk)
         )
     team.teamName = team_name
@@ -469,30 +469,39 @@ def user_delete(request):
     return HttpResponseRedirect('../')
 
 
-def user_update(request, user_pk):
-    if request.method == "POST":
-        user = User.objects.get(pk=user_pk)
-
-        post_user_id = request.POST.get("userId")
-        post_title = request.POST.get("title")
-        post_initials = request.POST.get("initials")
-        post_name = request.POST.get("name")
-        post_surname = request.POST.get("surname")
-        post_cell = request.POST.get("cell")
-        post_email = request.POST.get("email")
-        post_status = request.POST.get("status")
-
-        user.userId = post_user_id
-        user.status = post_status
-        user.title = post_title
-        user.initials = post_initials
-        user.name = post_name
-        user.surname = post_surname
-        user.cell = post_cell
-        user.email = post_email
-
-        user.save()
-    return HttpResponseRedirect('../')
+def user_update(request, userId):
+    # if request.method == "POST":
+    #     user = User.objects.get(pk=user_pk)
+    #
+    #     post_user_id = request.POST.get("userId")
+    #     post_title = request.POST.get("title")
+    #     post_initials = request.POST.get("initials")
+    #     post_name = request.POST.get("name")
+    #     post_surname = request.POST.get("surname")
+    #     post_cell = request.POST.get("cell")
+    #     post_email = request.POST.get("email")
+    #     post_status = request.POST.get("status")
+    #
+    #     user.userId = post_user_id
+    #     user.status = post_status
+    #     user.title = post_title
+    #     user.initials = post_initials
+    #     user.name = post_name
+    #     user.surname = post_surname
+    #     user.cell = post_cell
+    #     user.email = post_email
+    #
+    #     user.save()
+    print(request.POST)
+    user = User.objects.get(userId=userId)
+    userform = UserForm(request.POST, instance=user)
+    response = ""
+    if userform.errors:
+        response = {"success": False, "messages": str(userform)}
+    else:
+        userform.save()
+        response = {"success": True}
+    return JsonResponse(response)
 
 
 def reset_password(request, user_pk):
@@ -814,9 +823,9 @@ def round_update(request, round_pk):
             round = RoundDetail.objects.get(pk=round_pk)
 
             post_starting_date = request.POST.get("startingDate")
-            post_description = request.POST.get("desc")
-            post_questionnaire = request.POST.get("questionn")
-            post_name = request.POST.get("Roundname")
+            post_description = request.POST.get("description")
+            post_questionnaire = request.POST.get("questionnaire")
+            post_name = request.POST.get("roundName")
             post_ending_date = request.POST.get("endingDate")
             round.description = post_description
             round.questionnaire = Questionnaire.objects.get(pk=post_questionnaire)
