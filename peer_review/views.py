@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate, login as django_login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
+from django.http import HttpResponseForbidden
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.shortcuts import render_to_response
@@ -28,6 +29,9 @@ from .view.maintainTeam import maintain_team, change_team_status, change_user_te
 
 
 def active_rounds(request):
+    if not request.user.is_authenticated():
+        return render(request, 'peer_review/userError.html')
+
     # TEST
     user = User.objects.get(userId='14035548')
     teams = TeamDetail.objects.filter(user=user).order_by('roundDetail__startingDate')
@@ -37,6 +41,9 @@ def active_rounds(request):
 
 
 def team_members(request):
+    if not request.user.is_authenticated():
+        return render(request, 'peer_review/userError.html')
+
     # TEST
     user = User.objects.get(userId='14035548')
     rounds = RoundDetail.objects.all()
@@ -57,6 +64,9 @@ def team_members(request):
 
 
 def account_details(request, user_id):
+    if not request.user.is_authenticated():
+        return render(request, 'peer_review/userError.html')
+
     user = User.objects.get(userId=user_id)
     context = {'user': user}
     return render(request, 'peer_review/accountDetails.html', context)
@@ -131,6 +141,9 @@ def maintain_round(request):
 #     return render(request, 'peer_review/questionAdmin.html', context)
 
 def questionnaire(request, round_pk):
+    if not request.user.is_authenticated():
+        return render(request, 'peer_review/userError.html')
+
     # if request.method == "POST":
     user = User.objects.get(userId='14035548')  # TEST
     questionnaire = RoundDetail.objects.get(pk=round_pk).questionnaire
@@ -354,6 +367,9 @@ def submit_form(request):
 
 
 def get_user(request, user_pk):
+    if not request.user.is_authenticated():
+        return render(request, 'peer_review/userError.html')
+
     response = {}
     if request.method == "GET":
         user = User.objects.get(pk=user_pk)
@@ -366,6 +382,9 @@ def get_user(request, user_pk):
 
 
 def user_profile(request, user_pk):
+    if not request.user.is_authenticated():
+        return render(request, 'peer_review/userError.html')
+
     if request.method == "GET":
         user = User.objects.get(pk=user_pk)
     # TODO Add else
@@ -449,6 +468,13 @@ def add_csv_info(user_list):
 
 
 def submit_csv(request):
+    if not request.user.is_authenticated():
+        form = DocumentForm()
+        message = "Access Denied, Please Login to continue"
+        errortype = "User Not Logged In"
+        return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
+
+
     global errortype
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
@@ -604,6 +630,9 @@ def add_team_csv_info(team_list):
 
 
 def submit_team_csv(request):
+    if not request.user.is_authenticated():
+        return render(request, 'peer_review/userError.html')
+        
     global errortype
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)

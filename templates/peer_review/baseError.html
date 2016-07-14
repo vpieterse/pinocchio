@@ -1,0 +1,34 @@
+{% extends "peer_review/base.html" %}
+{% load staticfiles %}
+
+{% block extrabasehead %}
+    <!--Edit navbar active-->
+    <script>
+        var title = "NULL";
+    </script>
+    <!--end-->
+
+    {% block extrahead %}{% endblock %}
+{% endblock %}
+{% block basecontext %}
+    <nav class="navbar navbar-inverse navbar-static-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a href="." class="navbar-brand"><img src="{% static "peer_review/header.png" %}" id="header"/></a>
+                <button class="navbar-toggle" data-toggle="collapse" data-target=".navHeaderCollapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse navHeaderCollapse">
+                <ul class="nav navbar-nav navbar-left" style="padding-left:100px">
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% block context %}{% endblock %}
+{% endblock %}
+{% block logout %}
+    <a class="navbar-btn btn-primary btn pull-right" href="/login">Login</a>
+{% endblock %}
