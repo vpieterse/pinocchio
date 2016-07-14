@@ -469,11 +469,7 @@ def add_csv_info(user_list):
 
 def submit_csv(request):
     if not request.user.is_authenticated():
-        form = DocumentForm()
-        message = "Access Denied, Please Login to continue"
-        errortype = "User Not Logged In"
-        return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
-
+        return render(request, 'peer_review/userError.html')
 
     global errortype
     if request.method == 'POST':
@@ -632,7 +628,7 @@ def add_team_csv_info(team_list):
 def submit_team_csv(request):
     if not request.user.is_authenticated():
         return render(request, 'peer_review/userError.html')
-        
+
     global errortype
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
