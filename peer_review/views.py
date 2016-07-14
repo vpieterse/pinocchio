@@ -30,7 +30,7 @@ from .view.maintainTeam import maintain_team, change_team_status, change_user_te
 
 def active_rounds(request):
     if not request.user.is_authenticated():
-        return render(request, 'peer_review/userError.html')
+        return user_error(request)
 
     # TEST
     user = User.objects.get(userId='14035548')
@@ -42,7 +42,7 @@ def active_rounds(request):
 
 def team_members(request):
     if not request.user.is_authenticated():
-        return render(request, 'peer_review/userError.html')
+        return user_error(request)
 
     # TEST
     user = User.objects.get(userId='14035548')
@@ -65,7 +65,7 @@ def team_members(request):
 
 def account_details(request, user_id):
     if not request.user.is_authenticated():
-        return render(request, 'peer_review/userError.html')
+        return user_error(request)
 
     user = User.objects.get(userId=user_id)
     context = {'user': user}
@@ -142,7 +142,7 @@ def maintain_round(request):
 
 def questionnaire(request, round_pk):
     if not request.user.is_authenticated():
-        return render(request, 'peer_review/userError.html')
+        return user_error(request)
 
     # if request.method == "POST":
     user = User.objects.get(userId='14035548')  # TEST
@@ -261,7 +261,8 @@ def get_questionnaire_for_team(request):
 
 
 def user_error(request):
-    return render(request, 'peer_review/userError.html')
+    # Renders error page with a 403 status code for forbidden users
+    return HttpResponseForbidden(render(request, 'peer_review/userError.html'))
 
 
 @login_required
@@ -368,7 +369,7 @@ def submit_form(request):
 
 def get_user(request, user_pk):
     if not request.user.is_authenticated():
-        return render(request, 'peer_review/userError.html')
+        return user_error(request)
 
     response = {}
     if request.method == "GET":
@@ -383,7 +384,7 @@ def get_user(request, user_pk):
 
 def user_profile(request, user_pk):
     if not request.user.is_authenticated():
-        return render(request, 'peer_review/userError.html')
+        return user_error(request)
 
     if request.method == "GET":
         user = User.objects.get(pk=user_pk)
@@ -469,7 +470,7 @@ def add_csv_info(user_list):
 
 def submit_csv(request):
     if not request.user.is_authenticated():
-        return render(request, 'peer_review/userError.html')
+        return user_error(request)
 
     global errortype
     if request.method == 'POST':
@@ -627,7 +628,7 @@ def add_team_csv_info(team_list):
 
 def submit_team_csv(request):
     if not request.user.is_authenticated():
-        return render(request, 'peer_review/userError.html')
+        return user_error(request)
 
     global errortype
     if request.method == 'POST':
