@@ -26,7 +26,7 @@
 
 {% if perms.is_staff %}
     {% include "peer_review/baseAdmin.html" %}
-{% elif perms.is_authenticated %}
+{% elif user.is_authenticated %}
     {% include "peer_review/baseUser.html" %}
 {% else %}
     {% include "peer_review/baseLogin.html" %}
