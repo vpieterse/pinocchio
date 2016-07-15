@@ -1,4 +1,4 @@
-{% extends "peer_review/baseAdmin.html" %}
+{% extends "peer_review/base.html" %}
 {% comment %}
 Todo:
     Search question lists
@@ -152,6 +152,7 @@ Todo:
                                             {% else %}
                                                 <span style = "cursor: pointer" onclick = "deleteQuestionnaire('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
                                             {% endif %}
+                                            <span style = "cursor: pointer" onclick = "preview('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-eye-open pull-right text-primary">&nbsp</span>
                                             <span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
                                         </td>
                                     </tr>   
@@ -237,6 +238,11 @@ Todo:
         function edit(pk) {
             window.location = '/questionnaireAdmin/edit/'+pk;
         }
+        
+        function preview(pk) {
+            $("body").append("<a id='previewLink' href='/questionnairePreview/" + pk + "' target='_blank' style='display:none'></a>");
+            document.getElementById('previewLink').click();
+        } 
 
         function deleteQuestionnaire(pk) {
             $('#questionnaire-pk').val(pk);

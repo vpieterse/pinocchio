@@ -19,16 +19,22 @@
 
     <script src="{% static "peer_review/js/jquery.datetimepicker.full.min.js" %}"></script>
     <link rel="stylesheet" href="{% static "peer_review/css/jquery.datetimepicker.css" %}"/>
-
-    {% block extrabasehead %} {% endblock %}
+    
+    {% block extrahead %}{% endblock %}
 </head>
 <body>
 
-{% block basecontext %}{% endblock %}
+{% if perms.is_staff %}
+    {% include "peer_review/baseAdmin.html" %}
+{% else %}
+    {% include "peer_review/baseUser.html" %}
+{% endif %}
+
+{% block context %}{% endblock %}
 <div class="navbar navbar-default navbar-fixed-bottom">
     <div class="container">
         <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
-        {% block logout %}{% endblock %}
+        <a class="navbar-btn btn-danger btn pull-right" href="/login">Log Out</a>
     </div>
 </div>
 <!--Edit navbar active-->

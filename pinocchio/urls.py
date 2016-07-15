@@ -46,7 +46,8 @@ urlpatterns = [
 
                   url(r'^questionnaireAdmin/save$', views.save_questionnaire, name='saveQuestionnaire'),
                   url(r'^questionnaireAdmin/edit/(?P<questionnaire_pk>[0-9]+)/?$', views.edit_questionnaire,
-                      name='editQuestionnairre'),
+                        name='editQuestionnaire'),
+                  url(r'^questionnairePreview/(?P<questionnaire_pk>[0-9]+)/?$', views.questionnaire_preview),
                   url(r'^questionnaireAdmin/delete', views.delete_questionnaire, name='deleteQuestionnaire'),
                   url(r'^questionnaireAdmin/$', views.questionnaire_admin, name='questionnaireAdmin'),
 
