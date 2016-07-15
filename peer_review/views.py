@@ -345,20 +345,20 @@ def submit_form(request):
             post_email = user_form.cleaned_data['email']
             post_user_id = user_form.cleaned_data['userId']
 
-            user = User(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
-                        cell=post_cell, email=post_email, userId=post_user_id)
+            #user = User(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
+            #            cell=post_cell, email=post_email, userId=post_user_id)
 
             otp = generate_otp()
 
             generate_email(otp, post_name, post_surname, post_email)
 
-            post_password = otp  # hash_password(otp)
+            user = User.objects.create_user(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
+                                            cell=post_cell, email=post_email, userId=post_user_id, password=otp)
 
             post_status = user_form.cleaned_data['status']
-
-            user.password = post_password
             user.status = post_status
             user.save()
+            print("created user")
 
             for roundObj in RoundDetail.objects.all():
                 team = TeamDetail(user=user, roundDetail=roundObj)
