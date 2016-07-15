@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
-from ..models import Question, Questionnaire, RoundDetail, QuestionOrder
+from ..models import Question, Questionnaire, RoundDetail, QuestionOrder, User, TeamDetail
 
 
 # Render the questionnaireAdmin template
@@ -13,6 +13,27 @@ def questionnaire_admin(request):
                'questionnaires': get_questionnaires()}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
+def questionnaire_preview(request, questionnaire_pk):
+    alice = User(title='Miss', initials='A', name='Alice', surname='Test', userId='Alice')
+    bob = User(title='Mr', initials='B', name='Bob', surname='Test', userId='Bob')
+    carol = User(title='Miss', initials='C', name='Carol', surname='Test', userId='Carol')
+    
+    questionnaire = Questionnaire.objects.get(pk=questionnaire_pk)
+    q_orders = QuestionOrder.objects.filter(questionnaire=questionnaire)
+    
+    mockRound = RoundDetail(name='Preview Round', questionnaire=questionnaire, description='This is a preview round')
+    
+    print(alice)
+    team_name = 'Preview'
+    teamDetailAlice = TeamDetail(user=alice, roundDetail=mockRound, teamName=team_name)
+    teamDetailBob = TeamDetail(user=bob, roundDetail=mockRound, teamName=team_name)
+    teamDetailCarol = TeamDetail(user=carol, roundDetail=mockRound, teamName=team_name)
+    
+    q_team = [teamDetailAlice, teamDetailBob, teamDetailCarol]
+
+    context = {'questionOrders': q_orders, 'teamMembers': q_team, 'questionnaire': questionnaire, 'currentUser': alice, 'round': 0}
+    print(context)
+    return render(request, 'peer_review/questionnaire.html', context)
 
 # Save a questionnaire
 def save_questionnaire(request):

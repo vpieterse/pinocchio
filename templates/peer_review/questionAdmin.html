@@ -1,4 +1,4 @@
-{% extends "peer_review/baseAdmin.html" %}
+{% extends "peer_review/base.html" %}
 {% comment %}
 Todo:
 	Fix search so that it searches multiple columns
@@ -427,11 +427,14 @@ Todo:
             }
             if ($('#question-grouping').val() == "Label") {
                 var labels = "";
+                alert("Hidden: " + $("#question-labels").val());
                 $('#labeltable > tbody > tr > td > input').each(function (i, el) {
                     console.log(el.value);
                     labels += el.value + ';#';
+                    alert(el.value);
                 });
                 $('#question-labels').val(labels.slice(0, -2));
+                alert("Hidden: " + $("#question-labels").val());
             }
             return true;
         }

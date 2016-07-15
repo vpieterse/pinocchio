@@ -1,16 +1,4 @@
-{% extends "peer_review/base.html" %}
 {% load staticfiles %}
-
-{% block extrabasehead %}
-    <!--Edit navbar active-->
-    <script>
-        var title = "userAdmin";
-    </script>
-    <!--end-->
-    {% block extrahead %}{% endblock %}
-{% endblock %}
-
-{% block basecontext %}
     <nav class="navbar navbar-inverse navbar-static-top">
         <div class="container">
             <div class="navbar-header">
@@ -34,8 +22,3 @@
             </div>
         </div>
     </nav>
-    {% block context %}{% endblock %}
-{% endblock %}
-{% block logout %}
-    <a class="navbar-btn btn-danger btn pull-right" href="/login">Log Out</a>
-{% endblock %}

@@ -25,7 +25,7 @@ from .models import User
 
 # Moved these views into seperate files
 from .view.questionAdmin import question_admin, edit_question, save_question, delete_question
-from .view.questionnaireAdmin import questionnaire_admin, edit_questionnaire, save_questionnaire, delete_questionnaire
+from .view.questionnaireAdmin import questionnaire_admin, questionnaire_preview, edit_questionnaire, save_questionnaire, delete_questionnaire
 from .view.maintainTeam import maintain_team, change_team_status, change_user_team_for_round, get_teams_for_round, get_teams
 
 
