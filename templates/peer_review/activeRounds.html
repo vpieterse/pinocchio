@@ -19,6 +19,18 @@
                             <b>{{ team.roundDetail.name }}: {{ team.teamName }}</b>
                         </h5>
                     </div>
+                    <div class="panel-info" style="font-size:large;">
+                        {% ifequal team.status 'NA' %}
+                            <p class="bg-warning info" >Not Attempted</p>
+                        {% endifequal %}
+                        {% ifequal team.status 'IP' %}
+                            <p class="bg-danger info">In Progress</p>
+                        {% endifequal %}
+
+                        {% ifequal team.status 'C' %}
+                            <p class="bg-success info disabled">Completed</p>
+                        {% endifequal %}
+                    </div>
                     <div id="collapse{{ team.pk }}" class="">
                         <div class="panel-body form-horizontal">
                             <div class="form-group">
@@ -40,20 +52,8 @@
                                     {% csrf_token %}
                                     <input name="teamPk" type="hidden" value="{{ team.pk }}"/>
                                     <div class="col-sm-2">
-                                        {% ifequal team.status 'NA' %}
-                                            <input type="submit" class="form-control btn-warning"
-                                                    value="Not Attempted"/>
-                                        {% endifequal %}
-
-                                        {% ifequal team.status 'IP' %}
-                                            <input type="submit" class="form-control btn-danger"
-                                                    value="In Progress"/>
-                                        {% endifequal %}
-
-                                        {% ifequal team.status 'C' %}
-                                            <input type="submit" class="form-control btn-success disabled"
-                                                    value="Completed" disabled/>
-                                        {% endifequal %}
+                                        <input type="submit" class="form-control btn-primary"
+                                            value="Go to Questionnaire"/>
                                     </div>
                                 </form>
                             </div>

@@ -23,7 +23,7 @@ urlpatterns = [
                       name='saveQuestionnaireProgress'),
                   url(r'^questionnaire/getResponses', views.get_responses, name='getResponses'),
                   url(r'^login/$', views.login, name='login'),
-                  url(r'^questionnaire/(?P<questionnaire_pk>[0-9]+)/?$', views.questionnaire, name='questionnaire'),
+                  # url(r'^questionnaire/(?P<questionnaire_pk>[0-9]+)/?$', views.questionnaire, name='questionnaire'),
                   url(r'^activeRounds/$', views.active_rounds, name='activeRounds'),
                   url(r'^teamMembers/$', views.team_members, name='teamMembers'),
                   url(r'^accountDetails/(?P<user_id>[0-9]+)$', views.account_details, name='accountDetails'),
@@ -57,7 +57,7 @@ urlpatterns = [
                   url(r'^maintainTeam/getTeamsForRound/(?P<round_pk>[0-9]+)/?$', views.get_teams_for_round),
                   url(r'^maintainTeam/getQuestionnaireForRound/(?P<round_pk>[0-9]+)/?$', views.get_questionnaire_for_round),
                   url(
-                      r'^maintainTeam/changeUserTeamForRound/(?P<round_pk>[0-9]+)/(?P<user_pk>[0-9]+)/(?P<team_name>[a-zA-Z0-9]+)/?$',
+                      r'^maintainTeam/changeUserTeamForRound/(?P<round_pk>[0-9]+)/(?P<user_pk>[0-9a-zA-Z]+)/(?P<team_name>[a-zA-Z0-9]+)/?$',
                       views.change_user_team_for_round),
                   url(r'^maintainTeam/getTeams/?$', views.get_teams),
                   url(r'^maintainTeam/changeTeamStatus/(?P<team_pk>[0-9]+)/(?P<status>[a-zA-Z0-9]+)/?$',

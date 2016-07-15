@@ -25,18 +25,20 @@ from .models import User
 
 # Moved these views into seperate files
 from .view.questionAdmin import question_admin, edit_question, save_question, delete_question
-from .view.questionnaireAdmin import questionnaire_admin, questionnaire_preview, edit_questionnaire, save_questionnaire, delete_questionnaire
-from .view.maintainTeam import maintain_team, change_team_status, change_user_team_for_round, get_teams_for_round, get_teams
+from .view.questionnaireAdmin import questionnaire_admin, questionnaire_preview, edit_questionnaire, save_questionnaire, \
+    delete_questionnaire
+from .view.maintainTeam import maintain_team, change_team_status, change_user_team_for_round, get_teams_for_round, \
+    get_teams
 
 
 def active_rounds(request):
     if not request.user.is_authenticated():
         return user_error(request)
 
-    # TEST
-    user = User.objects.get(userId='14035548')
+    user = request.user
     teams = TeamDetail.objects.filter(user=user).order_by('roundDetail__startingDate')
-    #exp_teams = TeamDetail.objects.filter(user=user and roundDetail.endingDate<datetime.date.now())
+    print(teams)
+    # exp_teams = TeamDetail.objects.filter(user=user and roundDetail.endingDate<datetime.date.now())
     context = {'teams': teams}
     return render(request, 'peer_review/activeRounds.html', context)
 
@@ -46,7 +48,7 @@ def team_members(request):
         return user_error(request)
 
     # TEST
-    user = User.objects.get(userId='14035548')
+    user = request.user
     rounds = RoundDetail.objects.all()
     team_list = []
     team_members = []
@@ -135,8 +137,9 @@ def maintain_round(request):
                'questionnaires': Questionnaire.objects.all()}
     return render(request, 'peer_review/maintainRound.html', context)
 
+
 # def questionAdmin(request):
-#     # print(request.user.is_authenticated())
+# # print(request.user.is_authenticated())
 #     # if not request.user.is_authenticated():
 #     #     return render(request, "peer_review/login.html")
 
@@ -146,9 +149,9 @@ def maintain_round(request):
 def questionnaire(request, round_pk):
     if not request.user.is_authenticated():
         return user_error(request)
-
+    print(request.user)
     # if request.method == "POST":
-    user = User.objects.get(userId='14035548')  # TEST
+    user = request.user
     questionnaire = RoundDetail.objects.get(pk=round_pk).questionnaire
     q_orders = QuestionOrder.objects.filter(questionnaire=questionnaire)
     print(user)
@@ -168,10 +171,10 @@ def questionnaire(request, round_pk):
 
 def save_questionnaire_progress(request):
     if request.method == "POST":
-        question = Question.objects.get(pk=request.POST.get('questionPk'))
+        question = Question.objects.get(pk=request.POST.get('questioenPk'))
         round_detail = RoundDetail.objects.get(pk=request.POST.get('roundPk'))
-        # user = request.user
-        user = User.objects.get(userId='14035548')  # TEST
+        user = request.user
+        # user = User.objects.get(userId='14035548')  # TEST
 
         # If grouping == None, there is no label or subjectUser
         if question.questionGrouping.grouping == "None":
@@ -187,13 +190,15 @@ def save_questionnaire_progress(request):
             label = None
 
         answer = request.POST.get('answer')
+        batchid = request.POST.get('batchid')
         print(user)
         Response.objects.create(question=question,
                                 roundDetail=round_detail,
                                 user=user,
                                 subjectUser=subject_user,
                                 label=label,
-                                answer=answer)
+                                answer=answer,
+                                batchid=batchid)
         return JsonResponse({'result': 0})
     else:
         return JsonResponse({'result': 1})
@@ -202,20 +207,29 @@ def save_questionnaire_progress(request):
 def get_responses(request):
     question = Question.objects.get(pk=request.GET.get('questionPk'))
     round_detail = RoundDetail.objects.get(pk=request.GET.get('roundPk'))
-    # user = request.user
-    user = User.objects.get(userId='14035548')  # TEST
-    responses = Response.objects.filter(user=request.user, roundDetail=round_detail, question=question)
-
+    user = request.user
+    # user = User.objects.get(userId='14035548')  # TEST
+    responses = Response.objects.filter(user=user, roundDetail=round_detail, question=question).order_by('batchid').reverse()
+    batchid = 0
+    count = 0
+    for r in responses:
+        if batchid==0:
+            batchid=r.batchid
+        elif not (batchid==r.batchid) :
+            break
+        count += 1
+    responses = responses[0:count]
     # Need to find a way to get the latest responses, instead of all of them
     json = {'answers': [], 'labelOrUserIds': [], 'labelOrUserNames': []}
     for r in responses:
+        print(r.__dict__)
         json['answers'].append(r.answer)
         if question.questionGrouping.grouping == "Label":
             json['labelOrUserNames'].append(r.label.labelText)
             json['labelOrUserIds'].append(r.label.id)
         elif question.questionGrouping.grouping != "None":
             json['labelOrUserNames'].append(r.subjectUser.name + ' ' + r.subjectUser.surname)
-            json['labelOrUserIds'].append(r.subjectUser.id)
+            json['labelOrUserIds'].append(r.subjectUser.userId)
     return JsonResponse(json)
 
 
@@ -283,6 +297,7 @@ def user_list(request):
     return render(request, 'peer_review/userAdmin.html',
                   {'users': users, 'userForm': user_form, 'docForm': doc_form, 'email_text': email_text})
 
+
 def get_questionnaire_for_round(request, round_pk):
     round = RoundDetail.objects.get(pk=round_pk)
     if request.method == "GET":
@@ -290,6 +305,7 @@ def get_questionnaire_for_round(request, round_pk):
             'questionnaire': round.questionnaire.label
         }
     return JsonResponse(response)
+
 
 def generate_otp():
     n = random.randint(4, 10)
@@ -352,7 +368,8 @@ def submit_form(request):
 
             generate_email(otp, post_name, post_surname, post_email)
 
-            user = User.objects.create_user(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
+            user = User.objects.create_user(title=post_title, initials=post_initials, name=post_name,
+                                            surname=post_surname,
                                             cell=post_cell, email=post_email, userId=post_user_id, password=otp)
 
             post_status = user_form.cleaned_data['status']
@@ -807,7 +824,7 @@ def maintain_round_with_error(request, error):
 
     context = {'roundDetail': RoundDetail.objects.all(),
                'questionnaires': Questionnaire.objects.all(),
-               'error': str_error,}
+               'error': str_error, }
     return render(request, 'peer_review/maintainRound.html', context)
 
 
