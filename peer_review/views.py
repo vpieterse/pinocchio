@@ -171,7 +171,7 @@ def questionnaire(request, round_pk):
 
 def save_questionnaire_progress(request):
     if request.method == "POST":
-        question = Question.objects.get(pk=request.POST.get('questioenPk'))
+        question = Question.objects.get(pk=request.POST.get('questionPk'))
         round_detail = RoundDetail.objects.get(pk=request.POST.get('roundPk'))
         user = request.user
         # user = User.objects.get(userId='14035548')  # TEST
