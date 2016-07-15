@@ -72,6 +72,7 @@ class UserTests(TestCase):
         response = self.client.get('/accountDetails/5678')
         request = response.wsgi_request
         print("Granted Status Code: " + str(response.status_code))
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'peer_review/accountDetails.html')
         # Logout and try false details
         self.client.logout()
@@ -79,5 +80,6 @@ class UserTests(TestCase):
         response = self.client.get('/accountDetails/1234')
         request = response.wsgi_request
         print("Denied Status Code: " + str(response.status_code))
+        self.assertEqual(response.status_code, 403)
         self.assertTemplateUsed(response, 'peer_review/userError.html')
         print("\n--- END ---\n")
