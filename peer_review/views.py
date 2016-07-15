@@ -64,11 +64,11 @@ def team_members(request):
     return render(request, 'peer_review/teamMembers.html', context)
 
 
-def account_details(request, user_id):
+def account_details(request):
     if not request.user.is_authenticated():
         return user_error(request)
 
-    user = User.objects.get(userId=user_id)
+    user = User.objects.get(userId=request.user.userId)
     context = {'user': user}
     return render(request, 'peer_review/accountDetails.html', context)
 
@@ -90,7 +90,11 @@ def auth(request):
             if user:
                 if user.is_active:
                     django_login(request, user)
-                    return redirect('userAdmin')
+                    # Redirect based on user account type
+                    if user.is_staff or user.is_superuser:
+                        return redirect('userAdmin')
+                    else:
+                        return redirect('activeRounds')
         # Access Denied
         messages.add_message(request, messages.ERROR, "Incorrect username or password")
         return redirect('/login/')
