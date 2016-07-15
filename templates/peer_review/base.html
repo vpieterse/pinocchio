@@ -26,17 +26,23 @@
 
 {% if perms.is_staff %}
     {% include "peer_review/baseAdmin.html" %}
-{% else %}
+{% elif perms.is_authenticated %}
     {% include "peer_review/baseUser.html" %}
+{% else %}
+    {% include "peer_review/baseLogin.html" %}
 {% endif %}
 
 {% block context %}{% endblock %}
+
 <div class="navbar navbar-default navbar-fixed-bottom">
     <div class="container">
         <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
+        {% if perms.is_staff or perms.is_user %}
         <a class="navbar-btn btn-danger btn pull-right" href="/login">Log Out</a>
+        {% endif %}
     </div>
 </div>
+
 <!--Edit navbar active-->
 <script>
     $("#" + title).addClass("active");
