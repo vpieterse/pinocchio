@@ -36,7 +36,7 @@ def active_rounds(request):
     # TEST
     user = User.objects.get(userId='14035548')
     teams = TeamDetail.objects.filter(user=user).order_by('roundDetail__startingDate')
-    exp_teams = TeamDetail.objects.filter(user=user and roundDetail.endingDate<datetime.date.now())
+    #exp_teams = TeamDetail.objects.filter(user=user and roundDetail.endingDate<datetime.date.now())
     context = {'teams': teams}
     return render(request, 'peer_review/activeRounds.html', context)
 
