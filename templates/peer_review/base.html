@@ -37,7 +37,7 @@
 <div class="navbar navbar-default navbar-fixed-bottom">
     <div class="container">
         <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
-        {% if perms.is_staff or perms.is_user %}
+        {% if user.is_authenticated %}
         <a class="navbar-btn btn-danger btn pull-right" href="/login">Log Out</a>
         {% endif %}
     </div>
