@@ -69,7 +69,7 @@ class UserTests(TestCase):
         # Test redirection when access is granted and denied
         print("--- Authenticatoin Test ---\n")
         self.client.login(username='joe@joe.com', password='joe')
-        response = self.client.get('/accountDetails/5678')
+        response = self.client.get('/accountDetails/')
         request = response.wsgi_request
         print("Granted Status Code: " + str(response.status_code))
         self.assertEqual(response.status_code, 200)
@@ -77,7 +77,7 @@ class UserTests(TestCase):
         # Logout and try false details
         self.client.logout()
         self.client.login(username='bob@bob.com', password='bobby')
-        response = self.client.get('/accountDetails/1234')
+        response = self.client.get('/accountDetails/')
         request = response.wsgi_request
         print("Denied Status Code: " + str(response.status_code))
         self.assertEqual(response.status_code, 403)
