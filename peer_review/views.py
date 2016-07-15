@@ -6,6 +6,7 @@ import string
 import time
 import uuid
 
+from django.contrib import messages
 from django.contrib.auth import authenticate, login as django_login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
@@ -90,6 +91,8 @@ def auth(request):
                 if user.is_active:
                     django_login(request, user)
                     return redirect('userAdmin')
+        # Access Denied
+        messages.add_message(request, messages.ERROR, "Incorrect username or password")
         return redirect('/login/')
     else:
         return redirect('/login/')

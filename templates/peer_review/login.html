@@ -94,6 +94,13 @@
                         <br>
                         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
                 </div>
+                <div id="diverrors">
+                {% if messages %}
+                    {% for message in messages %}
+                        <h3 style="color: red; text-align: center;">{{ message }}</h3>
+                    {% endfor %}
+                {% endif %}
+                </div>
             </div>
         </div>
     </div>
