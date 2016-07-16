@@ -219,6 +219,7 @@ class TeamDetail(models.Model):
 
 
 class Response(models.Model):
+    batchid = models.IntegerField()
     question = models.ForeignKey(Question)  # The question
     roundDetail = models.ForeignKey(RoundDetail)  # The round
     user = models.ForeignKey(User, null=False, related_name="user")  # The answerer

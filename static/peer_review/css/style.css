@@ -90,3 +90,9 @@ tr .selectable {
 .selectable .highlight {
     background: grey;
 }
+
+.info {
+    padding:10px;
+    text-align:center;
+    font-weight:bold;
+}
