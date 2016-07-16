@@ -24,11 +24,12 @@ class UserTests(TestCase):
         self.client = Client()
         self.user = User.objects.create_user('bob@bob.com', 'bob', userId=str(1234), surname="bob", initials="B")
         self.user = User.objects.create_user('joe@joe.com', 'joe', userId=str(5678), surname="Joe", initials="J")
+        User.objects.create_superuser('admin@admin.com', 'admin', userId=str(1111))
         #self.user2 = User.objects.create_user('joe@joe.com', 'joe')
 
     # Simple test to see if questionAdmin is rendered
     def test_questionAdmin(self):
-        self.client.login(username='bob@bob.com', password='bob')
+        self.client.login(username='admin@admin.com', password='admin')
         url = reverse('questionAdmin')
         response = self.client.get(url, follow = True)
         self.assertEqual(response.status_code, 200)
