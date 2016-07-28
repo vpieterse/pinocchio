@@ -90,3 +90,9 @@ tr .selectable {
 .selectable .highlight {
     background: grey;
 }
+
+.center-element {
+    position:relative;
+    top:50%;
+    transform:translateY(50%);
+}
