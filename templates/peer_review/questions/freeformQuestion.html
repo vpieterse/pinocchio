@@ -1,23 +1,28 @@
 <script>
-    //Add a function that saves every freeform-type question
     //This function gets called when the Save button is pushed
+    var batchnum = 0;
     var freeformType = "{{ q.getFreeformItem.freeformType }}";
     saveFunctions.push(function () {
         //The id of the round is saved in a variable called roundPk
 
+        d = new Date();
+        var batchid = d.getTime()+ "" + batchnum;
+        batchnum++;
         $("#{{ q.id }}").find('.answer').each(function (i, elem) {
             var json = {
                 'questionPk': {{ q.id }},
                 'roundPk': roundPk,
                 'answer': elem.value,
                 'label': $(elem).closest('label').data('id'),
-                'subjectUser': $(elem).closest('label').data('id')
+                'subjectUser': $(elem).closest('label').data('id'),
+                'batchid': batchid
             };
             sendToView(json);
         });
     });
 
     getResponses({{ q.id }}, function (responses) {
+        console.log(responses);
         //Todo: Fix this so that 'none' grouping works as well
         //Todo: Make users save properly
         for (var x = 0; x < responses.answers.length; x++)
@@ -41,11 +46,11 @@
         <input type="number" class="answer"></input>
     {% endif %}
 {% elif q.questionGrouping.grouping == "Label" %}
-    {% for l in q.getLabels %}
+    {% for l in q.get_labels %}
         <p>
             <label data-id="{{ l.id }}"><span style="width:100%; float:left">{{ l.labelText }}: </span>
                 {% if q.getFreeformItem.freeformType == q.getFreeformItem.PARAGRAPH %}
-                    <textarea class="form-control" rows="5" cols="150" class="answer"></textarea>
+                    <textarea class="form-control answer" rows="5" cols="150" ></textarea>
                 {% elif q.getFreeformItem.freeformType == q.getFreeformItem.WORD %}
                     <input type="text" maxlength="25" class="answer"></input>
                 {% elif q.getFreeformItem.freeformType == q.getFreeformItem.INTEGER %}

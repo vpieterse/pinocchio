@@ -141,15 +141,6 @@ def maintain_round(request):
                'questionnaires': Questionnaire.objects.all()}
     return render(request, 'peer_review/maintainRound.html', context)
 
-
-# def questionAdmin(request):
-# # print(request.user.is_authenticated())
-#     # if not request.user.is_authenticated():
-#     #     return render(request, "peer_review/login.html")
-
-#     context = {'questions': getQuestions()}
-#     return render(request, 'peer_review/questionAdmin.html', context)
-
 def questionnaire(request, round_pk):
     if not request.user.is_authenticated():
         return user_error(request)
@@ -160,8 +151,9 @@ def questionnaire(request, round_pk):
     q_orders = QuestionOrder.objects.filter(questionnaire=questionnaire)
     print(user)
     print(RoundDetail.objects.get(pk=round_pk))
-    team_name = TeamDetail.objects.get(user=user, roundDetail=RoundDetail.objects.get(pk=round_pk)).teamName
-    q_team = TeamDetail.objects.filter(roundDetail=RoundDetail.objects.get(pk=round_pk), teamName=team_name)
+    # team_name = TeamDetail.objects.get(user=user, roundDetail=RoundDetail.objects.get(pk=round_pk)).teamName
+    q_team = TeamDetail.objects.filter(roundDetail=RoundDetail.objects.get(pk=round_pk))
+    # q_team = TeamDetail.objects.filter(roundDetail=RoundDetail.objects.get(pk=round_pk), teamName=team_name)
 
     # reponses = Response.objects.filter(user=request.user, roundDetail=RoundDetail.objects.get(pk=round_pk))
     context = {'questionOrders': q_orders, 'teamMembers': q_team, 'questionnaire': questionnaire, 'currentUser': user,
