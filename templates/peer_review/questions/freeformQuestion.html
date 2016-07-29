@@ -3,8 +3,6 @@
     var batchnum = 0;
     var freeformType = "{{ q.getFreeformItem.freeformType }}";
     saveFunctions.push(function () {
-        //The id of the round is saved in a variable called roundPk
-
         d = new Date();
         var batchid = d.getTime()+ "" + batchnum;
         batchnum++;
@@ -16,52 +14,52 @@
                 'subjectUser': $(elem).closest('label').data('id'),
                 'batchid': batchid
             };
-
-            // ToDo: Make this work for Rest and All as well
             {% if q.get_freeform_item.freeformType == q.get_freeform_item.PARAGRAPH %} 
+                console.log(elem.id);
                 json.answer = tinyMCE.get(elem.id).getContent();
             {% else %}
                 json.answer = elem.value;
             {% endif %}
-
+            console.log(json);
+            console.log('saved {{number|add:"1"}}')
             sendToView(json);
         });
     });
 
-    getResponses({{ q.id }}, function (responses) {
-        console.log('Responses for {{ number|add:"1" }}:');
-        console.log(responses);
-        console.log(responses.answers.length);
-        //Todo: Fix this so that 'none' grouping works as well
-        //Todo: Make users save properly
-        for (var x = 0; x < responses.answers.length; x++)
-            {% if q.questionGrouping.grouping == "None" %}
-                {% if q.get_freeform_item.freeformType == q.get_freeform_item.PARAGRAPH %}
-                    json.answer = tinyMCE.get('tinymce{{ number }}').setContent(answers[0]);
+    $('document').ready(function() {
+        getResponses({{ q.id }}, function (responses) {
+            for (var x = 0; x < responses.answers.length; x++)
+                {% if q.questionGrouping.grouping == "None" %}
+                    {% if q.get_freeform_item.freeformType == q.get_freeform_item.PARAGRAPH %}
+                        setTimeout(function () {
+                            tinyMCE.get('tinymce{{ number }}').setContent(responses.answers[0]);
+                        }, 1000)
+                    {% else %}
+                   $("#{{ q.id }}").find(".answer")[0].value = responses.answers[0];
+                    {% endif %}
                 {% else %}
-               $("#{{ q.id }}").find(".answer")[0].value = responses.answers[0];
-                {% endif %}
-            {% else %}
-                {% if q.get_freeform_item.freeformType == q.get_freeform_item.PARAGRAPH %}
-                    for (var x = 0; x < responses.answers.length; x++) {
-                        console.log('tinymce-{{number}}-'+responses.labelOrUserIds[x]);
-                        tinyMCE.get('tinymce-{{number}}-'+responses.labelOrUserIds[x]).setContent(responses.answers[x]);
-                    }
-                {% else %}
-                    $("#{{ q.id }}").find('label').each(function (i, elem) {
-                        if (Number(elem.dataset.id) == Number(responses.labelOrUserIds[x])) {
-                            $(elem).find('.answer')[0].value = responses.answers[x];
+                    {% if q.get_freeform_item.freeformType == q.get_freeform_item.PARAGRAPH %}
+                        for (let x = 0; x < responses.answers.length; x++) {
+                            setTimeout(function () {
+                                tinyMCE.get('tinymce-{{number}}-'+responses.labelOrUserIds[x]).setContent(responses.answers[x]);
+                            }, 1000)
                         }
-                    });
+                    {% else %}
+                        $("#{{ q.id }}").find('label').each(function (i, elem) {
+                            if (Number(elem.dataset.id) == Number(responses.labelOrUserIds[x])) {
+                                $(elem).find('.answer')[0].value = responses.answers[x];
+                            }
+                        });
+                    {% endif %}
                 {% endif %}
-            {% endif %}
+        });
     });
 
 </script>
 <p><strong>{{ number|add:"1" }}</strong>. {{ q.questionText }}</p>
 {% if q.questionGrouping.grouping == "None" %}
     {% if q.get_freeform_item.freeformType == q.get_freeform_item.PARAGRAPH %}
-        <textarea class="form-control tinymce" id = 'tinymce{{number}}' rows="5" class="answer"></textarea>
+        <textarea class="answer tinymce" id = 'tinymce{{number}}' rows="5" class="answer"></textarea>
     {% elif q.get_freeform_item.freeformType == q.get_freeform_item.WORD %}
         <input type="text" maxlength="25" class="answer"></input>
     {% elif q.get_freeform_item.freeformType == q.get_freeform_item.INTEGER %}
@@ -88,11 +86,12 @@
     {% endfor %}
 {% elif q.questionGrouping.grouping == "All" %}
     {% for u in teamMembers %}
-        <span>{{ u.user.name }} {{ u.user.surname }}:</span>
+        <span>{{ u.name }} {{ u.surname }}:</span>
         <p>
-            <label data-id="{{ u.user.id }}">
+            {# I don't like using the primary keys of the users but I can't think of another field to use - Jason #}
+            <label data-id="{{ u.pk }}">   
                 {% if q.get_freeform_item.freeformType == q.get_freeform_item.PARAGRAPH %}
-                    <textarea class="form-control tinymce" id = "tinymce-{{number}}-{{u.user.id}}" class="answer"></textarea>
+                    <textarea class="answer tinymce" id = "tinymce-{{number}}-{{u.pk}}" class="answer"></textarea>
                 {% elif q.get_freeform_item.freeformType == q.get_freeform_item.WORD %}
                     <input type="text" maxlength="25" class="answer"></input>
                 {% elif q.get_freeform_item.freeformType == q.get_freeform_item.INTEGER %}
@@ -105,12 +104,14 @@
     {% endfor %}
 {% elif q.questionGrouping.grouping == "Rest" %}
     {% for u in teamMembers %}
-        {% if u.user != currentUser %}
+        {% if u != currentUser %}
+            <span>{{ u.name }} {{ u.surname }}:</span>
             <p>
-                <label data-id="{{ u.user.id }}"><span
-                        style="width:100%; float:left">{{ u.user.name }} {{ u.user.surname }}:</span>
+                {# I don't like using the primary keys of the users but I can't think of another field to use - Jason #}
+                <label data-id="{{ u.pk }}"><span
+                        style="width:100%; float:left">{{ u.name }} {{ u.surname }}:</span>
                     {% if q.get_freeform_item.freeformType == q.get_freeform_item.PARAGRAPH %}
-                        <textarea class="form-control tinymce" class="answer" id = "tinymce-{{number}}-{{u.user.id}}"></textarea>
+                        <textarea class="answer tinymce" class="answer" id = "tinymce-{{number}}-{{u.pk}}"></textarea>
                     {% elif q.get_freeform_item.freeformType == q.get_freeform_item.WORD %}
                         <input type="text" maxlength="25" class="answer"></input>
                     {% elif q.get_freeform_item.freeformType == q.get_freeform_item.INTEGER %}
