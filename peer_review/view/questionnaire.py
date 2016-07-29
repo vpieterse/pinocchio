@@ -1,18 +1,16 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 from ..models import Question, Questionnaire, RoundDetail, QuestionOrder, User, TeamDetail, Response, Label
 
 def questionnaire(request, round_pk):
     if not request.user.is_authenticated():
         return user_error(request)
-    print(request.user)
     # user = request.user
-    # FOR TEST
-    user = User.objects.get(userId = '14785236')
-    questionnaire = RoundDetail.objects.get(pk=round_pk).questionnaire
+    user = get_object_or_404(User, userId = '14785236')  # FOR TEST
+    questionnaire = get_object_or_404(RoundDetail, pk=round_pk).questionnaire
     q_orders = QuestionOrder.objects.filter(questionnaire=questionnaire)
 
     team_name = TeamDetail.objects.get(user=user, roundDetail=RoundDetail.objects.get(pk=round_pk)).teamName
@@ -25,8 +23,8 @@ def questionnaire(request, round_pk):
 
 def save_questionnaire_progress(request):
     if request.method == "POST":
-        question = Question.objects.get(pk=request.POST.get('questionPk'))
-        round_detail = RoundDetail.objects.get(pk=request.POST.get('roundPk'))
+        question = get_object_or_404(Question, pk=request.POST.get('questionPk'))
+        round_detail = get_object_or_404(RoundDetail, pk=request.POST.get('roundPk'))
         user = request.user
         # user = User.objects.get(userId='14035548')  # TEST
 
@@ -36,11 +34,11 @@ def save_questionnaire_progress(request):
             subject_user = None  # test
         # If grouping == Label, there is a label but no subjectUser
         elif question.questionGrouping.grouping == "Label":
-            label = Label.objects.get(pk=request.POST.get('label'))
+            label = get_object_or_404(Label, pk=request.POST.get('label'))
             subject_user = None  # test
         # If grouping == Rest || All, there is a subjectUser but no label
         else:
-            subject_user = User.objects.get(pk=request.POST.get('subjectUser'))
+            subject_user = get_object_or_404(Label, pk=request.POST.get('subjectUser'))
             label = None
 
         answer = request.POST.get('answer')
@@ -59,8 +57,8 @@ def save_questionnaire_progress(request):
 
 
 def get_responses(request):
-    question = Question.objects.get(pk=request.GET.get('questionPk'))
-    round_detail = RoundDetail.objects.get(pk=request.GET.get('roundPk'))
+    question = get_object_or_404(Question, pk=request.GET.get('questionPk'))
+    round_detail = get_object_or_404(RoundDetail, pk=request.GET.get('roundPk'))
     user = request.user
     # user = User.objects.get(userId='14035548')  # TEST
     responses = Response.objects.filter(user=user, roundDetail=round_detail, question=question).order_by('batchid').reverse()
