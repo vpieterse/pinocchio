@@ -29,7 +29,7 @@ from .view.questionnaireAdmin import questionnaire_admin, questionnaire_preview,
     delete_questionnaire
 from .view.maintainTeam import maintain_team, change_team_status, change_user_team_for_round, get_teams_for_round, \
     get_teams
-from view.questionnaire import questionnaire, save_questionnaire_progress, get_responses
+from .view.questionnaire import questionnaire, save_questionnaire_progress, get_responses
 
 
 def active_rounds(request):
