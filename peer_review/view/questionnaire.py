@@ -27,7 +27,9 @@ def save_questionnaire_progress(request):
         try:
             question = Question.objects.get(pk=request.POST.get('questionPk'))
             round_detail = RoundDetail.objects.get(pk=request.POST.get('roundPk'))
-        except DoesNotExist, e:
+        except Question.DoesNotExist, e:
+            return JsonResponse({'result': 1})
+        except RoundDetail.DoesNotExist, e:
             return JsonResponse({'result': 1})
         user = request.user
         # user = User.objects.get(userId='14035548')  # TEST
@@ -41,14 +43,14 @@ def save_questionnaire_progress(request):
             try:
                 label = Label.objects.get(pk=request.POST.get('label'))
                 subject_user = None
-            except DoesNotExist, e:
+            except Label.DoesNotExist, e:
                 return JsonResponse({'result': 1})
         # If grouping == Rest || All, there is a subjectUser but no label
         else:
             try:
                 subject_user = User.objects.get(pk=request.POST.get('subjectUser'))
                 label = None
-            except DoesNotExist, e:
+            except User.DoesNotExist, e:
                 return JsonResponse({'result': 1})
         answer = request.POST.get('answer')
         batchid = request.POST.get('batchid')
