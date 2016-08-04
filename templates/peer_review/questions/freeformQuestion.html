@@ -15,13 +15,10 @@
                 'batchid': batchid
             };
             {% if q.get_freeform_item.freeformType == q.get_freeform_item.PARAGRAPH %} 
-                console.log(elem.id);
                 json.answer = tinyMCE.get(elem.id).getContent();
             {% else %}
                 json.answer = elem.value;
             {% endif %}
-            console.log(json);
-            console.log('saved {{number|add:"1"}}')
             sendToView(json);
         });
     });

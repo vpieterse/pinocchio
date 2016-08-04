@@ -18,32 +18,40 @@ def questionnaire(request, round_pk):
 
     context = {'questionOrders': q_orders, 'teamMembers': q_team, 'questionnaire': questionnaire, 'currentUser': user,
                'round': round_pk}
-    print(context)
     return render(request, 'peer_review/questionnaire.html', context)
 
+# Returning a JsonResponse with a result field of 1 indicates an error in saving the questionnaire progress
+# A 0 indicates success
 def save_questionnaire_progress(request):
     if request.method == "POST":
-        question = get_object_or_404(Question, pk=request.POST.get('questionPk'))
-        round_detail = get_object_or_404(RoundDetail, pk=request.POST.get('roundPk'))
+        try:
+            question = Question.objects.get(pk=request.POST.get('questionPk'))
+            round_detail = RoundDetail.objects.get(pk=request.POST.get('roundPk'))
+        except DoesNotExist, e:
+            return JsonResponse({'result': 1})
         user = request.user
         # user = User.objects.get(userId='14035548')  # TEST
 
         # If grouping == None, there is no label or subjectUser
         if question.questionGrouping.grouping == "None":
-            label = None  # test
-            subject_user = None  # test
+            label = None 
+            subject_user = None
         # If grouping == Label, there is a label but no subjectUser
         elif question.questionGrouping.grouping == "Label":
-            label = get_object_or_404(Label, pk=request.POST.get('label'))
-            subject_user = None  # test
+            try:
+                label = Label.objects.get(pk=request.POST.get('label'))
+                subject_user = None
+            except DoesNotExist, e:
+                return JsonResponse({'result': 1})
         # If grouping == Rest || All, there is a subjectUser but no label
         else:
-            subject_user = get_object_or_404(Label, pk=request.POST.get('subjectUser'))
-            label = None
-
+            try:
+                subject_user = User.objects.get(pk=request.POST.get('subjectUser'))
+                label = None
+            except DoesNotExist, e:
+                return JsonResponse({'result': 1})
         answer = request.POST.get('answer')
         batchid = request.POST.get('batchid')
-        print(user)
         Response.objects.create(question=question,
                                 roundDetail=round_detail,
                                 user=user,
@@ -72,9 +80,9 @@ def get_responses(request):
         count += 1
     responses = responses[0:count]
     # Need to find a way to get the latest responses, instead of all of them
+    # Looks like the batchid does this
     json = {'answers': [], 'labelOrUserIds': [], 'labelOrUserNames': []}
     for r in responses:
-        print(r.__dict__)
         json['answers'].append(r.answer)
         if question.questionGrouping.grouping == "Label":
             json['labelOrUserNames'].append(r.label.labelText)
