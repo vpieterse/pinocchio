@@ -38,7 +38,7 @@
     })
 
 </script>
-<p><strong>{{ number }}</strong>. {{ q.questionText }}</p>
+<p><strong>{{ number|add:"1" }}</strong>. {{ q.questionText }}</p>
 {% if q.questionGrouping.grouping == "None" %}
     {% for choice in q.get_choices %}
             <div class="radio">

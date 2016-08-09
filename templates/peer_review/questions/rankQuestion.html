@@ -30,12 +30,12 @@
         }
     });
 </script>
-<p><strong>{{ number }}</strong>. {{ q.questionText }}</p>
+<p><strong>{{ number|add:"1" }}</strong>. {{ q.questionText }}</p>
 <br/>
 <p><strong> {{ q.get_rank.firstWord }} </strong></p>
 <table class="table table-responsive rankTable">
     {% if q.questionGrouping.grouping == "Label" %}
-        {% for l in q.getLabels %}
+        {% for l in q.get_labels %}
             <tr>
                 <td data-id="{{ l.id }}" class="rankItem">{{ l }}</td>
                 <td>
@@ -51,11 +51,11 @@
             </tr>
         {% endfor %}
     {% else %}
-        {% for t in teamMembers %}
+        {% for u in teamMembers %}
             {% if q.questionGrouping.grouping == "Rest" %}
-                {% if t.user != currentUser %}
+                {% if u != currentUser %}
                     <tr>
-                        <td data-id="{{ t.user.userId }}" class="rankItem">{{ t.user.name }} {{ t.user.surname }}</td>
+                        <td data-id="{{ u.userId }}" class="rankItem">{{ u.name }} {{ u.surname }}</td>
                         <td>
                             <div style="text-align: right; width: auto;">
                                 <a class="move up" href="javascript:void(0)" title="move up">
@@ -70,7 +70,7 @@
                 {% endif %}
             {% else %}
                 <tr>
-                    <td data-id="{{ t.user.userId }}" class="rankItem">{{ t.user.name }} {{ t.user.surname }}</td>
+                    <td data-id="{{ u.userId }}" class="rankItem">{{ u.name }} {{ u.surname }}</td>
                     <td>
                         <div style="text-align: right; width: auto;">
                             <a class="move up" href="javascript:void(0)" title="move up">
