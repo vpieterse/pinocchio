@@ -2,6 +2,8 @@
 {% comment %}
 Todo:
 	Fix search so that it searches multiple columns
+    Filter question lists by type
+    Move grouping choice to questionnaireAdmin
 {% endcomment %}
 {% load staticfiles %}
 
@@ -336,20 +338,6 @@ Todo:
             </tr>
             </thead>
             <tbody>
-            {% for label in labels %}
-                <tr class="text-center">
-                    <td>
-                        <input type="text" placeholder="Enter choice" style="border:none;" value="{{ label }}"/>
-                        <span onclick="removeRow(this)"
-                              class="glyphicon glyphicon-remove-circle pull-right text-primary"
-                              style="cursor:pointer"></span>
-                        <span onclick="moveRow(this)" class="glyphicon glyphicon-arrow-up pull-left text-primary"
-                              style="cursor:pointer"></span>
-                        <span onclick="moveRow(this)" class="glyphicon glyphicon-arrow-down pull-left text-primary"
-                              style="cursor:pointer"></span>
-                    </td>
-                </tr>
-            {% endfor %}
             </tbody>
         </table>
     </div>
@@ -394,6 +382,13 @@ Todo:
             $(el).closest('table').find('tbody').append(row);
             row.wrap('<tr></tr>');
             row.addClass('text-center');
+            return row;
+        }
+
+        function addLabel(labelText) {
+            row = addRowToTable($('#content').find('#labeltable')[0]);
+            $(row).find('input').val(labelText);
+
         }
 
         function removeRow(el) {
@@ -427,14 +422,10 @@ Todo:
             }
             if ($('#question-grouping').val() == "Label") {
                 var labels = "";
-                alert("Hidden: " + $("#question-labels").val());
                 $('#labeltable > tbody > tr > td > input').each(function (i, el) {
-                    console.log(el.value);
                     labels += el.value + ';#';
-                    alert(el.value);
                 });
                 $('#question-labels').val(labels.slice(0, -2));
-                alert("Hidden: " + $("#question-labels").val());
             }
             return true;
         }
@@ -473,6 +464,9 @@ Todo:
             {% if question %}
                 changeType('{{ question.questionType }}');
                 changeGrouping('{{ question.questionGrouping }}');
+                {% for label in labels %}
+                addLabel("{{label}}");
+                {% endfor %}
             {% else %}
                 changeType('Choice');
             {% endif %}
