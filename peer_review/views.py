@@ -89,8 +89,10 @@ def auth(request):
         if form.is_valid():
             email = request.POST.get('email')
             password = request.POST.get('password')
+            # Redirect if OTP is set
             if User.objects.get(email=email).OTP:
-                return redirect('changePassword')
+                messages.add_message(request, messages.ERROR, "OTP")
+                return redirect('/login/')
             user = authenticate(email=email, password=password)
             if user:
                 if user.is_active:
