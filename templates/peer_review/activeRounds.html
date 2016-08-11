@@ -21,42 +21,42 @@
                     </div>
                     <div id="collapse{{ team.pk }}" class="">
                         <div class="panel-body form-horizontal">
-                            <div class="form-group">  <label for="team{{ team.pk }}"
-                                                             class="col-sm-1 text-right center-element">Team:</label> 
-                                <div class="col-sm-2">  <p id="team{{ team.pk }}"
-                                                           class="text-left center-element">{{ team.teamName }}</p> 
+                            <div> 
+                                <div class="col-sm-3 roundelement"> 
+                                    <p id="team{{ team.pk }}"
+                                                           class="text-left center-element"><b>Team: </b>{{ team.teamName }}</p> 
                                 </div>
-                                   <label for="roundDescription{{ team.pk }}" class="col-sm-1 text-right center-element">Description:</label> 
-                                <div class="col-sm-3">  <p id="roundDescription{{ team.pk }}"
-                                                           class="text-left center-element">{{ team.roundDetail.description }}</p>
+                                <div class="col-sm-4 roundelement"> 
+                                    <p id="roundDescription{{ team.pk }}"
+                                                           class="text-left center-element"><b>Description: </b> {{ team.roundDetail.description }}</p>
                                      
                                 </div>
+                                <div class="col-sm-2 roundelement">
                                      {% if team.status == 'IP' or team.status == 'NA' %} 
                                         <form role="form" id="editQuestionnaire"  
                                               action="/questionnaire/{{ team.roundDetail.id }}" method="POST">  {% csrf_token %} 
                                             <input name="teamPk" type="hidden" value="{{ team.pk }}"/> 
-                                            <div class="col-sm-2">  <input type="submit" class="form-control btn-primary"  
+                                            <input type="submit" class="form-control btn-primary center-element"  
                                                                            value="Go to Questionnaire"/> 
-                                            </div>
                                              
                                         </form> 
                                     {% endif %} 
-                                <div class="col-sm-3 "> 
-                                    {% ifequal team.status 'NA' %} 
-                                        <span class="glyphicon glyphicon-minus pull-left center-element"
-                                              style="margin-top:5px;margin-right:10px;"></span> 
-                                        <p class="text-left center-element">Not Attempted</p> 
-                                    {% endifequal %} 
-                                    {% ifequal team.status 'IP' %} 
-                                        <span class="glyphicon glyphicon-refresh pull-left center-element"
-                                              style="margin-top:5px;margin-right:10px;"></span> 
-                                        <p class="text-left center-element">In Progress</p> 
-                                    {% endifequal %}  
-                                    {% ifequal team.status 'C' %} 
-                                        <span class="glyphicon glyphicon-ok pull-left center-element"
-                                              style="margin-top:5px;margin-right:10px;"></span> 
-                                        <p class="text-left center-element">Completed</p> 
-                                    {% endifequal %}  
+                                </div>
+                                <div class="col-sm-3 roundelement"> 
+                                        {% ifequal team.status 'NA' %} 
+
+                                            <p class="text-left center-element"><span class="glyphicon glyphicon-minus center-element"
+                                                  style="margin-right:10px;top:2px;display:inline;"></span> Not Attempted</p>
+                                        {% endifequal %} 
+                                        {% ifequal team.status 'IP' %} 
+                                            <p class="text-left center-element"><span class="glyphicon glyphicon-refresh center-element"
+                                                  style="display:inline;top:2px;margin-right:10px;"></span> In Progress</p> 
+                                        {% endifequal %}  
+                                        {% ifequal team.status 'C' %} 
+                                            <p class="text-left center-element">
+                                                <span class="glyphicon glyphicon-ok center-element"
+                                                  style="color:green;display:inline;margin-right:10px;"></span>Completed</p> 
+                                        {% endifequal %}  
                                 </div>
                             </div>
                         </div>
