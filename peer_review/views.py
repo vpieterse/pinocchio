@@ -29,6 +29,7 @@ from .view.questionnaireAdmin import questionnaire_admin, questionnaire_preview,
     delete_questionnaire
 from .view.maintainTeam import maintain_team, change_team_status, change_user_team_for_round, get_teams_for_round, \
     get_teams
+from .view.questionnaire import questionnaire, save_questionnaire_progress, get_responses
 
 
 def active_rounds(request):
@@ -141,132 +142,6 @@ def maintain_round(request):
                'questionnaires': Questionnaire.objects.all()}
     return render(request, 'peer_review/maintainRound.html', context)
 
-
-# def questionAdmin(request):
-# # print(request.user.is_authenticated())
-#     # if not request.user.is_authenticated():
-#     #     return render(request, "peer_review/login.html")
-
-#     context = {'questions': getQuestions()}
-#     return render(request, 'peer_review/questionAdmin.html', context)
-
-def questionnaire(request, round_pk):
-    if not request.user.is_authenticated():
-        return user_error(request)
-    print(request.user)
-    # if request.method == "POST":
-    user = request.user
-    questionnaire = RoundDetail.objects.get(pk=round_pk).questionnaire
-    q_orders = QuestionOrder.objects.filter(questionnaire=questionnaire)
-    print(user)
-    print(RoundDetail.objects.get(pk=round_pk))
-    team_name = TeamDetail.objects.get(user=user, roundDetail=RoundDetail.objects.get(pk=round_pk)).teamName
-    q_team = TeamDetail.objects.filter(roundDetail=RoundDetail.objects.get(pk=round_pk), teamName=team_name)
-
-    # reponses = Response.objects.filter(user=request.user, roundDetail=RoundDetail.objects.get(pk=round_pk))
-    context = {'questionOrders': q_orders, 'teamMembers': q_team, 'questionnaire': questionnaire, 'currentUser': user,
-               'round': round_pk}
-    print(context)
-    return render(request, 'peer_review/questionnaire.html', context)
-
-    # else:
-    #     return render(request, 'peer_review/userError.html')
-
-
-def save_questionnaire_progress(request):
-    if request.method == "POST":
-        question = Question.objects.get(pk=request.POST.get('questionPk'))
-        round_detail = RoundDetail.objects.get(pk=request.POST.get('roundPk'))
-        user = request.user
-        # user = User.objects.get(userId='14035548')  # TEST
-
-        # If grouping == None, there is no label or subjectUser
-        if question.questionGrouping.grouping == "None":
-            label = None  # test
-            subject_user = None  # test
-        # If grouping == Label, there is a label but no subjectUser
-        elif question.questionGrouping.grouping == "Label":
-            label = Label.objects.get(pk=request.POST.get('label'))
-            subject_user = None  # test
-        # If grouping == Rest || All, there is a subjectUser but no label
-        else:
-            subject_user = User.objects.get(pk=request.POST.get('subjectUser'))
-            label = None
-
-        answer = request.POST.get('answer')
-        batchid = request.POST.get('batchid')
-        print(user)
-        Response.objects.create(question=question,
-                                roundDetail=round_detail,
-                                user=user,
-                                subjectUser=subject_user,
-                                label=label,
-                                answer=answer,
-                                batchid=batchid)
-        return JsonResponse({'result': 0})
-    else:
-        return JsonResponse({'result': 1})
-
-
-def get_responses(request):
-    question = Question.objects.get(pk=request.GET.get('questionPk'))
-    round_detail = RoundDetail.objects.get(pk=request.GET.get('roundPk'))
-    user = request.user
-    # user = User.objects.get(userId='14035548')  # TEST
-    responses = Response.objects.filter(user=user, roundDetail=round_detail, question=question).order_by('batchid').reverse()
-    batchid = 0
-    count = 0
-    for r in responses:
-        if batchid==0:
-            batchid=r.batchid
-        elif not (batchid==r.batchid) :
-            break
-        count += 1
-    responses = responses[0:count]
-    # Need to find a way to get the latest responses, instead of all of them
-    json = {'answers': [], 'labelOrUserIds': [], 'labelOrUserNames': []}
-    for r in responses:
-        print(r.__dict__)
-        json['answers'].append(r.answer)
-        if question.questionGrouping.grouping == "Label":
-            json['labelOrUserNames'].append(r.label.labelText)
-            json['labelOrUserIds'].append(r.label.id)
-        elif question.questionGrouping.grouping != "None":
-            json['labelOrUserNames'].append(r.subjectUser.name + ' ' + r.subjectUser.surname)
-            json['labelOrUserIds'].append(r.subjectUser.userId)
-    return JsonResponse(json)
-
-
-# Commented out temporarily as there are three(?!) definitions of questionnaire and I have no idea which one is the right one -Jason
-# @login_required
-# def questionnaire(request, questionnairePk):
-# 	if request.method == "POST":
-#         #print(request.user.email)
-
-# 		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
-# 			   'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
-# 			   'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk),
-#                'questionRanking' : Rank.objects.all(), 'questionChoices' : Choice.objects.all(),
-#                'questionRating' : Rate.objects.all(), 'userDetails' : User.objects.all(),
-#                'freeformDetails' : FreeformItem.objects.all(), 'questionLabels' : Label.objects.all(),
-#                'roundDetails' : RoundDetail.objects.all(), 'teamDetails' : TeamDetail.objects.all(),
-#                'userName' : request.user.email}
-# 		return render(request, 'peer_review/questionnaire.html', context)
-# 	else:
-# 		return render(request, 'peer_review/userError.html')
-
-# def questionnaire(request, questionnairePk):
-# 	if request.method == "POST":
-# 		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
-# 			   'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
-# 			   'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk),
-#                'questionRanking' : Rank.objects.all(), 'questionChoices' : Choice.objects.all(),
-#                'questionRating' : Rate.objects.all(), 'userDetails' : User.objects.all(),
-#                'freeformDetails' : FreeformItem.objects.all(), 'questionLabels' : Label.objects.all(),
-#                'roundDetails' : RoundDetail.objects.all(), 'teamDetails' : TeamDetail.objects.all()}
-# 		return render(request, 'peer_review/questionnaire.html', context)
-# 	else:
-# 		return render(request, 'peer_review/userError.html')
 
 def get_questionnaire_for_team(request):
     if request.method == "POST":

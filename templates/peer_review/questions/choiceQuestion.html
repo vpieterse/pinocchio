@@ -1,52 +1,76 @@
 <script>
-    //Add a function that saves every choice-type question
     //This function gets called when the Save button is pushed
+    var batchnum = 0;
+
     saveFunctions.push(function () {
-        $("#{{ q.id }} > input:checked").each( function(i, choiceItem)
+        d = new Date();
+        var batchid = d.getTime()+ "" + batchnum;
+        batchnum++;
+        $("#{{ q.id }}").find("input:checked").each( function(i, choiceItem)
         {
             var json = {
-              'questionPk': {{ q.id }},
+                'questionPk': {{ q.id }},
                 'roundPk': roundPk,
-                'label': choiceItem.getAttribute('choice_id'),
+                'label': choiceItem.dataset.labelid,
                 'answer': choiceItem.value,
-                'subjectUser': choiceItem.getAttribute('choice_id')
+                'subjectUser': choiceItem.dataset.labelid,
+                'batchid': batchid
             };
-            console.log(json);
-            alert(json);
             sendToView(json);
         });
         
+    })
+
+    $('document').ready(function() {
         getResponses({{ q.id }}, function (responses)
         {
-           if (responses.answers.length != 0)
-           {
-               alert(responses);
-               for (res in responses)
-               {
-               }
-           } 
+            if (responses.answers.length != 0)
+            {
+                {% if q.questionGrouping.grouping == "None" %}
+                    $("#{{ q.id }}").find('[value="'+responses.answers[0]+'"]').prop('checked', true);
+                {% else %}
+                for (var x = 0; x < responses.answers.length; x++) {
+                    $("#{{ q.id }}").find('*[data-labelid="'+responses.labelOrUserIds[x]+'"]').filter('[value="'+responses.answers[x]+'"]').prop('checked', true);
+                }
+               {% endif %}
+            } 
         });
     })
 
 </script>
-<hr/>
-<p><strong>{{ number }}</strong>. {{ q.questionText }}</p>
-<br/>
-{% if q.questionGrouping.grouping == "Label" %}
+<p><strong>{{ number|add:"1" }}</strong>. {{ q.questionText }}</p>
+{% if q.questionGrouping.grouping == "None" %}
+    {% for choice in q.get_choices %}
+            <div class="radio">
+                <label><input type="radio" name="{{ number }}" value="{{ choice }}">{{ choice.choiceText }}</label>
+            </div>
+    {% endfor %}
+{% elif q.questionGrouping.grouping == "Label" %}
     {% for l in q.get_labels %}
         <h4>{{ l.labelText }}</h4>
         {% for choice in q.get_choices %}
-            <input type="radio" choice_id="{{ l.id }}" name="{{ number }}_{{ l.id }}" value="{{ choice.num }}" />{{ choice.choiceText }}<br /> 
+            <div class="radio">
+                <label><input type="radio" data-labelid = "{{ l.pk }}" value="{{ choice }}">{{ choice.choiceText }}</label>
+            </div> 
         {% endfor %}
     {% endfor %}
-    
-{% else %}
+{% elif q.questionGrouping.grouping == "All" %}
     {% for u in teamMembers %}
-        {% if u.user != currentUser or q.questionGrouping.grouping == "All" %}
-            <h4>{{ u.user.name }} {{ u.user.surname }}</h4>
-            {% for choice in q.get_choices %}
-                <input type="radio" choice_id="{{ u.user.id }}" name="{{ number }}_{{ u.user.id }}" value="{{ choice.num }}" />{{ choice.choiceText }}<br /> 
-            {% endfor %}
-        {% endif %}
+        <h4>{{ u.name }} {{ u.surname }}</h4>
+        {% for choice in q.get_choices %}
+            <div class="radio">
+                <label><input type="radio" data-labelid = "{{ u.pk }}" value="{{ choice }}">{{ choice.choiceText }}</label>
+            </div> 
+        {% endfor %}
+    {% endfor %}
+{% elif q.questionGrouping.grouping == "Rest" %}
+    {% for u in teamMembers %}
+        <h4>{{ u.name }} {{ u.surname }}</h4>
+        {% for choice in q.get_choices %}
+            <div class="radio">
+                <label><input type="radio" data-labelid = "{{ u.pk }}" value="{{ choice }}">{{ choice.choiceText }}</label>
+            </div> 
+        {% endfor %}
     {% endfor %}
 {% endif %}
+<br/>

@@ -4,6 +4,7 @@
     <title xmlns="http://www.w3.org/1999/html">Questionnaire</title>
     <script src="{% static "peer_review/jquery.min.js" %}"></script>
     <script src="{% static "peer_review/js/bootstrap-slider.js" %}"></script>
+    <script src="{% static "peer_review/js/tinymce/tinymce.min.js" %}"></script>
     <script>
         //Edit navbar active
         title = "questionnaire";
@@ -27,52 +28,56 @@
 {% endblock %}
 {% block context %}
     {% csrf_token %}
-    <div class="container panel panel-default">
+    <div class="container">
         <div id="results" class="row">
-            <!-- The success or failure message will display here -->
+            {# The success or failure message will display here #}
         </div>
-        <div class="panel-heading row">
-            {{ questionnaire.intro|safe }}
-        </div>
-        {% for q in questionOrders %}
-            <div id="{{ q.question.id }}" class="panel-body">
-                <!-- Label -->
-                {% ifequal q.question.questionType.name 'Label' %}
-                    {% include "peer_review/questions/labelQuestion.html" with q=q.question number=q.order %}
-                {% endifequal %}
-
-                <!-- Rate -->
-                {% ifequal q.question.questionType.name 'Rate' %}
-                    {% include "peer_review/questions/rateQuestion.html" with q=q.question number=q.order %}
-                {% endifequal %}
-
-                <!-- Rank -->
-                {% ifequal q.question.questionType.name 'Rank' %}
-                    {% include "peer_review/questions/rankQuestion.html"  with q=q.question number=q.order %}
-                {% endifequal %}
-
-                <!-- Choice -->
-                {% ifequal q.question.questionType.name 'Choice' %}
-                    {% include "peer_review/questions/choiceQuestion.html"  with q=q.question number=q.order %}
-                {% endifequal %}
-
-                <!-- Freeform -->
-                {% ifequal q.question.questionType.name 'Freeform' %}
-                    {% include "peer_review/questions/freeformQuestion.html"  with q=q.question number=q.order %}
-                {% endifequal %}
-                <hr/>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                {{ questionnaire.intro|safe }}
             </div>
-        {% endfor %}
-        <div class="btn-group panel-body">
-            <button type='submit' class='btn btn-primary' onclick="saveProgress()">Save Progress</button>
-            <button type='submit' class='btn btn-success' onclick="saveProgress()">Submit</button>
+            {% for q in questionOrders %}
+                <div id="{{ q.question.id }}" class="panel-body">
+                    {# Label #}
+                    {% ifequal q.question.questionType.name 'Label' %}
+                        {% include "peer_review/questions/labelQuestion.html" with q=q.question number=q.order %}
+                    {% endifequal %}
+                    {# Rate #}
+                    {% ifequal q.question.questionType.name 'Rate' %}
+                        {% include "peer_review/questions/rateQuestion.html" with q=q.question number=q.order %}
+                    {% endifequal %}
+                    {# Rank #}
+                    {% ifequal q.question.questionType.name 'Rank' %}
+                        {% include "peer_review/questions/rankQuestion.html"  with q=q.question number=q.order %}
+                    {% endifequal %}
+                    {# Choice #}
+                    {% ifequal q.question.questionType.name 'Choice' %}
+                        {% include "peer_review/questions/choiceQuestion.html"  with q=q.question number=q.order %}
+                    {% endifequal %}
+                    {# Freeform #}
+                    {% ifequal q.question.questionType.name 'Freeform' %}
+                        {% include "peer_review/questions/freeformQuestion.html"  with q=q.question number=q.order %}
+                    {% endifequal %}
+                    <hr/>
+                </div>
+            {% endfor %}
+            <div class="btn-group panel-body">
+                <button class='btn btn-primary' onclick="saveProgress()">Save Progress</button>
+                <button type='submit' class='btn btn-success' onclick="saveProgress()">Submit</button>
+            </div>
         </div>
     </div>
 
     <script>
         //Enables moving the labels in a rank question
         $(document).ready(function () {
-            $('.rankTable').on("click", '.move', function () {
+            tinymce.init({ selector:'.tinymce',
+                statusbar: false, 
+                menubar: '',
+                plugins: "emoticons",
+                toolbar: 'undo redo bold italiclignleft aligncenter alignright bullist numlist outdent indent styleselect fontsizeselect emoticons image a'});
+
+            $('.rankTable').on("click", '.move', function () {                
                 var row = $(this).closest('tr');
                 if ($(this).hasClass('up'))
                     row.prev().before(row);
@@ -124,6 +129,7 @@
         function sendToView(data) {
             var failed = false;
             data.csrfmiddlewaretoken = $('input[name="csrfmiddlewaretoken"]').prop('value');
+            console.log('saving');
             $.ajax({
                 url: "/questionnaire/saveProgress/",
                 type: "POST",
@@ -143,5 +149,3 @@
         }
     </script>
 {% endblock %}
-Status API Training Shop Blog About
-© 2016 GitHub, Inc. Terms Privacy Security Contact Help
