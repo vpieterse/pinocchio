@@ -1,11 +1,21 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
+from django.http import HttpResponseForbidden
 from django.shortcuts import render
 from django.utils import timezone
 
 from ..models import Question, QuestionOrder, QuestionType, QuestionGrouping, Choice, Rank, Rate, FreeformItem, Label
 
+def user_error(request):
+    # Renders error page with a 403 status code for forbidden users
+    return HttpResponseForbidden(render(request, 'peer_review/userError.html'))
+
+def is_user_staff(request):
+    if request.user.is_staff or request.user.is_superuser:
+        return True
+    else:
+        return False
 
 # Render the questionAdmin template
 @login_required
@@ -13,6 +23,8 @@ def question_admin(request):
     # print(request.user.is_authenticated())
     # if not request.user.is_authenticated():
     #     return render(request, "peer_review/login.html")
+    if not is_user_staff(request):
+        return user_error(request)
 
     context = {'questions': get_questions()}
     return render(request, 'peer_review/questionAdmin.html', context)

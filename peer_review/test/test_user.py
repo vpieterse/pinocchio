@@ -22,14 +22,16 @@ class UserTests(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_user('bob@bob.com', 'bob')
-        self.user2 = User.objects.create_user('joe@joe.com', 'joe')
+        self.user = User.objects.create_user('bob@bob.com', 'bob', userId=str(1234), surname="bob", initials="B")
+        self.user = User.objects.create_user('joe@joe.com', 'joe', userId=str(5678), surname="Joe", initials="J")
+        User.objects.create_superuser('admin@admin.com', 'admin', userId=str(1111))
+        #self.user2 = User.objects.create_user('joe@joe.com', 'joe')
 
     # Simple test to see if questionAdmin is rendered
     def test_questionAdmin(self):
-        self.client.login(username='bob@bob.com', password='bob')
+        self.client.login(username='admin@admin.com', password='admin')
         url = reverse('questionAdmin')
-        response = self.client.get(url)
+        response = self.client.get(url, follow = True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'peer_review/questionAdmin.html')
 
@@ -37,21 +39,48 @@ class UserTests(TestCase):
     def test_questionnaireAdmin(self):
         self.client.login(username='bob@bob.com', password='bob')
         url = reverse('questionnaireAdmin')
-        response = self.client.get(url)
+        response = self.client.get(url, follow = True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'peer_review/questionnaireAdmin.html')
 
     def test_user_list(self):
+        print("--- user_list Test ---\n")
         self.client.login(username='bob@bob.com', password='bob')
         url = reverse('userAdmin')
-        response = self.client.get(url)
-        #print(response.context['users']())
+        response = self.client.get(url, follow = True)
+        print(response.context['users']())
         self.assertIn(self.user, response.context['users']())
+        print("\n--- END ---\n")
 
+    # Unit Test
     def test_get_user(self):
-        self.client.login(username='bob@bob.com', password='bob')
-        response = self.client.get('/users/')
+        # Tests if current user is recognised
+        print("--- get_user Test ---\n")
+        self.client.login(username='joe@joe.com', password='joe')
+        response = self.client.get('/accountDetails/1234')
         request = response.wsgi_request
-        response2 = get_user(request, 1)
-        print("User Email: " + response2.email.encode('ascii','ignore'))
-        print("H-Password: " + response2.password.encode('ascii','ignore'))
+        logged_user = json.loads(get_user(request, request.user.userId).content.decode())
+        expected_user = json.loads(get_user(request, "5678").content.decode()) # Joe userId
+        print("Logged user: " + str(logged_user))
+        print("Expected user: " + str(expected_user))
+        self.assertEqual(logged_user, expected_user)
+        print("\n--- END ---\n")
+
+    def test_authentication(self):
+        # Test redirection when access is granted and denied
+        print("--- Authenticatoin Test ---\n")
+        self.client.login(username='joe@joe.com', password='joe')
+        response = self.client.get('/accountDetails/')
+        request = response.wsgi_request
+        print("Granted Status Code: " + str(response.status_code))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'peer_review/accountDetails.html')
+        # Logout and try false details
+        self.client.logout()
+        self.client.login(username='bob@bob.com', password='bobby')
+        response = self.client.get('/accountDetails/')
+        request = response.wsgi_request
+        print("Denied Status Code: " + str(response.status_code))
+        self.assertEqual(response.status_code, 403)
+        self.assertTemplateUsed(response, 'peer_review/userError.html')
+        print("\n--- END ---\n")

@@ -1,7 +1,7 @@
-{% extends "peer_review/baseUser.html" %}
+{% extends "peer_review/baseError.html" %}
 {% load staticfiles %}
 {% block extrahead %}
-    <title xmlns="http://www.w3.org/1999/html">404 - Page Not Found</title>
+    <title xmlns="http://www.w3.org/1999/html">403 - Access Denied</title>
 
     <!--Edit navbar active-->
     <script>
@@ -10,17 +10,15 @@
     <!--end-->
 {% endblock %}
 {% block context %}
-    <h1 style="font-size:300%">Error 404 - Page Not Found</h1>
-
-    <form action="/questionnaire/3" method="POST">
-        {% csrf_token %}
-        <button name="Test" value="Test">Test</button>
-    </form>
-
+    <h1 style="color: red; font-size:500%">Error 403 - Access Denied</h1>
+    <h3>You have insufficient permission to view this page</h3>
+    <br>
+    <img src="{% static "peer_review/pinocchioError.png" %}" id="errorImage" style="width: 36%; height: 72%; "/>
+    <br>
     <div class="navbar navbar-default navbar-fixed-bottom">
         <div class="container">
             <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
-            <a class="navbar-btn btn-danger btn pull-right" href="/logout">Log Out</a>
+            <a class="navbar-btn btn-primary btn pull-right" href="/login">Login</a>
         </div>
     </div>
     </div>

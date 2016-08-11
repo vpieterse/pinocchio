@@ -1,4 +1,4 @@
-{% extends "peer_review/baseAdmin.html" %}
+{% extends "peer_review/base.html" %}
 {% load staticfiles %}
 
 {% block extrahead %}
@@ -40,8 +40,7 @@
                             <form role="form" method="post" action="#">
                                 <div class="form-inline">
                                     <div class="form-group">
-                                        <select id='selectedRound' class="form-control" style="width:auto"
-                                    name="type">
+                                        <select id='selectedRound' class="form-control" style="width:auto" name="type">
                                             <option selected value=""></option>
                                             {% for round in rounds %}
                                                 <option value="{{ round.pk }}" desc="{{ round.description }}">{{ round.name }}</option>
@@ -133,17 +132,6 @@
                     <div class="panel-body">
                         <form role="form" method="post" action="{% url 'submitTeamCSV' %}" enctype="multipart/form-data">
                             {% csrf_token %}
-                            
-                            <!--
-                            <p>{{ docForm.non_field_errors }}</p>
-
-                            <p>{{ docForm.docfile.label_tag }} {{ docForm.docfile.help_text }}</p>
-
-                            <p>
-                                {{ docForm.docfile.errors }}
-                                {{ docForm.docfile }}
-                            </p>
-                            -->
                             <div class="form-group">
                                 <label for="docfile">Upload CSV File:</label>
                                 <input type="file" id="docfile" name="docfile">
@@ -290,9 +278,14 @@
         }
 
         $(document).ready(function () {
-            var roundPk = "{{ roundPk }}";
+            
+            if ('{{ roundPk }}' != 'none')
+            {
+                $("#selectedRound").val('{{ roundPk }}')
+                $("#selectedRound").change();
+            }
 
-            var teamViewTable = $("#teamViewTable").DataTable({
+            $("#teamViewTable").DataTable({
                 "orderClasses": false,
                 "columnDefs": [{
                     "orderable": true,
@@ -317,18 +310,6 @@
                         return "<div class=\"addUser button\"><span class=\"glyphicon glyphicon-chevron-right\"></span></div>"
                     },
                     "targets": [3]}]
-            });
-
-            // Depricated?
-            var teams = $(".teamTable").DataTable({
-                "orderClasses": false,
-                    "columnDefs": [{
-                        "orderable": false,
-                        "searchable": false,
-                        "render": function (data, type, full, meta) {
-                            return "<div class=\"removeUser button\"><span class=\"glyphicon glyphicon-remove-circle\"></span></div>"
-                        },
-                        "targets": [3]}]
             });
 
             $('#teams').on('hide.bs.collapse', '.panel-team', function() {
@@ -434,8 +415,6 @@
                 }
                 loading = false;
             });
-
-            $("#selectedRound").val(roundPk).change();
 
             $("#collapseThree").on('shown.bs.collapse', function() {
                 $.ajax({

@@ -1,14 +1,19 @@
 <script>
     //Add a function that saves every rank-type question
     //This function gets called when the Save button is pushed
+    var batchnum = 0;
     saveFunctions.push(function () {
+        d = new Date();
+        var batchid = d.getTime()+ "" + batchnum;
+        batchnum++;
         $("#{{ q.id }}").find('.rankItem').each(function (i, rankItem) {
             var json = {
                 'questionPk': {{ q.id }},
                 'roundPk': roundPk,
                 'label': rankItem.dataset.id,
                 'answer': i,
-                'subjectUser': rankItem.dataset.id
+                'subjectUser': rankItem.dataset.id,
+                'batchid': batchid
             };
             sendToView(json);
         });
@@ -16,19 +21,18 @@
 
     //The function to load the responses
     getResponses({{ q.id }}, function (responses) {
-        console.log(responses);
         if (responses.answers.length != 0) {
             for (var x = 0; x < responses.answers.length; x++) {
                 row = $("#{{ q.id }}").find('.rankTable tr').eq(responses.answers[x]).find('td');
                 row.eq(0).html(responses.labelOrUserNames[x]);
-                row.data('id', responses.labelOrUserIds[x]);
+                row[0].dataset['id'] = responses.labelOrUserIds[x];
             }
         }
     });
 </script>
 <p><strong>{{ number }}</strong>. {{ q.questionText }}</p>
 <br/>
-<p><strong> {{ q.getRank.firstWord }} </strong></p>
+<p><strong> {{ q.get_rank.firstWord }} </strong></p>
 <table class="table table-responsive rankTable">
     {% if q.questionGrouping.grouping == "Label" %}
         {% for l in q.getLabels %}
@@ -47,11 +51,11 @@
             </tr>
         {% endfor %}
     {% else %}
-        {% for u in teamMembers %}
+        {% for t in teamMembers %}
             {% if q.questionGrouping.grouping == "Rest" %}
-                {% if u.user != currentUser %}
+                {% if t.user != currentUser %}
                     <tr>
-                        <td data-id="{{ u.user.id }}" class="rankItem">{{ u.user.name }} {{ u.user.surname }}</td>
+                        <td data-id="{{ t.user.userId }}" class="rankItem">{{ t.user.name }} {{ t.user.surname }}</td>
                         <td>
                             <div style="text-align: right; width: auto;">
                                 <a class="move up" href="javascript:void(0)" title="move up">
@@ -66,7 +70,7 @@
                 {% endif %}
             {% else %}
                 <tr>
-                    <td data-id="{{ u.id }}" class="rankItem">{{ u.user.name }} {{ u.user.surname }}</td>
+                    <td data-id="{{ t.user.userId }}" class="rankItem">{{ t.user.name }} {{ t.user.surname }}</td>
                     <td>
                         <div style="text-align: right; width: auto;">
                             <a class="move up" href="javascript:void(0)" title="move up">
@@ -82,4 +86,4 @@
         {% endfor %}
     {% endif %}
 </table>
-<p><strong> {{ q.getRank.secondWord }} </strong></p>
+<p><strong> {{ q.get_rank.secondWord }} </strong></p>

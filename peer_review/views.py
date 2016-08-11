@@ -6,11 +6,12 @@ import string
 import time
 import uuid
 
+from django.contrib import messages
 from django.contrib.auth import authenticate, login as django_login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseForbidden
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.shortcuts import render_to_response
@@ -24,20 +25,30 @@ from .models import User
 
 # Moved these views into seperate files
 from .view.questionAdmin import question_admin, edit_question, save_question, delete_question
-from .view.questionnaireAdmin import questionnaire_admin, edit_questionnaire, save_questionnaire, delete_questionnaire
+from .view.questionnaireAdmin import questionnaire_admin, questionnaire_preview, edit_questionnaire, save_questionnaire, \
+    delete_questionnaire
+from .view.maintainTeam import maintain_team, change_team_status, change_user_team_for_round, get_teams_for_round, \
+    get_teams
 
 
 def active_rounds(request):
-    # TEST
-    user = User.objects.get(userId='14035548')
+    if not request.user.is_authenticated():
+        return user_error(request)
+
+    user = request.user
     teams = TeamDetail.objects.filter(user=user).order_by('roundDetail__startingDate')
+    print(teams)
+    # exp_teams = TeamDetail.objects.filter(user=user and roundDetail.endingDate<datetime.date.now())
     context = {'teams': teams}
     return render(request, 'peer_review/activeRounds.html', context)
 
 
 def team_members(request):
+    if not request.user.is_authenticated():
+        return user_error(request)
+
     # TEST
-    user = User.objects.get(userId='14035548')
+    user = request.user
     rounds = RoundDetail.objects.all()
     team_list = []
     team_members = []
@@ -55,8 +66,11 @@ def team_members(request):
     return render(request, 'peer_review/teamMembers.html', context)
 
 
-def account_details(request, user_id):
-    user = User.objects.get(userId=user_id)
+def account_details(request):
+    if not request.user.is_authenticated():
+        return user_error(request)
+
+    user = User.objects.get(userId=request.user.userId)
     context = {'user': user}
     return render(request, 'peer_review/accountDetails.html', context)
 
@@ -78,7 +92,13 @@ def auth(request):
             if user:
                 if user.is_active:
                     django_login(request, user)
-                    return redirect('userAdmin')
+                    # Redirect based on user account type
+                    if user.is_staff or user.is_superuser:
+                        return redirect('userAdmin')
+                    else:
+                        return redirect('activeRounds')
+        # Access Denied
+        messages.add_message(request, messages.ERROR, "Incorrect username or password")
         return redirect('/login/')
     else:
         return redirect('/login/')
@@ -122,25 +142,8 @@ def maintain_round(request):
     return render(request, 'peer_review/maintainRound.html', context)
 
 
-def maintain_team(request):
-    if request.method == "POST":
-        round_pk = request.POST.get("roundPk")
-
-        context = {'users': User.objects.all(),
-                   'rounds': RoundDetail.objects.all(),
-                   'teams': TeamDetail.objects.all(),
-                   'roundPk': round_pk}
-
-    else:
-        context = {'users': User.objects.all(),
-                   'rounds': RoundDetail.objects.all(),
-                   'teams': TeamDetail.objects.all(),
-                   'roundPk': "none"}
-    return render(request, 'peer_review/maintainTeam.html', context)
-
-
 # def questionAdmin(request):
-#     # print(request.user.is_authenticated())
+# # print(request.user.is_authenticated())
 #     # if not request.user.is_authenticated():
 #     #     return render(request, "peer_review/login.html")
 
@@ -148,8 +151,11 @@ def maintain_team(request):
 #     return render(request, 'peer_review/questionAdmin.html', context)
 
 def questionnaire(request, round_pk):
+    if not request.user.is_authenticated():
+        return user_error(request)
+    print(request.user)
     # if request.method == "POST":
-    user = User.objects.get(userId='14035548')  # TEST
+    user = request.user
     questionnaire = RoundDetail.objects.get(pk=round_pk).questionnaire
     q_orders = QuestionOrder.objects.filter(questionnaire=questionnaire)
     print(user)
@@ -171,8 +177,8 @@ def save_questionnaire_progress(request):
     if request.method == "POST":
         question = Question.objects.get(pk=request.POST.get('questionPk'))
         round_detail = RoundDetail.objects.get(pk=request.POST.get('roundPk'))
-        # user = request.user
-        user = User.objects.get(userId='14035548')  # TEST
+        user = request.user
+        # user = User.objects.get(userId='14035548')  # TEST
 
         # If grouping == None, there is no label or subjectUser
         if question.questionGrouping.grouping == "None":
@@ -188,13 +194,15 @@ def save_questionnaire_progress(request):
             label = None
 
         answer = request.POST.get('answer')
+        batchid = request.POST.get('batchid')
         print(user)
         Response.objects.create(question=question,
                                 roundDetail=round_detail,
                                 user=user,
                                 subjectUser=subject_user,
                                 label=label,
-                                answer=answer)
+                                answer=answer,
+                                batchid=batchid)
         return JsonResponse({'result': 0})
     else:
         return JsonResponse({'result': 1})
@@ -203,20 +211,29 @@ def save_questionnaire_progress(request):
 def get_responses(request):
     question = Question.objects.get(pk=request.GET.get('questionPk'))
     round_detail = RoundDetail.objects.get(pk=request.GET.get('roundPk'))
-    # user = request.user
-    user = User.objects.get(userId='14035548')  # TEST
-    responses = Response.objects.filter(user=request.user, roundDetail=round_detail, question=question)
-
+    user = request.user
+    # user = User.objects.get(userId='14035548')  # TEST
+    responses = Response.objects.filter(user=user, roundDetail=round_detail, question=question).order_by('batchid').reverse()
+    batchid = 0
+    count = 0
+    for r in responses:
+        if batchid==0:
+            batchid=r.batchid
+        elif not (batchid==r.batchid) :
+            break
+        count += 1
+    responses = responses[0:count]
     # Need to find a way to get the latest responses, instead of all of them
     json = {'answers': [], 'labelOrUserIds': [], 'labelOrUserNames': []}
     for r in responses:
+        print(r.__dict__)
         json['answers'].append(r.answer)
         if question.questionGrouping.grouping == "Label":
             json['labelOrUserNames'].append(r.label.labelText)
             json['labelOrUserIds'].append(r.label.id)
         elif question.questionGrouping.grouping != "None":
             json['labelOrUserNames'].append(r.subjectUser.name + ' ' + r.subjectUser.surname)
-            json['labelOrUserIds'].append(r.subjectUser.id)
+            json['labelOrUserIds'].append(r.subjectUser.userId)
     return JsonResponse(json)
 
 
@@ -265,7 +282,8 @@ def get_questionnaire_for_team(request):
 
 
 def user_error(request):
-    return render(request, 'peer_review/userError.html')
+    # Renders error page with a 403 status code for forbidden users
+    return HttpResponseForbidden(render(request, 'peer_review/userError.html'))
 
 
 @login_required
@@ -282,37 +300,6 @@ def user_list(request):
 
     return render(request, 'peer_review/userAdmin.html',
                   {'users': users, 'userForm': user_form, 'docForm': doc_form, 'email_text': email_text})
-
-
-def get_teams(request):
-    response = {}
-    if request.method == "GET":
-        teams = TeamDetail.objects.all()
-        for team in teams:
-            user = User.objects.get(pk=team.user.pk)
-            response[team.pk] = {
-                'userId': user.userId,
-                'initials': team.user.initials,
-                'surname': team.user.surname,
-                'round': team.roundDetail.name,
-                'team': team.teamName,
-                'status': team.status,
-                'teamId': team.pk,
-            }
-    elif request.method == "POST":
-        user_pk = request.POST.get("pk")
-        user = User.objects.get(pk=user_pk)
-
-        teams = TeamDetail.objects.filter(user=user)
-        for team in teams:
-            response[team.pk] = {
-                'round': team.roundDetail.name,
-                'team': team.teamName,
-                'status': team.status,
-                'teamId': team.pk,
-                'roundPk': team.roundDetail.pk
-            }
-    return JsonResponse(response)
 
 
 def get_questionnaire_for_round(request, round_pk):
@@ -413,20 +400,21 @@ def submit_form(request):
             post_email = user_form.cleaned_data['email']
             post_user_id = user_form.cleaned_data['userId']
 
-            user = User(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
-                        cell=post_cell, email=post_email, userId=post_user_id)
+            #user = User(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
+            #            cell=post_cell, email=post_email, userId=post_user_id)
 
             otp = generate_otp()
 
             generate_email(otp, post_name, post_surname, post_email)
 
-            post_password = otp  # hash_password(otp)
+            user = User.objects.create_user(title=post_title, initials=post_initials, name=post_name,
+                                            surname=post_surname,
+                                            cell=post_cell, email=post_email, userId=post_user_id, password=otp)
 
             post_status = user_form.cleaned_data['status']
-
-            user.password = post_password
             user.status = post_status
             user.save()
+            print("created user")
 
             for roundObj in RoundDetail.objects.all():
                 team = TeamDetail(user=user, roundDetail=roundObj)
@@ -439,6 +427,9 @@ def submit_form(request):
 
 
 def get_user(request, user_pk):
+    if not request.user.is_authenticated():
+        return user_error(request)
+
     response = {}
     if request.method == "GET":
         user = User.objects.get(pk=user_pk)
@@ -451,6 +442,9 @@ def get_user(request, user_pk):
 
 
 def user_profile(request, user_pk):
+    if not request.user.is_authenticated():
+        return user_error(request)
+
     if request.method == "GET":
         user = User.objects.get(pk=user_pk)
     # TODO Add else
@@ -543,6 +537,9 @@ def add_csv_info(user_list):
 
 
 def submit_csv(request):
+    if not request.user.is_authenticated():
+        return user_error(request)
+
     global errortype
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
@@ -698,6 +695,9 @@ def add_team_csv_info(team_list):
 
 
 def submit_team_csv(request):
+    if not request.user.is_authenticated():
+        return user_error(request)
+
     global errortype
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
@@ -872,7 +872,7 @@ def maintain_round_with_error(request, error):
 
     context = {'roundDetail': RoundDetail.objects.all(),
                'questionnaires': Questionnaire.objects.all(),
-               'error': str_error,}
+               'error': str_error, }
     return render(request, 'peer_review/maintainRound.html', context)
 
 
