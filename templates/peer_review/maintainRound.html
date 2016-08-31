@@ -265,7 +265,8 @@
                     <div class="panel-body">
 
                     
-                    <div>
+                    <div class='table-responsive'>
+
                         <table  id='round'>
                             <thead>
                                 <tr>
@@ -274,126 +275,109 @@
                                     <th>Questionnaire Description</th>
                                     <th>Starting Date</th>
                                     <th>Ending Date</th>
-                                    <th>Edit</th>
+                                    <th>Accept Edit</th>
                                     <th>Remove</th>
                                     <th>Dump</th>
                                     <th>Report</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for round in roundDetail %}
-                                    <tr id="{{ round.pk }}">
-                                        <td>{{ round.name }}</td>
-                                        <td>{{ round.description }}</td>
-                                        <td>{{ round.questionnaire.intro }}</td>
-                                        <td>{{ round.startingDate|date:'DATETIME_FORMAT' }}</td>
-                                        <td>{{ round.endingDate|date:'DATETIME_FORMAT' }}</td>
-                                        <td>
-                                            <button type="button" name="edit" class='btn btn-success btn-xs edit'>
-                                                &#9998;
-                                            </button>
-                                        </td>
-                                        <td>
-                                            <button type='button' name="delete" class='btn btn-warning btn-xs'
-                                                    id='remove'>
-                                                Delete
-                                            </button>
-                                        </td>
-                                        <td>
-                                            <input type="button" class="btn btn-info btn-xs dump"
-                                                   value="Dump" data-pk="{{ round.pk }}">
-                                        </td>
-                                        <td>
-                                            <input type="submit" class="btn btn-info btn-xs report" value="Report">
-                                        </td>
-                                    </tr>
-                                {% endfor %}
+                            {% for round in roundDetail %}
+                                <tr id="{{ round.pk }}">
+                                    <form action = "/maintainRound/update/{{round.pk}}" method = "POST">
+                                                {% csrf_token %}
 
-                                {% comment %}{% for round in roundDetail %}
-                                    <tr id="{{ round.pk }}">
-                                        <form action = "/maintainRound/update/{{round.pk}}" method = "POST">
-                                            {% csrf_token %}
-                                            <!--ROUND DESCRIPTION-->
-                                             <td>
-                                                 <input type="text" style="width: 100px" class="noBorder"
-                                                        name="Roundname" id ="roundName"
-                                                        value="{{ round.name }}" readonly>
-                                             </td>
+<!--ROUND DESCRIPTION-->
+                                         <td><input type="text" style="width: 100px" class="noBorder"
+                                                 name="Roundname" id ="roundName"
+                                                value="{{ round.name }}" readonly>
+                                            </input ></td>
 
-                                            <td>
-                                                <input type="text" style="width: 150px" class="noBorder"
-                                                       name="desc"
-                                                       value="{{ round.description }}">
-                                            </td>
+                                        <td><input type="text" style="width: 150px" class="noBorder"
+                                                 name="desc"
+                                                value="{{ round.description }}">
+                                            </input ></td>
+                                      
 
-                                            <!--SELECT FOR QUESTIONNARE-->
-                                            <td>
-                                                <select id="questionn" name="questionn" class="form-control"
-                                                    style="width:auto" onchange="CreateQuestionnaire(value)">
-                                                    <option selected value="{{round.questionnaire.pk}}">
-                                                        {{ round.questionnaire.intro}}
-                                                    </option>
-                                                    {% for quest in questionnaires %}
-                                                        {% if round.questionnaire.intro == quest.intro %}
-                                                        {% else %}
-                                                            <option value="{{quest.pk}}">
-                                                                {{ quest.intro }}
-                                                            </option>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                    <option value="create">
-                                                        Create Questionnaire
-                                                    </option>
-                                                </select>
+<!--SELECT FOR QUESTIONNARE-->
+                                        <td>
+                                       <select id="questionn" name="questionn" class="form-control" 
+                                style="width:auto" onchange="CreateQuestionnaire(value)">
 
-                                                <!--STARTING DATE-->
-                                                <td>
-                                                    <input type="datetime" style="width: 200px" class="noBorder"
-                                                           name="startingDate"
-                                                           value="{{round.startingDate|date:'DATETIME_FORMAT'}}" >
+                                <option selected value="{{round.questionnaire.pk}}">{{ round.questionnaire.intro}}</option>
+                            {% for quest in questionnaires %}
+                                    {% if round.questionnaire.intro = quest.intro %}
+
+                                            {% else %}
+                                                <option value="{{quest.pk}}">{{ quest.intro }}</option>     
+                                    {% endif %}
+                                            
+
+                                        
+                            {% endfor %}
+                                         <option value="create">Create Questionnaire</option> 
+                                       </select> 
+
+<!--STARTING DATE-->
+
+
+
+                                               <td><input type="datetime" style="width: 200px" class="noBorder" name="startingDate"
+
+                                                       value="{{round.startingDate|date:'DATETIME_FORMAT'}}" ></input>
                                                 </td>
 
-                                                <!--ENDINGDATE-->
+
+
+<!--ENDINGDATE-->
                                                 <td>
                                                     <input type="datetime" style="width: 200px" class="noBorder"
                                                            name="endingDate"
-                                                           value="{{ round.endingDate|date:'DATETIME_FORMAT' }}">
-                                                </td>
-                                                <!--SPANNER-->
-                                                <!--<td><button type='button' class='btn btn-default btn-xs' id='maintain'  onclick="window.location.href='/maintainTeam'"><span class="glyphicon glyphicon-wrench"></span></button></button></a></button></td>-->
 
-                                                <!--EDIT-->
-                                                <td>
-                                                    <button type='submit' name="edit" class='btn btn-success btn-xs'
-                                                            id='edit' value="{{ round.description }}">Edit
-                                                    </button>
-                                                </td>
-                                        </form>
+                                                           value="{{ round.endingDate|date:'DATETIME_FORMAT' }}"></input></td>
 
-                                        <!--DELETE-->
-                                        <td>
-                                            <form action="/maintainRound/delete/{{ round.pk }}" method="post"
-                                                  onsubmit="return confirmDeletion()">
-                                                {% csrf_token %}
-                                                <button type='submit' name="delete" class='btn btn-warning btn-xs'
-                                                        id='remove'>Delete
+
+<!--SPANNER-->
+        <!--                                        <td><button type='button' class='btn btn-default btn-xs' id='maintain'  onclick="window.location.href='/maintainTeam'"><span class="glyphicon glyphicon-wrench"></span></button></button></a></button></td>-->
+
+<!--EDIT-->
+                
+ <td>
+                                                <button type="button" name="edit" class='btn btn-success btn-xs edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ user.userId }}" data-pk="{{ user.pk }}">
+                                                    &#9998;
                                                 </button>
-                                            </form>
-                                        </td>
+                                                <!--<button type='submit' name="edit" class='btn btn-success btn-xs'
+                                                        id='edit' value="{{ round.description }}" >Edit
+                                                </button>-->
+</td></form>
+                                             
 
-                                        <td>
-                                            <input type="button" class="btn btn-info btn-xs dump" value="Dump" data-pk="{{ round.pk }}">
-                                        </td>
+<!--DELETE-->
+                                            <td>
+                                                    <form action="/maintainRound/delete/{{ round.pk }}" method="post"
+                                                      onsubmit="return confirmDeletion()">
+                                                    {% csrf_token %}
+                                                    <button type='submit' name="delete" class='btn btn-warning btn-xs'
+                                                            id='remove'>Delete
+                                                    </button>
+                                                </form>
+                                            </td>
 
-                                        <td>
-                                            <form action="/report/" method="POST">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="roundPk" value="{{ round.pk }}">
-                                                <input type="submit" class="btn btn-info btn-xs report" value="Report">
-                                            </form>
-                                        </td>
-                                    </tr>
-                                {% endfor %}{% endcomment %}
+                                            <td>
+                                                <input type="button" class="btn btn-info btn-xs dump" value="Dump" data-pk="{{ round.pk }}" id="dumpBtn">
+                                            </td>
+
+                                            <td>
+                                                <form action="/report/" method="POST">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="roundPk" value="{{ round.pk }}">
+                                                    <input type="submit" class="btn btn-info btn-xs report" value="Report">
+                                                </form>
+                                            </td>
+
+                                        </tr>
+                                    {% endfor %}
+                                   
                             </tbody>
                         </table>
                     </div>
@@ -407,9 +391,10 @@
             $("#startingDate").datetimepicker({format: "Y-m-d H:i"});
             $("#endingDate").datetimepicker({format: "Y-m-d H:i"});
 
+            var glob_roundPk = 0;
             $(".dump").on("click", function() {
                 var pk = $(this).data("pk");
-
+                glob_roundPk = pk;
                 var data = {
                     "roundPk": pk,
                     "csrfmiddlewaretoken": "{{ csrf_token }}"
@@ -419,8 +404,13 @@
                     type: "POST",
                     url: "/maintainRound/dump/",
                     data: data,
-                    success: function(data) {
-                        alert("Success");
+                    success: function(csvData) {
+                        console.log(csvData)
+                        /*var blob = new Blob([csvData]);
+                        var downloadLink = document.createElement('a');
+                        downloadLink.href = window.URL.createObjectURL(blob);
+                        downloadLink.download = "dump-r" + glob_roundPk + ".csv";
+                        downloadLink.click();*/
                     }
                 });
             });
