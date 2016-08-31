@@ -21,7 +21,11 @@ class LoginForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput)
 
 
-class UserForm(forms.Form):
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['userId','status','title','initials','name','surname','cell','email']
+
     userId = forms.CharField(
         label="Username:",
         max_length=30,

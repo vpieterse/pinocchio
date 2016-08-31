@@ -36,8 +36,7 @@ def active_rounds(request):
     if not request.user.is_authenticated():
         return user_error(request)
 
-    # TEST
-    user = User.objects.get(userId='14035548')
+    user = request.user
     teams = TeamDetail.objects.filter(user=user).order_by('roundDetail__startingDate')
     #exp_teams = TeamDetail.objects.filter(user=user and roundDetail.endingDate<datetime.date.now())
     context = {'teams': teams}
@@ -48,8 +47,7 @@ def team_members(request):
     if not request.user.is_authenticated():
         return user_error(request)
 
-    # TEST
-    user = User.objects.get(userId='14035548')
+    user = request.user
     rounds = RoundDetail.objects.all()
     team_list = []
     team_members = []
@@ -89,6 +87,10 @@ def auth(request):
         if form.is_valid():
             email = request.POST.get('email')
             password = request.POST.get('password')
+            # Redirect if OTP is set
+            #if User.objects.get(email=email).OTP:
+            #    messages.add_message(request, messages.ERROR, "OTP")
+            #    return redirect('/login/')
             user = authenticate(email=email, password=password)
             if user:
                 if user.is_active:
@@ -290,6 +292,7 @@ def user_list(request):
     return render(request, 'peer_review/userAdmin.html',
                   {'users': users, 'userForm': user_form, 'docForm': doc_form, 'email_text': email_text})
 
+
 def get_questionnaire_for_round(request, round_pk):
     round = RoundDetail.objects.get(pk=round_pk)
     if request.method == "GET":
@@ -297,6 +300,42 @@ def get_questionnaire_for_round(request, round_pk):
             'questionnaire': round.questionnaire.label
         }
     return JsonResponse(response)
+
+
+def get_teams_for_round(request, round_pk):
+    teams = TeamDetail.objects.filter(roundDetail_id=round_pk)
+    response = {}
+    for team in teams:
+        response[team.pk] = {
+            'userId': team.user.pk,
+            'teamName': team.teamName,
+            'status': team.status,
+        }
+    # print(response)
+    return JsonResponse(response)
+
+
+def change_user_team_for_round(request, round_pk, userId, team_name):
+    try:
+        team = TeamDetail.objects.filter(user_id=userId).get(roundDetail_id=round_pk)
+    except TeamDetail.DoesNotExist:
+        team = TeamDetail(
+            user=User.objects.get(pk=userId),
+            roundDetail=RoundDetail.objects.get(pk=round_pk)
+        )
+    team.teamName = team_name
+    if team_name == 'emptyTeam':
+        team.status = 'NA'
+    team.save()
+    return JsonResponse({'success': True})
+
+
+def change_team_status(request, team_pk, status):
+    team = TeamDetail.objects.get(pk=team_pk)
+    team.status = status
+    team.save()
+    return JsonResponse({'success': True})
+
 
 def generate_otp():
     n = random.randint(4, 10)
@@ -774,9 +813,9 @@ def round_update(request, round_pk):
             round = RoundDetail.objects.get(pk=round_pk)
 
             post_starting_date = request.POST.get("startingDate")
-            post_description = request.POST.get("desc")
-            post_questionnaire = request.POST.get("questionn")
-            post_name = request.POST.get("Roundname")
+            post_description = request.POST.get("description")
+            post_questionnaire = request.POST.get("questionnaire")
+            post_name = request.POST.get("roundName")
             post_ending_date = request.POST.get("endingDate")
             round.description = post_description
             round.questionnaire = Questionnaire.objects.get(pk=post_questionnaire)
