@@ -175,7 +175,8 @@ Todo:
             tinymce.init({ selector:'#intro',
             statusbar: false, 
             menubar: '',
-            plugins: "emoticons",
+            plugins: ["emoticons", "image"],
+            resize: true,
             toolbar: 'undo redo bold italiclignleft aligncenter alignright bullist numlist outdent indent styleselect fontsizeselect emoticons image a', });
             //Hide alerts
             setTimeout(function() {
@@ -243,7 +244,9 @@ Todo:
         
         function preview(pk) {
             $("body").append("<a id='previewLink' href='/questionnairePreview/" + pk + "' target='_blank' style='display:none'></a>");
+            // alert(getElementById('previewLink'));
             document.getElementById('previewLink').click();
+            $("#previewLink").remove();
         } 
 
         function deleteQuestionnaire(pk) {
