@@ -147,7 +147,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     OTP = models.BooleanField(default=True)
     status = models.CharField(max_length=1)
 
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = 'userId'
     # TODO Add more required fields maybe
     # REQUIRED_FIELDS = ['status']
 
