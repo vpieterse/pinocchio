@@ -640,6 +640,7 @@ def write_dump(round_pk):
             ['QUESTION', 'ANSWER', 'USERID']]
     
     roundData = Response.objects.filter(roundDetail=round_pk)
+    
     if len(roundData) > 0:
         for item in roundData:
             data.append([item.question.questionText, item.answer, item.user.userId])
