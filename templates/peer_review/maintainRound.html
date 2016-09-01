@@ -210,7 +210,7 @@
 
                                 <option selected value="{{round.questionnaire.pk}}">{{ round.questionnaire.intro}}</option>
                             {% for quest in questionnaires %}
-                                    {% if round.questionnaire.intro = quest.intro %}
+                                    {% if round.questionnaire.intro == quest.intro %}
 
                                             {% else %}
                                                 <option value="{{quest.pk}}">{{ quest.intro }}</option>     
@@ -306,7 +306,7 @@
 
                                 <option selected value="{{round.questionnaire.pk}}">{{ round.questionnaire.intro}}</option>
                             {% for quest in questionnaires %}
-                                    {% if round.questionnaire.intro = quest.intro %}
+                                    {% if round.questionnaire.intro == quest.intro %}
 
                                             {% else %}
                                                 <option value="{{quest.pk}}">{{ quest.intro }}</option>     
@@ -405,12 +405,12 @@
                     url: "/maintainRound/dump/",
                     data: data,
                     success: function(csvData) {
-                        console.log(csvData)
-                        /*var blob = new Blob([csvData]);
+                        //console.log(csvData)
+                        var blob = new Blob([csvData]);
                         var downloadLink = document.createElement('a');
                         downloadLink.href = window.URL.createObjectURL(blob);
                         downloadLink.download = "dump-r" + glob_roundPk + ".csv";
-                        downloadLink.click();*/
+                        downloadLink.click();
                     }
                 });
             });

@@ -637,9 +637,14 @@ def write_dump(round_pk):
     dump_file = 'media/dumps/' + str(round_pk) + '.csv'
     data = [['ROUND ID:', round_pk],
             ['DUMP DATE:', time.strftime("%d/%m/%Y %H:%M:%S")], [''],
-            ['QID', 'QUESTION', 'ANSWER'],
-            ['x', 'x', 'x'],
-            ['y', 'y', 'xy']]
+            ['QUESTION', 'ANSWER', 'USERID']]
+    
+    roundData = Response.objects.filter(roundDetail=round_pk)
+    if len(roundData) > 0:
+        for item in roundData:
+            data.append([item.question.questionText, item.answer, item.user.userId])
+    else:
+        data.append(['NO DATA'])
 
     with open(dump_file, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
