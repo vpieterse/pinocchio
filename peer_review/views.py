@@ -416,13 +416,13 @@ def submit_form(request):
     return HttpResponseRedirect("../")
 
 
-def get_user(request, user_pk):
+def get_user(request, userId):
     if not request.user.is_authenticated():
         return user_error(request)
 
     response = {}
     if request.method == "GET":
-        user = User.objects.get(pk=user_pk)
+        user = User.objects.get(pk=userId)
         response = {
             'userId': user.userId,
             'name': user.name,
@@ -431,12 +431,12 @@ def get_user(request, user_pk):
     return JsonResponse(response)
 
 
-def user_profile(request, user_pk):
+def user_profile(request, userId):
     if not request.user.is_authenticated():
         return user_error(request)
 
     if request.method == "GET":
-        user = User.objects.get(pk=user_pk)
+        user = User.objects.get(pk=userId)
     # TODO Add else
     return render(request, 'peer_review/userProfile.html', {'user': user})
 
@@ -453,11 +453,10 @@ def user_delete(request):
     return HttpResponseRedirect('../')
 
 
-def user_update(request, user_pk):
+def user_update(request, userId):
     if request.method == "POST":
-        user = User.objects.get(pk=user_pk)
+        user = User.objects.get(pk=userId)
 
-        post_user_id = request.POST.get("userId")
         post_title = request.POST.get("title")
         post_initials = request.POST.get("initials")
         post_name = request.POST.get("name")
@@ -466,7 +465,6 @@ def user_update(request, user_pk):
         post_email = request.POST.get("email")
         post_status = request.POST.get("status")
 
-        user.userId = post_user_id
         user.status = post_status
         user.title = post_title
         user.initials = post_initials
