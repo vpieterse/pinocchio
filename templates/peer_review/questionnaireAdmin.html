@@ -23,150 +23,154 @@ Todo:
             <div class = "alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
             {% endfor %}
         {% endif %}
-        <div class = "panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title">Create Questionnaire</h4>
-            </div>
-            <div class="panel-body">
-                <form onsubmit="return save()" onreset="empty()" id = "form-save" method="POST" action="/questionnaireAdmin/save">
-                    {% csrf_token %}
-                    <label for="title">Title</label>
-                    <input type="text" name="title" class="form-control" id="title" placeholder="Enter title" value="{{questionnaire.label}}" required>
-                    <br/>
-                    <label for="intro">Introduction</label>
-                    <input id="intro" class = "form-control" value="{{ questionnaire.intro }}" name="intro">
-                    <br/>
-                    <label for="select-questions">Select Questions</label>
-                    <div class="row" id = "select-questions">
-                        <div class="col-md-6">
-                            <small class="text-muted">Click the <span class="glyphicon glyphicon glyphicon-plus-sign text-primary"></span> icon to add questions to the questionnaire.</small>
-                            <table class='table moveable' id='question-table'>
-                                <thead>
-                                    <tr>
-                                        <th>Question</th>
-                                        <th>Question Type</th>
-                                        <th>Grouping</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                {% for question in questions %}
-                                    <tr id="{{ question.pk }}">
-                                        <td class="question-label">{{ question.questionLabel }}</td>
-                                        <td class="question-type">{{ question.questionType.name }}</td>
-                                        <td class="question-grouping">{{ question.questionGrouping.grouping }}</td>
-                                        <td>
-                                            <span onclick="addQuestion(this)" class="glyphicon glyphicon glyphicon-plus-sign text-primary pull-right"  style="cursor:pointer"></span>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="col-md-6">
-                            <small class="text-muted">Click the <span class="glyphicon glyphicon glyphicon-minus-sign text-primary"></span> icon to remove questions from the questionnaire.</small>
-                            <table id="selected-questions" class="table moveable">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th>Question</th>
-                                        <th>Question Type</th>
-                                        <th>Grouping</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for question in questionOrders %}
-                                        <tr id = "{{ question.question.pk }}">
-                                            <td>
-                                                <span onclick="moveRow(this)" class="glyphicon glyphicon glyphicon-arrow-up text-primary pull-left"  style="cursor:pointer"></span>
-                                                <span onclick="moveRow(this)" class="glyphicon glyphicon glyphicon-arrow-down text-primary pull-left"  style="cursor:pointer"></span>
-                                            </td>
-                                            <td class = "question-label">{{ question.question.questionLabel }}</td>
-                                            <td class = "question-type">{{ question.question.questionType.name }}</td>
-                                            <td class = "question-grouping">{{ question.question.questionGrouping.grouping }}</td>
-                                            <td>
-                                                <span onclick="removeQuestion(this)" class="glyphicon glyphicon glyphicon-minus-sign text-primary pull-right"  style="cursor:pointer"></span>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <br/>
-                    <input type="hidden" name="questions" id = "questions"> 
-                    {% if questionnaire %}
-                        <input type="hidden" name="pk" value="{{ questionnaire.pk }}">                
-                    {% endif %}
-                    <button type="submit" class = "btn btn-primary">
-                        <span class="glyphicon glyphicon-ok"></span>
-                        Submit
-                    </button>
-                    <button type="reset" class = "btn btn-primary pull-right">
-                        <span class="glyphicon glyphicon-remove"></span>
-                        {% if questionnaire %}
-                        Cancel Edit
-                        {% else %}
-                            Clear
-                        {% endif %}
-                    </button>
-                </form>
-            </div>
-        </div>
         <div class="panel-group" id="accordion">
-                <div class="panel panel-default">
-                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
-                        <h4 class="panel-title">
-                            Maintain Questionnaires <b class="caret"></b>
-                        </h4>
-                    </div>
-                    <div id="collapseOne" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <input type="text" class="form-control" id="search" placeholder="Start typing to search">
-                            <small class = "text-muted">Click the <span class="glyphicon glyphicon glyphicon-pencil text-primary"></span> icon to edit questionnaires, and the <span class="glyphicon glyphicon glyphicon-remove-circle text-primary"></span> icon to remove questionnaires.</small>
-                        </div>
-                        <table id = "questionnaire-list" class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Title</th>
-                                    <th>
-                                        Number of Questions
-                                        <span id="delete-many" style = "cursor: pointer" onclick = "deleteMany()" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for questionnaire in questionnaires %}
-                                    <tr
-                                        {% if questionnaire.inARound  %} title="This questionnaire is in a round and cannot be deleted."
-                                        {% else %} class = "deleteable" 
-                                        {% endif %}
-                                        id = "{{ questionnaire.pk }}"
-                                    >
-                                        <td>
-                                            {{ questionnaire.title }}
-                                        </td>
-                                        <td>
-                                            {{ questionnaire.questionOrders.count }}
-                                            {% if questionnaire.inARound %}
-                                                <span class="glyphicon glyphicon glyphicon-remove-circle pull-right text-muted"></span>
-                                            {% else %}
-                                                <span style = "cursor: pointer" onclick = "deleteQuestionnaire('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
-                                            {% endif %}
-                                            <span style = "cursor: pointer" onclick = "preview('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-eye-open pull-right text-primary">&nbsp</span>
-                                            <span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
-                                        </td>
-                                    </tr>   
-                                {% endfor %}
-                            </tbody>
-                        </table> 
-                        <form id = "form-delete" action = "/questionnaireAdmin/delete" method="POST">
+            <div class = "panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
+                    <h4 class="panel-title">
+                        <b>Create Questionnaire</b><b class="caret"></b>
+                    </h4>
+                </div>
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <form onsubmit="return save()" onreset="empty()" id = "form-save" method="POST" action="/questionnaireAdmin/save">
                             {% csrf_token %}
-                            <input type="hidden" name = "pk" id = "questionnaire-pk">
-                        </form>   
+                            <label for="title">Title</label>
+                            <input type="text" name="title" class="form-control" id="title" placeholder="Enter title" value="{{questionnaire.label}}" required>
+                            <br/>
+                            <label for="intro">Introduction</label>
+                            <input id="intro" class = "form-control" value="{{ questionnaire.intro }}" name="intro">
+                            <br/>
+                            <label for="select-questions">Select Questions</label>
+                            <div class="row" id = "select-questions">
+                                <div class="col-md-6">
+                                    <small class="text-muted">Click the <span class="glyphicon glyphicon glyphicon-plus-sign text-primary"></span> icon to add questions to the questionnaire.</small>
+                                    <table class='table moveable' id='question-table'>
+                                        <thead>
+                                            <tr>
+                                                <th>Question</th>
+                                                <th>Question Type</th>
+                                                <th>Grouping</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for question in questions %}
+                                            <tr id="{{ question.pk }}">
+                                                <td class="question-label">{{ question.questionLabel }}</td>
+                                                <td class="question-type">{{ question.questionType.name }}</td>
+                                                <td class="question-grouping">{{ question.questionGrouping.grouping }}</td>
+                                                <td>
+                                                    <span onclick="addQuestion(this)" class="glyphicon glyphicon glyphicon-plus-sign text-primary pull-right"  style="cursor:pointer"></span>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="text-muted">Click the <span class="glyphicon glyphicon glyphicon-minus-sign text-primary"></span> icon to remove questions from the questionnaire.</small>
+                                    <table id="selected-questions" class="table moveable">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th>Question</th>
+                                                <th>Question Type</th>
+                                                <th>Grouping</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for question in questionOrders %}
+                                                <tr id = "{{ question.question.pk }}">
+                                                    <td>
+                                                        <span onclick="moveRow(this)" class="glyphicon glyphicon glyphicon-arrow-up text-primary pull-left"  style="cursor:pointer"></span>
+                                                        <span onclick="moveRow(this)" class="glyphicon glyphicon glyphicon-arrow-down text-primary pull-left"  style="cursor:pointer"></span>
+                                                    </td>
+                                                    <td class = "question-label">{{ question.question.questionLabel }}</td>
+                                                    <td class = "question-type">{{ question.question.questionType.name }}</td>
+                                                    <td class = "question-grouping">{{ question.question.questionGrouping.grouping }}</td>
+                                                    <td>
+                                                        <span onclick="removeQuestion(this)" class="glyphicon glyphicon glyphicon-minus-sign text-primary pull-right"  style="cursor:pointer"></span>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <br/>
+                            <input type="hidden" name="questions" id = "questions"> 
+                            {% if questionnaire %}
+                                <input type="hidden" name="pk" value="{{ questionnaire.pk }}">                
+                            {% endif %}
+                            <button type="submit" class = "btn btn-primary">
+                                <span class="glyphicon glyphicon-ok"></span>
+                                Submit
+                            </button>
+                            <button type="reset" class = "btn btn-primary pull-right">
+                                <span class="glyphicon glyphicon-remove"></span>
+                                {% if questionnaire %}
+                                Cancel Edit
+                                {% else %}
+                                    Clear
+                                {% endif %}
+                            </button>
+                        </form>
                     </div>
                 </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
+                    <h4 class="panel-title">
+                        <b>Maintain Questionnaires</b><b class="caret"></b>
+                    </h4>
+                </div>
+                <div id="collapseTwo" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <input type="text" class="form-control" id="search" placeholder="Start typing to search">
+                        <small class = "text-muted">Click the <span class="glyphicon glyphicon glyphicon-pencil text-primary"></span> icon to edit questionnaires, and the <span class="glyphicon glyphicon glyphicon-remove-circle text-primary"></span> icon to remove questionnaires.</small>
+                    </div>
+                    <table id = "questionnaire-list" class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>
+                                    Number of Questions
+                                    <span id="delete-many" style = "cursor: pointer" onclick = "deleteMany()" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for questionnaire in questionnaires %}
+                                <tr
+                                    {% if questionnaire.inARound  %} title="This questionnaire is in a round and cannot be deleted."
+                                    {% else %} class = "deleteable" 
+                                    {% endif %}
+                                    id = "{{ questionnaire.pk }}"
+                                >
+                                    <td>
+                                        {{ questionnaire.title }}
+                                    </td>
+                                    <td>
+                                        {{ questionnaire.questionOrders.count }}
+                                        {% if questionnaire.inARound %}
+                                            <span class="glyphicon glyphicon glyphicon-remove-circle pull-right text-muted"></span>
+                                        {% else %}
+                                            <span style = "cursor: pointer" onclick = "deleteQuestionnaire('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
+                                        {% endif %}
+                                        <span style = "cursor: pointer" onclick = "preview('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-eye-open pull-right text-primary">&nbsp</span>
+                                        <span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
+                                    </td>
+                                </tr>   
+                            {% endfor %}
+                        </tbody>
+                    </table> 
+                    <form id = "form-delete" action = "/questionnaireAdmin/delete" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name = "pk" id = "questionnaire-pk">
+                    </form>   
+                </div>
+            </div>
         </div>
     </div>
 
