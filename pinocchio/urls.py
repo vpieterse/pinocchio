@@ -52,8 +52,8 @@ urlpatterns = [
                   url(r'^questionnaireAdmin/$', views.questionnaire_admin, name='questionnaireAdmin'),
 
                   url(r'^maintainRound/dump/?$', views.round_dump),
-                  url(r'^maintainRound/delete/(?P<round_pk>[0-9]+)/?$', views.round_delete),
-                  url(r'^maintainRound/update/(?P<round_pk>[0-9]+)/?$', views.round_update),
+                  url(r'^maintainRound/delete/(?P<round_pk>[0-9]+)/?$', views.round_delete, name='deleteRound'),
+                  url(r'^maintainRound/update/(?P<round_pk>[0-9]+)/?$', views.round_update, name='updateRound'),
                   url(r'^maintainTeam/getTeamsForRound/(?P<round_pk>[0-9]+)/?$', views.get_teams_for_round),
                   url(r'^maintainTeam/getQuestionnaireForRound/(?P<round_pk>[0-9]+)/?$', views.get_questionnaire_for_round),
                   url(
@@ -71,7 +71,5 @@ urlpatterns = [
                       name="maintainRoundWithError"),
                   url(r'^maintainRound/delete/(?P<round_pk>[0-9]+)/?$', views.round_delete),
                   url(r'^maintainRound/update/(?P<round_pk>[0-9]+)/?$', views.round_update),
-                  url(r'^maintainRound/$', views.maintain_round, name='maintainRound'),
-                  url(r'^createRound/$', views.create_round, name='createRound'),
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

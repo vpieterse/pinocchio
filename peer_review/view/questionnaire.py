@@ -27,6 +27,9 @@ def save_questionnaire_progress(request):
         try:
             question = Question.objects.get(pk=request.POST.get('questionPk'))
             round_detail = RoundDetail.objects.get(pk=request.POST.get('roundPk'))
+            team_detail = TeamDetail.objects.get(user_id=request.POST.get('subjectUser'),roundDetail=request.POST.get('roundPk'))
+            team_detail.status= TeamDetail.IN_PROGRESS
+            team_detail.save()
         # except Question.DoesNotExist:
         except Exception:
             return JsonResponse({'result': 1})

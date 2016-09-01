@@ -91,8 +91,20 @@ tr .selectable {
     background: grey;
 }
 
+.center-element {
+    margin:0;
+            /*position: relative;
+            #top: 50%;
+            #transform: translateY(-150%);
+*/}
 .info {
     padding:10px;
     text-align:center;
     font-weight:bold;
+}
+
+.roundelement {
+    height:50px;
+    display:flex;
+    align-items:center;
 }

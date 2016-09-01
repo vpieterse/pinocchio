@@ -67,7 +67,7 @@
             {% if not preview %}
             <div class="btn-group panel-body">
                 <button class='btn btn-primary' onclick="saveProgress()">Save Progress</button>
-                <button type='submit' class='btn btn-success' onclick="saveProgress()">Submit</button>
+                <button type='submit' class='btn btn-success' onclick="saveProgressAndClose()">Submit</button>
             </div>
             {% endif %}
         </div>
@@ -95,6 +95,11 @@
             for (var x = 0; x < saveFunctions.length; x++)
                 saveFunctions[x]();
         }
+        //Save progress and the go back to the previous page
+        function saveProgressAndClose(){
+            saveProgress();
+            window.location="/activeRounds";
+        }
         //Tell the user whether the save succeeded or failed.
         function showFailure(failed){
             if (failed)
@@ -111,13 +116,31 @@
                 });
             }, 5000);
         }
+        
+
+        {% if not preview %}
+
+        function showSuccessMessage(failed) {
+            if (failed)
+            //Show failure message
+                $('#results').html('<div class="alert alert-danger">Error: One or more answers failed to save</div>');
+            else
+            //Show success message
+                $('#results').html('<div class="alert alert-success">Progress successfully saved!</div>');
+            //Make the alert box disappear after 5 seconds
+            window.setTimeout(function () {
+                $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                    $(this).remove();
+                });
+            }, 5000);
+        }
+
         //Sends the data to the view to be processed. Parameter data needs to be an object with fields:
         //  questionPk : The id of the question.
         //  roundPk : The id of the round.
         //  label : The id of the label (In the case of Label grouping).
         //  subjectUser : The id of the subject user (In the case of Rest or All groupings).
         //  answer : The answer to the question
-        {% if not preview %}
         function sendToView(data) {
             var failed = false;
             data.csrfmiddlewaretoken = $('input[name="csrfmiddlewaretoken"]').prop('value');
@@ -129,15 +152,13 @@
                 success: function (data) {
                     if (data.result === 1)
                         failed = true;
-                    showFailure(failed);
+                    showSuccessMessage(failed);
                 },
                 failure: function () {
-                    failed = true;
-                    showFailure(failed);
+                    showSuccessMessage(true);
                 },
                 error: function () {
-                    failed = true;
-                    showFailure(failed);
+                    showSuccessMessage(true);
                 }
             });
         }
