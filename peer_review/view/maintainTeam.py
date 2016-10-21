@@ -29,12 +29,12 @@ def change_team_status(request, team_pk, status):
     team.save()
     return JsonResponse({'success': True})
 	
-def change_user_team_for_round(request, round_pk, user_pk, team_name):
+def change_user_team_for_round(request, round_pk, userId, team_name):
     try:
-        team = TeamDetail.objects.filter(user_id=user_pk).get(roundDetail_id=round_pk)
+        team = TeamDetail.objects.filter(userId=userId).get(roundDetail_id=round_pk)
     except TeamDetail.DoesNotExist:
         team = TeamDetail(
-            user=User.objects.get(pk=user_pk),
+            user=User.objects.get(userId=userId),
             roundDetail=RoundDetail.objects.get(pk=round_pk)
         )
     team.teamName = team_name
