@@ -19,6 +19,7 @@ from django.shortcuts import render, redirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from wsgiref.util import FileWrapper
+from django.core.mail import send_mail
 
 from .forms import DocumentForm, UserForm, LoginForm
 from .models import Document
@@ -369,6 +370,8 @@ def generate_email(user_otp, post_name, post_surname, email):
     email_text = file.read()
     file.close()
 
+    email_subject = "Pinocchio Confirm Registration"
+
     email_text = email_text.replace(fn, post_name)
     email_text = email_text.replace(ln, post_surname)
     email_text = email_text.replace(otp, user_otp)
@@ -377,7 +380,7 @@ def generate_email(user_otp, post_name, post_surname, email):
 
     print(email_text)
 
-    # send_mail(email_subject, email_text, 'no-reply@pinocchio.cs.up.ac.za', [email], fail_silently=False)
+    #send_mail(email_subject, email_text, 'no-reply@pinocchio.cs.up.ac.za', [email], fail_silently=False)
 
 
 def submit_form(request):
