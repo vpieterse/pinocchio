@@ -20,7 +20,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from wsgiref.util import FileWrapper
 
-from .forms import DocumentForm, UserForm, LoginForm
+from .forms import DocumentForm, UserForm, LoginForm, ResetForm
 from .models import Document
 from .models import Question, RoundDetail, TeamDetail, Label, Response
 from .models import Questionnaire, QuestionOrder
@@ -31,6 +31,10 @@ from .view.questionAdmin import question_admin, edit_question, save_question, de
 from .view.questionnaireAdmin import questionnaire_admin, questionnaire_preview, edit_questionnaire, save_questionnaire, delete_questionnaire
 from .view.maintainTeam import maintain_team, change_team_status, change_user_team_for_round, get_teams_for_round, get_teams
 
+def forgot_password(request):
+    resetForm = ResetForm()
+    context = {'resetForm': resetForm}
+    return render(request, 'peer_review/forgotPassword.html', context)
 
 def active_rounds(request):
     if not request.user.is_authenticated():
@@ -104,6 +108,23 @@ def auth(request):
         # Access Denied
         messages.add_message(request, messages.ERROR, "Incorrect username or password")
         return redirect('/login/')
+    else:
+        return redirect('/login/')
+        
+def user_reset_password(request):
+    if request.method == 'POST':
+        form = ResetForm(request.POST)
+        if form.is_valid():
+            email = request.POST.get('email')
+            user = User.objects.get(email=email)
+            if user:
+                # Reset OTP for user
+                #messages.add_message(request, messages.success, "Password reset")
+                return reset_password(request, user.userId)
+            else:
+                # Email not found
+                message.add_message(request, messages.ERROR, "Could not find a user registered with email " + email)
+                return redirect('/forgotPassword/')
     else:
         return redirect('/login/')
 

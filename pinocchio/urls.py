@@ -8,6 +8,11 @@ from peer_review import views
 urlpatterns = [
                   url(r'^admin/', include(admin.site.urls)),
 
+                  url(r'^forgotPassword', views.forgot_password,
+                    name='forgotPassword'),
+                  url(r'^login/resetPass', views.user_reset_password,
+                    name='resetPass'),
+                  
                   url(r'^maintainRound/$', views.maintain_round, name='maintainRound'),
                   url(r'^createRound/$', views.create_round, name='createRound'),
 

@@ -19,6 +19,17 @@ class RegistrationForm(forms.ModelForm):
 class LoginForm(forms.Form):
     email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput)
+    
+class ResetForm(forms.Form):
+    class Meta:
+        model = User
+        fields = ['userId']
+    
+    userId = forms.CharField(
+        label="Username:",
+        max_length=30,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'userId',}),
+    )
 
 
 class UserForm(forms.ModelForm):
