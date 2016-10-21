@@ -7,7 +7,6 @@ from peer_review import views
 
 urlpatterns = [
                   url(r'^admin/', include(admin.site.urls)),
-                  url(r'^fileUpload', views.file_upload, name='fileUpload'),
 
                   url(r'^maintainRound/$', views.maintain_round, name='maintainRound'),
                   url(r'^createRound/$', views.create_round, name='createRound'),

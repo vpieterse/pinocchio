@@ -92,7 +92,8 @@ def auth(request):
             #if User.objects.get(email=email).OTP:
             #    messages.add_message(request, messages.ERROR, "OTP")
             #    return redirect('/login/')
-            user = authenticate(email=email, password=password)
+            userId = User.objects.get(email=email).userId
+            user = authenticate(userId=userId, password=password)
             if user:
                 if user.is_active:
                     django_login(request, user)
@@ -342,13 +343,13 @@ def submit_form(request):
     return HttpResponseRedirect("../")
 
 
-def get_user(request, user_pk):
+def get_user(request, userId):
     if not request.user.is_authenticated():
         return user_error(request)
 
     response = {}
     if request.method == "GET":
-        user = User.objects.get(pk=user_pk)
+        user = User.objects.get(pk=userId)
         response = {
             'userId': user.userId,
             'name': user.name,
@@ -357,12 +358,12 @@ def get_user(request, user_pk):
     return JsonResponse(response)
 
 
-def user_profile(request, user_pk):
+def user_profile(request, userId):
     if not request.user.is_authenticated():
         return user_error(request)
 
     if request.method == "GET":
-        user = User.objects.get(pk=user_pk)
+        user = User.objects.get(pk=userId)
     # TODO Add else
     return render(request, 'peer_review/userProfile.html', {'user': user})
 
@@ -379,11 +380,10 @@ def user_delete(request):
     return HttpResponseRedirect('../')
 
 
-def user_update(request, user_pk):
+def user_update(request, userId):
     if request.method == "POST":
-        user = User.objects.get(pk=user_pk)
+        user = User.objects.get(pk=userId)
 
-        post_user_id = request.POST.get("userId")
         post_title = request.POST.get("title")
         post_initials = request.POST.get("initials")
         post_name = request.POST.get("name")
@@ -392,7 +392,6 @@ def user_update(request, user_pk):
         post_email = request.POST.get("email")
         post_status = request.POST.get("status")
 
-        user.userId = post_user_id
         user.status = post_status
         user.title = post_title
         user.initials = post_initials
@@ -563,9 +562,15 @@ def write_dump(round_pk):
     dump_file = 'media/dumps/' + str(round_pk) + '.csv'
     data = [['ROUND ID:', round_pk],
             ['DUMP DATE:', time.strftime("%d/%m/%Y %H:%M:%S")], [''],
-            ['QID', 'QUESTION', 'ANSWER'],
-            ['x', 'x', 'x'],
-            ['y', 'y', 'xy']]
+            ['QUESTION', 'ANSWER', 'USERID']]
+    
+    roundData = Response.objects.filter(roundDetail=round_pk)
+    
+    if len(roundData) > 0:
+        for item in roundData:
+            data.append([item.question.questionText, item.answer, item.user.userId])
+    else:
+        data.append(['NO DATA'])
 
     with open(dump_file, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')

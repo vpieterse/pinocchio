@@ -21,133 +21,137 @@ Todo:
                 <div class="alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
             {% endfor %}
         {% endif %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title">Create Question</h4>
-            </div>
-            <div class="panel-body">
-                <form onsubmit="return save()" onreset="empty()" id="form-save" method="POST"
-                      action="/questionAdmin/save">
-                    {% csrf_token %}
-                    <fieldset class="form-group">
-                        <!-- Title -->
-                        <label for="question-title">Title</label>
-                        <input type="text" name="question-title" class="form-control" id="question-title"
-                               placeholder="Enter title" value="{{ question.questionLabel }}" required>
-                        <small class="text-muted">A short identifying name to be used in making questionnaires</small>
-                    </fieldset>
-                    <!-- Question Content -->
-                    <fieldset class="form-group">
-                        <label for="question-content">Question</label>
-                        <textarea class="form-control" id="question-content" name="question-content" rows="3"
-                                  style="resize:none;width:100%" required>{{ question.questionText }}</textarea>
-                    </fieldset>
-                    <!-- Grouping/Type headings -->
-                    <div class="row">
-                        <div class="col-xs-6">
-                            <div class="pull-left">
-                                <label>Question Grouping</label>
-                            </div>
-                        </div>
-                        <div class="col-xs-6">
-                            <div class="pull-right">
-                                <label>Question Type</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <!-- Groupings -->
-                        <div class="col-xs-6">
-                            <div class="btn-group pull-left" id="groupings">
-                                <label class="btn btn-default active" onclick="changeGrouping('Rest')">
-                                    Rest
-                                </label>
-                                <label class="btn btn-default" onclick="changeGrouping('None')">
-                                    None
-                                </label>
-                                <label class="btn btn-default" onclick="changeGrouping('All')">
-                                    All
-                                </label>
-                                <label class="btn btn-default" onclick="changeGrouping('Label')">
-                                    Label
-                                </label>
-                            </div>
-                        </div>
-                        <!-- Types -->
-                        <div class="col-xs-6">
-                            <div class="btn-group pull-right" id="types">
-                                <label class="btn btn-default active" onclick="changeType('Choice')">
-                                    Choice
-                                </label>
-                                <label class="btn btn-default" onclick="changeType('Freeform')">
-                                    Freeform
-                                </label>
-                                <label class="btn btn-default" onclick="changeType('Rank')">
-                                    Rank
-                                </label>
-                                <label class="btn btn-default" onclick="changeType('Rate')">
-                                    Rate
-                                </label>
-                                <label class="btn btn-default" onclick="changeType('Label')">
-                                    Label
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    <input type="hidden" name="question-grouping" id="question-grouping" value="Rest">
-                    <input type="hidden" name="question-type" id="question-type" value="Choice">
-                    <input type="hidden" id="question-choices" name="question-choices">
-                    <input type="hidden" id="question-labels" name="question-labels">
-                    {% if question %}
-                        <input type="hidden" name="question-pk" value="{{ question.pk }}">
-                    {% endif %}
-                    <br/>
-                    <div id="content">
-                        <div class="row">
-                            <div class="col-xs-6">
-                                <small>Loading..</small>
-                                <table class="table table-bordered">
-                                    <thead>
-                                    <tr>
-                                        <th class="text-center">
-                                            <span>Choices</span>
-                                            <span style="cursor: pointer" onclick="addRowToTable(this)"
-                                                  class="glyphicon glyphicon-plus-sign pull-right text-primary"></span>
-                                        </th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="col-xs-6 labels-go-here">
-                            </div>
-                        </div>
-                    </div>
-                    <br/>
-                    <button type="submit" class="btn btn-primary">
-                        <span class="glyphicon glyphicon-ok"></span>
-                        Submit
-                    </button>
-                    <button type="reset" class="btn btn-primary pull-right">
-                        <span class="glyphicon glyphicon-remove"></span>
-                        {% if question %}
-                            Cancel Edit
-                        {% else %}
-                            Clear
-                        {% endif %}
-                    </button>
-                </form>
-            </div>
-        </div>
         <div class="panel-group" id="accordion">
             <div class="panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
                     <h4 class="panel-title">
-                        Maintain Questions <b class="caret"></b>
+                        <b>Create Question</b><b class="caret"></b>
                     </h4>
                 </div>
-                <div id="collapseOne" class="panel-collapse collapse">
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <form onsubmit="return save()" onreset="empty()" id="form-save" method="POST"
+                            action="/questionAdmin/save">
+                            {% csrf_token %}
+                            <fieldset class="form-group">
+                                <!-- Title -->
+                                <label for="question-title">Title</label>
+                                <input type="text" name="question-title" class="form-control" id="question-title"
+                                    placeholder="Enter title" value="{{ question.questionLabel }}" required>
+                                <small class="text-muted">A short identifying name to be used in making questionnaires</small>
+                            </fieldset>
+                            <!-- Question Content -->
+                            <fieldset class="form-group">
+                                <label for="question-content">Question</label>
+                                <textarea class="form-control" id="question-content" name="question-content" rows="3"
+                                        style="resize:none;width:100%" required>{{ question.questionText }}</textarea>
+                            </fieldset>
+                            <!-- Grouping/Type headings -->
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <div class="pull-left">
+                                        <label>Question Grouping</label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-6">
+                                    <div class="pull-right">
+                                        <label>Question Type</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <!-- Groupings -->
+                                <div class="col-xs-6">
+                                    <div class="btn-group pull-left" id="groupings">
+                                        <label class="btn btn-default active" onclick="changeGrouping('Rest')">
+                                            Rest
+                                        </label>
+                                        <label class="btn btn-default" onclick="changeGrouping('None')">
+                                            None
+                                        </label>
+                                        <label class="btn btn-default" onclick="changeGrouping('All')">
+                                            All
+                                        </label>
+                                        <label class="btn btn-default" onclick="changeGrouping('Label')">
+                                            Label
+                                        </label>
+                                    </div>
+                                </div>
+                                <!-- Types -->
+                                <div class="col-xs-6">
+                                    <div class="btn-group pull-right" id="types">
+                                        <label class="btn btn-default active" onclick="changeType('Choice')">
+                                            Choice
+                                        </label>
+                                        <label class="btn btn-default" onclick="changeType('Freeform')">
+                                            Freeform
+                                        </label>
+                                        <label class="btn btn-default" onclick="changeType('Rank')">
+                                            Rank
+                                        </label>
+                                        <label class="btn btn-default" onclick="changeType('Rate')">
+                                            Rate
+                                        </label>
+                                        <label class="btn btn-default" onclick="changeType('Label')">
+                                            Label
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="question-grouping" id="question-grouping" value="Rest">
+                            <input type="hidden" name="question-type" id="question-type" value="Choice">
+                            <input type="hidden" id="question-choices" name="question-choices">
+                            <input type="hidden" id="question-labels" name="question-labels">
+                            {% if question %}
+                                <input type="hidden" name="question-pk" value="{{ question.pk }}">
+                            {% endif %}
+                            <br/>
+                            <div id="content">
+                                <div class="row">
+                                    <div class="col-xs-6">
+                                        <small>Loading..</small>
+                                        <table class="table table-bordered">
+                                            <thead>
+                                            <tr>
+                                                <th class="text-center">
+                                                    <span>Choices</span>
+                                                    <span style="cursor: pointer" onclick="addRowToTable(this)"
+                                                        class="glyphicon glyphicon-plus-sign pull-right text-primary"></span>
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="col-xs-6 labels-go-here">
+                                    </div>
+                                </div>
+                            </div>
+                            <br/>
+                            <button type="submit" class="btn btn-primary">
+                                <span class="glyphicon glyphicon-ok"></span>
+                                Submit
+                            </button>
+                            <button type="reset" class="btn btn-primary pull-right">
+                                <span class="glyphicon glyphicon-remove"></span>
+                                {% if question %}
+                                    Cancel Edit
+                                {% else %}
+                                    Clear
+                                {% endif %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
+                    <h4 class="panel-title">
+                        <b>Maintain Questions</b><b class="caret"></b>
+                    </h4>
+                </div>
+                <div id="collapseTwo" class="panel-collapse collapse">
                     <div class="panel-body">
                         <input type="text" class="form-control" id="question-search"
                                placeholder="Start typing to search">

@@ -29,7 +29,7 @@ class UserTests(TestCase):
 
     # Simple test to see if questionAdmin is rendered
     def test_questionAdmin(self):
-        self.client.login(username='admin@admin.com', password='admin')
+        self.client.login(username='1111', password='admin')
         url = reverse('questionAdmin')
         response = self.client.get(url, follow = True)
         self.assertEqual(response.status_code, 200)
@@ -37,7 +37,7 @@ class UserTests(TestCase):
 
     # Simple test to see if questionnaireAdmin is rendered
     def test_questionnaireAdmin(self):
-        self.client.login(username='bob@bob.com', password='bob')
+        self.client.login(username='1234', password='bob')
         url = reverse('questionnaireAdmin')
         response = self.client.get(url, follow = True)
         self.assertEqual(response.status_code, 200)
@@ -45,7 +45,7 @@ class UserTests(TestCase):
 
     def test_user_list(self):
         print("--- user_list Test ---\n")
-        self.client.login(username='bob@bob.com', password='bob')
+        self.client.login(username='1234', password='bob')
         url = reverse('userAdmin')
         response = self.client.get(url, follow = True)
         print(response.context['users']())
@@ -56,7 +56,7 @@ class UserTests(TestCase):
     def test_get_user(self):
         # Tests if current user is recognised
         print("--- get_user Test ---\n")
-        self.client.login(username='joe@joe.com', password='joe')
+        self.client.login(username='5678', password='joe')
         response = self.client.get('/accountDetails/1234')
         request = response.wsgi_request
         logged_user = json.loads(get_user(request, request.user.userId).content.decode())
@@ -69,7 +69,7 @@ class UserTests(TestCase):
     def test_authentication(self):
         # Test redirection when access is granted and denied
         print("--- Authenticatoin Test ---\n")
-        self.client.login(username='joe@joe.com', password='joe')
+        self.client.login(username='5678', password='joe')
         response = self.client.get('/accountDetails/')
         request = response.wsgi_request
         print("Granted Status Code: " + str(response.status_code))
@@ -77,7 +77,7 @@ class UserTests(TestCase):
         self.assertTemplateUsed(response, 'peer_review/accountDetails.html')
         # Logout and try false details
         self.client.logout()
-        self.client.login(username='bob@bob.com', password='bobby')
+        self.client.login(username='1234', password='bobby')
         response = self.client.get('/accountDetails/')
         request = response.wsgi_request
         print("Denied Status Code: " + str(response.status_code))
