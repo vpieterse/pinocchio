@@ -144,7 +144,7 @@
         function sendToView(data) {
             var failed = false;
             data.csrfmiddlewaretoken = $('input[name="csrfmiddlewaretoken"]').prop('value');
-            console.log('saving');
+            // console.log('saving');
             $.ajax({
                 url: "/questionnaire/saveProgress/",
                 type: "POST",
