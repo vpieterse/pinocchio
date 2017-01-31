@@ -122,8 +122,6 @@ class UserManager(BaseUserManager):
             **kwargs
         )
         user.set_password(password)
-        # TODO: Must go to every place that uses create_user and take out the emailing functionality
-        generate_email(password, name, surname, email)
         user.save(using=self._db)
         return user
 
