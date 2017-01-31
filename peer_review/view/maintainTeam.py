@@ -24,7 +24,7 @@ def maintain_team(request):
                    'roundPk': round_pk}
 
     else:
-        context = {'users': User.objects.filter(is_active=1, status='S'),
+        context = {'users': User.objects.filter(Q(is_active=1) & (Q(status='S') | Q(status='U'))),
                    'rounds': RoundDetail.objects.all(),
                    'teams': TeamDetail.objects.all(),
                    'roundPk': "none"}
