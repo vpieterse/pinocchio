@@ -1,5 +1,5 @@
 import random
-
+import string
 
 def generate_otp():
     n = random.randint(4, 10)
