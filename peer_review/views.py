@@ -1,7 +1,6 @@
 import csv
 import hashlib
 import os
-import random
 import string
 import time
 import uuid
@@ -21,6 +20,7 @@ from django.template import RequestContext
 from wsgiref.util import FileWrapper
 from django.core.mail import send_mail
 
+from peer_review.generate_otp import generate_otp
 from .forms import DocumentForm, UserForm, LoginForm, ResetForm
 from .models import Document
 from .models import Question, RoundDetail, TeamDetail, Label, Response
@@ -33,6 +33,7 @@ from .view.questionnaireAdmin import questionnaire_admin, questionnaire_preview,
 from .view.maintainTeam import maintain_team, change_team_status, change_user_team_for_round, get_teams_for_round, get_teams
 from .view.userManagement import forgot_password
 from .view.userFunctions import account_details, active_rounds, get_team_members, reset_password, user_error, user_reset_password
+from .view.roundManagement import maintain_round
 
 
 def login(request):
@@ -69,7 +70,6 @@ def auth(request):
         return redirect('/login/')
 
 
-
 def detail(request, question_id):
     return HttpResponse("You're looking at question %s." % question_id)
 
@@ -101,11 +101,6 @@ def file_upload(request):
         , context_instance=RequestContext(request)
     )
 
-
-def maintain_round(request):
-    context = {'roundDetail': RoundDetail.objects.all(),
-               'questionnaires': Questionnaire.objects.all()}
-    return render(request, 'peer_review/maintainRound.html', context)
 
 # def questionAdmin(request):
 #     # print(request.user.is_authenticated())
@@ -235,8 +230,6 @@ def get_questionnaire_for_team(request):
         return redirect('accountDetails')
 
 
-
-
 @login_required
 def user_list(request):
     users = User.objects.all
@@ -297,11 +290,7 @@ def change_team_status(request, team_pk, status):
     return JsonResponse({'success': True})
 
 
-def generate_otp():
-    n = random.randint(4, 10)
-    otp = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits + string.ascii_lowercase)
-                  for _ in range(n))
-    return otp
+
 
 
 def hash_password(password):

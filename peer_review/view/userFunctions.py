@@ -4,8 +4,9 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 
 from peer_review.forms import ResetForm
+from peer_review.generate_otp import generate_otp
 from peer_review.models import RoundDetail, TeamDetail, User
-from peer_review.views import generate_otp, generate_email, hash_password
+from peer_review.views import generate_email, hash_password
 
 
 def account_details(request):
