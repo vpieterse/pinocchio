@@ -136,7 +136,7 @@ def get_questionnaire_for_team(request):
         return redirect('accountDetails')
 
 
-@user_required
+@admin_required
 def user_list(request):
     users = User.objects.all
     user_form = UserForm()
