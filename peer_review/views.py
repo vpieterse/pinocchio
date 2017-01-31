@@ -31,58 +31,14 @@ from .models import User
 from .view.questionAdmin import question_admin, edit_question, save_question, delete_question
 from .view.questionnaireAdmin import questionnaire_admin, questionnaire_preview, edit_questionnaire, save_questionnaire, delete_questionnaire
 from .view.maintainTeam import maintain_team, change_team_status, change_user_team_for_round, get_teams_for_round, get_teams
-
-def forgot_password(request):
-    resetForm = ResetForm()
-    context = {'resetForm': resetForm}
-    return render(request, 'peer_review/forgotPassword.html', context)
-
-def active_rounds(request):
-    if not request.user.is_authenticated():
-        return user_error(request)
-
-    user = request.user
-    teams = TeamDetail.objects.filter(user=user).order_by('roundDetail__startingDate')
-    #exp_teams = TeamDetail.objects.filter(user=user and roundDetail.endingDate<datetime.date.now())
-    context = {'teams': teams}
-    return render(request, 'peer_review/activeRounds.html', context)
-
-
-def team_members(request):
-    if not request.user.is_authenticated():
-        return user_error(request)
-
-    user = request.user
-    rounds = RoundDetail.objects.all()
-    team_list = []
-    team_members = []
-    for team in TeamDetail.objects.filter(user=user):
-        teamName = team.teamName
-        roundName = RoundDetail.objects.get(pk=team.roundDetail.pk).name
-        team_list.append(team)
-        for teamItem in TeamDetail.objects.filter(teamName=team.teamName):
-            if teamItem.user != user:
-                print(teamItem)
-                team_members.append(teamItem)
-    context = {'teams': team_list, 'members': team_members}
-    print(team_list)
-    print(team_members)
-    return render(request, 'peer_review/teamMembers.html', context)
-
-
-def account_details(request):
-    if not request.user.is_authenticated():
-        return user_error(request)
-
-    user = User.objects.get(userId=request.user.userId)
-    context = {'user': user}
-    return render(request, 'peer_review/accountDetails.html', context)
+from .view.userManagement import forgot_password
+from .view.userFunctions import account_details, active_rounds, get_team_members, reset_password, user_error, user_reset_password
 
 
 def login(request):
     logout(request)
-    loginForm = LoginForm()
-    context = {'loginForm': loginForm}
+    login_form = LoginForm()
+    context = {'loginForm': login_form}
     return render(request, 'peer_review/login.html', context)
 
 
@@ -93,11 +49,11 @@ def auth(request):
             email = request.POST.get('email')
             password = request.POST.get('password')
             # Redirect if OTP is set
-            #if User.objects.get(email=email).OTP:
+            # if User.objects.get(email=email).OTP:
             #    messages.add_message(request, messages.ERROR, "OTP")
             #    return redirect('/login/')
-            userId = User.objects.get(email=email).userId
-            user = authenticate(userId=userId, password=password)
+            user_id = User.objects.get(email=email).userId
+            user = authenticate(userId=user_id, password=password)
             if user:
                 if user.is_active:
                     django_login(request, user)
@@ -111,23 +67,7 @@ def auth(request):
         return redirect('/login/')
     else:
         return redirect('/login/')
-        
-def user_reset_password(request):
-    if request.method == 'POST':
-        form = ResetForm(request.POST)
-        if form.is_valid():
-            email = request.POST.get('email')
-            user = User.objects.get(email=email)
-            if user:
-                # Reset OTP for user
-                #messages.add_message(request, messages.success, "Password reset")
-                return reset_password(request, user.userId)
-            else:
-                # Email not found
-                message.add_message(request, messages.ERROR, "Could not find a user registered with email " + email)
-                return redirect('/forgotPassword/')
-    else:
-        return redirect('/login/')
+
 
 
 def detail(request, question_id):
@@ -295,9 +235,6 @@ def get_questionnaire_for_team(request):
         return redirect('accountDetails')
 
 
-def user_error(request):
-    # Renders error page with a 403 status code for forbidden users
-    return HttpResponseForbidden(render(request, 'peer_review/userError.html'))
 
 
 @login_required
@@ -501,20 +438,6 @@ def user_update(request, userId):
         user.save()
     return HttpResponseRedirect('../')
 
-
-def reset_password(request, userId):
-    if request.method == "POST":
-        userPk = userId
-        user = User.objects.get(userId=userPk)
-
-        new_otp = generate_otp()
-        generate_email(new_otp, user.name, user.surname, user.email)
-        password = hash_password(new_otp)
-
-        user.password = password
-        user.save()
-
-        return HttpResponseRedirect('../')
 
 
 def add_csv_info(user_list):
