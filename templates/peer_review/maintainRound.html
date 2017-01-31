@@ -215,9 +215,8 @@
                                             <option selected value="{{round.questionnaire.pk}}">{{ round.questionnaire.intro}}</option>
                                             {% for quest in questionnaires %}
                                                 {% if round.questionnaire.intro == quest.intro %}
-
                                                 {% else %}
-                                                    <option value="{{quest.pk}}">{{ quest.intro }}</option>
+                                                    <option value="{{quest.pk}}">{{ quest.label }}</option>
                                                 {% endif %}
                                             {% endfor %}
                                         </select>
@@ -323,7 +322,7 @@
                                                         {% if round.questionnaire.intro == quest.intro %}
 
                                                         {% else %}
-                                                            <option value="{{quest.pk}}">{{ quest.intro }}</option>
+                                                            <option value="{{quest.pk}}">{{ quest.label }}</option>
                                                         {% endif %}
                                                     {% endfor %}
                                             </div>
@@ -360,7 +359,7 @@
                                                         {% if round.questionnaire.intro == quest.intro %}
                                                         {% else %}
                                                             <option value="{{quest.pk}}">
-                                                                {{ quest.intro }}
+                                                                {{ quest.label }}
                                                             </option>
                                                         {% endif %}
                                                     {% endfor %}
