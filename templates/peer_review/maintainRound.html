@@ -214,7 +214,7 @@
 
                                             <option selected value="{{round.questionnaire.pk}}">{{ round.questionnaire.intro}}</option>
                                             {% for quest in questionnaires %}
-                                                {% if round.questionnaire.intro = quest.intro %}
+                                                {% if round.questionnaire.intro == quest.intro %}
 
                                                 {% else %}
                                                     <option value="{{quest.pk}}">{{ quest.intro }}</option>
@@ -320,7 +320,7 @@
                                             <div >
                                                 <option selected value="{{round.questionnaire.pk}}">{{ round.questionnaire.intro}}</option>
                                                     {% for quest in questionnaires %}
-                                                        {% if round.questionnaire.intro = quest.intro %}
+                                                        {% if round.questionnaire.intro == quest.intro %}
 
                                                         {% else %}
                                                             <option value="{{quest.pk}}">{{ quest.intro }}</option>
