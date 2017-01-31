@@ -29,7 +29,7 @@ urlpatterns = [
                   url(r'^login/$', views.login, name='login'),
                   # url(r'^questionnaire/(?P<questionnaire_pk>[0-9]+)/?$', views.questionnaire, name='questionnaire'),
                   url(r'^activeRounds/$', views.active_rounds, name='activeRounds'),
-                  url(r'^teamMembers/$', views.team_members, name='teamMembers'),
+                  url(r'^teamMembers/$', views.get_team_members, name='teamMembers'),
                   url(r'^accountDetails/$', views.account_details, name='accountDetails'),
 
                   url(r'^$', views.index, name='index'),
