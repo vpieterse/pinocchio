@@ -17,7 +17,7 @@ class RegistrationForm(forms.ModelForm):
 
 
 class LoginForm(forms.Form):
-    email = forms.EmailField()
+    userName = forms.Field()
     password = forms.CharField(widget=forms.PasswordInput)
     
 class ResetForm(forms.Form):
@@ -45,7 +45,7 @@ class UserForm(forms.ModelForm):
 
     status = forms.ChoiceField(
         label="Status:",
-        choices=(('', '',), ('S', 'Student',), ('A', 'Admin',)),
+        choices=(('', '',), ('U', 'User',), ('A', 'Admin',)),
         widget=forms.Select(attrs={'class': 'form-control', 'id': 'status'}),
     )
 

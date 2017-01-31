@@ -14,7 +14,6 @@ def forgot_password(request):
     return render(request, 'peer_review/forgotPassword.html', context)
 
 
-@admin_required
 def submit_new_user_form(request):
     if request.method == "POST":
         user_form = UserForm(request.POST)
