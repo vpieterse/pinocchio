@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
@@ -35,19 +36,19 @@ def submit_new_user_form(request):
                                             cell=post_cell, email=post_email, userId=post_user_id, password=otp)
 
             if not user:
-                messages.add_message(request, messages.ERROR, "User could not be user")
+                messages.add_message(request, messages.ERROR, "User could not be added")
 
-            generate_email(otp, post_name, post_surname, post_email)
+            else:
+                generate_email(otp, post_name, post_surname, post_email)
 
-            post_status = user_form.cleaned_data['status']
-            user.status = post_status
-            user.save()
-            print("created user")
+                post_status = user_form.cleaned_data['status']
+                user.status = post_status
+                user.save()
+                print("created user")
 
-            for roundObj in RoundDetail.objects.all():
-                team = TeamDetail(user=user, roundDetail=roundObj)
-                team.save()
-
+                for roundObj in RoundDetail.objects.all():
+                    team = TeamDetail(user=user, roundDetail=roundObj)
+                    team.save()
             return HttpResponseRedirect("../")
     else:
         user_form = UserForm()
