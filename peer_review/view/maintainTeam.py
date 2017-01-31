@@ -41,7 +41,7 @@ def change_user_team_for_round(request, round_pk, userId, team_name):
     if team_name == 'emptyTeam':
         team.status = 'NA'
     team.save()
-    return JsonResponse({'success': True})
+    return JsonResponse({'success': True, 'team_pk': team.pk})
 
 def get_teams_for_round(request, round_pk):
     teams = TeamDetail.objects.filter(roundDetail_id=round_pk)
