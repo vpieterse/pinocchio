@@ -17,7 +17,7 @@ class RegistrationForm(forms.ModelForm):
 
 
 class LoginForm(forms.Form):
-    email = forms.EmailField()
+    userName = forms.Field()
     password = forms.CharField(widget=forms.PasswordInput)
     
 class ResetForm(forms.Form):

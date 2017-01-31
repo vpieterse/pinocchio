@@ -12,6 +12,7 @@ from peer_review.forms import DocumentForm
 from peer_review.view.userFunctions import user_error
 
 
+
 def maintain_team(request):
     if request.method == "POST":
         round_pk = request.POST.get("roundPk")
@@ -179,4 +180,3 @@ def validate_team_csv(row):
             except ValueError:
                 return 3
     return 0
-
