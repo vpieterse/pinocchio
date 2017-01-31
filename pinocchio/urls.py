@@ -34,7 +34,6 @@ urlpatterns = [
                     url(r'^accountDetails/$', views.account_details, name='accountDetails'),
 
                     url(r'^$', views.index, name='index'),
-                    url(r'^(?P<question_id>[0-9]+)/$', views.detail, name='detail'),
                     url(r'^userAdmin/submitForm/?$', peer_review.view.userManagement.submit_new_user_form),
                     url(r'^userAdmin/submitCSV/$', views.submit_csv, name="submitCSV"),
                     url(r'^userAdmin/userProfile/(?P<userId>[0-9]+)/?$', views.user_profile, name="userProfile"),
