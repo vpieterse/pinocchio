@@ -17,13 +17,13 @@ def maintain_team(request):
     if request.method == "POST":
         round_pk = request.POST.get("roundPk")
 
-        context = {'users': User.objects.all(),
+        context = {'users': User.objects.filter(is_active=1, status='S'),
                    'rounds': RoundDetail.objects.all(),
                    'teams': TeamDetail.objects.all(),
                    'roundPk': round_pk}
 
     else:
-        context = {'users': User.objects.all(),
+        context = {'users': User.objects.filter(is_active=1, status='S'),
                    'rounds': RoundDetail.objects.all(),
                    'teams': TeamDetail.objects.all(),
                    'roundPk': "none"}
