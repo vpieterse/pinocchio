@@ -19,8 +19,9 @@ from django.shortcuts import render, redirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from wsgiref.util import FileWrapper
+from django.core.mail import send_mail
 
-from .forms import DocumentForm, UserForm, LoginForm
+from .forms import DocumentForm, UserForm, LoginForm, ResetForm
 from .models import Document
 from .models import Question, RoundDetail, TeamDetail, Label, Response
 from .models import Questionnaire, QuestionOrder
@@ -32,6 +33,10 @@ from .view.questionnaireAdmin import questionnaire_admin, questionnaire_preview,
 from .view.maintainTeam import maintain_team, change_team_status, change_user_team_for_round, get_teams_for_round, get_teams
 from .view.questionnaire import questionnaire, save_questionnaire_progress, get_responses
 
+def forgot_password(request):
+    resetForm = ResetForm()
+    context = {'resetForm': resetForm}
+    return render(request, 'peer_review/forgotPassword.html', context)
 
 def active_rounds(request):
     if not request.user.is_authenticated():
@@ -105,6 +110,23 @@ def auth(request):
         # Access Denied
         messages.add_message(request, messages.ERROR, "Incorrect username or password")
         return redirect('/login/')
+    else:
+        return redirect('/login/')
+        
+def user_reset_password(request):
+    if request.method == 'POST':
+        form = ResetForm(request.POST)
+        if form.is_valid():
+            email = request.POST.get('email')
+            user = User.objects.get(email=email)
+            if user:
+                # Reset OTP for user
+                #messages.add_message(request, messages.success, "Password reset")
+                return reset_password(request, user.userId)
+            else:
+                # Email not found
+                message.add_message(request, messages.ERROR, "Could not find a user registered with email " + email)
+                return redirect('/forgotPassword/')
     else:
         return redirect('/login/')
 
@@ -295,6 +317,8 @@ def generate_email(user_otp, post_name, post_surname, email):
     email_text = file.read()
     file.close()
 
+    email_subject = "Pinocchio Confirm Registration"
+
     email_text = email_text.replace(fn, post_name)
     email_text = email_text.replace(ln, post_surname)
     email_text = email_text.replace(otp, user_otp)
@@ -303,7 +327,7 @@ def generate_email(user_otp, post_name, post_surname, email):
 
     print(email_text)
 
-    # send_mail(email_subject, email_text, 'no-reply@pinocchio.cs.up.ac.za', [email], fail_silently=False)
+    #send_mail(email_subject, email_text, 'no-reply@pinocchio.cs.up.ac.za', [email], fail_silently=False)
 
 
 def submit_form(request):
