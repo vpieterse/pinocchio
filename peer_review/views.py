@@ -19,6 +19,7 @@ from wsgiref.util import FileWrapper
 from django.core.mail import send_mail
 
 from peer_review.decorators.adminRequired import admin_required
+from peer_review.decorators.userRequired import user_required
 from peer_review.generate_otp import generate_otp
 from .forms import DocumentForm, UserForm, LoginForm, ResetForm
 from .models import Document
@@ -135,7 +136,7 @@ def get_questionnaire_for_team(request):
         return redirect('accountDetails')
 
 
-@admin_required
+@user_required
 def user_list(request):
     users = User.objects.all
     user_form = UserForm()
@@ -175,11 +176,8 @@ def get_user(request, userId):
         }
     return JsonResponse(response)
 
-
+@user_required
 def user_profile(request, userId):
-    if not request.user.is_authenticated():
-        return user_error(request)
-
     if request.method == "GET":
         user = User.objects.get(pk=userId)
     # TODO Add else
