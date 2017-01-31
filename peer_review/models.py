@@ -117,6 +117,8 @@ class UserManager(BaseUserManager):
         user = self.model(
             email=self.normalize_email(email),
             is_active=True,
+            name=name,
+            surname=surname,
             **kwargs
         )
         user.set_password(password)

@@ -29,6 +29,7 @@ def add_csv_info(user_list):
         user.save()
     return  # todo return render request
 
+
 def submit_csv(request):
     if not request.user.is_authenticated():
         return user_error(request)
