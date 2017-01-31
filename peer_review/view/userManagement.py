@@ -5,6 +5,7 @@ from peer_review.email import generate_email
 from peer_review.forms import ResetForm, UserForm
 from peer_review.generate_otp import generate_otp
 from peer_review.models import User, RoundDetail, TeamDetail
+from peer_review.decorators.adminRequired import admin_required
 
 
 def forgot_password(request):
@@ -13,6 +14,7 @@ def forgot_password(request):
     return render(request, 'peer_review/forgotPassword.html', context)
 
 
+@admin_required
 def submit_new_user_form(request):
     if request.method == "POST":
         user_form = UserForm(request.POST)
