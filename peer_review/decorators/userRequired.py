@@ -1,24 +1,19 @@
+from http.client import HTTPResponse
+
+from django.http.response import Http404
 from django.shortcuts import redirect
 
-
-def admin_required_test(user):
-    if user.is_active and user.is_authenticated:
-        if user.status == 'A' or user.is_superuser or user.is_staff:
-            return True
-
-    return False
+from peer_review.view.questionAdmin import user_error
 
 
-def admin_required(function=None, redirect_field_name=None, login_url='/login/'):
+def user_required(function=None, login_url='/login/'):
     """
-    Decorator for views that checks that the user is logged in
-    and has the "admin" permission set. Users with an 'A' status
-    field are considered admin.
+    Wrapper of Django's login_required to add custom behaviour and redirects.
     """
 
     def _decorated(view_func):
         def _view(request, *args, **kwargs):
-            if admin_required_test(request.user):
+            if request.user.is_authenticated :
                 return view_func(request, *args, **kwargs)
             else:
                 #return view_func(request, *args, **kwargs)

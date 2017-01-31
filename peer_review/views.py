@@ -3,6 +3,7 @@ import os
 import time
 import mimetypes
 
+from django.conf import UserSettingsHolder
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as django_login, logout
 from django.contrib.auth.decorators import login_required
@@ -17,6 +18,8 @@ from django.template import RequestContext
 from wsgiref.util import FileWrapper
 from django.core.mail import send_mail
 
+from peer_review.decorators.adminRequired import admin_required
+from peer_review.decorators.userRequired import user_required
 from peer_review.generate_otp import generate_otp
 from .forms import DocumentForm, UserForm, LoginForm, ResetForm
 from .models import Document
@@ -28,10 +31,9 @@ from .models import User
 from peer_review.email import generate_email
 from peer_review.passwordUtility import generate_otp
 from peer_review.passwordUtility import hash_password
-from peer_review.view.user import user_error
 from .view.questionAdmin import question_admin, edit_question, save_question, delete_question
 from .view.questionnaireAdmin import questionnaire_admin, questionnaire_preview, edit_questionnaire, save_questionnaire, delete_questionnaire
-from .view.maintainTeam import maintain_team, change_team_status, change_user_team_for_round, get_teams_for_round, get_teams
+from .view.maintainTeam import maintain_team, change_team_status, change_user_team_for_round, get_teams_for_round, get_teams, submit_team_csv
 
 from .view.questionnaire import questionnaire, save_questionnaire_progress, get_responses
 from .view.userAdmin import add_csv_info, submit_csv
@@ -130,7 +132,7 @@ def get_questionnaire_for_team(request):
         return redirect('accountDetails')
 
 
-@login_required
+@admin_required
 def user_list(request):
     users = User.objects.all
     user_form = UserForm()
@@ -170,11 +172,8 @@ def get_user(request, userId):
         }
     return JsonResponse(response)
 
-
+@user_required
 def user_profile(request, userId):
-    if not request.user.is_authenticated():
-        return user_error(request)
-
     if request.method == "GET":
         user = User.objects.get(pk=userId)
     # TODO Add else
@@ -265,93 +264,6 @@ def update_email(request):
         file.write(email_text)
         file.close()
     return HttpResponseRedirect('../')
-
-
-def add_team_csv_info(team_list):
-    for row in team_list:
-        user_det_id = User.objects.get(userId=row['userID']).pk
-        round_det_id = RoundDetail.objects.get(name=row['roundDetail']).pk
-        change_user_team_for_round("", round_det_id, user_det_id, row['teamName'])
-    return 1
-
-
-def submit_team_csv(request):
-    if not request.user.is_authenticated():
-        return user_error(request)
-
-    global errortype
-    if request.method == 'POST':
-        form = DocumentForm(request.POST, request.FILES)
-        file_path = newdoc.docfile.url
-        file_path = file_path[1:]
-
-        if form.is_valid():
-            newdoc = Document(docfile=request.FILES['docfile'])
-            newdoc.save()
-
-            team_list = list()
-            error = False
-
-            documents = Document.objects.all()
-
-            count = 0
-            with open(file_path) as csvfile:
-                reader = csv.DictReader(csvfile)
-                for row in reader:
-                    count += 1
-                    valid = validate_team_csv(row)
-                    if valid == 0:
-                        print(row['userID'])
-                        team_list.append(row)
-                    else:
-                        error = True
-                        message = "Oops! Something seems to be wrong with the CSV file at row " + str(count) + "."
-
-                        row_list = list()
-                        row_list.append(row['userID'])
-                        row_list.append(row['roundDetail'])
-                        row_list.append(row['teamName'])
-
-                        if valid == 1:
-                            errortype = "Incorrect number of fields."
-                        elif valid == 2:
-                            errortype = "Not all fields contain values."
-                        elif valid == 3:
-                            errortype = "user ID is not a number."
-
-                        os.remove(file_path)
-                        return render(request, 'peer_review/csvError.html',
-                                      {'message': message, 'row': row_list, 'error': errortype})
-        else:
-            form = DocumentForm()
-            message = "Oops! Something seems to be wrong with the CSV file."
-            errortype = "No file selected."
-            os.remove(file_path)
-            return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
-
-        if not error:
-            add_team_csv_info(team_list)
-    os.remove(file_path)
-    return HttpResponseRedirect('../')
-
-
-def validate_team_csv(row):
-    # 0 = correct
-    # 1 = incorrect number of fields
-    # 2 = missing value/s
-    # 3 = incorrect format
-
-    if len(row) != 3:
-        return 1
-    for key, value in row.items():
-        if value is None:
-            return 2
-        if key == "userID":
-            try:
-                int(value)
-            except ValueError:
-                return 3
-    return 0
 
 
 def get_type_id(question_type):

@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
@@ -14,7 +15,6 @@ def forgot_password(request):
     return render(request, 'peer_review/forgotPassword.html', context)
 
 
-@admin_required
 def submit_new_user_form(request):
     if request.method == "POST":
         user_form = UserForm(request.POST)
@@ -32,20 +32,23 @@ def submit_new_user_form(request):
 
             otp = generate_otp()
 
-            generate_email(otp, post_name, post_surname, post_email)
-
             user = User.objects.create_user(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
                                             cell=post_cell, email=post_email, userId=post_user_id, password=otp)
 
-            post_status = user_form.cleaned_data['status']
-            user.status = post_status
-            user.save()
-            print("created user")
+            if not user:
+                messages.add_message(request, messages.ERROR, "User could not be added")
 
-            for roundObj in RoundDetail.objects.all():
-                team = TeamDetail(user=user, roundDetail=roundObj)
-                team.save()
+            else:
+                generate_email(otp, post_name, post_surname, post_email)
 
+                post_status = user_form.cleaned_data['status']
+                user.status = post_status
+                user.save()
+                print("created user")
+
+                for roundObj in RoundDetail.objects.all():
+                    team = TeamDetail(user=user, roundDetail=roundObj)
+                    team.save()
             return HttpResponseRedirect("../")
     else:
         user_form = UserForm()

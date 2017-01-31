@@ -70,15 +70,15 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="studentNumber" class="col-sm-2 control-label">User Name:</label>
+                                <label for="userName" class="col-sm-2 control-label">User Name:</label>
                                 <div class="col-sm-3">
-                                    <input class="form-control" id="studentNumber" type="text" value="{{ user.userId }}">
+                                    <input class="form-control" id="userName" type="text" value="{{ user.userId }}">
                                 </div>
 
                                 <label for="status" class="col-sm-2 control-label">Status:</label>
                                 <div class="col-sm-3">
                                     <select class="form-control" id="status">
-                                        <option value="S">Student</option>
+                                        <option value="U">User</option>
                                         <option value="A">Admin</option>
                                     </select>
                                 </div>
@@ -186,7 +186,7 @@
             var token = "{{ csrf_token }}";
 
             var data = {
-                'userId': $("#studentNumber").val(),
+                'userId': $("#userName").val(),
                 'title': $("#title").val(),
                 'initials': $("#initials").val(),
                 'name': $("#firstName").val(),

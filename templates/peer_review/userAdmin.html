@@ -11,6 +11,11 @@
 
 {% block context %}
     <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+            <div class = "alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
+            {% endfor %}
+        {% endif %}
         <div class="panel-group" id="accordion">
             <div class="panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
@@ -78,7 +83,7 @@
 
                                 <div class="form-group">
                                     <!-- User Name Input -->
-                                    <label for="studentNumber" class="col-sm-2 control-label">User Name</label>
+                                    <label for="userName" class="col-sm-2 control-label">User Name</label>
 
                                     <div class="col-sm-3">
                                         {{ userForm.userId }}
@@ -253,7 +258,7 @@
                             <label for="status">Status:</label>
                             <select class="form-control" id="e_status">
                                 <option></option>
-                                <option>Student</option>
+                                <option>User</option>
                                 <option>Admin</option>
                             </select>
                         </div>
@@ -384,8 +389,8 @@
             $("#e_cell").val(cell.text());
             $("#e_email").val(email.text());
 
-            if (status.text() == "S") {
-                $("#e_status").val("Student");
+            if (status.text() == "U") {
+                $("#e_status").val("User");
             } else if (status.text() == "A") {
                 $("#e_status").val("Admin");
             }
@@ -393,8 +398,8 @@
             $("#updateConfirm").on("click", function () {
                 var uStatus = "";
 
-                if ($("#e_status").val() == "Student") {
-                    uStatus = "S";
+                if ($("#e_status").val() == "User") {
+                    uStatus = "U";
                 } else if ($("#e_status").val() == "Admin") {
                     uStatus = "A";
                 }
