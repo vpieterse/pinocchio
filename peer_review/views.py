@@ -36,6 +36,7 @@ from .view.questionAdmin import question_admin, edit_question, save_question, de
 from .view.questionnaireAdmin import questionnaire_admin, questionnaire_preview, edit_questionnaire, save_questionnaire, delete_questionnaire
 from .view.maintainTeam import maintain_team, change_team_status, change_user_team_for_round, get_teams_for_round, get_teams
 from .view.userAdmin import add_csv_info, submit_csv
+
 def forgot_password(request):
     resetForm = ResetForm()
     context = {'resetForm': resetForm}
