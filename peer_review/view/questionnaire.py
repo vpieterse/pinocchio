@@ -9,7 +9,7 @@ def questionnaire(request, round_pk):
     if not request.user.is_authenticated():
         return user_error(request)
     # user = request.user
-    user = get_object_or_404(User, userId = '14785236')  # FOR TEST
+    user = User.objects.get(userId = '14785236')  # FOR TEST
     questionnaire = get_object_or_404(RoundDetail, pk=round_pk).questionnaire
     q_orders = QuestionOrder.objects.filter(questionnaire=questionnaire)
 

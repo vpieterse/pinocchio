@@ -4,6 +4,9 @@
     <title xmlns="http://www.w3.org/1999/html">Questionnaire</title>
     <script src="{% static "peer_review/jquery.min.js" %}"></script>
     <script src="{% static "peer_review/js/bootstrap-slider.js" %}"></script>
+    <link rel="stylesheet" href="{% static "peer_review/css/slider.css" %}">
+    <!--<script src="{% static "peer_review/js/tinymce/tinymce.min.js" %}"></script>-->
+
     <script src="{% static "peer_review/js/tinymce/tinymce.min.js" %}"></script>
     <script>
         //Edit navbar active
@@ -61,10 +64,12 @@
                     <hr/>
                 </div>
             {% endfor %}
+            {% if not preview %}
             <div class="btn-group panel-body">
                 <button class='btn btn-primary' onclick="saveProgress()">Save Progress</button>
                 <button type='submit' class='btn btn-success' onclick="saveProgressAndClose()">Submit</button>
             </div>
+            {% endif %}
         </div>
     </div>
 
@@ -111,12 +116,10 @@
                 });
             }, 5000);
         }
-        //Sends the data to the view to be processed. Parameter data needs to be an object with fields:
-        //  questionPk : The id of the question.
-        //  roundPk : The id of the round.
-        //  label : The id of the label (In the case of Label grouping).
-        //  subjectUser : The id of the subject user (In the case of Rest or All groupings).
-        //  answer : The answer to the question
+        
+
+        {% if not preview %}
+
         function showSuccessMessage(failed) {
             if (failed)
             //Show failure message
@@ -131,10 +134,17 @@
                 });
             }, 5000);
         }
+
+        //Sends the data to the view to be processed. Parameter data needs to be an object with fields:
+        //  questionPk : The id of the question.
+        //  roundPk : The id of the round.
+        //  label : The id of the label (In the case of Label grouping).
+        //  subjectUser : The id of the subject user (In the case of Rest or All groupings).
+        //  answer : The answer to the question
         function sendToView(data) {
             var failed = false;
             data.csrfmiddlewaretoken = $('input[name="csrfmiddlewaretoken"]').prop('value');
-            console.log('saving');
+            // console.log('saving');
             $.ajax({
                 url: "/questionnaire/saveProgress/",
                 type: "POST",
@@ -151,6 +161,11 @@
                     showSuccessMessage(true);
                 }
             });
+        }
+        {% endif %}
+
+        function rateSkip() {
+            
         }
     </script>
 {% endblock %}

@@ -50,6 +50,7 @@ Todo:
                                                 <th>Question</th>
                                                 <th>Question Type</th>
                                                 <th>Grouping</th>
+                                                <th>Grouping</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
@@ -59,6 +60,8 @@ Todo:
                                                 <td class="question-label">{{ question.questionLabel }}</td>
                                                 <td class="question-type">{{ question.questionType.name }}</td>
                                                 <td class="question-grouping">{{ question.questionGrouping.grouping }}</td>
+                                                <td class = "hidden"> {{ question.questionText }} </td>
+                                                
                                                 <td>
                                                     <span onclick="addQuestion(this)" class="glyphicon glyphicon glyphicon-plus-sign text-primary pull-right"  style="cursor:pointer"></span>
                                                 </td>
@@ -179,7 +182,8 @@ Todo:
             tinymce.init({ selector:'#intro',
             statusbar: false, 
             menubar: '',
-            plugins: "emoticons",
+            plugins: ["emoticons", "image"],
+            resize: true,
             toolbar: 'undo redo bold italiclignleft aligncenter alignright bullist numlist outdent indent styleselect fontsizeselect emoticons image a', });
             //Hide alerts
             setTimeout(function() {
@@ -210,6 +214,9 @@ Todo:
                 }
 
             });
+
+            $('#question-table').DataTable();
+
         });
 
         function moveRow(el) {
@@ -247,7 +254,9 @@ Todo:
         
         function preview(pk) {
             $("body").append("<a id='previewLink' href='/questionnairePreview/" + pk + "' target='_blank' style='display:none'></a>");
+            // alert(getElementById('previewLink'));
             document.getElementById('previewLink').click();
+            $("#previewLink").remove();
         } 
 
         function deleteQuestionnaire(pk) {

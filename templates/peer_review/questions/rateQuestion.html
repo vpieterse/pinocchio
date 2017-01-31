@@ -1,15 +1,68 @@
 <script>
-    //Add a function that saves every rate-type question
+    var batchnum = 0;
     //This function gets called when the Save button is pushed
     saveFunctions.push(function () {
-        //The div that contains this question
-        var $question = $("#{{ q.id }}");
-        //The id of the question
-        var questionPk = {{ q.id }};
-        //The id of the round is saved in a variable called roundPk
+        d = new Date();
+        var batchid = d.getTime()+ "" + batchnum;
+        batchnum++;
+        $("#{{ q.id }}").find("input[type=range]").each( function(i, rangeItem)
+        {
+        	$input = $(rangeItem);
+            var json = {
+                'questionPk': {{ q.id }},
+                'roundPk': roundPk,
+                'label': rangeItem.dataset.labelid,
+                'answer': $input.val(),
+                'subjectUser': rangeItem.dataset.labelid,
+                'batchid': batchid
+            };
+
+        	optional = $input.siblings().find('input[type=checkbox]');
+        	if (optional.size()) {
+        		if (optional.is(":checked")) {
+        			json.answer = -1;
+        		}
+        	}
+        	sendToView(json);
+        });
+        
     })
 
+    $('document').ready(function() {
+        getResponses({{ q.id }}, function (responses) {
+        	console.log(responses);
+        	{% if q.questionGrouping.grouping == "None" %}
+        		$("#{{q.id}}").find("input[type=range]").val(responses.answers[0]);
+        	{% else %}
+            for (var x = 0; x < responses.answers.length; x++) {
+            	$("#{{q.id}}").find('*[data-labelid="'+responses.labelOrUserIds[x]+'"]').val(responses.answers[x]);
+            }
+            {% endif %}
+        });
+    });
 </script>
-<hr/>
 <p><strong>{{ number }}</strong>. {{ q.questionText }}</p>
+{% if q.questionGrouping.grouping == "None" %}
+	<span class="text-muted">{{ q.get_rate.topWord }}</span><span class = "text-muted pull-right">{{ q.get_rate.bottomWord }}</span>
+	<input class="slider" type="range" min="0" max="100" value="50" step="1"/>
+{% elif q.questionGrouping.grouping == "Label" %}
+	{% for l in q.get_labels %}
+		<h4>{{ l.labelText }}</h4>
+		<span class="text-muted">{{ q.get_rate.topWord }}</span><span class = "text-muted pull-right">{{ q.get_rate.bottomWord }}</span>
+		<input class="slider" data-labelid = "{{l.pk}}" type="range" min="0" max="100" value="50" step="1"/>
+	{% endfor %}
+{% else %}
+	{% for u in teamMembers %}
+		{% if q.questionGrouping.grouping == "All" or u != currentUser %}			
+			<h4>{{ u.name }} {{ u.surname }}</h4>
+			<span class="text-muted">{{ q.get_rate.topWord }}</span><span class = "text-muted pull-right">{{ q.get_rate.bottomWord }}</span>
+			<input class="slider" data-labelid = "{{u.pk}}" type="range" min="0" max="100" value="50" step="1"/>
+		{% endif %}
+	{% endfor %}
+{% endif %}
+{% if q.get_rate.optional %}
+	<div class="checkbox text-center">
+		<label><input type="checkbox" onclick="rateSkip()">Skip this question.</label>
+	</div>
+{% endif %}
 <br/>
