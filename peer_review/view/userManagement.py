@@ -5,6 +5,7 @@ from peer_review.email import generate_email
 from peer_review.forms import ResetForm, UserForm
 from peer_review.generate_otp import generate_otp
 from peer_review.models import User, RoundDetail, TeamDetail
+from peer_review.decorators.adminRequired import admin_required
 
 
 def forgot_password(request):

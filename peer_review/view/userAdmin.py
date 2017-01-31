@@ -2,10 +2,9 @@ import csv
 import os
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from peer_review.email import generate_email
 from peer_review.forms import DocumentForm
 from peer_review.models import User, Document
-from peer_review.view.user import user_error
+from peer_review.view.userFunctions import user_error
 from peer_review.views import generate_otp, hash_password
 
 
@@ -14,12 +13,11 @@ def add_csv_info(user_list):
         otp = generate_otp()
         module_dir = os.path.dirname(__file__)
         file_path = os.path.join(module_dir)
-        file = open(file_path + '/text/email.txt', 'a+')
+        file = open(file_path + '/../text/email.txt', 'a+')
         file.seek(0)
         email_text = file.read()
         file.close()
 
-        generate_email(otp, row['name'], row['surname'], email_text, row['email'])
         password = hash_password(otp)
 
         user = User(userId=row['user_id'], password=password, status=row['status'], title=row['title'],
@@ -35,6 +33,7 @@ def submit_csv(request):
         return user_error(request)
 
     global errortype
+    file_path = ""
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
         if form.is_valid():
@@ -47,7 +46,7 @@ def submit_csv(request):
             user_list = list()
             error = False
 
-            documents = Document.objects.all()
+            # documents = Document.objects.all()
 
             count = 0
             with open(file_path) as csvfile:
@@ -89,7 +88,7 @@ def submit_csv(request):
                             rowlist.append(row['email'])
                             rowlist.append(row['cell'])
                             rowlist.append(row['user_id'])
-                            rowlist.append(row['status'])
+                            rowlist.append("U")
 
                         if valid == 2:
                             errortype = "Not all fields contain values."
@@ -111,7 +110,7 @@ def submit_csv(request):
             errortype = "No file selected."
             return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
 
-        if not (error):
+        if not error:
             add_csv_info(user_list)
 
     if os.path.isfile(file_path):
@@ -126,7 +125,7 @@ def validate(row):
     # 3 = incorrect format
     # 4 = user already exists
 
-    if len(row) < 8:
+    if len(row) < 7:
         return 0
 
     for key, value in row.items():
