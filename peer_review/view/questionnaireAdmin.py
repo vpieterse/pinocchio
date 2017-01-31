@@ -23,16 +23,13 @@ def questionnaire_preview(request, questionnaire_pk):
     
     mockRound = RoundDetail(name='Preview Round', questionnaire=questionnaire, description='This is a preview round')
     
-    print(alice)
     team_name = 'Preview'
     teamDetailAlice = TeamDetail(user=alice, roundDetail=mockRound, teamName=team_name)
     teamDetailBob = TeamDetail(user=bob, roundDetail=mockRound, teamName=team_name)
     teamDetailCarol = TeamDetail(user=carol, roundDetail=mockRound, teamName=team_name)
     
-    q_team = [teamDetailAlice, teamDetailBob, teamDetailCarol]
-
-    context = {'questionOrders': q_orders, 'teamMembers': q_team, 'questionnaire': questionnaire, 'currentUser': alice, 'round': 0}
-    print(context)
+    q_team = [alice, bob, carol]
+    context = {'questionOrders': q_orders, 'teamMembers': q_team, 'questionnaire': questionnaire, 'currentUser': alice, 'round': 0, 'preview': 1}
     return render(request, 'peer_review/questionnaire.html', context)
 
 # Save a questionnaire
