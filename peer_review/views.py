@@ -3,20 +3,15 @@ import os
 import time
 import mimetypes
 
-from django.conf import UserSettingsHolder
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as django_login, logout
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
-from django.http import HttpResponseForbidden
-from django.http import StreamingHttpResponse
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from wsgiref.util import FileWrapper
-from django.core.mail import send_mail
 
 from peer_review.decorators.adminRequired import admin_required
 from peer_review.decorators.userRequired import user_required
@@ -85,10 +80,6 @@ def auth(request):
         return redirect('/login/')
     else:
         return redirect('/login/')
-
-
-def detail(request, question_id):
-    return HttpResponse("You're looking at question %s." % question_id)
 
 
 def index(request):
