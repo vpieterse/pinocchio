@@ -11,6 +11,11 @@
 
 {% block context %}
     <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+            <div class = "alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
+            {% endfor %}
+        {% endif %}
         <div class="panel-group" id="accordion">
             <div class="panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">

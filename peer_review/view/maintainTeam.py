@@ -2,6 +2,7 @@ import csv
 import os
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -17,7 +18,7 @@ def maintain_team(request):
     if request.method == "POST":
         round_pk = request.POST.get("roundPk")
 
-        context = {'users': User.objects.filter(is_active=1, status='S'),
+        context = {'users': User.objects.filter(Q(is_active=1) & (Q(status='S') | Q(status='U'))),
                    'rounds': RoundDetail.objects.all(),
                    'teams': TeamDetail.objects.all(),
                    'roundPk': round_pk}

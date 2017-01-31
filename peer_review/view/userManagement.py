@@ -31,10 +31,13 @@ def submit_new_user_form(request):
 
             otp = generate_otp()
 
-            generate_email(otp, post_name, post_surname, post_email)
-
             user = User.objects.create_user(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
                                             cell=post_cell, email=post_email, userId=post_user_id, password=otp)
+
+            if not user:
+                messages.add_message(request, messages.ERROR, "User could not be user")
+
+            generate_email(otp, post_name, post_surname, post_email)
 
             post_status = user_form.cleaned_data['status']
             user.status = post_status
