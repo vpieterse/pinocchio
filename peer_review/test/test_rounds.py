@@ -18,7 +18,7 @@ class RoundTests(TestCase):
         startdate = datetime.now(timezone(timedelta(hours=2)))
         enddate = datetime.now(timezone(timedelta(hours=2)))
         self.round = RoundDetail.objects.create(name='test round',questionnaire=self.questionnaire,startingDate=startdate,endingDate=enddate, description='Hey there, we have a round')
-        self.user = User.objects.create_user('bob@bob.com', 'bob')
+        self.user = User.objects.create_user('bob@bob.com', 'bob', 'bob', 'simons')
 
 
     def test_round_create(self):

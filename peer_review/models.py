@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseU
 from django.core.management import call_command
 from django.db import models
 from django.utils import timezone
+from peer_review.email import generate_email
 
 
 class Document(models.Model):
@@ -112,13 +113,15 @@ class Label(models.Model):
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, password, **kwargs):
+    def create_user(self, email, password, name, surname, **kwargs):
         user = self.model(
             email=self.normalize_email(email),
             is_active=True,
             **kwargs
         )
         user.set_password(password)
+        # TODO: Must go to every place that uses create_user and take out the emailing functionality
+        generate_email(password, name, surname, email)
         user.save(using=self._db)
         return user
 
