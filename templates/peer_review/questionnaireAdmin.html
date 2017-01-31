@@ -50,6 +50,7 @@ Todo:
                                                 <th>Question</th>
                                                 <th>Question Type</th>
                                                 <th>Grouping</th>
+                                                <th>Grouping</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
@@ -59,6 +60,8 @@ Todo:
                                                 <td class="question-label">{{ question.questionLabel }}</td>
                                                 <td class="question-type">{{ question.questionType.name }}</td>
                                                 <td class="question-grouping">{{ question.questionGrouping.grouping }}</td>
+                                                <td class = "hidden"> {{ question.questionText }} </td>
+                                                
                                                 <td>
                                                     <span onclick="addQuestion(this)" class="glyphicon glyphicon glyphicon-plus-sign text-primary pull-right"  style="cursor:pointer"></span>
                                                 </td>
@@ -211,6 +214,9 @@ Todo:
                 }
 
             });
+
+            $('#question-table').DataTable();
+
         });
 
         function moveRow(el) {
