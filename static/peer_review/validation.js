@@ -34,7 +34,7 @@ function validateUserForm() {
 		return false;
 	}
 
-	if (status != 'A' && status != 'a' && status != 'S' && status != 's')
+	if (status != 'A' && status != 'a' && status != 'U' && status != 'u')
 	{
 		alert("Please select a valid status");
 		return false;

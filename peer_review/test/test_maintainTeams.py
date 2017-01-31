@@ -48,7 +48,7 @@ class MaintainTeamTests(TestCase):
     def test_change_team_status(self):
         self.client.login(username='bob@bob.com', password='bob')
         team = TeamDetail.objects.create(roundDetail, user=self.user2)
-        url = reverse('changeTeamStatus', kwargs={'team_pk': team.pk, 'status': 'S'})
+        url = reverse('changeTeamStatus', kwargs={'team_pk': team.pk, 'status': 'U'})
 
 
 def test_get_teams_for_round(self):

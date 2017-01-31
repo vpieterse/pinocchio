@@ -45,7 +45,7 @@ class UserForm(forms.ModelForm):
 
     status = forms.ChoiceField(
         label="Status:",
-        choices=(('', '',), ('S', 'Student',), ('A', 'Admin',)),
+        choices=(('', '',), ('U', 'User',), ('A', 'Admin',)),
         widget=forms.Select(attrs={'class': 'form-control', 'id': 'status'}),
     )
 
