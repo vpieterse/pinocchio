@@ -72,10 +72,6 @@ def auth(request):
             #    messages.add_message(request, messages.ERROR, "OTP")
             #    return redirect('/login/')
             user = authenticate(userId=user_id, password=password)
-
-            for e in User.objects.all():
-                print(e)
-
             if user:
                 if user.is_active:
                     django_login(request, user)
