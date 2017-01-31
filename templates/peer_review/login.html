@@ -69,8 +69,8 @@
                     <form class="form-signin" role="form" method="post" action="/login/auth/">
                         {% csrf_token %}
                         <h2 class="form-signin-heading">Please sign in</h2>
-                        <label for="{{loginForm.email.id_for_label}}" class="sr-only">Email address</label>
-                        <input name="{{loginForm.email.html_name}}" type="email" id="{{loginForm.email.id_for_label}}" class="form-control" placeholder="Email address" required
+                        <label for="{{loginForm.userName.id_for_label}}" class="sr-only">User Name</label>
+                        <input name="{{loginForm.userName.html_name}}" type="text" id="{{loginForm.userName.id_for_label}}" class="form-control" placeholder="User Name" required
                                autofocus>
                         <label for="{{loginForm.password.id_for_label}}" class="sr-only">Password</label>
                         <input name="{{loginForm.password.html_name}}" type="password" id="{{loginForm.password.id_for_label}}" class="form-control" placeholder="Password" required>
