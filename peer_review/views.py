@@ -1,9 +1,6 @@
 import csv
-import hashlib
 import os
-import string
 import time
-import uuid
 import mimetypes
 
 from django.contrib import messages
@@ -121,46 +118,6 @@ def file_upload(request):
     )
 
 
-# def questionAdmin(request):
-#     # print(request.user.is_authenticated())
-#     # if not request.user.is_authenticated():
-#     #     return render(request, "peer_review/login.html")
-
-#     context = {'questions': getQuestions()}
-#     return render(request, 'peer_review/questionAdmin.html', context)
-
-
-# Commented out temporarily as there are three(?!) definitions of questionnaire and I have no idea which one is the right one -Jason
-# @login_required
-# def questionnaire(request, questionnairePk):
-# 	if request.method == "POST":
-#         #print(request.user.email)
-
-# 		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
-# 			   'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
-# 			   'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk),
-#                'questionRanking' : Rank.objects.all(), 'questionChoices' : Choice.objects.all(),
-#                'questionRating' : Rate.objects.all(), 'userDetails' : User.objects.all(),
-#                'freeformDetails' : FreeformItem.objects.all(), 'questionLabels' : Label.objects.all(),
-#                'roundDetails' : RoundDetail.objects.all(), 'teamDetails' : TeamDetail.objects.all(),
-#                'userName' : request.user.email}
-# 		return render(request, 'peer_review/questionnaire.html', context)
-# 	else:
-# 		return render(request, 'peer_review/userError.html')
-
-# def questionnaire(request, questionnairePk):
-# 	if request.method == "POST":
-# 		context = {'questionnaire': Questionnaire.objects.all(), 'questions' : Question.objects.all(),
-# 			   'questionTypes' : QuestionType.objects.all(), 'questionOrder' : QuestionOrder.objects.all(),
-# 			   'questionGrouping' : QuestionGrouping.objects.all(), 'questionnairePk' : int(questionnairePk),
-#                'questionRanking' : Rank.objects.all(), 'questionChoices' : Choice.objects.all(),
-#                'questionRating' : Rate.objects.all(), 'userDetails' : User.objects.all(),
-#                'freeformDetails' : FreeformItem.objects.all(), 'questionLabels' : Label.objects.all(),
-#                'roundDetails' : RoundDetail.objects.all(), 'teamDetails' : TeamDetail.objects.all()}
-# 		return render(request, 'peer_review/questionnaire.html', context)
-# 	else:
-# 		return render(request, 'peer_review/userError.html')
-
 def get_questionnaire_for_team(request):
     if request.method == "POST":
         # TEST
@@ -192,46 +149,12 @@ def user_list(request):
 
 def get_questionnaire_for_round(request, round_pk):
     round = RoundDetail.objects.get(pk=round_pk)
+    response = {}
     if request.method == "GET":
         response = {
             'questionnaire': round.questionnaire.label
         }
     return JsonResponse(response)
-
-
-def get_teams_for_round(request, round_pk):
-    teams = TeamDetail.objects.filter(roundDetail_id=round_pk)
-    response = {}
-    for team in teams:
-        response[team.pk] = {
-            'userId': team.user.pk,
-            'teamName': team.teamName,
-            'status': team.status,
-        }
-    # print(response)
-    return JsonResponse(response)
-
-
-def change_user_team_for_round(request, round_pk, userId, team_name):
-    try:
-        team = TeamDetail.objects.filter(user_id=userId).get(roundDetail_id=round_pk)
-    except TeamDetail.DoesNotExist:
-        team = TeamDetail(
-            user=User.objects.get(pk=userId),
-            roundDetail=RoundDetail.objects.get(pk=round_pk)
-        )
-    team.teamName = team_name
-    if team_name == 'emptyTeam':
-        team.status = 'NA'
-    team.save()
-    return JsonResponse({'success': True})
-
-
-def change_team_status(request, team_pk, status):
-    team = TeamDetail.objects.get(pk=team_pk)
-    team.status = status
-    team.save()
-    return JsonResponse({'success': True})
 
 
 def get_user(request, userId):

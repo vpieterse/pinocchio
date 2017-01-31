@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from ..models import User, RoundDetail, TeamDetail
 
+
 def maintain_team(request):
     if request.method == "POST":
         round_pk = request.POST.get("roundPk")
@@ -23,12 +24,14 @@ def maintain_team(request):
                    'roundPk': "none"}
     return render(request, 'peer_review/maintainTeam.html', context)
 
+
 def change_team_status(request, team_pk, status):
     team = TeamDetail.objects.get(pk=team_pk)
     team.status = status
     team.save()
     return JsonResponse({'success': True})
-	
+
+
 def change_user_team_for_round(request, round_pk, userId, team_name):
     try:
         team = TeamDetail.objects.filter(userId=userId).get(roundDetail_id=round_pk)
@@ -43,6 +46,7 @@ def change_user_team_for_round(request, round_pk, userId, team_name):
     team.save()
     return JsonResponse({'success': True, 'team_pk': team.pk})
 
+
 def get_teams_for_round(request, round_pk):
     teams = TeamDetail.objects.filter(roundDetail_id=round_pk)
     response = {}
@@ -54,7 +58,8 @@ def get_teams_for_round(request, round_pk):
         }
     # print(response)
     return JsonResponse(response)
-	
+
+
 def get_teams(request):
     response = {}
     if request.method == "GET":
