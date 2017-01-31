@@ -3,6 +3,7 @@ import os
 import time
 import mimetypes
 
+from django.conf import UserSettingsHolder
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as django_login, logout
 from django.contrib.auth.decorators import login_required
@@ -17,6 +18,7 @@ from django.template import RequestContext
 from wsgiref.util import FileWrapper
 from django.core.mail import send_mail
 
+from peer_review.decorators.adminRequired import admin_required
 from peer_review.generate_otp import generate_otp
 from .forms import DocumentForm, UserForm, LoginForm, ResetForm
 from .models import Document
@@ -69,6 +71,10 @@ def auth(request):
             #    messages.add_message(request, messages.ERROR, "OTP")
             #    return redirect('/login/')
             user = authenticate(userId=user_id, password=password)
+
+            for e in User.objects.all():
+                print(e)
+
             if user:
                 if user.is_active:
                     django_login(request, user)
@@ -129,7 +135,7 @@ def get_questionnaire_for_team(request):
         return redirect('accountDetails')
 
 
-@login_required
+@admin_required
 def user_list(request):
     users = User.objects.all
     user_form = UserForm()
