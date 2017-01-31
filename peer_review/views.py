@@ -234,43 +234,6 @@ def change_team_status(request, team_pk, status):
     return JsonResponse({'success': True})
 
 
-def submit_form(request):
-    if request.method == "POST":
-        user_form = UserForm(request.POST)
-        if user_form.is_valid():
-            post_title = user_form.cleaned_data['title']
-            post_initials = user_form.cleaned_data['initials']
-            post_name = user_form.cleaned_data['name']
-            post_surname = user_form.cleaned_data['surname']
-            post_cell = user_form.cleaned_data['cell']
-            post_email = user_form.cleaned_data['email']
-            post_user_id = user_form.cleaned_data['userId']
-
-            #user = User(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
-            #            cell=post_cell, email=post_email, userId=post_user_id)
-
-            otp = generate_otp()
-
-            generate_email(otp, post_name, post_surname, post_email)
-
-            user = User.objects.create_user(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
-                                            cell=post_cell, email=post_email, userId=post_user_id, password=otp)
-
-            post_status = user_form.cleaned_data['status']
-            user.status = post_status
-            user.save()
-            print("created user")
-
-            for roundObj in RoundDetail.objects.all():
-                team = TeamDetail(user=user, roundDetail=roundObj)
-                team.save()
-
-            return HttpResponseRedirect("../")
-    else:
-        user_form = UserForm()
-    return HttpResponseRedirect("../")
-
-
 def get_user(request, userId):
     if not request.user.is_authenticated():
         return user_error(request)
