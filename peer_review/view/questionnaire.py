@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404
+from peer_review.view.user import user_error
 
 from ..models import Question, Questionnaire, RoundDetail, QuestionOrder, User, TeamDetail, Response, Label
 
@@ -24,13 +25,12 @@ def questionnaire(request, round_pk):
 # A 0 indicates success
 def save_questionnaire_progress(request):
     if request.method == "POST":
-        print(User.objects.get(userId=request.user.userId))
         print(TeamDetail.objects.get(user=User.objects.get(userId=request.user.userId),roundDetail=request.POST.get('roundPk')))
         try:
             question = Question.objects.get(pk=request.POST.get('questionPk'))
             round_detail = RoundDetail.objects.get(pk=request.POST.get('roundPk'))
             team_detail = TeamDetail.objects.get(user=User.objects.get(userId=request.user.userId),roundDetail=request.POST.get('roundPk'))
-            team_detail.status= TeamDetail.IN_PROGRESS
+            team_detail.status = TeamDetail.IN_PROGRESS
             team_detail.save()
         # except Question.DoesNotExist:
         except Exception:
@@ -62,7 +62,6 @@ def save_questionnaire_progress(request):
             except Exception:
                 return JsonResponse({'result': 1})
         answer = request.POST.get('answer')
-        print(answer)
         batchid = request.POST.get('batchid')
         Response.objects.create(question=question,
                                 roundDetail=round_detail,
