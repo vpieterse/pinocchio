@@ -13,10 +13,10 @@
 {% load custom_tags %}
     <div class="container">
         <div class="panel-group">
-        {% with roundCount as Counter %}
+        {% counter_reset %}
             {% for team in teams %}
                 {% if team.teamName != "emptyTeam" %}
-                    {{ roundCount.inc }}
+                    {% counter_inc %}
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <h5 class="panel-title" style="font-size: 14px">
@@ -68,11 +68,7 @@
                         </div>
                     </div>
                 {% endif %}
-                <div>Round Count: {{ forloop.counter }}</div>
             {% endfor %}
-        
-        <div>Round Count: {{ roundCount }}!</div>
-        <div>{{ roundCount }}</div>
-        {% endwith %}
+            {% counter_reset %}
     </div></div> 
 {% endblock context %}
