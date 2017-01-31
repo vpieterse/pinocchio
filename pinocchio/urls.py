@@ -3,6 +3,7 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 
+import peer_review.view.userManagement
 from peer_review import views
 
 urlpatterns = [
@@ -34,7 +35,7 @@ urlpatterns = [
 
                     url(r'^$', views.index, name='index'),
                     url(r'^(?P<question_id>[0-9]+)/$', views.detail, name='detail'),
-                    url(r'^userAdmin/submitForm/?$', views.submit_form),
+                    url(r'^userAdmin/submitForm/?$', peer_review.view.userManagement.submit_new_user_form),
                     url(r'^userAdmin/submitCSV/$', views.submit_csv, name="submitCSV"),
                     url(r'^userAdmin/userProfile/(?P<userId>[0-9]+)/?$', views.user_profile, name="userProfile"),
                     url(r'^userAdmin/delete/$', views.user_delete, name="userDelete"),
