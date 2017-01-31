@@ -3,7 +3,7 @@ from django.shortcuts import redirect
 
 def admin_required_test(user):
     if user.is_active and user.is_authenticated:
-        if user.status == 'A' or user.is_superuser:
+        if user.status == 'A' or user.is_superuser or user.is_staff:
             return True
 
     return False
