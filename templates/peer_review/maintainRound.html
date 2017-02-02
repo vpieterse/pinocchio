@@ -156,6 +156,12 @@
 
 
         }
+
+        function deleteRound(pk) {
+            console.log(pk);
+            $('#round-pk').val(pk);
+            $('#form-delete').submit();
+        }
     </script>
 
 
@@ -294,7 +300,7 @@
                                     <tr id="{{ round.pk }}">
                                         <td data-id="roundName">{{ round.name }}</td>
                                         <td data-id="description">{{ round.description }}</td>
-                                        <td data-id="questionnaire">{{ round.questionnaire.intro }}</td>
+                                        <td data-id="questionnaire">{{ round.questionnaire.label }}</td>
                                         <td data-id="startingDate">{{ round.startingDate|date:'DATETIME_FORMAT' }}</td>
                                         <td data-id="endingDate">{{ round.endingDate|date:'DATETIME_FORMAT' }}</td>
                                         <td>
@@ -304,7 +310,7 @@
                                         </td>
                                         <td>
                                             <button type='button' name="delete" class='btn btn-warning btn-xs'
-                                                    id='remove'>
+                                                    id='remove' onclick="deleteRound({{round.pk}})">
                                                 Delete
                                             </button>
                                         </td>
@@ -467,6 +473,12 @@
                     </div>
                 </div>
             </div>
+
+            <div class = "hidden">
+                <form id = "form-delete" action = "/maintainRound/delete/" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name = "pk" id = "round-pk">
+                </form> 
             <script>
 
                 // Init date-time-picker
@@ -541,5 +553,6 @@
                         });
                     });
                 });
+
             </script>
 {% endblock context %}

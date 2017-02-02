@@ -237,7 +237,6 @@ def round_dump(request):
         # Download Dump
         wrapper = FileWrapper(open(dump_file))
         content_type = mimetypes.guess_type(dump_file)[0]
-        print(content_type)
         response = HttpResponse(wrapper,content_type=content_type)
         #response['Content-Length'] = os.path.getsize(dump_file)    
         response['Content-Disposition'] = "attachment; filename=dump-r" + str(roundPk) + ".csv"
@@ -295,9 +294,10 @@ def get_group_id(question_group):
         return -1
 
 
-def round_delete(request, round_pk):
-    round = RoundDetail.objects.get(pk=round_pk)
-    round.delete()
+def round_delete(request):
+    if (request.method == "POST"):
+        round = RoundDetail.objects.get(pk=request.POST.get("pk"))
+        round.delete()
     return HttpResponseRedirect('../')
 
 
@@ -348,7 +348,6 @@ def create_round(request):
 
 
 def maintain_round_with_error(request, error):
-    print(error)
     if error == '1':  # Incorrect Date format
         str_error = "Incorrect Date Format yyyy-mm-dd hh"
     else:

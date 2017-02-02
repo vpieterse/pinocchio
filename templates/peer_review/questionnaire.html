@@ -95,12 +95,6 @@
                 saveFunctions[x]();
         }
 
-        //Save progress and the go back to the previous page
-        function saveProgressAndClose(){
-            saveProgress();
-            closeRound();
-            window.location="/activeRounds";
-        }
         //Tell the user whether the save succeeded or failed.
         function showFailure(failed){
             if (failed)

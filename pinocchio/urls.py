@@ -71,9 +71,9 @@ urlpatterns = [
                     url(r'^report/getUser/(?P<userId>[0-9]+)/?$', views.get_user),
                     url(r'^login/auth/$', views.auth, name="auth"),
 
+                    url(r'^maintainRound/delete/$', views.round_delete),
                     url(r'^maintainRound/(?P<error>[0-9]+)/?$', views.maintain_round_with_error,
                         name="maintainRoundWithError"),
-                    url(r'^maintainRound/delete/(?P<round_pk>[0-9]+)/?$', views.round_delete),
                     url(r'^maintainRound/update/(?P<round_pk>[0-9]+)/?$', views.round_update),
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
