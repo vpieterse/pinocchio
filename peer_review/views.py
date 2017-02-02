@@ -132,10 +132,18 @@ def recover_password(request, key):
             messages.error(request, 'The link has expired or is invalid. Please generate a new one.')
             return redirect('forgotPassword')
 
+        context = {}
+
+        try:
+            user = User.objects.get(userId=userId)
+            context['name'] = user.name
+            context['surname'] = user.surname
+
+        except Exception as e:
+            print(e)
+
         form = RecoverPasswordForm(request.user, urlToken=key)
-        context = {
-            'form': form
-        }
+        context['form'] = form
         return render(request, 'peer_review/forgotPasswordChange.html', context)
 
     if request.method == 'POST':
