@@ -23,7 +23,7 @@ from .models import Questionnaire, QuestionOrder
 from .models import User
 
 # Moved these views into seperate files
-from peer_review.email import generate_email
+from peer_review.email import generate_otp_email
 from peer_review.passwordUtility import generate_otp
 from peer_review.passwordUtility import hash_password
 from .view.questionAdmin import question_admin, edit_question, save_question, delete_question

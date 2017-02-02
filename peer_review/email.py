@@ -4,7 +4,7 @@ import time
 from django.core.mail import send_mail
 
 
-def generate_email(user_otp, post_name, post_surname, email):
+def generate_otp_email(user_otp, post_name, post_surname, email):
     fn = "{firstname}"
     ln = "{lastname}"
     otp = "{otp}"

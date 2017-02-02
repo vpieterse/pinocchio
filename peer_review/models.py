@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseU
 from django.core.management import call_command
 from django.db import models
 from django.utils import timezone
-from peer_review.email import generate_email
+from peer_review.email import generate_otp_email
 
 
 class Document(models.Model):
