@@ -206,9 +206,9 @@ class TeamDetail(models.Model):
     user = models.ForeignKey(User, null=False)
     roundDetail = models.ForeignKey(RoundDetail)
     teamName = models.CharField(max_length=200, default="emptyTeam")
-    NOT_ATTEMPTED = "NA"
-    IN_PROGRESS = "IP"
-    COMPLETED = "C"
+    NOT_ATTEMPTED = "Not attempted"
+    IN_PROGRESS = "In progress"
+    COMPLETED = "Completed"
     STATUS_CHOICES = (
         (NOT_ATTEMPTED, "Not attempted"),
         (IN_PROGRESS, "In progress"),
@@ -224,7 +224,7 @@ class TeamDetail(models.Model):
         return self.roundDetail.startingDate < datetime.now(tz=timezone.get_current_timezone()) < self.roundDetail.endingDate
 
     def is_in_progress(self):
-        return self.status == TeamDetail.IN_PROGRESS and self.is_active()
+        return self.status == TeamDetail.IN_PROGRESS# and self.is_active()
 
     def is_completed(self):
         return self.status == TeamDetail.IN_PROGRESS and datetime.now(tz=timezone.get_current_timezone())>self.roundDetail.endingDate
