@@ -84,7 +84,7 @@ def auth(request):
         and a token in the URL query string 'key'
         """
         key = request.GET.get('key')
-        userId = unsign_userId(key)
+        userId = unsign_userId(key, maxAge=30)
 
         if userId == None:
             # Invalid token or token has expired
