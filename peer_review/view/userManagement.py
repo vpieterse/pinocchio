@@ -31,25 +31,24 @@ def submit_new_user_form(request):
             #            cell=post_cell, email=post_email, userId=post_user_id)
 
             otp = generate_otp()
-
             user = User.objects.create_user(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
                                             cell=post_cell, email=post_email, userId=post_user_id, password=otp)
-
             if not user:
                 messages.add_message(request, messages.ERROR, "User could not be added")
-
             else:
+                messages.add_message(request, messages.SUCCESS, "User added successfully")
                 generate_email(otp, post_name, post_surname, post_email)
 
                 post_status = user_form.cleaned_data['status']
                 user.status = post_status
                 user.save()
-                print("created user")
 
                 for roundObj in RoundDetail.objects.all():
                     team = TeamDetail(user=user, roundDetail=roundObj)
                     team.save()
-            return HttpResponseRedirect("../")
+            return HttpResponseRedirect("/userAdmin")
+        else:
+            messages.add_message(request, messages.ERROR, "Form filled in incorrectly or username/email is already in use")
     else:
         user_form = UserForm()
-    return HttpResponseRedirect("../")
+    return HttpResponseRedirect("/userAdmin")
