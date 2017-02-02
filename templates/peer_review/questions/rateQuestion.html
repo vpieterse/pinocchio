@@ -16,13 +16,13 @@
                 'subjectUser': rangeItem.dataset.labelid,
                 'batchid': batchid
             };
-
-        	optional = $input.siblings().find('input[type=checkbox]');
-        	if (optional.size()) {
-        		if (optional.is(":checked")) {
-        			json.answer = -1;
-        		}
-        	}
+            optional = $input.siblings().find('input[type=checkbox]');
+            if (optional.size()) {
+                if (optional.is(":checked")) {
+                    json.answer = -1;
+                }
+            }
+            console.log(json);
         	sendToView(json);
         });
         

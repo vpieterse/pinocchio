@@ -2,28 +2,28 @@ from django	import template
 
 register = template.Library()
 
-@register.simple_tag
-def var_counter(var): 
-	nm = 1996
-	return var + 3
-
-@register.filter
-def to_int(value): 
-	return int(value)
+counter_var = 0 # Global count variable
 
 @register.simple_tag
-class Counter:
-    count = 0
+def counter_inc(): # Increment
+	global counter_var
+	counter_var += 1
+	return ''
 
-    def inc(self): # Increment
-        self.count += 1
-        return ''
+@register.simple_tag
+def counter_dec(): # Decrement
+	global counter_var
+	if counter_var > 0: 
+		counter_var -= 1
+	return ''
 
-    def dec(self): # Decrement
-        if self.count > 0: 
-            self.count -= 1
-        return ''
+@register.simple_tag
+def counter_get(): # Getter
+	global counter_var
+	return counter_var
 
-    def get(self): # Getter
-        return self.count
-
+@register.simple_tag
+def counter_reset(): # Resest Count Variable
+	global counter_var
+	counter_var = 0
+	return ''
