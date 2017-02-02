@@ -2,7 +2,7 @@ import csv
 import os
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from peer_review.forms import DocumentForm
+from peer_review.forms import DocumentForm, UserForm
 from peer_review.models import User, Document
 from peer_review.view.userFunctions import user_error
 from peer_review.views import generate_otp, hash_password
@@ -20,12 +20,12 @@ def add_csv_info(user_list):
 
         password = hash_password(otp)
 
-        user = User(userId=row['user_id'], password=password, status=row['status'], title=row['title'],
+        user = User(userId=row['user_id'], password=password, status="U", title=row['title'],
                     initials=row['initials'], name=row['name'], surname=row['surname'],
                     cell=row['cell'], email=row['email'])
 
         user.save()
-    return  # todo return render request
+        return  # todo return render request
 
 
 def submit_csv(request):
@@ -35,6 +35,15 @@ def submit_csv(request):
     global errortype
     file_path = ""
     if request.method == 'POST':
+        users = User.objects.all
+        user_form = UserForm()
+        doc_form = DocumentForm()
+
+        module_dir = os.path.dirname(__file__)
+        file_path = os.path.join(module_dir)
+        file = open(file_path + '/../text/email.txt', 'r+')
+        email_text = file.read()
+        file.close()
         form = DocumentForm(request.POST, request.FILES)
         if form.is_valid():
             newdoc = Document(docfile=request.FILES['docfile'])
@@ -73,12 +82,17 @@ def submit_csv(request):
                     else:
                         error = True
                         if valid == 0:
-                            message = "Oops! Something seems to be wrong with the CSV file."
-                            errortype = "Incorrect number of fields."
-                            return render(request, 'peer_review/csvError.html',
-                                          {'message': message, 'error': errortype})
+                            message = "The format of the CSV is incorrect."
+                            errortype = 0
+                            return render(request, 'peer_review/userAdmin.html',
+                                          {'message': message,
+                                           'error': errortype,
+                                           'users': users,
+                                           'userForm': user_form,
+                                           'docForm': doc_form,
+                                           'email_text': email_text})
                         else:
-                            message = "Oops! Something seems to be wrong with the CSV file at row " + str(count) + "."
+                            message = str(count)
 
                             rowlist = list()
                             rowlist.append(row['title'])
@@ -88,22 +102,27 @@ def submit_csv(request):
                             rowlist.append(row['email'])
                             rowlist.append(row['cell'])
                             rowlist.append(row['user_id'])
-                            rowlist.append("U")
 
                         if valid == 2:
-                            errortype = "Not all fields contain values."
+                            errortype = 2
                         if valid == 3:
-                            errortype = "Cell or user ID is not a number."
+                            errortype = 3
                         if valid == 4:
-                            errortype = "User already exists."
+                            errortype = 4
 
                         csvfile.close()
 
                         if os.path.isfile(file_path):
                             os.remove(file_path)
 
-                        return render(request, 'peer_review/csvError.html',
-                                      {'message': message, 'row': rowlist, 'error': errortype})
+                        return render(request, 'peer_review/userAdmin.html',
+                                      {'message': message, 
+                                           'row': rowlist, 
+                                           'error': errortype, 
+                                           'users': users,
+                                           'userForm': user_form,
+                                           'docForm': doc_form,
+                                           'email_text': email_text})
         else:
             form = DocumentForm()
             message = "Oops! Something seems to be wrong with the CSV file."
@@ -111,7 +130,14 @@ def submit_csv(request):
             return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
 
         if not error:
+            #todo: add confirmation dialog, and print out names of new users
             add_csv_info(user_list)
+            return render(request, 'peer_review/userAdmin.html',
+                                      {'new_users': user_list, 
+                                           'users': users,
+                                           'userForm': user_form,
+                                           'docForm': doc_form,
+                                           'email_text': email_text})
 
     if os.path.isfile(file_path):
         os.remove(file_path)
@@ -133,7 +159,7 @@ def validate(row):
             return 2
 
     for key, value in row.items():
-        if key == "cell" or key == "user_id":
+        if key == "cell":
             try:
                 int(value)
             except ValueError:
