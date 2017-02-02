@@ -124,12 +124,14 @@ they are not logged in; this page only allows for
 changing their password.
 """
 def recover_password(request, key):
-    # Test if the key is still valid
-    if unsign_userId(key, 30*60) is None:
-        messages.error(request, 'The link has expired or is invalid. Please generate a new one.')
-        return redirect('forgotPassword')
-
     if request.method == 'GET':
+        # Test if the key is still valid
+        # TODO: Change magic number to config file
+        userId = unsign_userId(key, 30 * 60)
+        if not userId:
+            messages.error(request, 'The link has expired or is invalid. Please generate a new one.')
+            return redirect('forgotPassword')
+
         form = RecoverPasswordForm(request.user, urlToken=key)
         context = {
             'form': form
@@ -137,11 +139,37 @@ def recover_password(request, key):
         return render(request, 'peer_review/forgotPasswordChange.html', context)
 
     if request.method == 'POST':
-        newForm = RecoverPasswordForm(request.user, key, request.POST)
+        newForm = RecoverPasswordForm(request.user, None, request.POST)
+        newForm.full_clean()
+        key = newForm.cleaned_data['urlTokenField']
         for err, description in newForm.errors.items():
             messages.error(request, description)
 
-        return redirect('recoverPassword', key=newForm.cleaned_data['urlTokenField'])
+        # If the form is valid, go ahead and change the user's password.
+        if newForm.is_valid():
+            try:
+                #TODO: MOVE MAGIC NUMBER
+                user_id = unsign_userId(key, 30*60)
+                if not user_id:
+                    messages.error(request, 'The link has expired or is invalid. Please generate a new one.')
+                    return redirect('forgotPassword')
+
+                user = User.objects.get(userId=user_id)
+                user.set_password(newForm.cleaned_data['new_password1'])
+                messages.success(request, "Success! Please log in with your new password")
+                return redirect("login")
+
+            except User.DoesNotExist:
+                messages.error(request, "Your username seems to be invalid. This is not supposed to happen. "
+                                        + "Please contact admin if problem persists.")
+                return redirect("login")
+
+            except Exception as e:
+                print(e)
+                messages.error(request, "There was a problem changing your password. Please try again.")
+                return redirect("forgotPassword")
+
+        return redirect('recoverPassword', key=key)
 
 def change_password(request):
     if request.method == 'POST':
