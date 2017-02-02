@@ -10,28 +10,28 @@ from peer_review.views import generate_otp_email, hash_password
 
 
 def account_details(request):
-    if not request.user.is_authenticated():
-        return user_error(request)
     user = User.objects.get(userId=request.user.userId)
     context = {'user': user}
     return render(request, 'peer_review/accountDetails.html', context)
 
-def other_account_details(request, uID):
-    user = User.objects.get(userId=uID)
-    context = {'user': user}
-    return render(request, 'peer_review/accountDetails.html', context)
-
-
-def active_rounds(request):
+def member_details(request, userId):
     if not request.user.is_authenticated():
         return user_error(request)
+    try:
+        member = User.objects.get(userId=userId)
+        context = {'user': member}
+        return render(request, 'peer_review/accountDetails.html', context)
+    except:
+        context = {'navSelect':"accountDetails"}
+        return render(request, 'peer_review/user404.html', context)
+    
+def active_rounds(request):
     user = request.user
     teams = TeamDetail.objects.filter(user=user).order_by('roundDetail__startingDate')
     rounds = RoundDetail.objects.all()
     #exp_teams = TeamDetail.objects.filter(user=user and roundDetail.endingDate<datetime.date.now())
     context = {'teams': teams, 'rounds': rounds}
     return render(request, 'peer_review/activeRounds.html', context)
-
 
 def get_team_members(request):
     if not request.user.is_authenticated():

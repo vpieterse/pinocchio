@@ -1,0 +1,17 @@
+{% extends "peer_review/base.html" %}
+{% load staticfiles %}
+{% block extrahead %}
+    <title xmlns="http://www.w3.org/1999/html">404 - Not Found</title>
+
+    <!--Edit navbar active-->
+    <script>
+        title = "{{ navSelect }}";
+    </script>
+    <!--end-->
+{% endblock %}
+{% block context %}
+    <h1 style="color: red; font-size:500%">Error 404 - Not Found</h1>
+    <br>
+    <img src="{% static "peer_review/pinocchioError.png" %}" id="errorImage" style="width: 36%; height: 72%; "/>
+
+{% endblock context %}
