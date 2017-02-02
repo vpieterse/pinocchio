@@ -1,4 +1,4 @@
-from http.client import HTTPResponse
+from django.http import HttpResponse
 
 from django.http.response import Http404
 from django.shortcuts import redirect

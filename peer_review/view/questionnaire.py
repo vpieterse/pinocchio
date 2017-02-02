@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404
-from peer_review.view.user import user_error
+from peer_review.view.userFunctions import user_error
 
 from ..models import Question, Questionnaire, RoundDetail, QuestionOrder, User, TeamDetail, Response, Label
 
