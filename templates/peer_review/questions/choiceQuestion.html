@@ -50,7 +50,7 @@
         <h4>{{ l.labelText }}</h4>
         {% for choice in q.get_choices %}
             <div class="radio">
-                <label><input type="radio" data-labelid = "{{ l.pk }}" value="{{ choice }}">{{ choice.choiceText }}</label>
+                <label><input type="radio" name = "{{ l.pk }} "data-labelid = "{{ l.pk }}" value="{{ choice }}">{{ choice.choiceText }}</label>
             </div> 
         {% endfor %}
     {% endfor %}
@@ -59,7 +59,7 @@
         <h4>{{ u.name }} {{ u.surname }}</h4>
         {% for choice in q.get_choices %}
             <div class="radio">
-                <label><input type="radio" data-labelid = "{{ u.pk }}" value="{{ choice }}">{{ choice.choiceText }}</label>
+                <label><input type="radio" name = "{{ u.pk }}" data-labelid = "{{ u.pk }}" value="{{ choice }}">{{ choice.choiceText }}</label>
             </div> 
         {% endfor %}
     {% endfor %}
@@ -68,7 +68,7 @@
         <h4>{{ u.name }} {{ u.surname }}</h4>
         {% for choice in q.get_choices %}
             <div class="radio">
-                <label><input type="radio" data-labelid = "{{ u.pk }}" value="{{ choice }}">{{ choice.choiceText }}</label>
+                <label><input type="radio" name = "{{ u.pk }}{{q.pk}}"  data-labelid = "{{ u.pk }}" value="{{ choice }}">{{ choice.choiceText }}</label>
             </div> 
         {% endfor %}
     {% endfor %}
