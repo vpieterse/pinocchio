@@ -79,8 +79,11 @@ def auth(request):
 def change_password(request, user_id, password):
     user = authenticate(userId=user_id, password=password)
     if user:
-        context = {}
-        return render(request, '/peer_review/setPassword.html/', context)
+        context = {'hashedUserId': user_id,
+                   'name': user.name,
+                   'surname': user.surname,
+                   'changePassForm': changePassForm}
+        return render(request, '/peer_review/changePassword.html/', context)
     else:
         messages.add_message(request, messages.ERROR, "Incorrect username or password")
         return redirect('/login/')
