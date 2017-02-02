@@ -27,3 +27,8 @@ def counter_reset(): # Resest Count Variable
 	global counter_var
 	counter_var = 0
 	return ''
+
+@register.inclusion_tag('peer_review/rounditem.html')
+def round_load(teamData): # Renders the current round list item
+	return {'team': teamData}
+

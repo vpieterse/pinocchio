@@ -1,0 +1,51 @@
+{% spaceless %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h5 class="panel-title" style="font-size: 14px">
+            <b>{{ team.roundDetail.name }}: {{ team.teamName }}</b>
+        </h5>
+    </div>
+    <div id="collapse{{ team.pk }}" class="">
+        <div class="panel-body form-horizontal">
+            <div> 
+                <div class="col-sm-2 roundelement"> 
+                    <p id="team{{ team.pk }}"class="text-left center-element"><b>Team: </b>{{ team.teamName }}</p> 
+                </div>
+                <div class="col-sm-3 roundelement"> 
+                    <p id="roundDescription{{ team.pk }}" class="text-left center-element"><b>Description: </b> {{ team.roundDetail.description }}</p>
+                </div>
+                <div class="col-sm-3 roundelement">
+                    <p id="date{{ team.pk }}" class="text-left center-element">Due Date: {{team.roundDetail.endingDate|date}}</p>
+                </div>
+                <div class="col-sm-2 roundelement">
+                    {% if team.is_in_future == False and team.is_not_attempted or team.is_in_progress %} 
+                    <form role="form" id="editQuestionnaire" action="/questionnaire/{{ team.roundDetail.id }}" method="POST">
+                        {% csrf_token %} 
+                        <input name="teamPk" type="hidden" value="{{ team.pk }}"/> 
+                        <input type="submit" class="form-control btn-primary center-element" value="Go to Questionnaire"/> 
+                    </form> 
+                    {% elif team.is_in_past or team.is_in_future %}
+                    <input type="button" class="form-control btn-info center-element" value="Go to Questionnaire" disabled /> 
+                    {% endif %} 
+                </div>
+                <div class="col-sm-2 roundelement"> 
+                    {% if team.is_not_attempted and team.is_in_future == False %} 
+                    <p class="text-left center-element"><span class="glyphicon glyphicon-minus center-element" style="margin-right:10px;top:2px;display:inline;"></span> Not Attempted</p>
+                    {% elif team.is_in_future %}
+                        <p class="text-left center-element"><span class="glyphicon glyphicon-lock center-element" style="margin-right:10px;top:2px;display:inline;"></span> Not Available</p>
+                    {% endif %} 
+                    {% if team.is_in_progress %} 
+                    <p class="text-left center-element"><span class="glyphicon glyphicon-refresh center-element" style="display:inline;top:2px;margin-right:10px;"></span> In Progress</p>
+                    {% endif %}  
+                    {% if team.is_completed %} 
+                    <p class="text-left center-element"><span class="glyphicon glyphicon-ok center-element" style="color:green;display:inline;margin-right:10px;"></span>Completed</p>
+                    {% endif %}  
+                    {% if team.is_expired %} 
+                    <p class="text-left center-element"><span class="glyphicon glyphicon-remove center-element" style="color:red;display:inline;margin-right:10px;"></span>Expired</p>
+                    {% endif %}  
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endspaceless %}

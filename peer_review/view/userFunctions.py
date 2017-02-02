@@ -42,11 +42,11 @@ def get_team_members(request):
         team_list.append(team)
         for teamItem in TeamDetail.objects.filter(teamName=team.teamName):
             if teamItem.user != user:
-                print(teamItem)
+                #print(teamItem)
                 team_members.append(teamItem)
     context = {'teams': team_list, 'members': team_members}
-    print(team_list)
-    print(team_members)
+    #print(team_list)
+    #print(team_members)
     return render(request, 'peer_review/teamMembers.html', context)
 
 
