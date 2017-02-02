@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.contrib.auth import password_validation
+from django.contrib.auth.forms import SetPasswordForm
 
 from peer_review.models import User
 

@@ -85,6 +85,24 @@ def auth(request):
         """
         key = request.GET.get('key')
         userId = unsign_userId(key)
+
+        if userId == None:
+            # Invalid token or token has expired
+            # TODO: Error Message
+            return redirect('/login/')
+
+        try:
+            user = User.objects.get(userId=userId)
+
+            # At this point, we can be 100% sure the user is
+            # who he claims to be. Redirect to 'change password' page
+            request.user = user
+            return change_password(request)
+
+        except Exception as e:
+            print(e)
+            return redirect('/login/')
+
         print(userId)
         return redirect('/login/')
 
