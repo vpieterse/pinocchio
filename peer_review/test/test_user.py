@@ -44,35 +44,32 @@ class UserTests(TestCase):
         self.assertTemplateUsed(response, 'peer_review/questionnaireAdmin.html')
 
     def test_user_list(self):
-        print("--- user_list Test ---\n")
-        self.client.login(username='1234', password='bob')
+        self.client.login(username='1111', password='admin')
         url = reverse('userAdmin')
-        response = self.client.get(url, follow = True)
-        print(response.context['users']())
+        response = self.client.get(url, follow=True)
         self.assertIn(self.user, response.context['users']())
-        print("\n--- END ---\n")
 
     # Unit Test
     def test_get_user(self):
         # Tests if current user is recognised
-        print("--- get_user Test ---\n")
+        # print("--- get_user Test ---\n")
         self.client.login(username='5678', password='joe')
         response = self.client.get('/accountDetails/1234')
         request = response.wsgi_request
         logged_user = json.loads(get_user(request, request.user.userId).content.decode())
         expected_user = json.loads(get_user(request, "5678").content.decode()) # Joe userId
-        print("Logged user: " + str(logged_user))
-        print("Expected user: " + str(expected_user))
+        # print("Logged user: " + str(logged_user))
+        # print("Expected user: " + str(expected_user))
         self.assertEqual(logged_user, expected_user)
-        print("\n--- END ---\n")
+        # print("\n--- END ---\n")
 
     def test_authentication(self):
         # Test redirection when access is granted and denied
-        print("--- Authenticatoin Test ---\n")
+        # print("--- Authentication Test ---\n")
         self.client.login(username='5678', password='joe')
         response = self.client.get('/accountDetails/')
         request = response.wsgi_request
-        print("Granted Status Code: " + str(response.status_code))
+        # print("Granted Status Code: " + str(response.status_code))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'peer_review/accountDetails.html')
         # Logout and try false details
@@ -80,7 +77,7 @@ class UserTests(TestCase):
         self.client.login(username='1234', password='bobby')
         response = self.client.get('/accountDetails/')
         request = response.wsgi_request
-        print("Denied Status Code: " + str(response.status_code))
+        # print("Denied Status Code: " + str(response.status_code))
         self.assertEqual(response.status_code, 403)
         self.assertTemplateUsed(response, 'peer_review/userError.html')
-        print("\n--- END ---\n")
+        # print("\n--- END ---\n")

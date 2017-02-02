@@ -393,6 +393,8 @@
                 $("#e_status").val("User");
             } else if (status.text() == "A") {
                 $("#e_status").val("Admin");
+            } else {
+                $("#e_status").val("");
             }
 
             $("#updateConfirm").on("click", function () {
