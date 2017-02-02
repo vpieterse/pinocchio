@@ -13,6 +13,9 @@ urlpatterns = [
                         name='forgotPassword'),
                     url(r'^login/resetPass', views.user_reset_password,
                         name='resetPass'),
+                    url(r'^recoverPassword/(?P<key>.*)', views.recover_password,
+                        name='recoverPassword'),
+
                     url(r'^changePassword/', views.change_password, name='changePassword'),
 
                     url(r'^maintainRound/$', views.maintain_round, name='maintainRound'),

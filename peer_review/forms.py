@@ -71,6 +71,20 @@ class FSetPasswordForm(forms.Form):
         return self.user
 
 
+class RecoverPasswordForm(SetPasswordForm):
+    def __init__(self, user, urlToken, *args, **kwargs):
+        print(urlToken)
+        super(RecoverPasswordForm, self).__init__(user, *args, **kwargs)
+
+        # Adds a hidden charfield containing the token
+        self.fields['urlTokenField'] = forms.CharField(widget=forms.HiddenInput(),
+                                                       required=False)
+        self.initial['urlTokenField'] = urlToken
+
+    def save(self, commit=True):
+        self.save()
+
+
 class ResetForm(forms.Form):
     class Meta:
         model = User

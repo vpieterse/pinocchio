@@ -2,6 +2,7 @@ import csv
 import os
 import time
 import mimetypes
+from _ast import Set
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as django_login, logout, update_session_auth_hash
@@ -16,6 +17,7 @@ from wsgiref.util import FileWrapper
 
 from peer_review.decorators.adminRequired import admin_required
 from peer_review.decorators.userRequired import user_required
+from peer_review.forms import RecoverPasswordForm
 from peer_review.view.userFunctions import unsign_userId
 from peer_review.generate_otp import generate_otp
 from .forms import DocumentForm, UserForm, LoginForm, ResetForm, FSetPasswordForm
@@ -84,7 +86,7 @@ def auth(request):
         and a token in the URL query string 'key'
         """
         key = request.GET.get('key')
-        userId = unsign_userId(key, maxAge=30)
+        userId = unsign_userId(key, maxAge=30 * 60)
 
         if userId == None:
             # Invalid token or token has expired
@@ -97,7 +99,9 @@ def auth(request):
             # At this point, we can be 100% sure the user is
             # who he claims to be. Redirect to 'change password' page
             django_login(request, user)
-            return change_password(request)
+            #return change_password(request)
+            #return recover_password(request.user)
+            return SetPasswordForm(request.user)
 
         except Exception as e:
             print(e)
@@ -109,6 +113,35 @@ def auth(request):
     else:
         return redirect('/login/')
 
+
+"""
+When a user clicks on the link they get per email about
+resetting their password, the request is sent to this
+handler to change their password. Since the URL token
+is signed by the server, we can safely assume that the
+user requesting this page is the real user. However,
+they are not logged in; this page only allows for
+changing their password.
+"""
+def recover_password(request, key):
+    # Test if the key is still valid
+    if unsign_userId(key, 30*60) is None:
+        messages.error(request, 'The link has expired or is invalid. Please generate a new one.')
+        return redirect('forgotPassword')
+
+    if request.method == 'GET':
+        form = RecoverPasswordForm(request.user, urlToken=key)
+        context = {
+            'form': form
+        }
+        return render(request, 'peer_review/forgotPasswordChange.html', context)
+
+    if request.method == 'POST':
+        newForm = RecoverPasswordForm(request.user, key, request.POST)
+        for err, description in newForm.errors.items():
+            messages.error(request, description)
+
+        return redirect('recoverPassword', key=newForm.cleaned_data['urlTokenField'])
 
 def change_password(request):
     if request.method == 'POST':

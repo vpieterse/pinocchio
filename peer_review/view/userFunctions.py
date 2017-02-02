@@ -107,7 +107,7 @@ def send_password_request_email(userId, email_addr, post_name, post_surname):
         ln = "{lastname}"
         url = "{url}"
 
-        requestURL = 'http://localhost:8000/login/auth?key=' + sign_userId(userId)
+        requestURL = 'http://localhost:8000/recoverPassword/' + sign_userId(userId)
 
         file_path = settings.BASE_DIR + '/peer_review/text/password_request.txt'
         file = open(file_path, 'a+')
