@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
-from peer_review.email import generate_email
+from peer_review.email import generate_otp_email
 from peer_review.forms import ResetForm, UserForm
 from peer_review.generate_otp import generate_otp
 from peer_review.models import User, RoundDetail, TeamDetail
@@ -37,7 +37,7 @@ def submit_new_user_form(request):
                 messages.add_message(request, messages.ERROR, "User could not be added")
             else:
                 messages.add_message(request, messages.SUCCESS, "User added successfully")
-                generate_email(otp, post_name, post_surname, post_email)
+                generate_otp_email(otp, post_name, post_surname, post_email)
 
                 post_status = user_form.cleaned_data['status']
                 user.status = post_status
