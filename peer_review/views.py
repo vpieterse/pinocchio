@@ -15,7 +15,7 @@ from wsgiref.util import FileWrapper
 
 from peer_review.decorators.adminRequired import admin_required
 from peer_review.decorators.userRequired import user_required
-from peer_review.generate_otp import generate_otp
+from peer_review.view.userFunctions import unsign_userId
 from .forms import DocumentForm, UserForm, LoginForm, ResetForm
 from .models import Document
 from .models import Question, RoundDetail, TeamDetail, Label, Response
@@ -61,8 +61,8 @@ def auth(request):
             if user:
                 if user.is_active:
                     # Redirect if OTP is set
-                    if User.objects.get(userId=user_id).OTP:
-                        return change_password(request, user_id, password)
+                    # if User.objects.get(userId=user_id).OTP:
+                    #     return change_password(request, user_id, password)
                     django_login(request, user)
                     # Redirect based on user account type
                     if user.is_staff or user.is_superuser:
@@ -72,6 +72,18 @@ def auth(request):
         # Access Denied
         messages.add_message(request, messages.ERROR, "Incorrect username or password")
         return redirect('/login/')
+
+    elif request.method == 'GET' and request.GET.get('key', None):
+
+        """
+        Reset password one time link redirects to this page with a GET request
+        and a token in the URL query string 'key'
+        """
+        key = request.GET.get('key')
+        userId = unsign_userId(key)
+        print(userId)
+        return redirect('/login/')
+
     else:
         return redirect('/login/')
 

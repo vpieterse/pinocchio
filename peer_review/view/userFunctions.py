@@ -9,10 +9,10 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from pip._vendor.requests.packages.urllib3.exceptions import TimeoutStateError
 
+from peer_review.email import generate_otp_email
 from peer_review.forms import ResetForm
 from peer_review.generate_otp import generate_otp
 from peer_review.models import RoundDetail, TeamDetail, User
-from peer_review.views import generate_otp_email, hash_password
 from pinocchio import settings
 
 
@@ -107,7 +107,7 @@ def send_password_request_email(userId, email_addr, post_name, post_surname):
         ln = "{lastname}"
         url = "{url}"
 
-        requestURL = 'http://localhost:8000/login?' + sign_userId(userId)
+        requestURL = 'http://localhost:8000/login/auth?key=' + sign_userId(userId)
 
         file_path = settings.BASE_DIR + '/peer_review/text/password_request.txt'
         file = open(file_path, 'a+')
@@ -155,6 +155,9 @@ def user_reset_password(request):
                     post_surname=user.email
                 )
                 #return reset_password(request, user.userId)
+                if success:
+                    messages.add_message(request, messages.SUCCESS,
+                                         "Successfully sent email to <strong>" + user.email + "</strong>")
                 return redirect('/forgotPassword/')
 
             except User.DoesNotExist:
