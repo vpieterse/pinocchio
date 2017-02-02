@@ -2,12 +2,14 @@ import csv
 import os
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
+from peer_review.decorators.adminRequired import admin_required
 from peer_review.forms import DocumentForm
 from peer_review.models import User, Document
 from peer_review.view.userFunctions import user_error
 from peer_review.views import generate_otp, hash_password
 
 
+@admin_required
 def add_csv_info(user_list):
     for row in user_list:
         otp = generate_otp()
@@ -28,6 +30,7 @@ def add_csv_info(user_list):
     return  # todo return render request
 
 
+@admin_required
 def submit_csv(request):
     if not request.user.is_authenticated():
         return user_error(request)

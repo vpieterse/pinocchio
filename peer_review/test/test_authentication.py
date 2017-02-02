@@ -45,17 +45,12 @@ class AuthenticationTests(TestCase):
 
         # NOT LOGGED IN
         # This should allow visitor pages and not allow user pages or admin pages
-        self.check_pages(admin_pages, [302,403])
+        self.check_pages_blocked(admin_pages)
 
         self.client.login(username='5678', password='joe')
         # LOGGED IN AS USER
         # This should allow user pages and not allow admin pages
-        self.check_pages(admin_pages, [302,403])
-
-        self.client.login(username='1111', password='admin')
-        # LOGGED IN AS ADMIN
-        # This should allow everything
-        self.check_pages(admin_pages, [302,200])
+        self.check_pages_blocked(admin_pages)
 
     def test_user_authentication(self):
         user_pages = ['getQuestionnaireForTeam', 'questionnaire|round_pk='+str(self.round.pk),
@@ -63,36 +58,9 @@ class AuthenticationTests(TestCase):
                       'login', 'activeRounds', 'teamMembers', 'accountDetails']
         # NOT LOGGED IN
         # This should allow visitor pages and not allow user pages or admin pages
-        self.check_pages(user_pages, [302, 403])
+        self.check_pages_blocked(user_pages)
 
-        self.client.login(username='5678', password='joe')
-        # LOGGED IN AS USER
-        # This should allow user pages and not allow admin pages
-        self.check_pages(user_pages, [302, 200])
-
-        self.client.login(username='1111', password='admin')
-        # LOGGED IN AS ADMIN
-        # This should allow everything
-        self.check_pages(user_pages, [302, 200])
-
-    def test_visitor_authentication(self):
-        visitor_pages = ['forgotPassword', 'resetPass', 'index', 'auth']
-
-        # NOT LOGGED IN
-        # This should allow visitor pages and not allow user pages or admin pages
-        self.check_pages(visitor_pages, [302, 200])
-
-        self.client.login(username='5678', password='joe')
-        # LOGGED IN AS USER
-        # This should allow user pages and not allow admin pages
-        self.check_pages(visitor_pages, [302, 200])
-
-        self.client.login(username='1111', password='admin')
-        # LOGGED IN AS ADMIN
-        # This should allow everything
-        self.check_pages(visitor_pages, [302, 200])
-
-    def check_pages(self, pages, status_codes):
+    def check_pages_blocked(self, pages):
         for page in pages:
             arg_split = page.split("|")
             page = arg_split[0]
@@ -104,4 +72,7 @@ class AuthenticationTests(TestCase):
                 response = self.client.get(reverse(page, kwargs=arguments))
             else:
                 response = self.client.get(reverse(page))
-            self.assertIn(response.status_code, status_codes)
+            if response.status_code == 302:
+                print("When we go to " + page + ", we are redirected to " + response.url)
+            else:
+                self.assertEquals(response.status_code, 403)

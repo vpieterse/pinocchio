@@ -38,11 +38,6 @@ def forgot_password(request):
     context = {'resetForm': resetForm}
     return render(request, 'peer_review/forgotPassword.html', context)
 
-def active_rounds(request):
-    if not request.user.is_authenticated():
-        return user_error(request)
-
-
 from .view.userAdmin import add_csv_info, submit_csv
 from .view.userManagement import forgot_password
 from .view.userFunctions import account_details, active_rounds, get_team_members, reset_password, user_error, user_reset_password
@@ -86,6 +81,7 @@ def index(request):
     return login(request)
 
 
+@admin_required
 def file_upload(request):
     # Handle file upload
     if request.method == 'POST':
@@ -110,6 +106,7 @@ def file_upload(request):
     )
 
 
+@admin_required
 def get_questionnaire_for_team(request):
     if request.method == "POST":
         # TEST
@@ -149,6 +146,7 @@ def get_questionnaire_for_round(request, round_pk):
     return JsonResponse(response)
 
 
+@admin_required
 def get_user(request, userId):
     if not request.user.is_authenticated():
         return user_error(request)
