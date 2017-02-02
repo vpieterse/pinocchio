@@ -57,13 +57,12 @@ def auth(request):
         if form.is_valid():
             user_id = request.POST.get('userName')
             password = request.POST.get('password')
-            # Redirect if OTP is set
-            # if User.objects.get(email=email).OTP:
-            #    messages.add_message(request, messages.ERROR, "OTP")
-            #    return redirect('/login/')
             user = authenticate(userId=user_id, password=password)
             if user:
                 if user.is_active:
+                    # Redirect if OTP is set
+                    if User.objects.get(userId=user_id).OTP:
+                        return change_password(request, user_id, password)
                     django_login(request, user)
                     # Redirect based on user account type
                     if user.is_staff or user.is_superuser:
@@ -74,6 +73,16 @@ def auth(request):
         messages.add_message(request, messages.ERROR, "Incorrect username or password")
         return redirect('/login/')
     else:
+        return redirect('/login/')
+
+
+def change_password(request, user_id, password):
+    user = authenticate(userId=user_id, password=password)
+    if user:
+        context = {}
+        return render(request, '/peer_review/setPassword.html/', context)
+    else:
+        messages.add_message(request, messages.ERROR, "Incorrect username or password")
         return redirect('/login/')
 
 
@@ -126,7 +135,7 @@ def user_list(request):
 
     module_dir = os.path.dirname(__file__)
     file_path = os.path.join(module_dir)
-    file = open(file_path + '/text/email.txt', 'r+')
+    file = open(file_path + '/text/otp_email.txt', 'r+')
     email_text = file.read()
     file.close()
 
@@ -245,7 +254,7 @@ def update_email(request):
 
         module_dir = os.path.dirname(__file__)
         file_path = os.path.join(module_dir)
-        file = open(file_path + '/text/email.txt', 'w+')
+        file = open(file_path + '/text/otp_email.txt', 'w+')
 
         file.write(email_text)
         file.close()

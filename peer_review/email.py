@@ -13,7 +13,7 @@ def generate_otp_email(user_otp, post_name, post_surname, email):
 
     module_dir = os.path.dirname(__file__)
     file_path = os.path.join(module_dir)
-    file = open(file_path + '/text/email.txt', 'a+')
+    file = open(file_path + '/text/otp_email.txt', 'a+')
     file.seek(0)
     email_text = file.read()
     file.close()

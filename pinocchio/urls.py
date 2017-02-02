@@ -13,6 +13,7 @@ urlpatterns = [
                         name='forgotPassword'),
                     url(r'^login/resetPass', views.user_reset_password,
                         name='resetPass'),
+                    url(r'^changePassword/', views.change_password, name='changePassword'),
 
                     url(r'^maintainRound/$', views.maintain_round, name='maintainRound'),
                     url(r'^createRound/$', views.create_round, name='createRound'),
@@ -36,10 +37,10 @@ urlpatterns = [
                     url(r'^$', views.index, name='index'),
                     url(r'^userAdmin/submitForm/?$', peer_review.view.userManagement.submit_new_user_form),
                     url(r'^userAdmin/submitCSV/$', views.submit_csv, name="submitCSV"),
-                    url(r'^userAdmin/userProfile/(?P<userId>[0-9]+)/?$', views.user_profile, name="userProfile"),
+                    url(r'^userAdmin/userProfile/(?P<userId>[0-9a-zA-Z]+)/?$', views.user_profile, name="userProfile"),
                     url(r'^userAdmin/delete/$', views.user_delete, name="userDelete"),
-                    url(r'^userAdmin/update/(?P<userId>[0-9]+)/?$', views.user_update),
-                    url(r'^userAdmin/resetPassword/(?P<userId>[0-9]+)/?$', views.reset_password),
+                    url(r'^userAdmin/update/(?P<userId>[0-9a-zA-Z]+)/?$', views.user_update),
+                    url(r'^userAdmin/resetPassword/(?P<userId>[0-9a-zA-Z]+)/?$', views.reset_password),
                     url(r'^userAdmin/updateEmail/$', views.update_email),
                     url(r'^userAdmin/$', views.user_list, name='userAdmin'),
 
@@ -68,7 +69,7 @@ urlpatterns = [
                     views.change_team_status),
                     url(r'^maintainTeam/submitTeamCSV/$', views.submit_team_csv, name="submitTeamCSV"),
                     url(r'^report/?$', views.report),
-                    url(r'^report/getUser/(?P<userId>[0-9]+)/?$', views.get_user),
+                    url(r'^report/getUser/(?P<userId>[0-9a-zA-Z]+)/?$', views.get_user),
                     url(r'^login/auth/$', views.auth, name="auth"),
 
                     url(r'^maintainRound/(?P<error>[0-9]+)/?$', views.maintain_round_with_error,
