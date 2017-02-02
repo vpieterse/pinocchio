@@ -43,7 +43,10 @@ class RoundTests(TestCase):
         post_questionnaire = 1
         post_name = 'A better round name'
         post_ending_date = '2016-06-29 11:12+02:00'
-        response = self.client.post('/maintainRound/update/1', {'startingDate':post_starting_date,'description':post_description,'questionnaire':post_questionnaire,'roundName':post_name,'endingDate':post_ending_date})
+        response = self.client.post('/maintainRound/update/1', {'startingDate': post_starting_date,
+                                                                'description': post_description,
+                                                                'questionnaire': post_questionnaire,
+                                                                'roundName': post_name, 'endingDate': post_ending_date})
         round_test = RoundDetail.objects.get(pk=1)
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(round_test.description,'New description, better than the old')
+        self.assertEqual(round_test.description, 'New description, better than the old')

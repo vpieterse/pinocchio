@@ -241,7 +241,7 @@ def round_dump(request):
         #response['Content-Length'] = os.path.getsize(dump_file)    
         response['Content-Disposition'] = "attachment; filename=dump-r" + str(roundPk) + ".csv"
         return response
-
+    return user_error(request)
 
 def update_email(request):
     if request.method == "POST":
