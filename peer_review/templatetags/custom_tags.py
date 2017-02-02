@@ -20,7 +20,7 @@ def counter_dec(): # Decrement
 @register.simple_tag
 def counter_get(): # Getter
 	global counter_var
-	return counter_var
+	return int(counter_var)
 
 @register.simple_tag
 def counter_reset(): # Resest Count Variable
