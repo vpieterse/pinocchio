@@ -235,6 +235,12 @@ class TeamDetail(models.Model):
     def is_expired(self):
         return self.status == TeamDetail.NOT_ATTEMPTED and datetime.now(tz=timezone.get_current_timezone())>self.roundDetail.endingDate
 
+    def is_in_future(self):
+        return self.status == TeamDetail.NOT_ATTEMPTED and datetime.now(tz=timezone.get_current_timezone())<self.roundDetail.startingDate
+
+    def is_in_past(self):
+        return datetime.now(tz=timezone.get_current_timezone())>self.roundDetail.endingDate
+
 class Response(models.Model):
     batchid = models.IntegerField()
     question = models.ForeignKey(Question)  # The question
