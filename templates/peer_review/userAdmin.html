@@ -25,8 +25,11 @@
                         </a>
                     </h4>
                 </div>
-
-                <div id="collapseOne" class="panel-collapse collapse in">
+                {% if new_users or message %}
+                    <div id="collapseOne" class="panel-collapse collapse">
+                {% else %}
+                    <div id="collapseOne" class="panel-collapse collapse in">
+                {% endif %}
                     <div class="panel-body">
                         {% block content %}
                             <form action="/userAdmin/submitForm/" method="post"
@@ -117,8 +120,11 @@
                         </a>
                     </h4>
                 </div>
-
-                <div id="collapseTwo" class="panel-collapse collapse">
+                {% if new_users or message %}
+                    <div id="collapseTwo" class="panel-collapse collapse in">
+                {% else %}
+                    <div id="collapseTwo" class="panel-collapse collapse">
+                {% endif %}
                     <div class="panel-body">
                         <form class="col-md-6" action="{% url 'submitCSV' %}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
