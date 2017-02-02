@@ -96,7 +96,7 @@ def auth(request):
 
             # At this point, we can be 100% sure the user is
             # who he claims to be. Redirect to 'change password' page
-            request.user = user
+            django_login(request, user)
             return change_password(request)
 
         except Exception as e:
@@ -117,7 +117,7 @@ def change_password(request):
             user = form.save()
             update_session_auth_hash(request, user)
             messages.success(request, 'Your password was successfully updated!')
-            return redirect('peer_review:change_password')
+            return redirect('peer_review/change_password.html')
         else:
             messages.error(request, 'Please correct the error below.')
     else:
