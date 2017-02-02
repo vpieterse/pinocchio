@@ -32,6 +32,7 @@ urlpatterns = [
                     url(r'^activeRounds/$', views.active_rounds, name='activeRounds'),
                     url(r'^teamMembers/$', views.get_team_members, name='teamMembers'),
                     url(r'^accountDetails/$', views.account_details, name='accountDetails'),
+                    url(r'^accountDetails/(?P<userId>[a-zA-Z0-9]+)/?$', views.member_details, name='memberDetails'),
 
                     url(r'^$', views.index, name='index'),
                     url(r'^userAdmin/submitForm/?$', peer_review.view.userManagement.submit_new_user_form),

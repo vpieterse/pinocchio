@@ -17,6 +17,19 @@ def account_details(request):
     return render(request, 'peer_review/accountDetails.html', context)
 
 
+def member_details(request, userId):
+    if not request.user.is_authenticated():
+        return user_error(request)
+    try:
+        member = User.objects.get(userId=userId)
+        context = {'user': member}
+        return render(request, 'peer_review/accountDetails.html', context)
+    except:
+        context = {'navSelect':"accountDetails"}
+        return render(request, 'peer_review/user404.html', context)
+    
+
+
 def active_rounds(request):
     if not request.user.is_authenticated():
         return user_error(request)
