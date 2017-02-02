@@ -45,7 +45,7 @@ def active_rounds(request):
 
 from .view.userAdmin import add_csv_info, submit_csv
 from .view.userManagement import forgot_password
-from .view.userFunctions import account_details, active_rounds, get_team_members, reset_password, user_error, user_reset_password
+from .view.userFunctions import other_account_details, account_details, active_rounds, get_team_members, reset_password, user_error, user_reset_password
 from .view.roundManagement import maintain_round
 
 

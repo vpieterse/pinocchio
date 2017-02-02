@@ -16,6 +16,11 @@ def account_details(request):
     context = {'user': user}
     return render(request, 'peer_review/accountDetails.html', context)
 
+def other_account_details(request, uID):
+    user = User.objects.get(userId=uID)
+    context = {'user': user}
+    return render(request, 'peer_review/accountDetails.html', context)
+
 
 def active_rounds(request):
     if not request.user.is_authenticated():
