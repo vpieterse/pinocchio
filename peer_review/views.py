@@ -33,11 +33,6 @@ from .view.maintainTeam import maintain_team, change_team_status, change_user_te
 from .view.questionnaire import questionnaire, save_questionnaire_progress, get_responses
 from .view.userAdmin import add_csv_info, submit_csv
 
-def forgot_password(request):
-    resetForm = ResetForm()
-    context = {'resetForm': resetForm}
-    return render(request, 'peer_review/forgotPassword.html', context)
-
 def active_rounds(request):
     if not request.user.is_authenticated():
         return user_error(request)

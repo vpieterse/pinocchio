@@ -73,15 +73,15 @@ def user_reset_password(request):
     if request.method == 'POST':
         form = ResetForm(request.POST)
         if form.is_valid():
-            email = request.POST.get('email')
-            user = User.objects.get(email=email)
+            userId = form.cleaned_data['userId']
+            user = User.objects.get(userId=userId)
             if user:
                 # Reset OTP for user
                 # messages.add_message(request, messages.success, "Password reset")
                 return reset_password(request, user.userId)
             else:
                 # Email not found
-                messages.add_message(request, messages.ERROR, "Could not find a user registered with email " + email)
+                messages.add_message(request, messages.ERROR, "Could not find a user " + userId)
                 return redirect('/forgotPassword/')
     else:
         return redirect('/login/')
