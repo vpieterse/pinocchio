@@ -4,7 +4,8 @@ import time
 import mimetypes
 
 from django.contrib import messages
-from django.contrib.auth import authenticate, login as django_login, logout
+from django.contrib.auth import authenticate, login as django_login, logout, update_session_auth_hash
+from django.contrib.auth.forms import SetPasswordForm
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
@@ -16,7 +17,8 @@ from wsgiref.util import FileWrapper
 from peer_review.decorators.adminRequired import admin_required
 from peer_review.decorators.userRequired import user_required
 from peer_review.view.userFunctions import unsign_userId
-from .forms import DocumentForm, UserForm, LoginForm, ResetForm
+from peer_review.generate_otp import generate_otp
+from .forms import DocumentForm, UserForm, LoginForm, ResetForm, FSetPasswordForm
 from .models import Document
 from .models import Question, RoundDetail, TeamDetail, Label, Response
 from .models import Questionnaire, QuestionOrder
@@ -62,7 +64,9 @@ def auth(request):
                 if user.is_active:
                     # Redirect if OTP is set
                     # if User.objects.get(userId=user_id).OTP:
-                    #     return change_password(request, user_id, password)
+                    #     request.user = user
+                    #     return change_password(request)
+                    # return change_password_request(request, user_id, password)
                     django_login(request, user)
                     # Redirect based on user account type
                     if user.is_staff or user.is_superuser:
@@ -88,11 +92,32 @@ def auth(request):
         return redirect('/login/')
 
 
-def change_password(request, user_id, password):
+def change_password(request):
+    if request.method == 'POST':
+        form = SetPasswordForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('peer_review:change_password')
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        form = SetPasswordForm(request.user)
+    context = {
+        'name': request.user.name,
+        'surname': request.user.surname,
+        'form': form
+    }
+    return render(request, 'peer_review/changePassword.html', context)
+
+
+def change_password_request(request, user_id, password):
     user = authenticate(userId=user_id, password=password)
     if user:
-        context = {}
-        return render(request, '/peer_review/setPassword.html/', context)
+        context = {'name': user.name,
+                   'surname': user.surname}
+        return render(request, '/peer_review/changePassword.html/', context)
     else:
         messages.add_message(request, messages.ERROR, "Incorrect username or password")
         return redirect('/login/')
