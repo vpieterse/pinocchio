@@ -1,15 +1,10 @@
 from django.core.urlresolvers import reverse
 from django.test import TestCase, Client
 
-from peer_review.models import User
+# from peer_review.models import User
 
 from peer_review.views import *
 import json
-
-#
-#from django.test.utils import setup_test_environment
-#setup_test_environment()
-#
 
 
 class UserTests(TestCase):
@@ -25,7 +20,7 @@ class UserTests(TestCase):
         self.user = User.objects.create_user('bob@bob.com', 'bob', 'bob', userId=str(1234), surname="bob", initials="B")
         self.user = User.objects.create_user('joe@joe.com', 'joe', 'joe', userId=str(5678), surname="Joe", initials="J")
         User.objects.create_superuser('admin@admin.com', 'admin', userId=str(1111))
-        #self.user2 = User.objects.create_user('joe@joe.com', 'joe')
+        # self.user2 = User.objects.create_user('joe@joe.com', 'joe')
 
     # Simple test to see if questionAdmin is rendered
     def test_questionAdmin(self):
