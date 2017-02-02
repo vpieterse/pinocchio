@@ -156,6 +156,7 @@ def recover_password(request, key):
 
                 user = User.objects.get(userId=user_id)
                 user.set_password(newForm.cleaned_data['new_password1'])
+                user.save()
                 messages.success(request, "Success! Please log in with your new password")
                 return redirect("login")
 
