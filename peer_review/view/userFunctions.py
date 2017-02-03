@@ -157,7 +157,8 @@ def user_reset_password(request):
                 #return reset_password(request, user.userId)
                 if success:
                     messages.add_message(request, messages.SUCCESS,
-                                         "Successfully sent email to <strong>" + user.email + "</strong>")
+                                         "Sending email to <strong>" + user.email + "</strong>. Please go"
+                                                                                    " and check your inbox.")
                 return redirect('/forgotPassword/')
 
             except User.DoesNotExist:
