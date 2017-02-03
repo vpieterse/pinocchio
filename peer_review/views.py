@@ -37,9 +37,13 @@ from .view.maintainTeam import maintain_team, change_team_status, change_user_te
 from .view.questionnaire import questionnaire, save_questionnaire_progress, get_responses
 from .view.userAdmin import add_csv_info, submit_csv
 
-def active_rounds(request):
-    if not request.user.is_authenticated():
-        return user_error(request)
+# def forgot_password(request):
+#     resetForm = ResetForm()
+#     context = {'resetForm': resetForm}
+#     return render(request, 'peer_review/forgotPassword.html', context)
+# def active_rounds(request):
+#     if not request.user.is_authenticated():
+#         return user_error(request)
 
 
 from .view.userAdmin import add_csv_info, submit_csv
@@ -193,6 +197,7 @@ def index(request):
     return login(request)
 
 
+@admin_required
 def file_upload(request):
     # Handle file upload
     if request.method == 'POST':
@@ -217,6 +222,7 @@ def file_upload(request):
     )
 
 
+@admin_required
 def get_questionnaire_for_team(request):
     if request.method == "POST":
         # TEST
@@ -246,6 +252,7 @@ def user_list(request):
                   {'users': users, 'userForm': user_form, 'docForm': doc_form, 'email_text': email_text})
 
 
+@admin_required()
 def get_questionnaire_for_round(request, round_pk):
     round = RoundDetail.objects.get(pk=round_pk)
     response = {}
@@ -256,6 +263,7 @@ def get_questionnaire_for_round(request, round_pk):
     return JsonResponse(response)
 
 
+@admin_required
 def get_user(request, userId):
     if not request.user.is_authenticated():
         return user_error(request)
@@ -278,6 +286,7 @@ def user_profile(request, userId):
     return render(request, 'peer_review/userProfile.html', {'user': user})
 
 
+@admin_required
 def user_delete(request):
     if request.method == "POST":
         to_delete = request.POST.getlist("toDelete[]")
@@ -290,6 +299,7 @@ def user_delete(request):
     return HttpResponseRedirect('../')
 
 
+@admin_required
 def user_update(request, userId):
     if request.method == "POST":
         user = User.objects.get(pk=userId)
@@ -337,6 +347,7 @@ def write_dump(round_pk):
     return str(dump_file) # Returns dump filename
 
 
+@admin_required
 def round_dump(request):
     if request.method == "POST":
         roundPk = request.POST.get("roundPk")
@@ -350,6 +361,7 @@ def round_dump(request):
         return response
     return user_error(request)
 
+@admin_required
 def update_email(request):
     if request.method == "POST":
         email_text = request.POST.get("emailText")
@@ -401,6 +413,7 @@ def get_group_id(question_group):
         return -1
 
 
+@admin_required
 def round_delete(request):
     if (request.method == "POST"):
         round = RoundDetail.objects.get(pk=request.POST.get("pk"))
@@ -408,6 +421,7 @@ def round_delete(request):
     return HttpResponseRedirect('../')
 
 
+@admin_required
 def round_update(request, round_pk):
     try:
         if request.method == "POST":
@@ -430,6 +444,7 @@ def round_update(request, round_pk):
 
 
 # Create a round
+@admin_required
 def create_round(request):
     try:
 
@@ -454,6 +469,7 @@ def create_round(request):
         return HttpResponseRedirect('../maintainRound/1')
 
 
+@admin_required
 def maintain_round_with_error(request, error):
     if error == '1':  # Incorrect Date format
         str_error = "Incorrect Date Format yyyy-mm-dd hh"
@@ -468,6 +484,7 @@ def maintain_round_with_error(request, error):
 
 # Create a response
 # {responsdentPk, labelPk/userPk, roundPk, answer, questionPk}
+@user_required
 def create_response(request):
     if 'labelPk' in request.POST:
         target = request.POST['labelPk']
@@ -489,6 +506,7 @@ def create_response(request):
     return HttpResponse()
 
 
+@admin_required
 def report(request):
     if request.method == "POST":
         round_pk = request.POST.get("roundPk")

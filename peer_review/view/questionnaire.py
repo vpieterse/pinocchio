@@ -2,15 +2,14 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404
+from peer_review.decorators.userRequired import user_required
 from peer_review.view.userFunctions import user_error
 
 from ..models import Question, Questionnaire, RoundDetail, QuestionOrder, User, TeamDetail, Response, Label
 
+@user_required
 def questionnaire(request, round_pk):
-    if not request.user.is_authenticated():
-        return user_error(request)
     user = request.user
-    # user = User.objects.get(userId = '14785236')  # FOR TEST
     questionnaire = get_object_or_404(RoundDetail, pk=round_pk).questionnaire
     q_orders = QuestionOrder.objects.filter(questionnaire=questionnaire)
     team_name = TeamDetail.objects.get(user=user, roundDetail=RoundDetail.objects.get(pk=round_pk)).teamName
@@ -22,6 +21,7 @@ def questionnaire(request, round_pk):
 
 # Returning a JsonResponse with a result field of 1 indicates an error in saving the questionnaire progress
 # A 0 indicates success
+@user_required
 def save_questionnaire_progress(request):
     if request.method == "POST":
         question = Question.objects.get(pk=request.POST.get('questionPk'))
@@ -73,6 +73,7 @@ def save_questionnaire_progress(request):
         return JsonResponse({'result': 1})
 
 
+@user_required
 def get_responses(request):
     question = get_object_or_404(Question, pk=request.GET.get('questionPk'))
     round_detail = get_object_or_404(RoundDetail, pk=request.GET.get('roundPk'))

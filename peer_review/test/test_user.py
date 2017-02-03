@@ -32,7 +32,7 @@ class UserTests(TestCase):
 
     # Simple test to see if questionnaireAdmin is rendered
     def test_questionnaireAdmin(self):
-        self.client.login(username='1234', password='bob')
+        self.client.login(username='1111', password='admin')
         url = reverse('questionnaireAdmin')
         response = self.client.get(url, follow = True)
         self.assertEqual(response.status_code, 200)
@@ -48,11 +48,11 @@ class UserTests(TestCase):
     def test_get_user(self):
         # Tests if current user is recognised
         # print("--- get_user Test ---\n")
-        self.client.login(username='5678', password='joe')
+        self.client.login(username='1111', password='admin')
         response = self.client.get('/accountDetails/1234')
         request = response.wsgi_request
         logged_user = json.loads(get_user(request, request.user.userId).content.decode())
-        expected_user = json.loads(get_user(request, "5678").content.decode()) # Joe userId
+        expected_user = json.loads(get_user(request, "1111").content.decode()) # Joe userId
         # print("Logged user: " + str(logged_user))
         # print("Expected user: " + str(expected_user))
         self.assertEqual(logged_user, expected_user)
@@ -73,6 +73,7 @@ class UserTests(TestCase):
         response = self.client.get('/accountDetails/')
         request = response.wsgi_request
         # print("Denied Status Code: " + str(response.status_code))
-        self.assertEqual(response.status_code, 403)
-        self.assertTemplateUsed(response, 'peer_review/userError.html')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/login/')
+        # self.assertTemplateUsed(response, 'peer_review/userError.html')
         # print("\n--- END ---\n")

@@ -7,6 +7,7 @@ from django.core.signing import Signer, TimestampSigner
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
+from peer_review.decorators.userRequired import user_required
 from pip._vendor.requests.packages.urllib3.exceptions import TimeoutStateError
 
 from peer_review.email import generate_otp_email
@@ -15,12 +16,13 @@ from peer_review.generate_otp import generate_otp
 from peer_review.models import RoundDetail, TeamDetail, User
 from pinocchio import settings
 
-
+@user_required
 def account_details(request):
     user = User.objects.get(userId=request.user.userId)
     context = {'user': user}
     return render(request, 'peer_review/accountDetails.html', context)
 
+@user_required
 def member_details(request, userId):
     if not request.user.is_authenticated():
         return user_error(request)
@@ -32,6 +34,7 @@ def member_details(request, userId):
         context = {'navSelect':"accountDetails"}
         return render(request, 'peer_review/user404.html', context)
     
+@user_required
 def active_rounds(request):
     user = request.user
     teams = TeamDetail.objects.filter(user=user).order_by('roundDetail__startingDate')
@@ -40,6 +43,7 @@ def active_rounds(request):
     context = {'teams': teams, 'rounds': rounds}
     return render(request, 'peer_review/activeRounds.html', context)
 
+@user_required
 def get_team_members(request):
     if not request.user.is_authenticated():
         return user_error(request)
@@ -62,6 +66,7 @@ def get_team_members(request):
     return render(request, 'peer_review/teamMembers.html', context)
 
 
+@user_required
 def reset_password(request, userId):
     if request.method == "POST":
         userPk = userId

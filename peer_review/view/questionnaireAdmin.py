@@ -8,10 +8,10 @@ from ..models import Question, Questionnaire, RoundDetail, QuestionOrder, User, 
 
 
 # Render the questionnaireAdmin template
-# @admin_required
+@admin_required
 def questionnaire_admin(request):
     context = {'questions': Question.objects.all(),
-               'questionnaires': get_questionnaires()}
+               'questionnaires': get_questionnaires(request)}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
 @admin_required
@@ -66,7 +66,7 @@ def save_questionnaire(request):
 @admin_required
 def edit_questionnaire(request, questionnaire_pk):
     context = {'questions': Question.objects.all(),
-               'questionnaires': get_questionnaires,
+               'questionnaires': get_questionnaires(request),
                'questionnaire': Questionnaire.objects.get(pk=questionnaire_pk),
                'questionOrders': QuestionOrder.objects.filter(
                    questionnaire=Questionnaire.objects.get(pk=questionnaire_pk))}
@@ -92,8 +92,8 @@ def delete_questionnaire(request):
 
 
 # Return a dict with all the questionnaires, including whether each one is contained in a round
-# @admin_required
-def get_questionnaires():
+@admin_required
+def get_questionnaires(request):
     response = []
     for questionnaire in Questionnaire.objects.all():
         response.append({'title': questionnaire.label,
