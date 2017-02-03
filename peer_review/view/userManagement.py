@@ -37,7 +37,7 @@ def submit_new_user_form(request):
                 messages.add_message(request, messages.ERROR, "User could not be added")
             else:
                 messages.add_message(request, messages.SUCCESS, "User added successfully")
-                generate_otp_email(otp, post_name, post_surname, post_email)
+                generate_otp_email(otp, post_name, post_surname, post_email, post_user_id)
 
                 post_status = user_form.cleaned_data['status']
                 user.status = post_status

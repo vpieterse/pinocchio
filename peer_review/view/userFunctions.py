@@ -68,7 +68,7 @@ def reset_password(request, userId):
         user = User.objects.get(userId=userPk)
 
         new_otp = generate_otp()
-        generate_otp_email(new_otp, user.name, user.surname, user.email)
+        generate_otp_email(new_otp, user.name, user.surname, user.email, user.userId)
 
         user.set_password(new_otp)
         user.save()

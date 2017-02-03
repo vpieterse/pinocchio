@@ -74,7 +74,7 @@ def submit_csv(request):
                         # userId = row['user_id']
                         # status = row['status']
                         # OTP = generate_OTP()
-                        # generate_otp_email(OTP, name, surname)
+                        # generate_otp_email(OTP, name, surname, email, userID)
                         # password = hash_password(OTP)
 
                         user_list.append(row)
