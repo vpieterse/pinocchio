@@ -20,7 +20,7 @@ from peer_review.decorators.userRequired import user_required
 from peer_review.forms import RecoverPasswordForm
 from peer_review.view.userFunctions import unsign_userId, sign_userId
 from peer_review.generate_otp import generate_otp
-from .forms import DocumentForm, UserForm, LoginForm, ResetForm, FSetPasswordForm
+from .forms import DocumentForm, UserForm, LoginForm, ResetForm
 from .models import Document
 from .models import Question, RoundDetail, TeamDetail, Label, Response
 from .models import Questionnaire, QuestionOrder
