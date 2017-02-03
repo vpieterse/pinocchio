@@ -2,13 +2,14 @@ from django.contrib import messages
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
+from peer_review.decorators.userRequired import user_required
 
 from peer_review.forms import ResetForm
 from peer_review.generate_otp import generate_otp
 from peer_review.models import RoundDetail, TeamDetail, User
 from peer_review.views import generate_email, hash_password
 
-
+@user_required
 def account_details(request):
     if not request.user.is_authenticated():
         return user_error(request)
@@ -16,7 +17,7 @@ def account_details(request):
     context = {'user': user}
     return render(request, 'peer_review/accountDetails.html', context)
 
-
+@user_required
 def active_rounds(request):
     if not request.user.is_authenticated():
         return user_error(request)
@@ -26,7 +27,7 @@ def active_rounds(request):
     context = {'teams': teams}
     return render(request, 'peer_review/activeRounds.html', context)
 
-
+@user_required
 def get_team_members(request):
     if not request.user.is_authenticated():
         return user_error(request)
@@ -49,6 +50,7 @@ def get_team_members(request):
     return render(request, 'peer_review/teamMembers.html', context)
 
 
+@user_required
 def reset_password(request, userId):
     if request.method == "POST":
         userPk = userId
