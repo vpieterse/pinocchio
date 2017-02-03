@@ -127,3 +127,4 @@ EMAIL_HOST = "kendy.up.ac.za"
 EMAIL_PORT = 25
 EMAIL_HOST_USER = ""
 EMAIL_HOST_PASSWORD = ""
+

@@ -14,7 +14,7 @@ from peer_review.email import generate_otp_email
 from peer_review.forms import ResetForm
 from peer_review.generate_otp import generate_otp
 from peer_review.models import RoundDetail, TeamDetail, User
-from pinocchio import settings
+from pinocchio import baseSettings
 
 @user_required
 def account_details(request):
@@ -120,7 +120,7 @@ def send_password_request_email(userId, email_addr, post_name, post_surname):
 
         requestURL = 'http://localhost:8000/recoverPassword/' + sign_userId(userId)
 
-        file_path = settings.BASE_DIR + '/peer_review/text/password_request.txt'
+        file_path = baseSettings.BASE_DIR + '/peer_review/text/password_request.txt'
         file = open(file_path, 'a+')
         file.seek(0)
         email_text = file.read()
