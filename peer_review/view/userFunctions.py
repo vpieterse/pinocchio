@@ -18,8 +18,6 @@ from pinocchio import settings
 
 @user_required
 def account_details(request):
-    if not request.user.is_authenticated():
-        return user_error(request)
     user = User.objects.get(userId=request.user.userId)
     context = {'user': user}
     return render(request, 'peer_review/accountDetails.html', context)
@@ -36,12 +34,8 @@ def member_details(request, userId):
         context = {'navSelect':"accountDetails"}
         return render(request, 'peer_review/user404.html', context)
     
-
-
 @user_required
 def active_rounds(request):
-    if not request.user.is_authenticated():
-        return user_error(request)
     user = request.user
     teams = TeamDetail.objects.filter(user=user).order_by('roundDetail__startingDate')
     rounds = RoundDetail.objects.all()
@@ -79,7 +73,7 @@ def reset_password(request, userId):
         user = User.objects.get(userId=userPk)
 
         new_otp = generate_otp()
-        generate_otp_email(new_otp, user.name, user.surname, user.email)
+        generate_otp_email(new_otp, user.name, user.surname, user.email, user.userId)
 
         user.set_password(new_otp)
         user.save()
