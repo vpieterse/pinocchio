@@ -169,6 +169,7 @@ def user_profile(request, userId):
     return render(request, 'peer_review/userProfile.html', {'user': user})
 
 
+@admin_required
 def user_delete(request):
     if request.method == "POST":
         to_delete = request.POST.getlist("toDelete[]")
@@ -181,6 +182,7 @@ def user_delete(request):
     return HttpResponseRedirect('../')
 
 
+@admin_required
 def user_update(request, userId):
     if request.method == "POST":
         user = User.objects.get(pk=userId)
@@ -228,6 +230,7 @@ def write_dump(round_pk):
     return str(dump_file) # Returns dump filename
 
 
+@admin_required
 def round_dump(request):
     if request.method == "POST":
         roundPk = request.POST.get("roundPk")
@@ -242,6 +245,7 @@ def round_dump(request):
         return response
     return user_error(request)
 
+@admin_required
 def update_email(request):
     if request.method == "POST":
         email_text = request.POST.get("emailText")
@@ -293,12 +297,14 @@ def get_group_id(question_group):
         return -1
 
 
+@admin_required
 def round_delete(request, round_pk):
     round = RoundDetail.objects.get(pk=round_pk)
     round.delete()
     return HttpResponseRedirect('../')
 
 
+@admin_required
 def round_update(request, round_pk):
     try:
         if request.method == "POST":
@@ -321,6 +327,7 @@ def round_update(request, round_pk):
 
 
 # Create a round
+@admin_required
 def create_round(request):
     try:
 
@@ -345,6 +352,7 @@ def create_round(request):
         return HttpResponseRedirect('../maintainRound/1')
 
 
+@admin_required
 def maintain_round_with_error(request, error):
     print(error)
     if error == '1':  # Incorrect Date format
@@ -360,6 +368,7 @@ def maintain_round_with_error(request, error):
 
 # Create a response
 # {responsdentPk, labelPk/userPk, roundPk, answer, questionPk}
+@user_required
 def create_response(request):
     if 'labelPk' in request.POST:
         target = request.POST['labelPk']
@@ -381,6 +390,7 @@ def create_response(request):
     return HttpResponse()
 
 
+@admin_required
 def report(request):
     if request.method == "POST":
         round_pk = request.POST.get("roundPk")
