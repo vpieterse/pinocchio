@@ -136,6 +136,7 @@ def user_list(request):
                   {'users': users, 'userForm': user_form, 'docForm': doc_form, 'email_text': email_text})
 
 
+@admin_required()
 def get_questionnaire_for_round(request, round_pk):
     round = RoundDetail.objects.get(pk=round_pk)
     response = {}
@@ -299,8 +300,8 @@ def get_group_id(question_group):
 
 @admin_required
 def round_delete(request, round_pk):
-    round = RoundDetail.objects.get(pk=round_pk)
-    round.delete()
+    cur_round = RoundDetail.objects.get(pk=round_pk)
+    cur_round.delete()
     return HttpResponseRedirect('../')
 
 

@@ -121,7 +121,6 @@ def save_question(request):
 
 
 # Return a dict with all the questions, including whether each one is contained in a round
-@admin_required
 def get_questions():
     response = []
     for question in Question.objects.all():
