@@ -18,7 +18,7 @@ from wsgiref.util import FileWrapper
 from peer_review.decorators.adminRequired import admin_required
 from peer_review.decorators.userRequired import user_required
 from peer_review.forms import RecoverPasswordForm
-from peer_review.view.userFunctions import unsign_userId
+from peer_review.view.userFunctions import unsign_userId, sign_userId
 from peer_review.generate_otp import generate_otp
 from .forms import DocumentForm, UserForm, LoginForm, ResetForm, FSetPasswordForm
 from .models import Document
@@ -65,9 +65,9 @@ def auth(request):
             if user:
                 if user.is_active:
                     # Redirect if OTP is set
-                    # if User.objects.get(userId=user_id).OTP:
-                    #     request.user = user
-                    #     return change_password(request)
+                    if User.objects.get(userId=user_id).OTP:
+                        request.user = user
+                        return change_password(request)
                     # return change_password_request(request, user_id, password)
                     django_login(request, user)
                     # Redirect based on user account type
@@ -164,6 +164,7 @@ def recover_password(request, key):
 
                 user = User.objects.get(userId=user_id)
                 user.set_password(newForm.cleaned_data['new_password1'])
+                user.OTP = False
                 user.save()
                 messages.success(request, "Success! Please log in with your new password")
                 return redirect("login")
@@ -180,35 +181,12 @@ def recover_password(request, key):
 
         return redirect('recoverPassword', key=key)
 
+
 def change_password(request):
-    if request.method == 'POST':
-        form = SetPasswordForm(request.user, request.POST)
-        if form.is_valid():
-            user = form.save()
-            update_session_auth_hash(request, user)
-            messages.success(request, 'Your password was successfully updated!')
-            return redirect('peer_review/change_password.html')
-        else:
-            messages.error(request, 'Please correct the error below.')
-    else:
-        form = SetPasswordForm(request.user)
-    context = {
-        'name': request.user.name,
-        'surname': request.user.surname,
-        'form': form
-    }
-    return render(request, 'peer_review/changePassword.html', context)
-
-
-def change_password_request(request, user_id, password):
-    user = authenticate(userId=user_id, password=password)
-    if user:
-        context = {'name': user.name,
-                   'surname': user.surname}
-        return render(request, '/peer_review/changePassword.html/', context)
-    else:
-        messages.add_message(request, messages.ERROR, "Incorrect username or password")
-        return redirect('/login/')
+    user = request.user
+    key = sign_userId(user.userId)
+    request.method = 'GET'
+    return recover_password(request, key)
 
 
 def index(request):
