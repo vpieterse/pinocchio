@@ -13,7 +13,7 @@ def user_required(function=None, login_url='/login/'):
 
     def _decorated(view_func):
         def _view(request, *args, **kwargs):
-            if request.user.is_authenticated() :
+            if request.user.is_authenticated():
                 return view_func(request, *args, **kwargs)
             else:
                 return redirect(login_url)

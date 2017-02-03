@@ -43,7 +43,7 @@
                         }
                     {% else %}
                         $("#{{ q.id }}").find('label').each(function (i, elem) {
-                            if (Number(elem.dataset.id) == Number(responses.labelOrUserIds[x])) {
+                            if ((elem.dataset.id) == (responses.labelOrUserIds[x])) {
                                 $(elem).find('.answer')[0].value = responses.answers[x];
                             }
                         });

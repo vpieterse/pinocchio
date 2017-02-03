@@ -14,7 +14,6 @@ from peer_review.forms import DocumentForm
 from peer_review.view.userFunctions import user_error
 
 
-
 @admin_required
 def maintain_team(request):
     if request.method == "POST":

@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseU
 from django.core.management import call_command
 from django.db import models
 from django.utils import timezone
-from peer_review.email import generate_email
+from peer_review.email import generate_otp_email
 
 
 class Document(models.Model):
@@ -206,9 +206,9 @@ class TeamDetail(models.Model):
     user = models.ForeignKey(User, null=False)
     roundDetail = models.ForeignKey(RoundDetail)
     teamName = models.CharField(max_length=200, default="emptyTeam")
-    NOT_ATTEMPTED = "NA"
-    IN_PROGRESS = "IP"
-    COMPLETED = "C"
+    NOT_ATTEMPTED = "Not attempted"
+    IN_PROGRESS = "In progress"
+    COMPLETED = "Completed"
     STATUS_CHOICES = (
         (NOT_ATTEMPTED, "Not attempted"),
         (IN_PROGRESS, "In progress"),
@@ -224,7 +224,7 @@ class TeamDetail(models.Model):
         return self.roundDetail.startingDate < datetime.now(tz=timezone.get_current_timezone()) < self.roundDetail.endingDate
 
     def is_in_progress(self):
-        return self.status == TeamDetail.IN_PROGRESS and self.is_active()
+        return self.status == TeamDetail.IN_PROGRESS# and self.is_active()
 
     def is_completed(self):
         return self.status == TeamDetail.IN_PROGRESS and datetime.now(tz=timezone.get_current_timezone())>self.roundDetail.endingDate
@@ -234,6 +234,12 @@ class TeamDetail(models.Model):
 
     def is_expired(self):
         return self.status == TeamDetail.NOT_ATTEMPTED and datetime.now(tz=timezone.get_current_timezone())>self.roundDetail.endingDate
+
+    def is_in_future(self):
+        return self.status == TeamDetail.NOT_ATTEMPTED and datetime.now(tz=timezone.get_current_timezone())<self.roundDetail.startingDate
+
+    def is_in_past(self):
+        return datetime.now(tz=timezone.get_current_timezone())>self.roundDetail.endingDate
 
 class Response(models.Model):
     batchid = models.IntegerField()

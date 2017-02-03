@@ -2,7 +2,7 @@
 -------------
 # Pinocchio
 -------------
-[![Build Status](https://travis-ci.org/MatthiasHarvey/pinocchio.svg?branch=master)](https://travis-ci.org/MatthiasHarvey/pinocchio)
+[![Build Status](https://travis-ci.org/teampinocchio/pinocchio.svg?branch=master)](https://travis-ci.org/teampinocchio/pinocchio)
 
 ### Getting started
 - Install Django (https://www.djangoproject.com/start/)

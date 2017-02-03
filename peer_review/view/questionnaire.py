@@ -9,11 +9,9 @@ from ..models import Question, Questionnaire, RoundDetail, QuestionOrder, User, 
 
 @user_required
 def questionnaire(request, round_pk):
-    # user = request.user
-    user = User.objects.get(userId = '14785236')  # FOR TEST
+    user = request.user
     questionnaire = get_object_or_404(RoundDetail, pk=round_pk).questionnaire
     q_orders = QuestionOrder.objects.filter(questionnaire=questionnaire)
-
     team_name = TeamDetail.objects.get(user=user, roundDetail=RoundDetail.objects.get(pk=round_pk)).teamName
     q_team = User.objects.filter(teamdetail__teamName = team_name, teamdetail__roundDetail = RoundDetail.objects.get(pk=round_pk))
 
@@ -26,9 +24,8 @@ def questionnaire(request, round_pk):
 @user_required
 def save_questionnaire_progress(request):
     if request.method == "POST":
-        print(TeamDetail.objects.get(user=User.objects.get(userId=request.user.userId),roundDetail=request.POST.get('roundPk')))
+        question = Question.objects.get(pk=request.POST.get('questionPk'))
         try:
-            question = Question.objects.get(pk=request.POST.get('questionPk'))
             round_detail = RoundDetail.objects.get(pk=request.POST.get('roundPk'))
             team_detail = TeamDetail.objects.get(user=User.objects.get(userId=request.user.userId),roundDetail=request.POST.get('roundPk'))
             team_detail.status = TeamDetail.IN_PROGRESS
@@ -64,13 +61,13 @@ def save_questionnaire_progress(request):
                 return JsonResponse({'result': 1})
         answer = request.POST.get('answer')
         batchid = request.POST.get('batchid')
-        Response.objects.create(question=question,
+        print(Response.objects.create(question=question,
                                 roundDetail=round_detail,
                                 user=user,
                                 subjectUser=subject_user,
                                 label=label,
                                 answer=answer,
-                                batchid=batchid)
+                                batchid=batchid))
         return JsonResponse({'result': 0})
     else:
         return JsonResponse({'result': 1})
@@ -85,6 +82,7 @@ def get_responses(request):
     responses = Response.objects.filter(user=user, roundDetail=round_detail, question=question).order_by('batchid').reverse()
     batchid = 0
     count = 0
+
     for r in responses:
         if batchid==0:
             batchid=r.batchid
@@ -92,8 +90,7 @@ def get_responses(request):
             break
         count += 1
     responses = responses[0:count]
-    # Need to find a way to get the latest responses, instead of all of them
-    # Looks like the batchid does this
+    print(responses)
     json = {'answers': [], 'labelOrUserIds': [], 'labelOrUserNames': []}
     for r in responses:
         json['answers'].append(r.answer)

@@ -59,6 +59,13 @@
 {% endblock %}
 {% block context %}
     <div class="container col-md-offset-3 col-md-6">
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class = "alert alert-{{ message.tags }}">{{ message|safe }}</div>
+            {% endfor %}
+        {% endif %}
+
         <div class="panel-group">
             <div class="panel  panel-default">
                 <div class="panel-heading">
@@ -77,13 +84,10 @@
 
                         <br>
                         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-                </div>
-                <div id="diverrors">
-                {% if messages %}
-                    {% for message in messages %}
-                        <h3 style="color: red; text-align: center;">{{ message }}</h3>
-                    {% endfor %}
-                {% endif %}
+
+                        <br/>
+                        <a href="{% url 'forgotPassword' %}" style="text-align: center"><h5>Forgot your password? Click here.</h5></a>
+                    </form>
                 </div>
             </div>
         </div>

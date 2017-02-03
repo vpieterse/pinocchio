@@ -65,9 +65,8 @@
                 </div>
             {% endfor %}
             {% if not preview %}
-            <div class="btn-group panel-body">
-                <button class='btn btn-primary' onclick="saveProgress()">Save Progress</button>
-                <button type='submit' class='btn btn-success' onclick="saveProgressAndClose()">Submit</button>
+            <div class="panel-body">
+                <button class='btn btn-success' onclick="saveProgress()">Save Progress</button>
             </div>
             {% endif %}
         </div>
@@ -95,11 +94,7 @@
             for (var x = 0; x < saveFunctions.length; x++)
                 saveFunctions[x]();
         }
-        //Save progress and the go back to the previous page
-        function saveProgressAndClose(){
-            saveProgress();
-            window.location="/activeRounds";
-        }
+
         //Tell the user whether the save succeeded or failed.
         function showFailure(failed){
             if (failed)

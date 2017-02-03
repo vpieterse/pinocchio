@@ -2,14 +2,12 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
+from peer_review.decorators.adminRequired import admin_required
 
 from ..models import Question, Questionnaire, RoundDetail, QuestionOrder, User, TeamDetail
 
 
 # Render the questionnaireAdmin template
-from peer_review.decorators.adminRequired import admin_required
-
-
 @admin_required
 def questionnaire_admin(request):
     context = {'questions': Question.objects.all(),

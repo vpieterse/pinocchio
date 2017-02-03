@@ -2,9 +2,11 @@ import csv
 import os
 import time
 import mimetypes
+from _ast import Set
 
 from django.contrib import messages
-from django.contrib.auth import authenticate, login as django_login, logout
+from django.contrib.auth import authenticate, login as django_login, logout, update_session_auth_hash
+from django.contrib.auth.forms import SetPasswordForm
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
@@ -15,6 +17,8 @@ from wsgiref.util import FileWrapper
 
 from peer_review.decorators.adminRequired import admin_required
 from peer_review.decorators.userRequired import user_required
+from peer_review.forms import RecoverPasswordForm
+from peer_review.view.userFunctions import unsign_userId, sign_userId
 from peer_review.generate_otp import generate_otp
 from .forms import DocumentForm, UserForm, LoginForm, ResetForm
 from .models import Document
@@ -23,7 +27,7 @@ from .models import Questionnaire, QuestionOrder
 from .models import User
 
 # Moved these views into seperate files
-from peer_review.email import generate_email
+from peer_review.email import generate_otp_email
 from peer_review.passwordUtility import generate_otp
 from peer_review.passwordUtility import hash_password
 from .view.questionAdmin import question_admin, edit_question, save_question, delete_question
@@ -33,14 +37,18 @@ from .view.maintainTeam import maintain_team, change_team_status, change_user_te
 from .view.questionnaire import questionnaire, save_questionnaire_progress, get_responses
 from .view.userAdmin import add_csv_info, submit_csv
 
-def forgot_password(request):
-    resetForm = ResetForm()
-    context = {'resetForm': resetForm}
-    return render(request, 'peer_review/forgotPassword.html', context)
+# def forgot_password(request):
+#     resetForm = ResetForm()
+#     context = {'resetForm': resetForm}
+#     return render(request, 'peer_review/forgotPassword.html', context)
+# def active_rounds(request):
+#     if not request.user.is_authenticated():
+#         return user_error(request)
+
 
 from .view.userAdmin import add_csv_info, submit_csv
 from .view.userManagement import forgot_password
-from .view.userFunctions import account_details, active_rounds, get_team_members, reset_password, user_error, user_reset_password
+from .view.userFunctions import account_details, member_details, active_rounds, get_team_members, reset_password, user_error, user_reset_password
 from .view.roundManagement import maintain_round
 
 
@@ -57,13 +65,14 @@ def auth(request):
         if form.is_valid():
             user_id = request.POST.get('userName')
             password = request.POST.get('password')
-            # Redirect if OTP is set
-            # if User.objects.get(email=email).OTP:
-            #    messages.add_message(request, messages.ERROR, "OTP")
-            #    return redirect('/login/')
             user = authenticate(userId=user_id, password=password)
             if user:
                 if user.is_active:
+                    # Redirect if OTP is set
+                    if User.objects.get(userId=user_id).OTP:
+                        request.user = user
+                        return change_password(request)
+                    # return change_password_request(request, user_id, password)
                     django_login(request, user)
                     # Redirect based on user account type
                     if user.is_staff or user.is_superuser:
@@ -73,8 +82,115 @@ def auth(request):
         # Access Denied
         messages.add_message(request, messages.ERROR, "Incorrect username or password")
         return redirect('/login/')
+
+    elif request.method == 'GET' and request.GET.get('key', None):
+
+        """
+        Reset password one time link redirects to this page with a GET request
+        and a token in the URL query string 'key'
+        """
+        key = request.GET.get('key')
+        userId = unsign_userId(key, maxAge=30 * 60)
+
+        if userId == None:
+            # Invalid token or token has expired
+            # TODO: Error Message
+            return redirect('/login/')
+
+        try:
+            user = User.objects.get(userId=userId)
+
+            # At this point, we can be 100% sure the user is
+            # who he claims to be. Redirect to 'change password' page
+            django_login(request, user)
+            #return change_password(request)
+            #return recover_password(request.user)
+            return SetPasswordForm(request.user)
+
+        except Exception as e:
+            print(e)
+            return redirect('/login/')
+
+        print(userId)
+        return redirect('/login/')
+
     else:
         return redirect('/login/')
+
+
+"""
+When a user clicks on the link they get per email about
+resetting their password, the request is sent to this
+handler to change their password. Since the URL token
+is signed by the server, we can safely assume that the
+user requesting this page is the real user. However,
+they are not logged in; this page only allows for
+changing their password.
+"""
+def recover_password(request, key):
+    if request.method == 'GET':
+        # Test if the key is still valid
+        # TODO: Change magic number to config file
+        userId = unsign_userId(key, 30 * 60)
+        if not userId:
+            messages.error(request, 'The link has expired or is invalid. Please generate a new one.')
+            return redirect('forgotPassword')
+
+        context = {}
+
+        try:
+            user = User.objects.get(userId=userId)
+            context['name'] = user.name
+            context['surname'] = user.surname
+
+        except Exception as e:
+            print(e)
+
+        form = RecoverPasswordForm(request.user, urlToken=key)
+        context['form'] = form
+        return render(request, 'peer_review/forgotPasswordChange.html', context)
+
+    if request.method == 'POST':
+        newForm = RecoverPasswordForm(request.user, None, request.POST)
+        newForm.full_clean()
+        key = newForm.cleaned_data['urlTokenField']
+        for err, description in newForm.errors.items():
+            messages.error(request, description)
+
+        # If the form is valid, go ahead and change the user's password.
+        if newForm.is_valid():
+            try:
+                #TODO: MOVE MAGIC NUMBER
+                user_id = unsign_userId(key, 30*60)
+                if not user_id:
+                    messages.error(request, 'The link has expired or is invalid. Please generate a new one.')
+                    return redirect('forgotPassword')
+
+                user = User.objects.get(userId=user_id)
+                user.set_password(newForm.cleaned_data['new_password1'])
+                user.OTP = False
+                user.save()
+                messages.success(request, "Success! Please log in with your new password")
+                return redirect("login")
+
+            except User.DoesNotExist:
+                messages.error(request, "Your username seems to be invalid. This is not supposed to happen. "
+                                        + "Please contact admin if problem persists.")
+                return redirect("login")
+
+            except Exception as e:
+                print(e)
+                messages.error(request, "There was a problem changing your password. Please try again.")
+                return redirect("forgotPassword")
+
+        return redirect('recoverPassword', key=key)
+
+
+def change_password(request):
+    user = request.user
+    key = sign_userId(user.userId)
+    request.method = 'GET'
+    return recover_password(request, key)
 
 
 def index(request):
@@ -128,7 +244,7 @@ def user_list(request):
 
     module_dir = os.path.dirname(__file__)
     file_path = os.path.join(module_dir)
-    file = open(file_path + '/text/email.txt', 'r+')
+    file = open(file_path + '/text/otp_email.txt', 'r+')
     email_text = file.read()
     file.close()
 
@@ -239,7 +355,6 @@ def round_dump(request):
         # Download Dump
         wrapper = FileWrapper(open(dump_file))
         content_type = mimetypes.guess_type(dump_file)[0]
-        print(content_type)
         response = HttpResponse(wrapper,content_type=content_type)
         #response['Content-Length'] = os.path.getsize(dump_file)    
         response['Content-Disposition'] = "attachment; filename=dump-r" + str(roundPk) + ".csv"
@@ -253,7 +368,7 @@ def update_email(request):
 
         module_dir = os.path.dirname(__file__)
         file_path = os.path.join(module_dir)
-        file = open(file_path + '/text/email.txt', 'w+')
+        file = open(file_path + '/text/otp_email.txt', 'w+')
 
         file.write(email_text)
         file.close()
@@ -299,9 +414,10 @@ def get_group_id(question_group):
 
 
 @admin_required
-def round_delete(request, round_pk):
-    cur_round = RoundDetail.objects.get(pk=round_pk)
-    cur_round.delete()
+def round_delete(request):
+    if (request.method == "POST"):
+        round = RoundDetail.objects.get(pk=request.POST.get("pk"))
+        round.delete()
     return HttpResponseRedirect('../')
 
 
@@ -355,7 +471,6 @@ def create_round(request):
 
 @admin_required
 def maintain_round_with_error(request, error):
-    print(error)
     if error == '1':  # Incorrect Date format
         str_error = "Incorrect Date Format yyyy-mm-dd hh"
     else:
