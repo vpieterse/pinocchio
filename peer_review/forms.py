@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
+from django.contrib.auth import password_validation
+from django.contrib.auth.forms import SetPasswordForm
 
 from peer_review.models import User
 
@@ -19,7 +21,22 @@ class RegistrationForm(forms.ModelForm):
 class LoginForm(forms.Form):
     userName = forms.Field()
     password = forms.CharField(widget=forms.PasswordInput)
-    
+
+
+class RecoverPasswordForm(SetPasswordForm):
+    def __init__(self, user, urlToken, *args, **kwargs):
+        print(urlToken)
+        super(RecoverPasswordForm, self).__init__(user, *args, **kwargs)
+
+        # Adds a hidden charfield containing the token
+        self.fields['urlTokenField'] = forms.CharField(widget=forms.HiddenInput(),
+                                                       required=False)
+        self.initial['urlTokenField'] = urlToken
+
+    def save(self, commit=True):
+        self.save()
+
+
 class ResetForm(forms.Form):
     class Meta:
         model = User

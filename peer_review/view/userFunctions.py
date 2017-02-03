@@ -1,12 +1,19 @@
+import base64
+import os
+from time import sleep
+
 from django.contrib import messages
+from django.core.signing import Signer, TimestampSigner
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
+from pip._vendor.requests.packages.urllib3.exceptions import TimeoutStateError
 
+from peer_review.email import generate_otp_email
 from peer_review.forms import ResetForm
 from peer_review.generate_otp import generate_otp
 from peer_review.models import RoundDetail, TeamDetail, User
-from peer_review.views import generate_otp_email, hash_password
+from pinocchio import settings
 
 
 def account_details(request):
@@ -62,12 +69,74 @@ def reset_password(request, userId):
 
         new_otp = generate_otp()
         generate_otp_email(new_otp, user.name, user.surname, user.email)
-        password = hash_password(new_otp)
 
-        user.password = password
+        user.set_password(new_otp)
         user.save()
 
         return HttpResponseRedirect('../')
+
+
+# Sign and urlsafe Base64 encode a user ID with
+# a timestamp. Returns result as string
+def sign_userId(userId):
+    id_signer = TimestampSigner()
+    signed = id_signer.sign(userId)
+
+    b64encoded = base64.urlsafe_b64encode(signed.encode('utf-8'))
+    return b64encoded.decode('utf-8')
+
+
+# Unsign a given url-save base64 encoded userId
+# to a string. Returns the user id if successful;
+# on failure, returns None. This function can fail
+# when the encoded userId has expired (max age) or
+# the signed key is invalid.
+def unsign_userId(b64UserId, maxAge=None):
+    try:
+        id_signer = TimestampSigner()
+        unencoded_user_id = base64.urlsafe_b64decode(b64UserId.encode('utf-8')).decode('utf-8')
+        signed = id_signer.unsign(unencoded_user_id, maxAge)
+        return signed.split(':', 1)[0]
+
+    except Exception as e:
+        print(e)
+        return None
+
+
+# Sends a password-reset email containing a signed
+# key as authentication. Returns a boolean;
+# True = email sent,
+# False = error
+def send_password_request_email(userId, email_addr, post_name, post_surname):
+   try:
+        fn = "{firstname}"
+        ln = "{lastname}"
+        url = "{url}"
+
+        requestURL = 'http://localhost:8000/recoverPassword/' + sign_userId(userId)
+
+        file_path = settings.BASE_DIR + '/peer_review/text/password_request.txt'
+        file = open(file_path, 'a+')
+        file.seek(0)
+        email_text = file.read()
+        file.close()
+
+        email_subject = "Pinocchio Password Reset Request"
+
+        email_text = email_text.replace(fn, post_name)
+        email_text = email_text.replace(ln, post_surname)
+        email_text = email_text.replace(url, requestURL)
+
+        print(email_text)
+
+        # TODO: REMOVE THIS COMMENT IN THE LIVE VERSION
+        # send_mail(email_subject, email_text, 'pinocchio@cs.up.ac.za', [email_addr], fail_silently=False)
+
+        return True
+
+   except Exception as e:
+       print(e)
+       return False
 
 
 def user_error(request):
@@ -79,15 +148,28 @@ def user_reset_password(request):
     if request.method == 'POST':
         form = ResetForm(request.POST)
         if form.is_valid():
-            email = request.POST.get('email')
-            user = User.objects.get(email=email)
-            if user:
-                # Reset OTP for user
+            userId = form.cleaned_data['userId']
+
+            try:
+                user = User.objects.get(userId=userId)
+                # Reset OTP for user // NO MORE
                 # messages.add_message(request, messages.success, "Password reset")
-                return reset_password(request, user.userId)
-            else:
+                success = send_password_request_email(
+                    userId=userId,
+                    email_addr=user.email,
+                    post_name=user.name,
+                    post_surname=user.email
+                )
+                #return reset_password(request, user.userId)
+                if success:
+                    messages.add_message(request, messages.SUCCESS,
+                                         "Sending email to <strong>" + user.email + "</strong>. Please go"
+                                                                                    " and check your inbox.")
+                return redirect('/forgotPassword/')
+
+            except User.DoesNotExist:
                 # Email not found
-                messages.add_message(request, messages.ERROR, "Could not find a user registered with email " + email)
+                messages.add_message(request, messages.ERROR, "Could not find a user " + userId)
                 return redirect('/forgotPassword/')
     else:
         return redirect('/login/')
