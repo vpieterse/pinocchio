@@ -172,6 +172,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email + " - " + self.surname + " " + self.initials
 
+    def is_admin(self):
+        return (self.is_staff() or status == "A" or self.is_superuser())
+
 
 class Questionnaire(models.Model):
     intro = models.CharField(max_length=1000)
