@@ -35,8 +35,8 @@ class RoundTests(TestCase):
 
     def test_round_delete(self):
         self.client.login(username='1111', password='admin')
-        url = reverse('deleteRound', kwargs={'round_pk': self.round.pk})
-        response = self.client.get(url)
+        url = reverse('deleteRound')
+        response = self.client.post(url, {'pk': self.round.pk})
         self.assertEquals(response.status_code, 302)
         goneRound = RoundDetail.objects.filter(id=self.round.pk)
         self.assertEquals(len(goneRound), 0)
