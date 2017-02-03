@@ -7,7 +7,7 @@ import peer_review.view.userManagement
 from peer_review import views
 
 urlpatterns = [
-                    url(r'^admin/', include(admin.site.urls)),
+                    url(r'^admin/', include(admin.site.urls), name='admin'),
 
                     url(r'^forgotPassword', views.forgot_password,
                         name='forgotPassword'),
@@ -22,7 +22,7 @@ urlpatterns = [
                     url(r'^createRound/$', views.create_round, name='createRound'),
 
                     url(r'^maintainTeam/$', views.maintain_team, name='maintainTeam'),
-                    url(r'^maintainTeam/(?P<round_pk>[0-9]+)/?$', views.maintain_team, name='maintainTeamR'),
+                    # url(r'^maintainTeam/(?P<round_pk>[0-9]+)/?$', views.maintain_team, name='maintainTeamR'),
 
                     url(r'^getQuestionnaireForTeam/$', views.get_questionnaire_for_team,
                         name='getQuestionnaireForTeam'),
@@ -39,13 +39,14 @@ urlpatterns = [
                     url(r'^accountDetails/(?P<userId>[a-zA-Z0-9]+)/?$', views.member_details, name='memberDetails'),
 
                     url(r'^$', views.index, name='index'),
-                    url(r'^userAdmin/submitForm/?$', peer_review.view.userManagement.submit_new_user_form),
-                    url(r'^userAdmin/submitCSV/$', views.submit_csv, name="submitCSV"),
+                    url(r'^userAdmin/submitForm/?$', peer_review.view.userManagement.submit_new_user_form,
+                        name='submitUserForm'),
+                    url(r'^userAdmin/submitCSV/$', views.submit_csv, name='submitCSV'),
+                    url(r'^userAdmin/delete/$', views.user_delete, name='userDelete'),
                     url(r'^userAdmin/userProfile/(?P<userId>[0-9a-zA-Z]+)/?$', views.user_profile, name="userProfile"),
-                    url(r'^userAdmin/delete/$', views.user_delete, name="userDelete"),
-                    url(r'^userAdmin/update/(?P<userId>[0-9a-zA-Z]+)/?$', views.user_update),
-                    url(r'^userAdmin/resetPassword/(?P<userId>[0-9a-zA-Z]+)/?$', views.reset_password),
-                    url(r'^userAdmin/updateEmail/$', views.update_email),
+                    url(r'^userAdmin/update/(?P<userId>[0-9a-zA-Z]+)/?$', views.user_update, name='userUpdate'),
+                    url(r'^userAdmin/resetPassword/(?P<userId>[0-9a-zA-Z]+)/?$', views.reset_password, name='resetPassword'),
+                    url(r'^userAdmin/updateEmail/$', views.update_email, name='updateEmail'),
                     url(r'^userAdmin/$', views.user_list, name='userAdmin'),
 
                     url(r'^questionAdmin/save', views.save_question, name='saveQuestion'),
@@ -56,30 +57,32 @@ urlpatterns = [
                     url(r'^questionnaireAdmin/save$', views.save_questionnaire, name='saveQuestionnaire'),
                     url(r'^questionnaireAdmin/edit/(?P<questionnaire_pk>[0-9]+)/?$', views.edit_questionnaire,
                         name='editQuestionnaire'),
-                    url(r'^questionnairePreview/(?P<questionnaire_pk>[0-9]+)/?$', views.questionnaire_preview),
+                    url(r'^questionnairePreview/(?P<questionnaire_pk>[0-9]+)/?$', views.questionnaire_preview,
+                        name='previewQuestionnaire'),
                     url(r'^questionnaireAdmin/delete', views.delete_questionnaire, name='deleteQuestionnaire'),
                     url(r'^questionnaireAdmin/$', views.questionnaire_admin, name='questionnaireAdmin'),
 
-                    url(r'^maintainRound/dump/?$', views.round_dump),
+                    url(r'^maintainRound/dump/?$', views.round_dump, name='dumpRound'),
                     url(r'^maintainRound/delete/(?P<round_pk>[0-9]+)/?$', views.round_delete, name='deleteRound'),
                     url(r'^maintainRound/update/(?P<round_pk>[0-9]+)/?$', views.round_update, name='updateRound'),
                     url(r'^maintainTeam/getTeamsForRound/(?P<round_pk>[0-9]+)/?$', views.get_teams_for_round,
                         name='getTeamsForRound'),
-                    url(r'^maintainTeam/getQuestionnaireForRound/(?P<round_pk>[0-9]+)/?$', views.get_questionnaire_for_round),
+                    url(r'^maintainTeam/getQuestionnaireForRound/(?P<round_pk>[0-9]+)/?$',
+                        views.get_questionnaire_for_round,
+                        name='getQuestionnaireRound'),
                     url(
                     r'^maintainTeam/changeUserTeamForRound/(?P<round_pk>[0-9]+)/(?P<userId>[0-9a-zA-Z]+)/(?P<team_name>[a-zA-Z0-9]+)/?$',
                     views.change_user_team_for_round, name='changeUserTeamForRound'),
-                    url(r'^maintainTeam/getTeams/?$', views.get_teams),
+                    url(r'^maintainTeam/getTeams/?$', views.get_teams, name='getTeams'),
                     url(r'^maintainTeam/changeTeamStatus/(?P<team_pk>[0-9]+)/(?P<status>[a-zA-Z0-9]+)/?$',
                     views.change_team_status,name='changeTeamStatus'),
-                    url(r'^maintainTeam/submitTeamCSV/$', views.submit_team_csv, name="submitTeamCSV"),
-                    url(r'^report/?$', views.report),
-                    url(r'^report/getUser/(?P<userId>[0-9a-zA-Z]+)/?$', views.get_user),
-                    url(r'^login/auth/$', views.auth, name="auth"),
+                    url(r'^maintainTeam/submitTeamCSV/$', views.submit_team_csv, name='submitTeamCSV'),
+                    url(r'^report/?$', views.report, name='report'),
+                    url(r'^report/getUser/(?P<userId>[0-9a-zA-Z]+)/?$', views.get_user, name='getUserReport'),
+                    url(r'^login/auth/$', views.auth, name='auth'),
 
                     url(r'^maintainRound/delete/$', views.round_delete),
                     url(r'^maintainRound/(?P<error>[0-9]+)/?$', views.maintain_round_with_error,
-                        name="maintainRoundWithError"),
-                    url(r'^maintainRound/update/(?P<round_pk>[0-9]+)/?$', views.round_update),
+                        name='maintainRoundWithError'),
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

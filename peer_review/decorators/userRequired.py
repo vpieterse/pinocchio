@@ -16,7 +16,6 @@ def user_required(function=None, login_url='/login/'):
             if request.user.is_authenticated():
                 return view_func(request, *args, **kwargs)
             else:
-                #return view_func(request, *args, **kwargs)
                 return redirect(login_url)
 
         _view.__name__ = view_func.__name__

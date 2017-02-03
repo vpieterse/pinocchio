@@ -9,10 +9,12 @@ from django.shortcuts import render
 from django.utils import timezone
 
 from ..models import User, RoundDetail, TeamDetail, Document
+from peer_review.decorators.adminRequired import admin_required
 from peer_review.forms import DocumentForm
 from peer_review.view.userFunctions import user_error
 
 
+@admin_required
 def maintain_team(request):
     if request.method == "POST":
         round_pk = request.POST.get("roundPk")
@@ -30,6 +32,7 @@ def maintain_team(request):
     return render(request, 'peer_review/maintainTeam.html', context)
 
 
+@admin_required
 def change_team_status(request, team_pk, status):
     team = TeamDetail.objects.get(pk=team_pk)
     team.status = status
@@ -37,6 +40,7 @@ def change_team_status(request, team_pk, status):
     return JsonResponse({'success': True})
 
 
+@admin_required
 def change_user_team_for_round(request, round_pk, userId, team_name):
     try:
         team = TeamDetail.objects.filter(user_id=userId).get(roundDetail_id=round_pk)
@@ -52,6 +56,7 @@ def change_user_team_for_round(request, round_pk, userId, team_name):
     return JsonResponse({'success': True, 'team_pk': team.pk})
 
 
+@admin_required
 def get_teams_for_round(request, round_pk):
     teams = TeamDetail.objects.filter(roundDetail_id=round_pk)
     response = {}
@@ -65,6 +70,7 @@ def get_teams_for_round(request, round_pk):
     return JsonResponse(response)
 
 
+@admin_required
 def get_teams(request):
     response = {}
     if request.method == "GET":
@@ -96,6 +102,7 @@ def get_teams(request):
     return JsonResponse(response)
 
 
+@admin_required
 def add_team_csv_info(team_list):
     for row in team_list:
         user_det_id = User.objects.get(userId=row['userID']).pk
@@ -104,6 +111,7 @@ def add_team_csv_info(team_list):
     return 1
 
 
+@admin_required
 def submit_team_csv(request):
     if not request.user.is_authenticated():
         return user_error(request)

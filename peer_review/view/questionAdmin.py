@@ -6,6 +6,8 @@ from django.shortcuts import render
 from django.utils import timezone
 
 from ..models import Question, QuestionOrder, QuestionType, QuestionGrouping, Choice, Rank, Rate, FreeformItem, Label
+from peer_review.decorators.adminRequired import admin_required
+
 
 def user_error(request):
     # Renders error page with a 403 status code for forbidden users
@@ -18,7 +20,7 @@ def is_user_staff(request):
         return False
 
 # Render the questionAdmin template
-@login_required
+@admin_required
 def question_admin(request):
     # print(request.user.is_authenticated())
     # if not request.user.is_authenticated():
@@ -31,7 +33,7 @@ def question_admin(request):
 
 
 # Render the questionAdmin template with the questions detailed loaded in
-@login_required
+@admin_required
 def edit_question(request, question_pk):
     question = Question.objects.get(pk=question_pk)
     context = {'question': question,
@@ -45,6 +47,7 @@ def edit_question(request, question_pk):
 
 
 # Delete a question
+@admin_required
 def delete_question(request):
     if request.method == "POST":
         pks = request.POST['question-pk'].split(';#')
@@ -57,6 +60,7 @@ def delete_question(request):
 
 
 # Save question
+@admin_required
 def save_question(request):
     if request.method == "POST":
         question_text = str(request.POST['question-content'])
