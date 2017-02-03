@@ -40,7 +40,7 @@ class AuthenticationTests(TestCase):
                        'changeTeamStatus|team_pk='+str(self.team.pk)+'|status=C',
                        'submitTeamCSV', 'report', 'getUserReport|userId='+str(self.user.userId),
                        'maintainRoundWithError|error=2',
-                       'deleteRound|round_pk='+str(self.round.pk), 'updateRound|round_pk='+str(self.round.pk)]
+                       'deleteRound', 'updateRound|round_pk='+str(self.round.pk)]
         # print("not logged in")
         self.client.logout()
         # NOT LOGGED IN

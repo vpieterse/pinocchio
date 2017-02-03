@@ -63,7 +63,7 @@ urlpatterns = [
                     url(r'^questionnaireAdmin/$', views.questionnaire_admin, name='questionnaireAdmin'),
 
                     url(r'^maintainRound/dump/?$', views.round_dump, name='dumpRound'),
-                    url(r'^maintainRound/delete/(?P<round_pk>[0-9]+)/?$', views.round_delete, name='deleteRound'),
+                    url(r'^maintainRound/delete/$', views.round_delete, name='deleteRound'),
                     url(r'^maintainRound/update/(?P<round_pk>[0-9]+)/?$', views.round_update, name='updateRound'),
                     url(r'^maintainTeam/getTeamsForRound/(?P<round_pk>[0-9]+)/?$', views.get_teams_for_round,
                         name='getTeamsForRound'),
