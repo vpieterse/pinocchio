@@ -65,6 +65,7 @@
             {% if teamCount == 0 %}
             <div>
             <h2>{{ user.name }}, you currently have no team.</h2>
+            <br><img src="{% static "peer_review/pinocchioError.png" %}" id="errorImage" style="width: 36%; height: 72%; "/>
             </div>
             {% endif %}
             {% counter_reset %}
