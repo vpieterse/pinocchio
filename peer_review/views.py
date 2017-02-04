@@ -4,6 +4,7 @@ import time
 import mimetypes
 from _ast import Set
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as django_login, logout, update_session_auth_hash
 from django.contrib.auth.forms import SetPasswordForm
@@ -83,34 +84,6 @@ def auth(request):
         messages.add_message(request, messages.ERROR, "Incorrect username or password")
         return redirect('/login/')
 
-    elif request.method == 'GET' and request.GET.get('key', None):
-
-        """
-        Reset password one time link redirects to this page with a GET request
-        and a token in the URL query string 'key'
-        """
-        key = request.GET.get('key')
-        userId = unsign_userId(key, maxAge=30 * 60)
-
-        if userId == None:
-            # Invalid token or token has expired
-            # TODO: Error Message
-            return redirect('/login/')
-
-        try:
-            user = User.objects.get(userId=userId)
-
-            # At this point, we can be 100% sure the user is
-            # who he claims to be. Redirect to 'change password' page
-            django_login(request, user)
-            #return change_password(request)
-            #return recover_password(request.user)
-            return SetPasswordForm(request.user)
-
-        except Exception as e:
-            print(e)
-            return redirect('/login/')
-
         print(userId)
         return redirect('/login/')
 
@@ -130,8 +103,7 @@ changing their password.
 def recover_password(request, key):
     if request.method == 'GET':
         # Test if the key is still valid
-        # TODO: Change magic number to config file
-        userId = unsign_userId(key, 30 * 60)
+        userId = unsign_userId(key, settings.FORGOT_PASSWORD_AGE)
         if not userId:
             messages.error(request, 'The link has expired or is invalid. Please generate a new one.')
             return redirect('forgotPassword')
@@ -160,8 +132,7 @@ def recover_password(request, key):
         # If the form is valid, go ahead and change the user's password.
         if newForm.is_valid():
             try:
-                #TODO: MOVE MAGIC NUMBER
-                user_id = unsign_userId(key, 30*60)
+                user_id = unsign_userId(key, settings.FORGOT_PASSWORD_AGE)
                 if not user_id:
                     messages.error(request, 'The link has expired or is invalid. Please generate a new one.')
                     return redirect('forgotPassword')
