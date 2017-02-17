@@ -13,4 +13,4 @@ Please note the trailing slash!
 
 TODO: CHANGE IN PRODUCTION
 """
-EXTERNAL_URL = 'http://localhost:8000/'
+EXTERNAL_URL = 'http://pinocchio.cs.up.ac.za/'
