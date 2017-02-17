@@ -128,3 +128,14 @@ EMAIL_PORT = 25
 EMAIL_HOST_USER = ""
 EMAIL_HOST_PASSWORD = ""
 
+"""
+Loads other project-related settings.
+Add the bottom lines to the production
+config file to load all necessary globals
+"""
+try:
+    from pinocchio.globalSettings import *
+except ImportError as e:
+    print("ERROR: COULD NOT LOAD GLOBAL SETTINGS FROM globalSettings.py")
+    print(e)
+

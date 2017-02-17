@@ -2,6 +2,7 @@ import base64
 import os
 from time import sleep
 
+from django.conf import settings
 from django.contrib import messages
 from django.core.signing import Signer, TimestampSigner
 from django.http import HttpResponseForbidden
@@ -118,7 +119,7 @@ def send_password_request_email(userId, email_addr, post_name, post_surname):
         ln = "{lastname}"
         url = "{url}"
 
-        requestURL = 'http://localhost:8000/recoverPassword/' + sign_userId(userId)
+        requestURL = settings.EXTERNAL_URL + 'recoverPassword/' + sign_userId(userId)
 
         file_path = baseSettings.BASE_DIR + '/peer_review/text/password_request.txt'
         file = open(file_path, 'a+')
@@ -163,7 +164,7 @@ def user_reset_password(request):
                     userId=userId,
                     email_addr=user.email,
                     post_name=user.name,
-                    post_surname=user.email
+                    post_surname=user.surname
                 )
                 #return reset_password(request, user.userId)
                 if success:
