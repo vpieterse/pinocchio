@@ -27,13 +27,21 @@ def submit_new_user_form(request):
             post_cell = user_form.cleaned_data['cell']
             post_email = user_form.cleaned_data['email']
             post_user_id = user_form.cleaned_data['userId']
+            post_status = user_form.cleaned_data['status']
 
-            #user = User(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
+            # user = User(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
             #            cell=post_cell, email=post_email, userId=post_user_id)
 
             otp = generate_otp()
+
+            staff = False
+            print(post_status)
+            if post_status == "A":
+                print("ADMIN")
+                staff = True
+
             user = User.objects.create_user(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
-                                            cell=post_cell, email=post_email, userId=post_user_id, password=otp)
+                                            cell=post_cell, email=post_email, userId=post_user_id, password=otp, is_staff=staff)
             if not user:
                 messages.add_message(request, messages.ERROR, "User could not be added")
             else:
