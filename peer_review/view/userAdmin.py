@@ -3,31 +3,27 @@ import os
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from peer_review.decorators.adminRequired import admin_required
+from peer_review.email import generate_otp_email
 from peer_review.forms import DocumentForm, UserForm
 from peer_review.models import User, Document
 from peer_review.view.userFunctions import user_error
 from peer_review.views import generate_otp, hash_password
 
 
-@admin_required
 def add_csv_info(user_list):
     for row in user_list:
         otp = generate_otp()
-        module_dir = os.path.dirname(__file__)
-        file_path = os.path.join(module_dir)
-        file = open(file_path + '/../text/otp_email.txt', 'a+')
-        file.seek(0)
-        email_text = file.read()
-        file.close()
-
         password = hash_password(otp)
 
         user = User(userId=row['user_id'], password=password, status="U", title=row['title'],
                     initials=row['initials'], name=row['name'], surname=row['surname'],
                     cell=row['cell'], email=row['email'])
 
+        # Send OTP email
         user.save()
-        return  # todo return render request
+        generate_otp_email(otp, user.name, user.surname, user.email, user.userId);
+
+    return  # todo return render request
 
 
 @admin_required
@@ -44,7 +40,7 @@ def submit_csv(request):
 
         module_dir = os.path.dirname(__file__)
         file_path = os.path.join(module_dir)
-        file = open(file_path + '/../text/email.txt', 'r+')
+        file = open(file_path + '/../text/otp_email.txt', 'r+')
         email_text = file.read()
         file.close()
         form = DocumentForm(request.POST, request.FILES)
