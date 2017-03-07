@@ -11,7 +11,6 @@ from peer_review.views import generate_otp, hash_password
 
 def add_csv_info(user_list):
     for row in user_list:
-        print("Adding {}".format(row['user_id']))
         otp = generate_otp()
         module_dir = os.path.dirname(__file__)
         file_path = os.path.join(module_dir)
@@ -132,7 +131,7 @@ def submit_csv(request):
             return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
 
         if not error:
-            #todo: add confirmation dialog, and print out names of new users
+            # todo: add confirmation dialog, and print out names of new users
             add_csv_info(user_list)
             return render(request, 'peer_review/userAdmin.html',
                                       {'new_users': user_list, 
@@ -154,7 +153,6 @@ def validate(row):
     # 4 = user already exists
 
     if len(row) < 7:
-        print(len(row))
         return 0
 
     for key, value in row.items():
