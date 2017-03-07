@@ -18,11 +18,6 @@ Todo:
 
 {% block context %}
     <div class = "container">
-        {% if messages %}
-            {% for message in messages %}
-            <div class = "alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
-            {% endfor %}
-        {% endif %}
         <div class="panel-group" id="accordion">
             <div class = "panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
@@ -39,141 +34,103 @@ Todo:
                             <br/>
                             <label for="intro">Introduction</label>
                             <input id="intro" class = "form-control" value="{{ questionnaire.intro }}" name="intro">
-                            <br/>
-                            <label for="select-questions">Select Questions</label>
-                            <div class="row" id = "select-questions">
-                                <div class="col-md-6">
-                                    <small class="text-muted">Click the <span class="glyphicon glyphicon glyphicon-plus-sign text-primary"></span> icon to add questions to the questionnaire.</small>
-                                    <table class='table moveable' id='question-table'>
-                                        <thead>
-                                            <tr>
-                                                <th>Question</th>
-                                                <th>Question Type</th>
-                                                <th>Grouping</th>
-                                                <th>Grouping</th>
-                                                <th></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                        {% for question in questions %}
-                                            <tr id="{{ question.pk }}">
-                                                <td class="question-label">{{ question.questionLabel }}</td>
-                                                <td class="question-type">{{ question.questionType.name }}</td>
-                                                <td class="question-grouping">{{ question.questionGrouping.grouping }}</td>
-                                                <td class = "hidden"> {{ question.questionText }} </td>
-                                                
-                                                <td>
-                                                    <span onclick="addQuestion(this)" class="glyphicon glyphicon glyphicon-plus-sign text-primary pull-right"  style="cursor:pointer"></span>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="col-md-6">
-                                    <small class="text-muted">Click the <span class="glyphicon glyphicon glyphicon-minus-sign text-primary"></span> icon to remove questions from the questionnaire.</small>
-                                    <table id="selected-questions" class="table moveable">
-                                        <thead>
-                                            <tr>
-                                                <th></th>
-                                                <th>Question</th>
-                                                <th>Question Type</th>
-                                                <th>Grouping</th>
-                                                <th></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for question in questionOrders %}
-                                                <tr id = "{{ question.question.pk }}">
-                                                    <td>
-                                                        <span onclick="moveRow(this)" class="glyphicon glyphicon glyphicon-arrow-up text-primary pull-left"  style="cursor:pointer"></span>
-                                                        <span onclick="moveRow(this)" class="glyphicon glyphicon glyphicon-arrow-down text-primary pull-left"  style="cursor:pointer"></span>
-                                                    </td>
-                                                    <td class = "question-label">{{ question.question.questionLabel }}</td>
-                                                    <td class = "question-type">{{ question.question.questionType.name }}</td>
-                                                    <td class = "question-grouping">{{ question.question.questionGrouping.grouping }}</td>
-                                                    <td>
-                                                        <span onclick="removeQuestion(this)" class="glyphicon glyphicon glyphicon-minus-sign text-primary pull-right"  style="cursor:pointer"></span>
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <br/>
-                            <input type="hidden" name="questions" id = "questions"> 
-                            {% if questionnaire %}
-                                <input type="hidden" name="pk" value="{{ questionnaire.pk }}">                
-                            {% endif %}
-                            <button type="submit" class = "btn btn-primary">
-                                <span class="glyphicon glyphicon-ok"></span>
-                                Submit
-                            </button>
-                            <button type="reset" class = "btn btn-primary pull-right">
-                                <span class="glyphicon glyphicon-remove"></span>
-                                {% if questionnaire %}
-                                Cancel Edit
-                                {% else %}
-                                    Clear
-                                {% endif %}
-                            </button>
                         </form>
+                        <br>
+                    </div>
+                    <div class="panel-body" id="last-div">
+                        <button class='btn btn-success' onclick="addQuestion()">Add Question
+                        <button class='btn btn-primary pull-right'>Save
                     </div>
                 </div>
             </div>
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
-                    <h4 class="panel-title">
-                        <b>Maintain Questionnaires</b><b class="caret"></b>
-                    </h4>
-                </div>
-                <div id="collapseTwo" class="panel-collapse collapse">
-                    <div class="panel-body">
-                        <input type="text" class="form-control" id="search" placeholder="Start typing to search">
-                        <small class = "text-muted">Click the <span class="glyphicon glyphicon glyphicon-pencil text-primary"></span> icon to edit questionnaires, and the <span class="glyphicon glyphicon glyphicon-remove-circle text-primary"></span> icon to remove questionnaires.</small>
+        </div>
+    </div>
+    <div class="hidden">
+        <div class="panel-body" id = "empty-question">
+            <span class="pull-right glyphicon glyphicon-remove text-danger" onclick="deleteQuestion(this)"></span>
+            <fieldset class="form-group">
+                <label>Question Text</label>
+                <textarea class="form-control" rows="3"
+                          style="resize:none;width:100%" required>{{ question.questionText }}</textarea>
+            </fieldset>
+            <div class = "row">
+                <div class="col-xs-6">
+                    <div class="btn-group pull-left" id="groupings">
+                        <label class="btn btn-default active">
+                            Rest
+                        </label>
+                        <label class="btn btn-default">
+                            None
+                        </label>
+                        <label class="btn btn-default">
+                            All
+                        </label>
+                        <label class="btn btn-default">
+                            Label
+                        </label>
                     </div>
-                    <table id = "questionnaire-list" class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>
-                                    Number of Questions
-                                    <span id="delete-many" style = "cursor: pointer" onclick = "deleteMany()" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for questionnaire in questionnaires %}
-                                <tr
-                                    {% if questionnaire.inARound  %} title="This questionnaire is in a round and cannot be deleted."
-                                    {% else %} class = "deleteable" 
-                                    {% endif %}
-                                    id = "{{ questionnaire.pk }}"
-                                >
-                                    <td>
-                                        {{ questionnaire.title }}
-                                    </td>
-                                    <td>
-                                        {{ questionnaire.questionOrders.count }}
-                                        {% if questionnaire.inARound %}
-                                            <span class="glyphicon glyphicon glyphicon-remove-circle pull-right text-muted"></span>
-                                        {% else %}
-                                            <span style = "cursor: pointer" onclick = "deleteQuestionnaire('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
-                                        {% endif %}
-                                        <span style = "cursor: pointer" onclick = "preview('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-eye-open pull-right text-primary">&nbsp</span>
-                                        <span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
-                                    </td>
-                                </tr>   
-                            {% endfor %}
-                        </tbody>
-                    </table> 
-                    <form id = "form-delete" action = "/questionnaireAdmin/delete" method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" name = "pk" id = "questionnaire-pk">
-                    </form>   
+                </div>
+                <!-- Types -->
+                <div class="col-xs-6">
+                    <div class="btn-group pull-right" id="types">
+                        <label class="btn btn-default active">
+                            Choice
+                        </label>
+                        <label class="btn btn-default">
+                            Freeform
+                        </label>
+                        <label class="btn btn-default">
+                            Rank
+                        </label>
+                        <label class="btn btn-default">
+                            Rate
+                        </label>
+                        <label class="btn btn-default">
+                            Label
+                        </label>
+                    </div>
                 </div>
             </div>
+            <br>
+            <div class="row">
+            <div class="col-xs-6">
+                <small class="text-muted">Click the <span class="glyphicon glyphicon-plus-sign text-primary"></span>
+                    icon to add choices.
+                </small>
+                <table class="table table-bordered" id="choice-table">
+                    <thead>
+                    <tr>
+                        <th class="text-center">
+                            <span>Choices</span>
+                            <span style="cursor: pointer" onclick="addRowToTable(this)"
+                                  class="glyphicon glyphicon-plus-sign pull-right text-primary"></span>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for choice in choices %}
+                        <tr class="text-center">
+                            <td>
+                                <input type="text" placeholder="Enter choice" style="border:none;"
+                                       value="{{ choice }}"/>
+                                <span onclick="removeRow(this)"
+                                      class="glyphicon glyphicon-remove-circle pull-right text-primary"
+                                      style="cursor:pointer"></span>
+                                <span onclick="moveRow(this)"
+                                      class="glyphicon glyphicon-arrow-up pull-left text-primary"
+                                      style="cursor:pointer"></span>
+                                <span onclick="moveRow(this)"
+                                      class="glyphicon glyphicon-arrow-down pull-left text-primary"
+                                      style="cursor:pointer"></span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-xs-6 labels-go-here">
+            </div>
+        </div>
         </div>
     </div>
 
@@ -185,107 +142,28 @@ Todo:
             plugins: ["emoticons", "image"],
             resize: true,
             toolbar: 'undo redo bold italiclignleft aligncenter alignright bullist numlist outdent indent styleselect fontsizeselect emoticons image a', });
-            //Hide alerts
-            setTimeout(function() {
-                $('.alert').hide(100);
-            }, 10000);
-            //Todo: Search the other columns as well
-            $("#search").keyup(function() {
-                var value = this.value;
-                $("#questionnaire-list").find("tr").each(function(index) {
-                    if (!index) return;
-                    var id = $(this).find("td").first().text();
-                    $(this).toggle(id.toLowerCase().indexOf(value.toLowerCase()) !== -1);
-                });
-            });
-
-            //Allows selecting of questions to delete multiple questions
-            $('#delete-many').hide();
-            $('#questionnaire-list').on('click', '.deleteable', function(event) {
-                if ($(this).hasClass('active')) {
-                    $(this).removeClass('active')
-                } else {
-                    $(this).addClass('active')
-                }   
-                if ($('#questionnaire-list').find('.active').length > 0) {
-                    $('#delete-many').show(100);
-                } else {
-                    $('#delete-many').hide(100);                    
-                }
-
-            });
-
-            $('#question-table').DataTable();
-
         });
 
-        function moveRow(el) {
-            var row = $(el).closest('tr');
-            if ($(el).hasClass('glyphicon-arrow-up'))
-                row.prev().before(row);
-            else if ($(el).hasClass('glyphicon-arrow-down'))
-                row.next().after(row);
+        function addQuestion() {
+            $("#last-div").before($('#empty-question').clone());
+            // body...
         }
 
-        function addQuestion(el) {              
-            if ($(el).hasClass('text-primary')) {
-                var row = $(el).closest('tr'); 
-                var tr = $('<tr id = "'+row.attr('id')+'"></tr>');
-                tr.append('<td><span onclick="moveRow(this)" class="glyphicon glyphicon glyphicon-arrow-up text-primary pull-left"  style="cursor:pointer"></span><span onclick="moveRow(this)" class="glyphicon glyphicon glyphicon-arrow-down text-primary pull-left"  style="cursor:pointer"></span></td>');
-                tr.append('<td class="question-label">'+row.find('.question-label').html()+'</td>');
-                tr.append('<td>'+row.find('.question-type').html()+'</td>');
-                tr.append('<td>'+row.find('.question-grouping').html()+'</td>');
-                tr.append('<td><span onclick="removeQuestion(this)" class="glyphicon glyphicon glyphicon-minus-sign text-primary pull-right"  style="cursor:pointer"></span></td>');
-                $('#selected-questions').append(tr);
-                //To ensure only one of each question in questionnaire
-                // $(el).removeClass('text-primary').addClass('text-muted');
-            }
+        function deleteQuestion(el) {
+            $(el).parent().remove();
         }
 
-        function removeQuestion(el) {
-            //To ensure one of each question in questionnaire
-            // $('#question-table > tbody > tr:contains("'+$(el).closest('tr').find('.question-label').html()+'")').find('span.glyphicon-plus-sign').addClass('text-primary').removeClass('text-muted');
-            $(el).closest('tr').remove();
-        }
+        function addRowToTable(el) {
+            var row = $('<td></td>');
+            row.append('<input type="text" placeholder="Enter choice" style="border:none;"/>');
+            row.append('<span onclick="removeRow(this)" class = "glyphicon glyphicon-remove-circle pull-right text-primary" style="cursor:pointer"></span>');
+            row.append('<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-up pull-left text-primary" style="cursor:pointer"></span>');
+            row.append('<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-down pull-left text-primary" style="cursor:pointer"></span>');
 
-        function edit(pk) {
-            window.location = '/questionnaireAdmin/edit/'+pk;
-        }
-        
-        function preview(pk) {
-            $("body").append("<a id='previewLink' href='/questionnairePreview/" + pk + "' target='_blank' style='display:none'></a>");
-            // alert(getElementById('previewLink'));
-            document.getElementById('previewLink').click();
-            $("#previewLink").remove();
-        } 
-
-        function deleteQuestionnaire(pk) {
-            $('#questionnaire-pk').val(pk);
-            $('#form-delete').submit();
-        }
-
-        function deleteMany() {
-            var pks = "";
-            $('#questionnaire-list > tbody > tr.active').each(function(i, el) {
-                pks += el.id + ';#';
-            });
-            $('#questionnaire-pk').val(pks.slice(0, -2));
-            $('#form-delete').submit();
-        }
-
-        function save() {
-            var questions = "";
-            $('#selected-questions > tbody > tr').each(function(i, el) {
-                questions += el.id + ';#';
-            });
-            $('#questions').val(questions);
-        }
-
-        function empty() {
-            {% if questionnaire %}
-                window.location = '/questionnaireAdmin/';
-            {% endif %}
-            $('#selected-questions > tbody').empty();
+            $(el).closest('table').find('tbody').append(row);
+            row.wrap('<tr></tr>');
+            row.addClass('text-center');
+            return row;
         }
     </script>
 {% endblock %}

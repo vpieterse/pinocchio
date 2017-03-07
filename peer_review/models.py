@@ -144,7 +144,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=50)
     surname = models.CharField(max_length=50)
     cell = models.CharField(max_length=10)
-    email = models.EmailField(max_length=254, unique=True)
+    email = models.EmailField(max_length=254)
 
     userId = models.CharField(max_length=12, primary_key=True)
     OTP = models.BooleanField(default=True)

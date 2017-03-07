@@ -9,15 +9,15 @@ from peer_review.view.userFunctions import user_error
 from peer_review.views import generate_otp, hash_password
 
 
-@admin_required
 def add_csv_info(user_list):
     for row in user_list:
+        print("Adding {}".format(row['user_id']))
         otp = generate_otp()
         module_dir = os.path.dirname(__file__)
         file_path = os.path.join(module_dir)
         file = open(file_path + '/../text/otp_email.txt', 'a+')
         file.seek(0)
-        email_text = file.read()
+        # email_text = file.read()
         file.close()
 
         password = hash_password(otp)
@@ -27,10 +27,9 @@ def add_csv_info(user_list):
                     cell=row['cell'], email=row['email'])
 
         user.save()
-        return  # todo return render request
+    return
 
 
-@admin_required
 def submit_csv(request):
     if not request.user.is_authenticated():
         return user_error(request)
@@ -44,7 +43,7 @@ def submit_csv(request):
 
         module_dir = os.path.dirname(__file__)
         file_path = os.path.join(module_dir)
-        file = open(file_path + '/../text/email.txt', 'r+')
+        file = open(file_path + '/../text/otp_email.txt', 'r+')
         email_text = file.read()
         file.close()
         form = DocumentForm(request.POST, request.FILES)
@@ -61,7 +60,7 @@ def submit_csv(request):
             # documents = Document.objects.all()
 
             count = 0
-            with open(file_path) as csvfile:
+            with open(file_path, encoding='utf-8') as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
                     valid = validate(row)
@@ -155,18 +154,19 @@ def validate(row):
     # 4 = user already exists
 
     if len(row) < 7:
+        print(len(row))
         return 0
 
     for key, value in row.items():
         if value is None:
             return 2
 
-    for key, value in row.items():
-        if key == "cell":
-            try:
-                int(value)
-            except ValueError:
-                return 3
+    # for key, value in row.items():
+    #     if key == "cell":
+    #         try:
+    #             int(value)
+    #         except ValueError:
+    #             return 3
 
     user = User.objects.filter(userId=row['user_id'])
 
