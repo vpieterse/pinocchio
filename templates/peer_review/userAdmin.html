@@ -137,7 +137,14 @@
                                 {{ docForm.docfile }}
                             </p>
 
-                            <p><input type="submit" value="Upload"/></p>
+                            <!-- Flag if upload is for testing or changing database
+                                    0: Upload and make changes
+                                    1: Only test input and display validation message
+                             -->
+                            <input name="test-submit-flag" type="hidden" value="0" id="test-submit-flag">
+
+                            <p><input type="submit" value="Test" onclick="document.getElementById('test-submit-flag').value = 1"/>
+                            <input type="submit" value="Submit"  onclick="document.getElementById('test-submit-flag').value = 0"/></p>
                         </form>
 
                         <form class="col-md-6" action="" method="post" enctype="multipart/form-data">
@@ -150,6 +157,40 @@
                             <div class="alert alert-success" role="alert">
                                 <strong>Success!</strong> The following users were added:
                             </div>
+                            {% for u in new_users %}
+                                <em>{{ u.name }} ({{ u.initials }}) {{ u.surname }}</em>
+                                <br>
+                            {% endfor %}
+
+                        {%  elif possible_users %}
+                            <div class = "panel-body">
+                            <div class="alert alert-warning" role="alert">
+                                <strong>The CSV file is valid.</strong> The following users will be added:
+                            </div>
+                            <div class='table-responsive'>
+                                <table class='table'>
+                                    <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Initials</th>
+                                        <th>Name</th>
+                                        <th>Surname</th>
+                                        <th>Email</th>
+                                        <th>Cell</th>
+                                        <th>UserID</th>
+                                    </thead>
+                                    {% for row in possible_users %}
+                                        <tr>
+                                            <td>{{ row.title }}</td>
+                                            <td>{{ row.initials }}</td>
+                                            <td>{{ row.name }}</td>
+                                            <td>{{ row.surname }}</td>
+                                            <td>{{ row.email }}</td>
+                                            <td>{{ row.cell }}</td>
+                                            <td>{{ row.user_id }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
                             {% for u in new_users %}
                                 <em>{{ u.name }} ({{ u.initials }}) {{ u.surname }}</em>
                                 <br>

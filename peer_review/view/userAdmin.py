@@ -46,6 +46,9 @@ def submit_csv(request):
         email_text = file.read()
         file.close()
         form = DocumentForm(request.POST, request.FILES)
+
+        test_flag = (request.POST["test-submit-flag"] == "1");
+
         if form.is_valid():
             newdoc = Document(docfile=request.FILES['docfile'])
             newdoc.save()
@@ -132,9 +135,17 @@ def submit_csv(request):
 
         if not error:
             # todo: add confirmation dialog, and print out names of new users
-            add_csv_info(user_list)
-            return render(request, 'peer_review/userAdmin.html',
-                                      {'new_users': user_list, 
+            if not test_flag:
+                add_csv_info(user_list)
+                return render(request, 'peer_review/userAdmin.html',
+                                      {'new_users': user_list,
+                                           'users': users,
+                                           'userForm': user_form,
+                                           'docForm': doc_form,
+                                           'email_text': email_text})
+            else:
+                return render(request, 'peer_review/userAdmin.html',
+                                      {'possible_users': user_list,
                                            'users': users,
                                            'userForm': user_form,
                                            'docForm': doc_form,
