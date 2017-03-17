@@ -25,7 +25,7 @@
                         </a>
                     </h4>
                 </div>
-                {% if new_users or message %}
+                {% if new_users or message or possible_users%}
                     <div id="collapseOne" class="panel-collapse collapse">
                 {% else %}
                     <div id="collapseOne" class="panel-collapse collapse in">
@@ -120,7 +120,7 @@
                         </a>
                     </h4>
                 </div>
-                {% if new_users or message %}
+                {% if new_users or message or possible_users%}
                     <div id="collapseTwo" class="panel-collapse collapse in">
                 {% else %}
                     <div id="collapseTwo" class="panel-collapse collapse">
