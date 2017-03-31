@@ -31,4 +31,4 @@ def generate_otp_email(user_otp, post_name, post_surname, email, userID):
     print(email_text)
 
     # TODO: REMOVE THIS COMMENT IN THE LIVE VERSION
-    #send_mail(email_subject, email_text, 'pinocchio@cs.up.ac.za', [email], fail_silently=False)
+    send_mail(email_subject, email_text, 'pinocchio@cs.up.ac.za', [email], fail_silently=False)
