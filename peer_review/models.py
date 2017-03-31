@@ -152,7 +152,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'userId'
     # TODO Add more required fields maybe
-    # REQUIRED_FIELDS = ['status']
+    REQUIRED_FIELDS = ['email']
 
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. '

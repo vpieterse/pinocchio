@@ -7,26 +7,37 @@ from peer_review.email import generate_otp_email
 from peer_review.forms import DocumentForm, UserForm
 from peer_review.models import User, Document
 from peer_review.view.userFunctions import user_error
+from peer_review.view.userManagement import create_user_send_otp
 from peer_review.views import generate_otp, hash_password
 
 
 def add_csv_info(user_list):
     for row in user_list:
         otp = generate_otp()
-        password = hash_password(otp)
 
-        user = User(userId=row['user_id'], password=password, status="U", title=row['title'],
-                    initials=row['initials'], name=row['name'], surname=row['surname'],
-                    cell=row['cell'], email=row['email'])
+        module_dir = os.path.dirname(__file__)
+        file_path = os.path.join(module_dir)
+        file = open(file_path + '/../text/otp_email.txt', 'a+')
+        file.seek(0)
+        # email_text = file.read()
+        file.close()
+
+        user = create_user_send_otp(
+            user_userId=row['user_id'],
+            user_status='U',
+            user_title=row['title'],
+            user_initials=row['initials'],
+            user_name=row['name'],
+            user_surname=row['surname'],
+            user_cell=row['cell'],
+            user_email=row['email']
+        )
 
         # Send OTP email
         user.save()
-        generate_otp_email(otp, user.name, user.surname, user.email, user.userId);
-
-    return  # todo return render request
+    return
 
 
-@admin_required
 def submit_csv(request):
     if not request.user.is_authenticated():
         return user_error(request)
@@ -44,6 +55,9 @@ def submit_csv(request):
         email_text = file.read()
         file.close()
         form = DocumentForm(request.POST, request.FILES)
+
+        test_flag = (request.POST["test-submit-flag"] == "1");
+
         if form.is_valid():
             newdoc = Document(docfile=request.FILES['docfile'])
             newdoc.save()
@@ -57,26 +71,13 @@ def submit_csv(request):
             # documents = Document.objects.all()
 
             count = 0
-            with open(file_path) as csvfile:
+            with open(file_path, encoding='utf-8') as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
                     valid = validate(row)
                     count += 1
                     if valid == 1:
-                        # title = row['title']
-                        # initials = row['initials']
-                        # name = row['name']
-                        # surname = row['surname']
-                        # email = row['email']
-                        # cell = row['cell']
-                        #
-                        # userId = row['user_id']
-                        # status = row['status']
-                        # OTP = generate_OTP()
-                        # generate_otp_email(OTP, name, surname, email, userID)
-                        # password = hash_password(OTP)
-
-                        user_list.append(row)
+                       user_list.append(row)
                         # ToDo check for errors in multiple rows
                     else:
                         error = True
@@ -129,10 +130,18 @@ def submit_csv(request):
             return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
 
         if not error:
-            #todo: add confirmation dialog, and print out names of new users
-            add_csv_info(user_list)
-            return render(request, 'peer_review/userAdmin.html',
-                                      {'new_users': user_list, 
+            # todo: add confirmation dialog, and print out names of new users
+            if not test_flag:
+                add_csv_info(user_list)
+                return render(request, 'peer_review/userAdmin.html',
+                                      {'new_users': user_list,
+                                           'users': users,
+                                           'userForm': user_form,
+                                           'docForm': doc_form,
+                                           'email_text': email_text})
+            else:
+                return render(request, 'peer_review/userAdmin.html',
+                                      {'possible_users': user_list,
                                            'users': users,
                                            'userForm': user_form,
                                            'docForm': doc_form,
@@ -157,12 +166,12 @@ def validate(row):
         if value is None:
             return 2
 
-    for key, value in row.items():
-        if key == "cell":
-            try:
-                int(value)
-            except ValueError:
-                return 3
+    # for key, value in row.items():
+    #     if key == "cell":
+    #         try:
+    #             int(value)
+    #         except ValueError:
+    #             return 3
 
     user = User.objects.filter(userId=row['user_id'])
 
