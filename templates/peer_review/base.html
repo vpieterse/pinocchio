@@ -24,7 +24,7 @@
 </head>
 <body>
 
-{% if perms.is_staff %}
+{% if perms.is_staff or user.status == 'A' %}
     {% include "peer_review/baseAdmin.html" %}
 {% elif user.is_authenticated %}
     {% include "peer_review/baseUser.html" %}

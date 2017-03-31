@@ -45,8 +45,9 @@ def submit_new_user_form(request):
             post_user_id = user_form.cleaned_data['userId']
             post_status = user_form.cleaned_data['status']
 
-            #user = User(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
+            # user = User(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
             #            cell=post_cell, email=post_email, userId=post_user_id)
+
 
             user = create_user_send_otp(user_title=post_title, user_initials=post_initials, user_name=post_name,
                                         user_surname=post_surname, user_cell=post_cell, user_userId=post_user_id,

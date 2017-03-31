@@ -4,6 +4,7 @@ from time import sleep
 
 from django.conf import settings
 from django.contrib import messages
+from django.core.mail import send_mail
 from django.core.signing import Signer, TimestampSigner
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
@@ -136,7 +137,7 @@ def send_password_request_email(userId, email_addr, post_name, post_surname):
         print(email_text)
 
         # TODO: REMOVE THIS COMMENT IN THE LIVE VERSION
-        # send_mail(email_subject, email_text, 'pinocchio@cs.up.ac.za', [email_addr], fail_silently=False)
+        send_mail(email_subject, email_text, 'pinocchio@cs.up.ac.za', [email_addr], fail_silently=False)
 
         return True
 
