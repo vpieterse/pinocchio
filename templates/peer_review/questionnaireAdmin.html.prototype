@@ -1,0 +1,169 @@
+{% extends "peer_review/base.html" %}
+{% comment %}
+Todo:
+    Search question lists
+    Filter question lists by type
+    Move grouping choice to questionnaireAdmin
+{% endcomment %}
+{% load staticfiles %}
+
+{% block extrahead %}
+    <script src="{% static "peer_review/js/tinymce/tinymce.min.js" %}"></script>
+    <title>Questionnaire Admin</title>
+    <script>
+        var title="questionnaireAdmin";
+    </script>
+
+{% endblock %}
+
+{% block context %}
+    <div class = "container">
+        <div class="panel-group" id="accordion">
+            <div class = "panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
+                    <h4 class="panel-title">
+                        <b>Create Questionnaire</b><b class="caret"></b>
+                    </h4>
+                </div>
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <form onsubmit="return save()" onreset="empty()" id = "form-save" method="POST" action="/questionnaireAdmin/save">
+                            {% csrf_token %}
+                            <label for="title">Title</label>
+                            <input type="text" name="title" class="form-control" id="title" placeholder="Enter title" value="{{questionnaire.label}}" required>
+                            <br/>
+                            <label for="intro">Introduction</label>
+                            <input id="intro" class = "form-control" value="{{ questionnaire.intro }}" name="intro">
+                        </form>
+                        <br>
+                    </div>
+                    <div class="panel-body" id="last-div">
+                        <button class='btn btn-success' onclick="addQuestion()">Add Question
+                        <button class='btn btn-primary pull-right'>Save
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hidden">
+        <div class="panel-body" id = "empty-question">
+            <span class="pull-right glyphicon glyphicon-remove text-danger" onclick="deleteQuestion(this)"></span>
+            <fieldset class="form-group">
+                <label>Question Text</label>
+                <textarea class="form-control" rows="3"
+                          style="resize:none;width:100%" required>{{ question.questionText }}</textarea>
+            </fieldset>
+            <div class = "row">
+                <div class="col-xs-6">
+                    <div class="btn-group pull-left" id="groupings">
+                        <label class="btn btn-default active">
+                            Rest
+                        </label>
+                        <label class="btn btn-default">
+                            None
+                        </label>
+                        <label class="btn btn-default">
+                            All
+                        </label>
+                        <label class="btn btn-default">
+                            Label
+                        </label>
+                    </div>
+                </div>
+                <!-- Types -->
+                <div class="col-xs-6">
+                    <div class="btn-group pull-right" id="types">
+                        <label class="btn btn-default active">
+                            Choice
+                        </label>
+                        <label class="btn btn-default">
+                            Freeform
+                        </label>
+                        <label class="btn btn-default">
+                            Rank
+                        </label>
+                        <label class="btn btn-default">
+                            Rate
+                        </label>
+                        <label class="btn btn-default">
+                            Label
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+            <div class="col-xs-6">
+                <small class="text-muted">Click the <span class="glyphicon glyphicon-plus-sign text-primary"></span>
+                    icon to add choices.
+                </small>
+                <table class="table table-bordered" id="choice-table">
+                    <thead>
+                    <tr>
+                        <th class="text-center">
+                            <span>Choices</span>
+                            <span style="cursor: pointer" onclick="addRowToTable(this)"
+                                  class="glyphicon glyphicon-plus-sign pull-right text-primary"></span>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for choice in choices %}
+                        <tr class="text-center">
+                            <td>
+                                <input type="text" placeholder="Enter choice" style="border:none;"
+                                       value="{{ choice }}"/>
+                                <span onclick="removeRow(this)"
+                                      class="glyphicon glyphicon-remove-circle pull-right text-primary"
+                                      style="cursor:pointer"></span>
+                                <span onclick="moveRow(this)"
+                                      class="glyphicon glyphicon-arrow-up pull-left text-primary"
+                                      style="cursor:pointer"></span>
+                                <span onclick="moveRow(this)"
+                                      class="glyphicon glyphicon-arrow-down pull-left text-primary"
+                                      style="cursor:pointer"></span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-xs-6 labels-go-here">
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            tinymce.init({ selector:'#intro',
+            statusbar: false, 
+            menubar: '',
+            plugins: ["emoticons", "image"],
+            resize: true,
+            toolbar: 'undo redo bold italiclignleft aligncenter alignright bullist numlist outdent indent styleselect fontsizeselect emoticons image a', });
+        });
+
+        function addQuestion() {
+            $("#last-div").before($('#empty-question').clone());
+            // body...
+        }
+
+        function deleteQuestion(el) {
+            $(el).parent().remove();
+        }
+
+        function addRowToTable(el) {
+            var row = $('<td></td>');
+            row.append('<input type="text" placeholder="Enter choice" style="border:none;"/>');
+            row.append('<span onclick="removeRow(this)" class = "glyphicon glyphicon-remove-circle pull-right text-primary" style="cursor:pointer"></span>');
+            row.append('<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-up pull-left text-primary" style="cursor:pointer"></span>');
+            row.append('<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-down pull-left text-primary" style="cursor:pointer"></span>');
+
+            $(el).closest('table').find('tbody').append(row);
+            row.wrap('<tr></tr>');
+            row.addClass('text-center');
+            return row;
+        }
+    </script>
+{% endblock %}
