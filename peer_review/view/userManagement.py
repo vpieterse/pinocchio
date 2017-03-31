@@ -15,6 +15,22 @@ def forgot_password(request):
     return render(request, 'peer_review/forgotPassword.html', context)
 
 
+# Creates a new user, sends a confirmation OTP email and returns the newly created user
+def create_user_send_otp(user_title, user_initials, user_name, user_surname, user_cell, user_email, user_userId, user_status):
+    otp = generate_otp()
+    user = User.objects.create_user(title=user_title, initials=user_initials, name=user_name, surname=user_surname,
+                                    cell=user_cell, email=user_email, userId=user_userId, password=otp, status=user_status)
+
+    if user:
+        generate_otp_email(otp, user_name, user_surname, user_email, user_userId)
+        user.save()
+
+        for roundObj in RoundDetail.objects.all():
+            team = TeamDetail(user=user, roundDetail=roundObj)
+            team.save()
+
+    return user
+
 @admin_required
 def submit_new_user_form(request):
     if request.method == "POST":
@@ -27,26 +43,19 @@ def submit_new_user_form(request):
             post_cell = user_form.cleaned_data['cell']
             post_email = user_form.cleaned_data['email']
             post_user_id = user_form.cleaned_data['userId']
+            post_status = user_form.cleaned_data['status']
 
             #user = User(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
             #            cell=post_cell, email=post_email, userId=post_user_id)
 
-            otp = generate_otp()
-            user = User.objects.create_user(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
-                                            cell=post_cell, email=post_email, userId=post_user_id, password=otp)
+            user = create_user_send_otp(user_title=post_title, user_initials=post_initials, user_name=post_name,
+                                        user_surname=post_surname, user_cell=post_cell, user_userId=post_user_id,
+                                        user_email=post_email, user_status=post_status)
             if not user:
                 messages.add_message(request, messages.ERROR, "User could not be added")
             else:
                 messages.add_message(request, messages.SUCCESS, "User added successfully")
-                generate_otp_email(otp, post_name, post_surname, post_email, post_user_id)
 
-                post_status = user_form.cleaned_data['status']
-                user.status = post_status
-                user.save()
-
-                for roundObj in RoundDetail.objects.all():
-                    team = TeamDetail(user=user, roundDetail=roundObj)
-                    team.save()
             return HttpResponseRedirect("/userAdmin")
         else:
             messages.add_message(request, messages.ERROR, "Form filled in incorrectly or username/email is already in use")

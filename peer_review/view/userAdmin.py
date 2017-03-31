@@ -6,6 +6,7 @@ from peer_review.decorators.adminRequired import admin_required
 from peer_review.forms import DocumentForm, UserForm
 from peer_review.models import User, Document
 from peer_review.view.userFunctions import user_error
+from peer_review.view.userManagement import create_user_send_otp
 from peer_review.views import generate_otp, hash_password
 
 
@@ -19,11 +20,16 @@ def add_csv_info(user_list):
         # email_text = file.read()
         file.close()
 
-        password = hash_password(otp)
-
-        user = User(userId=row['user_id'], password=password, status="U", title=row['title'],
-                    initials=row['initials'], name=row['name'], surname=row['surname'],
-                    cell=row['cell'], email=row['email'])
+        user = create_user_send_otp(
+            user_userId=row['user_id'],
+            user_status='U',
+            user_title=row['title'],
+            user_initials=row['initials'],
+            user_name=row['name'],
+            user_surname=row['surname'],
+            user_cell=row['cell'],
+            user_email=row['email']
+        )
 
         user.save()
     return
@@ -46,6 +52,9 @@ def submit_csv(request):
         email_text = file.read()
         file.close()
         form = DocumentForm(request.POST, request.FILES)
+
+        test_flag = (request.POST["test-submit-flag"] == "1");
+
         if form.is_valid():
             newdoc = Document(docfile=request.FILES['docfile'])
             newdoc.save()
@@ -65,20 +74,7 @@ def submit_csv(request):
                     valid = validate(row)
                     count += 1
                     if valid == 1:
-                        # title = row['title']
-                        # initials = row['initials']
-                        # name = row['name']
-                        # surname = row['surname']
-                        # email = row['email']
-                        # cell = row['cell']
-                        #
-                        # userId = row['user_id']
-                        # status = row['status']
-                        # OTP = generate_OTP()
-                        # generate_otp_email(OTP, name, surname, email, userID)
-                        # password = hash_password(OTP)
-
-                        user_list.append(row)
+                       user_list.append(row)
                         # ToDo check for errors in multiple rows
                     else:
                         error = True
@@ -132,9 +128,17 @@ def submit_csv(request):
 
         if not error:
             # todo: add confirmation dialog, and print out names of new users
-            add_csv_info(user_list)
-            return render(request, 'peer_review/userAdmin.html',
-                                      {'new_users': user_list, 
+            if not test_flag:
+                add_csv_info(user_list)
+                return render(request, 'peer_review/userAdmin.html',
+                                      {'new_users': user_list,
+                                           'users': users,
+                                           'userForm': user_form,
+                                           'docForm': doc_form,
+                                           'email_text': email_text})
+            else:
+                return render(request, 'peer_review/userAdmin.html',
+                                      {'possible_users': user_list,
                                            'users': users,
                                            'userForm': user_form,
                                            'docForm': doc_form,
