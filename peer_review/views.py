@@ -300,13 +300,24 @@ def write_dump(round_pk):
     dump_file = 'media/dumps/' + str(round_pk) + '.csv'
     data = [['ROUND ID:', round_pk],
             ['DUMP DATE:', time.strftime("%d/%m/%Y %H:%M:%S")], [''],
-            ['QUESTION', 'ANSWER', 'USERID']]
+            ['USERID', 'QUESTION', 'LABEL', 'SUBJECT', 'ANSWER', 'BATCH' ]]
     
-    roundData = Response.objects.filter(roundDetail=round_pk)
-    
-    if len(roundData) > 0:
-        for item in roundData:
-            data.append([item.question.questionText, item.answer, item.user.userId])
+    roundData = Response.objects.filter(roundDetail=round_pk).order_by('batchid').reverse()
+    distinctRoundData = roundData.values('user_id', 'question_id', 'label_id', 'subjectUser_id', 'id')
+
+    if len(distinctRoundData) > 0:
+        for itemd in distinctRoundData:
+            item = roundData.get(id=itemd['id'])
+            userId = item.user.userId
+            questionLabel = item.question.questionLabel
+            label = item.label
+
+            subjectId = ""
+            if item.subjectUser:
+                subjectId = item.subjectUser.userId
+            answer = item.answer
+
+            data.append([userId, questionLabel, label, subjectId, answer, item.batchid])
     else:
         data.append(['NO DATA'])
 
