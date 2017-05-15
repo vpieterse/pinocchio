@@ -27,7 +27,11 @@ Todo:
             <div class = "panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
                     <h4 class="panel-title">
-                        <b>Create Questionnaire</b><b class="caret"></b>
+                        {% if questionnaire %}
+                            <b>Editing Questionnaire "{{questionnaire.label}}"</b><b class="caret"></b>
+                        {% else %}
+                            <b>Create Questionnaire</b><b class="caret"></b>
+                        {% endif %}
                     </h4>
                 </div>
                 <div id="collapseOne" class="panel-collapse collapse in">
