@@ -51,6 +51,8 @@
             {% endfor %}
             {% counter_get as futureRounds %}
             {% counter_reset %}
+
+            {# Display Current Rounds #}
             {% if currentRounds > 0 %}
                 <fieldset><legend>Current Rounds</legend>
             {% endif %}
