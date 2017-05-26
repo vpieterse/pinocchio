@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as django_login, logout, update_session_auth_hash
 from django.contrib.auth.forms import SetPasswordForm
+from django.db.models.aggregates import Max
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
@@ -300,13 +301,33 @@ def write_dump(round_pk):
     dump_file = 'media/dumps/' + str(round_pk) + '.csv'
     data = [['ROUND ID:', round_pk],
             ['DUMP DATE:', time.strftime("%d/%m/%Y %H:%M:%S")], [''],
-            ['QUESTION', 'ANSWER', 'USERID']]
-    
-    roundData = Response.objects.filter(roundDetail=round_pk)
-    
-    if len(roundData) > 0:
-        for item in roundData:
-            data.append([item.question.questionText, item.answer, item.user.userId])
+            ['USERID', 'QUESTION', 'LABEL', 'SUBJECT', 'ANSWER']]
+
+    # First, find the row id of the most recent answer to each question
+    distinctResponses = Response.objects.filter(roundDetail=round_pk).values(
+        "question_id", "user_id", "label_id", "subjectUser_id").annotate(max_id=Max('id'))
+
+    # Filter response id's
+    distinctResponseIds = [x['max_id'] for x in distinctResponses]
+
+    # Fetch the most recent responses separately
+    roundData = Response.objects.filter(id__in=distinctResponseIds).order_by(
+        "user_id", "question_id", "label_id", "subjectUser_id")
+    distinctRoundData = roundData.values('user_id', 'question_id', 'label_id', 'subjectUser_id', 'id')
+
+    if len(distinctRoundData) > 0:
+        for itemd in distinctRoundData:
+            item = roundData.get(id=itemd['id'])
+            userId = item.user.userId
+            questionLabel = item.question.questionLabel
+            label = item.label
+
+            subjectId = ""
+            if item.subjectUser:
+                subjectId = item.subjectUser.userId
+            answer = item.answer
+
+            data.append([userId, questionLabel, label, subjectId, answer])
     else:
         data.append(['NO DATA'])
 

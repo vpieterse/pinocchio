@@ -315,8 +315,11 @@
                                             </button>
                                         </td>
                                         <td>
-                                            <input type="button" class="btn btn-info btn-xs dump"
-                                                   value="Dump" data-pk="{{ round.pk }}">
+                                            <form method="post" action="/maintainRound/dump">
+                                                <input type="hidden" name="roundPk" value="{{ round.pk }}">
+                                                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                                                <input type="submit" class="dump btn btn-info btn-xs" value="Dump">
+                                            </form>
                                         </td>
                                         <td>
                                             <input type="submit" class="btn btn-info btn-xs report" value="Report">
@@ -490,28 +493,7 @@
                 $("#e_endingDate").datetimepicker({format: "Y-m-d H:i"});
 
                 var glob_roundPk = 0;
-                $(".dump").on("click", function () {
-                    var pk = $(this).data("pk");
-                    glob_roundPk = pk;
-                    var data = {
-                        "roundPk": pk,
-                        "csrfmiddlewaretoken": "{{ csrf_token }}"
-                    };
 
-                    $.ajax({
-                        type: "POST",
-                        url: "/maintainRound/dump/",
-                        data: data,
-                        success: function (csvData) {
-                            // console.log(csvData)
-                            var blob = new Blob([csvData]);
-                            var downloadLink = document.createElement('a');
-                            downloadLink.href = window.URL.createObjectURL(blob);
-                            downloadLink.download = "dump-r" + glob_roundPk + ".csv";
-                            downloadLink.click();
-                        }
-                    });
-                });
                 $(".edit").on("click", function() {
                     var pk = $(this).data("pk");
                     var token = $(this).data("csrf");
