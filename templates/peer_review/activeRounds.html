@@ -75,22 +75,22 @@
             {% if currentRounds > 0 %}
                 </fieldset>
             {% endif %}
-            {# Display Past Rounds #}
-            {% if pastRounds > 0 %}
-                <br><br><fieldset><legend>Past Rounds</legend>
-                {%for teamPast in teams %}
-                    {% if teamPast.teamName != "emptyTeam" and teamPast.is_in_past %}
-                        {% round_load teamPast %}
-                    {% endif %}
-                {% endfor %}
-                </fieldset>
-            {% endif %}
             {# Display Future Rounds #}
             {% if futureRounds > 0 %}
                 <br><br><fieldset><legend>Future Rounds</legend>
                 {% for teamFuture in teams %}
                     {% if teamFuture.teamName != "emptyTeam" and teamFuture.is_in_future %}
                         {% round_load teamFuture %}
+                    {% endif %}
+                {% endfor %}
+                </fieldset>
+            {% endif %}
+            {# Display Past Rounds #}
+            {% if pastRounds > 0 %}
+                <br><br><fieldset><legend>Past Rounds</legend>
+                {%for teamPast in teams %}
+                    {% if teamPast.teamName != "emptyTeam" and teamPast.is_in_past %}
+                        {% round_load teamPast %}
                     {% endif %}
                 {% endfor %}
                 </fieldset>
