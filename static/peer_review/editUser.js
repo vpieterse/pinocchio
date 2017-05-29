@@ -6,18 +6,20 @@ $(document).on("ready", function() {
         var pk = $(this).data("pk");
         $("#more").attr("data-pk", pk);
         var token = $(this).data("csrf");
-        var row = $("#users > tbody > tr#" + pk);
+        var row = $("#user" + pk);
 
-        var userId = row.children("[data-id='userId']");
-        var title = row.children("[data-id='title']");
-        var initials = row.children("[data-id='initials']");
-        var name = row.children("[data-id='name']");
-        var surname = row.children("[data-id='surname']");
-        var cell = row.children("[data-id='cell']");
-        var email = row.children("[data-id='email']");
-        var status = row.children("[data-id='status']");
+        var userId = row.find("[data-id='userId']");
+        var title = row.find("[data-id='title']");
+        var initials = row.find("[data-id='initials']");
+        var name = row.find("[data-id='name']");
+        var surname = row.find("[data-id='surname']");
+        var cell = row.find("[data-id='cell']");
+        var email = row.find("[data-id='email']");
+        var status = row.find("[data-id='status']");
 
-        $("#e_userId").val(userId.text());
+        console.log(title.val());
+
+        $("#e_userId").val(userId.val());
         $("#e_title").val(title.text());
         $("#e_initials").val(initials.text());
         $("#e_name").val(name.text());

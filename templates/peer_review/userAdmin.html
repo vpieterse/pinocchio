@@ -299,7 +299,7 @@
                                 </thead>
                                 <tbody>
                                 {% for user in users %}
-                                    <tr id="{{ user.pk }}">
+                                    <tr id="user{{ user.pk }}">
                                         <td data-id="userId">{{ user.userId }}</td>
                                         <td data-id="title">{{ user.title }}</td>
                                         <td data-id="initials">{{ user.initials }}</td>
