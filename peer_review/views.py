@@ -2,12 +2,10 @@ import csv
 import os
 import time
 import mimetypes
-from _ast import Set
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import authenticate, login as django_login, logout, update_session_auth_hash
-from django.contrib.auth.forms import SetPasswordForm
+from django.contrib.auth import authenticate, login as django_login, logout
 from django.db.models.aggregates import Max
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
@@ -21,7 +19,6 @@ from peer_review.decorators.adminRequired import admin_required
 from peer_review.decorators.userRequired import user_required
 from peer_review.forms import RecoverPasswordForm
 from peer_review.view.userFunctions import unsign_userId, sign_userId
-from peer_review.generate_otp import generate_otp
 from .forms import DocumentForm, UserForm, LoginForm, ResetForm
 from .models import Document
 from .models import Question, RoundDetail, TeamDetail, Label, Response
@@ -30,8 +27,6 @@ from .models import User
 
 # Moved these views into seperate files
 from peer_review.email import generate_otp_email
-from peer_review.passwordUtility import generate_otp
-from peer_review.passwordUtility import hash_password
 from .view.questionAdmin import question_admin, edit_question, save_question, delete_question
 from .view.questionnaireAdmin import questionnaire_admin, questionnaire_preview, edit_questionnaire, save_questionnaire, delete_questionnaire
 from .view.maintainTeam import maintain_team, change_team_status, change_user_team_for_round, get_teams_for_round, get_teams, submit_team_csv

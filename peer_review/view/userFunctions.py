@@ -14,7 +14,6 @@ from pip._vendor.requests.packages.urllib3.exceptions import TimeoutStateError
 
 from peer_review.email import generate_otp_email
 from peer_review.forms import ResetForm
-from peer_review.generate_otp import generate_otp
 from peer_review.models import RoundDetail, TeamDetail, User
 from pinocchio import baseSettings
 
