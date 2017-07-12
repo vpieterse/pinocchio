@@ -250,7 +250,7 @@ def get_user(request, userId):
         }
     return JsonResponse(response)
 
-@user_required
+@admin_required
 def user_profile(request, userId):
     if request.method == "GET":
         user = User.objects.get(pk=userId)
@@ -269,32 +269,6 @@ def user_delete(request):
             user.delete()
 
     return HttpResponseRedirect('../')
-
-
-@admin_required
-def user_update(request, userId):
-    if request.method == "POST":
-        user = User.objects.get(pk=userId)
-
-        post_title = request.POST.get("title")
-        post_initials = request.POST.get("initials")
-        post_name = request.POST.get("name")
-        post_surname = request.POST.get("surname")
-        post_cell = request.POST.get("cell")
-        post_email = request.POST.get("email")
-        post_status = request.POST.get("status")
-
-        user.status = post_status
-        user.title = post_title
-        user.initials = post_initials
-        user.name = post_name
-        user.surname = post_surname
-        user.cell = post_cell
-        user.email = post_email
-
-        user.save()
-    return HttpResponseRedirect('../')
-
 
 
 def write_dump(round_pk):

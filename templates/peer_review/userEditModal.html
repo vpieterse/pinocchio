@@ -1,0 +1,71 @@
+{% load staticfiles %}
+
+<div id="editModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Edit User</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" id="modalForm">
+                    <!--<div class="form-group">
+                        <label for="userId">User ID:</label>
+                        <input type="text" class="form-control" id="e_userId">
+                    </div>-->
+                    <div class="form-group">
+                        <label for="title">Title:</label>
+                        <select class="form-control" id="e_title">
+                            <option></option>
+                            <option>Mr</option>
+                            <option>Ms</option>
+                            <option>Miss</option>
+                            <option>Mrs</option>
+                            <option>Dr</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="initials">Initials:</label>
+                        <input type="text" class="form-control" id="e_initials">
+                    </div>
+                    <div class="form-group">
+                        <label for="name">First Name:</label>
+                        <input type="text" class="form-control" id="e_name">
+                    </div>
+                    <div class="form-group">
+                        <label for="surname">Surname:</label>
+                        <input type="text" class="form-control" id="e_surname">
+                    </div>
+                    <div class="form-group">
+                        <label for="cell">Cell:</label>
+                        <input type="text" class="form-control" id="e_cell">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="text" class="form-control" id="e_email">
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status:</label>
+                        <select class="form-control" id="e_status">
+                            <option></option>
+                            <option>User</option>
+                            <option>Admin</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning pull-left" id="resetPassword">Reset Password</button>
+                <button type="button" class="btn btn-success" id="updateConfirm" data-dismiss="modal">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    {% if request.user.status == "A" %}
+        var isAdmin = true;
+    {% else%}
+        var isAdmin = false;
+    {% endif %}
+</script>
+<script src="{% static "peer_review/js/editUser.js" %}"></script>
