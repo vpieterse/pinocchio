@@ -20,7 +20,9 @@ from pinocchio import baseSettings
 @user_required
 def account_details(request):
     user = User.objects.get(userId=request.user.userId)
-    context = {'user': user}
+    reset_link = '/recoverPassword/' + sign_userId(request.user.userId)
+
+    context = {'user': user, 'reset_link': reset_link}
     return render(request, 'peer_review/accountDetails.html', context)
 
 @user_required

@@ -215,8 +215,10 @@ def user_list(request):
     email_text = file.read()
     file.close()
 
+    reset_link = '/recoverPassword/' + sign_userId(request.user.userId)
     return render(request, 'peer_review/userAdmin.html',
-                  {'users': users, 'userForm': user_form, 'docForm': doc_form, 'email_text': email_text})
+                  {'users': users, 'userForm': user_form, 'docForm': doc_form, 'email_text': email_text,
+                   'reset_link': reset_link})
 
 
 @admin_required()
