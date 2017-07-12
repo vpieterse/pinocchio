@@ -78,20 +78,5 @@ $(document).on("ready", function() {
                 }
             });
         });
-
-        $("#resetPassword").on("click", function () {
-            if (confirm("Are you sure you want to reset the password for this user?")) {
-                $.ajax({
-                    type: 'POST',
-                    url: '/userAdmin/resetPassword/' + pk,
-                    data: {
-                        'csrfmiddlewaretoken': token
-                    },
-                    success: function () {
-                        alert("Password reset");
-                    }
-                });
-            }
-        });
     });
 });
