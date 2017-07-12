@@ -64,6 +64,7 @@
 <script type="text/javascript">
     {% if request.user.status == "A" %}
         var isAdmin = true;
+        var userPK = '{{ user.pk }}';
     {% else%}
         var isAdmin = false;
     {% endif %}

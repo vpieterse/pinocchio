@@ -35,7 +35,12 @@ $(document).on("ready", function() {
 
         if(!isAdmin) {
             $("#e_status").prop("disabled", true);
+        } else if(userPK == pk) {
+            $("#resetPassword").show();
+        } else {
+            $("#resetPassword").hide();
         }
+
         $("#updateConfirm").on("click", function () {
             var uStatus = "";
 
