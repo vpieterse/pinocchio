@@ -37,7 +37,7 @@ class MaintainTeamTests(TestCase):
         # Check if there are no errors
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content.decode())
-        team = TeamDetail.objects.get(pk=data['team_pk'])
+        team = TeamDetail.objects.filter(user_id=self.user1.userId).get(roundDetail_id=self.round1.pk)
         # Test that the teamName is 'Red'
         self.assertEqual(team.teamName, 'Red')
 
@@ -48,7 +48,7 @@ class MaintainTeamTests(TestCase):
         # Check if there are no errors
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content.decode())
-        team = TeamDetail.objects.get(pk=data['team_pk'])
+        team = TeamDetail.objects.filter(user_id=self.user1.userId).get(roundDetail_id=self.round1.pk)
         # Test that the teamName is 'Green'
         self.assertEqual(team.teamName, 'Green')
 

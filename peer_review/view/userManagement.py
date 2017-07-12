@@ -1,3 +1,6 @@
+import random
+import string
+
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
@@ -5,7 +8,6 @@ from peer_review.decorators.userRequired import user_required
 
 from peer_review.email import generate_otp_email
 from peer_review.forms import ResetForm, UserForm
-from peer_review.generate_otp import generate_otp
 from peer_review.models import User, RoundDetail, TeamDetail
 from peer_review.decorators.adminRequired import admin_required, admin_required_test
 from django.http import HttpResponse
@@ -17,6 +19,12 @@ def forgot_password(request):
     return render(request, 'peer_review/forgotPassword.html', context)
 
 
+def generate_otp():
+    n = random.randint(4, 10)
+    otp = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits + string.ascii_lowercase)
+                  for _ in range(n))
+    return otp
+
 # Creates a new user, sends a confirmation OTP email and returns the newly created user
 def create_user_send_otp(user_title, user_initials, user_name, user_surname, user_cell, user_email, user_userId, user_status):
     otp = generate_otp()
@@ -26,10 +34,6 @@ def create_user_send_otp(user_title, user_initials, user_name, user_surname, use
     if user:
         generate_otp_email(otp, user_name, user_surname, user_email, user_userId)
         user.save()
-
-        for roundObj in RoundDetail.objects.all():
-            team = TeamDetail(user=user, roundDetail=roundObj)
-            team.save()
 
     return user
 

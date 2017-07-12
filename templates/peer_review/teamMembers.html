@@ -17,14 +17,11 @@
             {# Check if no teams available #}
             {% counter_reset %}
             {% for teamCheck in teams %}
-                {% if teamCheck.teamName != "emptyTeam" %}
-                    {% counter_inc %}
-                {% endif %}
+                {% counter_inc %}
             {% endfor %}
             {% counter_get as teamCount %}
             {% counter_reset %}
             {% for team in teams %}
-                {% if team.teamName != "emptyTeam" %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -63,7 +60,6 @@
                         </div>
                     </div>
                 </div>
-                {% endif %}
             {% endfor %}
         </div>
         {% if teamCount == 0 %}
