@@ -56,10 +56,16 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-warning pull-left" id="resetPassword">Reset Password</button>
-                <button type="button" class="btn btn-success" id="more">More</button>
                 <button type="button" class="btn btn-success" id="updateConfirm" data-dismiss="modal">Update</button>
             </div>
         </div>
     </div>
 </div>
-<script src="{% static "peer_review/editUser.js" %}"></script>
+<script type="text/javascript">
+    {% if request.user.status == "A" %}
+        var isAdmin = true;
+    {% else%}
+        var isAdmin = false;
+    {% endif %}
+</script>
+<script src="{% static "peer_review/js/editUser.js" %}"></script>

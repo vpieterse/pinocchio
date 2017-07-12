@@ -250,7 +250,7 @@ def get_user(request, userId):
         }
     return JsonResponse(response)
 
-@user_required
+@admin_required
 def user_profile(request, userId):
     if request.method == "GET":
         user = User.objects.get(pk=userId)

@@ -17,8 +17,6 @@ $(document).on("ready", function() {
         var email = row.find("[data-id='email']");
         var status = row.find("[data-id='status']");
 
-        console.log(title.val());
-
         $("#e_userId").val(userId.val());
         $("#e_title").val(title.text());
         $("#e_initials").val(initials.text());
@@ -35,6 +33,9 @@ $(document).on("ready", function() {
             $("#e_status").val("");
         }
 
+        if(!isAdmin) {
+            $("#e_status").prop("disabled", true);
+        }
         $("#updateConfirm").on("click", function () {
             var uStatus = "";
 
@@ -86,11 +87,6 @@ $(document).on("ready", function() {
                     }
                 });
             }
-        });
-
-        $("#more").on("click", function () {
-            var pk = $(this).data("pk");
-            window.location.href = "/userAdmin/userProfile/" + pk;
         });
     });
 });

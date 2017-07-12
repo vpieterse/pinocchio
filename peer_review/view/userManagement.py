@@ -8,6 +8,7 @@ from peer_review.forms import ResetForm, UserForm
 from peer_review.generate_otp import generate_otp
 from peer_review.models import User, RoundDetail, TeamDetail
 from peer_review.decorators.adminRequired import admin_required, admin_required_test
+from django.http import HttpResponse
 
 
 def forgot_password(request):
@@ -76,9 +77,10 @@ def user_update(request, userId):
             post_surname = request.POST.get("surname")
             post_cell = request.POST.get("cell")
             post_email = request.POST.get("email")
-            post_status = request.POST.get("status")
+            if admin_required_test(request.user):
+                post_status = request.POST.get("status")
+                user.status = post_status
 
-            user.status = post_status
             user.title = post_title
             user.initials = post_initials
             user.name = post_name
@@ -87,4 +89,4 @@ def user_update(request, userId):
             user.email = post_email
 
             user.save()
-    return HttpResponseRedirect('../')
+    return HttpResponse()
