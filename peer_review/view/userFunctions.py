@@ -34,7 +34,7 @@ def member_details(request, userId):
         context = {'user': member}
         return render(request, 'peer_review/accountDetails.html', context)
     except:
-        context = {'navSelect':"accountDetails"}
+        context = {'navSelect': "accountDetails"}
         return render(request, 'peer_review/user404.html', context)
     
 @user_required
