@@ -81,7 +81,7 @@ def submit_csv(request):
                         # ToDo check for errors in multiple rows
                     else:
                         error = True
-                        if valid == 0:
+                        if valid != 1:
                             message = "The format of the CSV is incorrect."
                             errortype = 0
                             return render(request, 'peer_review/userAdmin.html',
@@ -172,6 +172,27 @@ def validate(row):
     #             int(value)
     #         except ValueError:
     #             return 3
+
+    if 'user_id' not in row:
+        return 3
+
+    if 'title' not in row:
+        return 3
+
+    if 'initials' not in row:
+        return 3
+
+    if 'name' not in row:
+        return 3
+
+    if 'surname' not in row:
+        return 3
+
+    if 'email' not in row:
+        return 3
+
+    if 'cell' not in row:
+        return 3
 
     user = User.objects.filter(userId=row['user_id'])
 
