@@ -1,23 +1,47 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import render, get_object_or_404
-from peer_review.decorators.userRequired import user_required
-from peer_review.view.userFunctions import user_error
+from django.shortcuts import render, get_object_or_404, redirect
+from django.utils import timezone
 
-from ..models import Question, Questionnaire, RoundDetail, QuestionOrder, User, TeamDetail, Response, Label
+from peer_review.decorators.userRequired import user_required
+
+from ..models import Question, RoundDetail, QuestionOrder, User, TeamDetail, Response, Label
 
 @user_required
 def questionnaire(request, round_pk):
     user = request.user
-    questionnaire = get_object_or_404(RoundDetail, pk=round_pk).questionnaire
-    q_orders = QuestionOrder.objects.filter(questionnaire=questionnaire)
-    team_name = TeamDetail.objects.get(user=user, roundDetail=RoundDetail.objects.get(pk=round_pk)).teamName
-    q_team = User.objects.filter(teamdetail__teamName = team_name, teamdetail__roundDetail = RoundDetail.objects.get(pk=round_pk))
+    try:
+        round_object = RoundDetail.objects.get(pk=round_pk)
+        questionnaire_object = round_object.questionnaire
 
-    context = {'questionOrders': q_orders, 'teamMembers': q_team, 'questionnaire': questionnaire, 'currentUser': user,
-               'round': round_pk}
-    return render(request, 'peer_review/questionnaire.html', context)
+        q_orders = QuestionOrder.objects.filter(questionnaire=questionnaire_object)
+        team_name = TeamDetail.objects.get(user=user, roundDetail=RoundDetail.objects.get(pk=round_pk)).teamName
+        q_team = User.objects.filter(teamdetail__teamName=team_name,
+                                     teamdetail__roundDetail=RoundDetail.objects.get(pk=round_pk))
+
+        # Does the user have access to this page?
+        # TODO: FIX THIS UGLY HACK
+        if team_name == 'emptyTeam':
+            messages.add_message(request, messages.ERROR, "You are not part of that team.")
+            return redirect('activeRounds')
+
+        # Has the questionnaire expired / is it in the future?
+        if round_object.startingDate > timezone.now():
+            messages.add_message(request, messages.ERROR, "That questionnaire is not yet available.")
+            return redirect('activeRounds')
+
+        if round_object.endingDate < timezone.now():
+            messages.add_message(request, messages.ERROR, "That questionnaire has expired.")
+            return redirect('activeRounds')
+
+        context = {'questionOrders': q_orders, 'teamMembers': q_team, 'questionnaire': questionnaire_object,
+                   'currentUser': user,
+                   'round': round_pk}
+        return render(request, 'peer_review/questionnaire.html', context)
+
+    except RoundDetail.DoesNotExist:
+        messages.add_message(request, messages.ERROR, "The questionnaire does not exist.")
+        return redirect('activeRounds')
 
 # Returning a JsonResponse with a result field of 1 indicates an error in saving the questionnaire progress
 # A 0 indicates success
