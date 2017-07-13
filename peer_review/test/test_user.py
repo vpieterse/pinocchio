@@ -26,7 +26,7 @@ class UserTests(TestCase):
     def test_questionAdmin(self):
         self.client.login(username='1111', password='admin')
         url = reverse('questionAdmin')
-        response = self.client.get(url, follow = True)
+        response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'peer_review/questionAdmin.html')
 
@@ -34,7 +34,7 @@ class UserTests(TestCase):
     def test_questionnaireAdmin(self):
         self.client.login(username='1111', password='admin')
         url = reverse('questionnaireAdmin')
-        response = self.client.get(url, follow = True)
+        response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'peer_review/questionnaireAdmin.html')
 
@@ -52,7 +52,7 @@ class UserTests(TestCase):
         response = self.client.get('/accountDetails/1234')
         request = response.wsgi_request
         logged_user = json.loads(get_user(request, request.user.userId).content.decode())
-        expected_user = json.loads(get_user(request, "1111").content.decode()) # Joe userId
+        expected_user = json.loads(get_user(request, "1111").content.decode())  # Joe userId
         # print("Logged user: " + str(logged_user))
         # print("Expected user: " + str(expected_user))
         self.assertEqual(logged_user, expected_user)
@@ -63,7 +63,6 @@ class UserTests(TestCase):
         # print("--- Authentication Test ---\n")
         self.client.login(username='5678', password='joe')
         response = self.client.get('/accountDetails/')
-        request = response.wsgi_request
         # print("Granted Status Code: " + str(response.status_code))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'peer_review/accountDetails.html')
@@ -71,7 +70,6 @@ class UserTests(TestCase):
         self.client.logout()
         self.client.login(username='1234', password='bobby')
         response = self.client.get('/accountDetails/')
-        request = response.wsgi_request
         # print("Denied Status Code: " + str(response.status_code))
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/login/')

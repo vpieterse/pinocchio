@@ -269,8 +269,10 @@ def user_delete(request):
 
 
 def write_dump(round_pk):
-    dump_file = 'media/dumps/' + time.strftime("%Y-%m-%d %H:%M:%S") + 'round_' + str(round_pk) + '.csv'
-    data = [['USERID', 'QUESTION', 'LABEL', 'SUBJECT', 'ANSWER']]
+
+    current_round = RoundDetail.objects.get(id=round_pk)
+    dump_file = 'media/dumps/' + time.strftime("%Y-%m-%d %H:%M:%S") + 'round_' + str(current_round.name) + '.csv'
+    data = [['ResponseID', 'Respondent', 'QuestionTitle', 'LabelTitle', 'SubjectUser', 'Answer']]
 
     # First, find the row id of the most recent answer to each question
     distinctResponses = Response.objects.filter(roundDetail=round_pk).values(
@@ -287,6 +289,7 @@ def write_dump(round_pk):
     if len(distinctRoundData) > 0:
         for itemd in distinctRoundData:
             item = roundData.get(id=itemd['id'])
+            responseId = item.id
             userId = item.user.userId
             questionLabel = item.question.questionLabel
             label = item.label
@@ -296,7 +299,7 @@ def write_dump(round_pk):
                 subjectId = item.subjectUser.userId
             answer = item.answer
 
-            data.append([userId, questionLabel, label, subjectId, answer])
+            data.append([responseId, userId, questionLabel, label, subjectId, answer])
     else:
         data.append(['NO DATA'])
 
@@ -305,20 +308,21 @@ def write_dump(round_pk):
         writer.writerows(data)
 
     csvfile.close()
-    return str(dump_file) # Returns dump filename
+    return str(dump_file)  # Returns dump filename
 
 
 @admin_required
 def round_dump(request):
     if request.method == "POST":
-        roundPk = request.POST.get("roundPk")
-        dump_file = write_dump(roundPk)
+        round_pk = request.POST.get("roundPk")
+        dump_file = write_dump(round_pk)
         # Download Dump
         wrapper = FileWrapper(open(dump_file))
         content_type = mimetypes.guess_type(dump_file)[0]
-        response = HttpResponse(wrapper,content_type=content_type)
-        #response['Content-Length'] = os.path.getsize(dump_file)    
-        response['Content-Disposition'] = "attachment; filename=" + time.strftime("%Y-%m-%d %H.%M.%S") + ' round_' + str(roundPk) + ".csv"
+        response = HttpResponse(wrapper, content_type=content_type)
+        current_round = RoundDetail.objects.get(id=round_pk)
+        # response['Content-Length'] = os.path.getsize(dump_file)
+        response['Content-Disposition'] = "attachment; filename=" + time.strftime("%Y-%m-%d %H.%M.%S") + ' round_' + current_round.name + ".csv"
         return response
     return user_error(request)
 

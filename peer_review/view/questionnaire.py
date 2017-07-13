@@ -47,7 +47,8 @@ def save_questionnaire_progress(request):
         question = Question.objects.get(pk=request.POST.get('questionPk'))
         try:
             round_detail = RoundDetail.objects.get(pk=request.POST.get('roundPk'))
-            team_detail = TeamDetail.objects.get(user=User.objects.get(userId=request.user.userId),roundDetail=request.POST.get('roundPk'))
+            team_detail = TeamDetail.objects.get(user=User.objects.get(userId=request.user.userId),
+                                                 roundDetail=request.POST.get('roundPk'))
             team_detail.status = TeamDetail.IN_PROGRESS
             team_detail.save()
         # except Question.DoesNotExist:
@@ -80,14 +81,14 @@ def save_questionnaire_progress(request):
             except Exception:
                 return JsonResponse({'result': 1})
         answer = request.POST.get('answer')
-        batchid = request.POST.get('batchid')
-        print(Response.objects.create(question=question,
+        batch_id = request.POST.get('batchid')
+        Response.objects.create(question=question,
                                 roundDetail=round_detail,
                                 user=user,
                                 subjectUser=subject_user,
                                 label=label,
                                 answer=answer,
-                                batchid=batchid))
+                                batchid=batch_id)
         return JsonResponse({'result': 0})
     else:
         return JsonResponse({'result': 1})

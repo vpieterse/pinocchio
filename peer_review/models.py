@@ -244,6 +244,7 @@ class TeamDetail(models.Model):
     def is_in_past(self):
         return datetime.now(tz=timezone.get_current_timezone())>self.roundDetail.endingDate
 
+
 class Response(models.Model):
     batchid = models.IntegerField()
     question = models.ForeignKey(Question)  # The question
