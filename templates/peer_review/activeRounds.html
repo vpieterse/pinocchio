@@ -12,7 +12,18 @@
 {% block context %}
 {% load custom_tags %}
 {% spaceless %}
+
     <div class="container">
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                {{ message|safe }}
+            </div>
+            {% endfor %}
+        {% endif %}
+
         <div class="panel-group">
             {# Check For Empty Rounds #}
             {% counter_reset %}
@@ -29,7 +40,7 @@
             {% counter_reset %}
             {# Count the number of current rounds #}
             {% for tmcur in teams %}
-                {% if tmcur.teamName != "emptyTeam" and  tmcur.is_in_past != True and tmcur.is_in_future != True %}
+                {% if tmcur.is_in_past != True and tmcur.is_in_future != True %}
                     {% counter_inc %}
                 {% endif %}
             {% endfor %}
@@ -37,7 +48,7 @@
             {% counter_reset %}
             {# Count the number of expired rounds #}
             {% for tmexp in teams %}
-                {% if tmexp.teamName != "emptyTeam" and tmexp.is_in_past %}
+                {% if tmexp.is_in_past %}
                     {% counter_inc %}
                 {% endif %}
             {% endfor %}
@@ -45,17 +56,19 @@
             {% counter_reset %}
             {# Count the number of future rounds #}
             {% for tmfut in teams %}
-                {% if tmfut.teamName != "emptyTeam" and tmfut.is_in_future %}
+                {% if tmfut.is_in_future %}
                     {% counter_inc %}
                 {% endif %}
             {% endfor %}
             {% counter_get as futureRounds %}
             {% counter_reset %}
+
+            {# Display Current Rounds #}
             {% if currentRounds > 0 %}
                 <fieldset><legend>Current Rounds</legend>
             {% endif %}
             {% for team in teams %}
-                {% if team.teamName != "emptyTeam" and team.is_in_past != True and team.is_in_future != True %}
+                {% if team.is_in_past != True and team.is_in_future != True %}
                     {% counter_inc %}
                     {# Inclusion custom tag to render using rounditem.html #}
                     {% round_load team %}
@@ -73,22 +86,22 @@
             {% if currentRounds > 0 %}
                 </fieldset>
             {% endif %}
-            {# Display Past Rounds #}
-            {% if pastRounds > 0 %}
-                <br><br><fieldset><legend>Past Rounds</legend>
-                {%for teamPast in teams %}
-                    {% if teamPast.teamName != "emptyTeam" and teamPast.is_in_past %}
-                        {% round_load teamPast %}
-                    {% endif %}
-                {% endfor %}
-                </fieldset>
-            {% endif %}
             {# Display Future Rounds #}
             {% if futureRounds > 0 %}
                 <br><br><fieldset><legend>Future Rounds</legend>
                 {% for teamFuture in teams %}
-                    {% if teamFuture.teamName != "emptyTeam" and teamFuture.is_in_future %}
+                    {% if teamFuture.is_in_future %}
                         {% round_load teamFuture %}
+                    {% endif %}
+                {% endfor %}
+                </fieldset>
+            {% endif %}
+            {# Display Past Rounds #}
+            {% if pastRounds > 0 %}
+                <br><br><fieldset><legend>Past Rounds</legend>
+                {%for teamPast in teams %}
+                    {% if teamPast.is_in_past %}
+                        {% round_load teamPast %}
                     {% endif %}
                 {% endfor %}
                 </fieldset>

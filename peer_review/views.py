@@ -2,12 +2,10 @@ import csv
 import os
 import time
 import mimetypes
-from _ast import Set
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import authenticate, login as django_login, logout, update_session_auth_hash
-from django.contrib.auth.forms import SetPasswordForm
+from django.contrib.auth import authenticate, login as django_login, logout
 from django.db.models.aggregates import Max
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
@@ -21,7 +19,6 @@ from peer_review.decorators.adminRequired import admin_required
 from peer_review.decorators.userRequired import user_required
 from peer_review.forms import RecoverPasswordForm
 from peer_review.view.userFunctions import unsign_userId, sign_userId
-from peer_review.generate_otp import generate_otp
 from .forms import DocumentForm, UserForm, LoginForm, ResetForm
 from .models import Document
 from .models import Question, RoundDetail, TeamDetail, Label, Response
@@ -30,8 +27,6 @@ from .models import User
 
 # Moved these views into seperate files
 from peer_review.email import generate_otp_email
-from peer_review.passwordUtility import generate_otp
-from peer_review.passwordUtility import hash_password
 from .view.questionAdmin import question_admin, edit_question, save_question, delete_question
 from .view.questionnaireAdmin import questionnaire_admin, questionnaire_preview, edit_questionnaire, save_questionnaire, delete_questionnaire
 from .view.maintainTeam import maintain_team, change_team_status, change_user_team_for_round, get_teams_for_round, get_teams, submit_team_csv
@@ -220,8 +215,10 @@ def user_list(request):
     email_text = file.read()
     file.close()
 
+    reset_link = '/recoverPassword/' + sign_userId(request.user.userId)
     return render(request, 'peer_review/userAdmin.html',
-                  {'users': users, 'userForm': user_form, 'docForm': doc_form, 'email_text': email_text})
+                  {'users': users, 'userForm': user_form, 'docForm': doc_form, 'email_text': email_text,
+                   'reset_link': reset_link})
 
 
 @admin_required()
@@ -250,7 +247,7 @@ def get_user(request, userId):
         }
     return JsonResponse(response)
 
-@user_required
+@admin_required
 def user_profile(request, userId):
     if request.method == "GET":
         user = User.objects.get(pk=userId)
@@ -269,32 +266,6 @@ def user_delete(request):
             user.delete()
 
     return HttpResponseRedirect('../')
-
-
-@admin_required
-def user_update(request, userId):
-    if request.method == "POST":
-        user = User.objects.get(pk=userId)
-
-        post_title = request.POST.get("title")
-        post_initials = request.POST.get("initials")
-        post_name = request.POST.get("name")
-        post_surname = request.POST.get("surname")
-        post_cell = request.POST.get("cell")
-        post_email = request.POST.get("email")
-        post_status = request.POST.get("status")
-
-        user.status = post_status
-        user.title = post_title
-        user.initials = post_initials
-        user.name = post_name
-        user.surname = post_surname
-        user.cell = post_cell
-        user.email = post_email
-
-        user.save()
-    return HttpResponseRedirect('../')
-
 
 
 def write_dump(round_pk):

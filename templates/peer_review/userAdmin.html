@@ -152,115 +152,120 @@
                             <input class="save btn btn-info" type="button" data-toggle="modal" data-target="#editEmailTemplate" id="email_template" value="Edit">
                         </form>
                     </div>
-                        {% if new_users %}
-                            <div class = "panel-body">
-                            <div class="alert alert-success" role="alert">
-                                <strong>Success!</strong> The following users were added:
-                            </div>
-                            {% for u in new_users %}
-                                <em>{{ u.name }} ({{ u.initials }}) {{ u.surname }}</em>
-                                <br>
-                            {% endfor %}
+                    {%  if new_users or possible_users %}
+                        <div class = "panel-body">
+                            {% if new_users %}
+                                <div class="alert alert-success" role="alert">
+                                    <strong>Success!</strong> The following users were added:
+                                </div>
+                                {% for u in new_users %}
+                                    <em>{{ u.name }} ({{ u.initials }}) {{ u.surname }}</em>
+                                    <br>
+                                {% endfor %}
 
-                        {%  elif possible_users %}
-                            <div class = "panel-body">
-                            <div class="alert alert-warning" role="alert">
-                                <strong>The CSV file is valid.</strong> The following users will be added:
-                            </div>
-                            <div class='table-responsive'>
-                                <table class='table'>
-                                    <thead>
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Initials</th>
-                                        <th>Name</th>
-                                        <th>Surname</th>
-                                        <th>Email</th>
-                                        <th>Cell</th>
-                                        <th>UserID</th>
-                                    </thead>
-                                    {% for row in possible_users %}
-                                        <tr>
-                                            <td>{{ row.title }}</td>
-                                            <td>{{ row.initials }}</td>
-                                            <td>{{ row.name }}</td>
-                                            <td>{{ row.surname }}</td>
-                                            <td>{{ row.email }}</td>
-                                            <td>{{ row.cell }}</td>
-                                            <td>{{ row.user_id }}</td>
-                                        </tr>
-                                    {% endfor %}
-                                </table>
-                        {% endif %}
-                        {% if message %}
-                            <div class = "panel-body">
-                            {% if error == 0 %}
+                            {%  elif possible_users %}
                                 <div class="alert alert-warning" role="alert">
-                                    <p>Something seems to be wrong with the CSV file.</p>
-                                </div>
-                                    <p>The format should be:</p>
-                                    <p><em>"Title","Initials","Name","Surname","Email","Cell","UserID"</em></p>
-                                    <p>An example entry is <em>"Mr","TS", "Tom", "Smith", "tsmith@gmail.com", "0848259675", "TomSmith"</em></p>
-                            {% else %}
-                                <div class="alert alert-danger" role="alert">
-                                    There is an error in the CSV, at line {{ message }}:
-                            {% endif %}
-
-                            {% if error == 2 %}
-                                Not all fields contain values.
-                                </div>
-                            {% elif error == 3 %}
-                                 Cell number is invalid.
-                                </div>
-                            {% elif error == 4 %}
-                                The following user already exists.
+                                    <strong>The CSV file is valid.</strong> The following users will be added:
                                 </div>
                                 <div class='table-responsive'>
-                                <table class='table'>
-                                    <thead>
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Initials</th>
-                                        <th>Name</th>
-                                        <th>Surname</th>
-                                        <th>Email</th>
-                                        <th>Cell</th>
-                                        <th>UserID</th>
-                                    </thead>
-                                    <tr>
-                                        <td>
-                                            {{ row.0 }}
-                                        </td>
-                                        <td>
-                                            {{ row.1 }}
-                                        </td>
-                                        <td>
-                                            {{ row.2 }}
-                                        </td>
-                                        <td>
-                                            {{ row.3 }}
-                                        </td>
-                                        <td>
-                                            {{ row.4 }}
-                                        </td>
-                                        <td>
-                                            {{ row.5 }}
-                                        </td>
-                                        <td>
-                                            {{ row.6 }}
-                                        </td>
-                                        <td>
-                                            {{ row.7 }}
-                                        </td>
-                                        <td>
-                                            {{ row.8 }}
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
+                                    <table class='table'>
+                                        <thead>
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>Initials</th>
+                                            <th>Name</th>
+                                            <th>Surname</th>
+                                            <th>Email</th>
+                                            <th>Cell</th>
+                                            <th>UserID</th>
+                                        </thead>
+                                        {% for row in possible_users %}
+                                            <tr>
+                                                <td>{{ row.title }}</td>
+                                                <td>{{ row.initials }}</td>
+                                                <td>{{ row.name }}</td>
+                                                <td>{{ row.surname }}</td>
+                                                <td>{{ row.email }}</td>
+                                                <td>{{ row.cell }}</td>
+                                                <td>{{ row.user_id }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </table>
+                                </div>
                             {% endif %}
+                    {% endif %}
+                        {% if message %}
+                            <div class = "panel-body">
+                                {% if error == 0 %}
+                                    <div class="alert alert-warning" role="alert">
+                                        <p>Something seems to be wrong with the CSV file.</p>
+                                    </div>
+                                    <p>The format should be:</p>
+                                    <p><em>title,initials,name,surname,email,cell,user_id</em></p>
+                                    <p>An example entry is <em>"Mr","M","Matthew","Botha","mmm@gmail.com","0123456789","14141414","S"</em></p>
+                                {% else %}
+                                    <div class="alert alert-danger" role="alert">
+                                        There is an error in the CSV, at line {{ message }}:
+                                {% endif %}
+
+                                {% if error == 2 %}
+                                    Not all fields contain values.
+                                    </div>
+                                {% elif error == 3 %}
+                                     Cell number is invalid.
+                                    </div>
+                                {% elif error == 4 %}
+                                    The following user already exists.
+                                    </div>
+                                    <div class='table-responsive'>
+                                        <table class='table'>
+                                            <thead>
+                                            <tr>
+                                                <th>Title</th>
+                                                <th>Initials</th>
+                                                <th>Name</th>
+                                                <th>Surname</th>
+                                                <th>Email</th>
+                                                <th>Cell</th>
+                                                <th>UserID</th>
+                                            </thead>
+                                            <tr>
+                                                <td>
+                                                    {{ row.0 }}
+                                                </td>
+                                                <td>
+                                                    {{ row.1 }}
+                                                </td>
+                                                <td>
+                                                    {{ row.2 }}
+                                                </td>
+                                                <td>
+                                                    {{ row.3 }}
+                                                </td>
+                                                <td>
+                                                    {{ row.4 }}
+                                                </td>
+                                                <td>
+                                                    {{ row.5 }}
+                                                </td>
+                                                <td>
+                                                    {{ row.6 }}
+                                                </td>
+                                                <td>
+                                                    {{ row.7 }}
+                                                </td>
+                                                <td>
+                                                    {{ row.8 }}
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                {% endif %}
+                            </div>
                         {% endif %}
-                    </div>
+                        {%  if new_users or possible_users %}
+                            </div>
+                        {% endif %}
                 </div>
             </div>
 
@@ -293,13 +298,14 @@
                                     <th data-defaultsort='disabled'>Cell</th>
                                     <th>Email</th>
                                     <th>Status</th>
+                                    <th>View rounds</th>
                                     <th>Edit</th>
                                     <th>Remove</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 {% for user in users %}
-                                    <tr id="{{ user.pk }}">
+                                    <tr id="user{{ user.pk }}">
                                         <td data-id="userId">{{ user.userId }}</td>
                                         <td data-id="title">{{ user.title }}</td>
                                         <td data-id="initials">{{ user.initials }}</td>
@@ -308,6 +314,9 @@
                                         <td data-id="cell">{{ user.cell }}</td>
                                         <td data-id="email">{{ user.email }}</td>
                                         <td data-id="status">{{ user.status }}</td>
+                                        <td>
+                                            <a type="button" class="btn btn-success btn-xs" href="/userAdmin/userProfile/{{ user.pk }}">R</a>
+                                        </td>
                                         <td>
                                             <button type="button" name="edit" class='btn btn-success btn-xs edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ user.userId }}" data-pk="{{ user.pk }}">
                                                 &#9998;
@@ -332,68 +341,7 @@
         </div>
     </div>
 
-    <div id="editModal" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Edit User</h4>
-                </div>
-                <div class="modal-body">
-                    <form role="form" id="modalForm">
-                        <!--<div class="form-group">
-                            <label for="userId">User ID:</label>
-                            <input type="text" class="form-control" id="e_userId">
-                        </div>-->
-                        <div class="form-group">
-                            <label for="title">Title:</label>
-                            <select class="form-control" id="e_title">
-                                <option></option>
-                                <option>Mr</option>
-                                <option>Ms</option>
-                                <option>Miss</option>
-                                <option>Mrs</option>
-                                <option>Dr</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="initials">Initials:</label>
-                            <input type="text" class="form-control" id="e_initials">
-                        </div>
-                        <div class="form-group">
-                            <label for="name">First Name:</label>
-                            <input type="text" class="form-control" id="e_name">
-                        </div>
-                        <div class="form-group">
-                            <label for="surname">Surname:</label>
-                            <input type="text" class="form-control" id="e_surname">
-                        </div>
-                        <div class="form-group">
-                            <label for="cell">Cell:</label>
-                            <input type="text" class="form-control" id="e_cell">
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email:</label>
-                            <input type="text" class="form-control" id="e_email">
-                        </div>
-                        <div class="form-group">
-                            <label for="status">Status:</label>
-                            <select class="form-control" id="e_status">
-                                <option></option>
-                                <option>User</option>
-                                <option>Admin</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-warning pull-left" id="resetPassword">Reset Password</button>
-                    <button type="button" class="btn btn-success" id="more">More</button>
-                    <button type="button" class="btn btn-success" id="updateConfirm" data-dismiss="modal">Update</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    {% include "peer_review/userEditModal.html" %}
 
     <div id="editEmailTemplate" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -426,7 +374,11 @@
     <script src="{% static "peer_review/validation.js" %}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
-           $("#users").DataTable();
+            $("#users").DataTable();
+            $(".btn.more").on("click", function () {
+                var pk = $(this).data("pk");
+                window.location.href = "" + pk;
+            });
         });
 
         $("#updateEmailConfirm").on("click", function() {
@@ -488,95 +440,6 @@
             }
         });
 
-        $(".edit").on("click", function() {
-            var pk = $(this).data("pk");
-            $("#more").attr("data-pk", pk);
-            var token = $(this).data("csrf");
-            var row = $("#users > tbody > tr#" + pk);
-
-            var userId = row.children("[data-id='userId']");
-            var title = row.children("[data-id='title']");
-            var initials = row.children("[data-id='initials']");
-            var name = row.children("[data-id='name']");
-            var surname = row.children("[data-id='surname']");
-            var cell = row.children("[data-id='cell']");
-            var email = row.children("[data-id='email']");
-            var status = row.children("[data-id='status']");
-
-            $("#e_userId").val(userId.text());
-            $("#e_title").val(title.text());
-            $("#e_initials").val(initials.text());
-            $("#e_name").val(name.text());
-            $("#e_surname").val(surname.text());
-            $("#e_cell").val(cell.text());
-            $("#e_email").val(email.text());
-
-            if (status.text() == "U") {
-                $("#e_status").val("User");
-            } else if (status.text() == "A") {
-                $("#e_status").val("Admin");
-            } else {
-                $("#e_status").val("");
-            }
-
-            $("#updateConfirm").on("click", function () {
-                var uStatus = "";
-
-                if ($("#e_status").val() == "User") {
-                    uStatus = "U";
-                } else if ($("#e_status").val() == "Admin") {
-                    uStatus = "A";
-                }
-
-                var data = {
-                    'userId': $("#e_userId").val(),
-                    'title': $("#e_title").val(),
-                    'initials': $("#e_initials").val(),
-                    'name': $("#e_name").val(),
-                    'surname': $("#e_surname").val(),
-                    'cell': $("#e_cell").val(),
-                    'email': $("#e_email").val(),
-                    'status': uStatus,
-                    'csrfmiddlewaretoken': token
-                };
-
-                $.ajax({
-                    type: 'POST',
-                    url: '/userAdmin/update/' + pk,
-                    data: data,
-                    success: function() {
-                        userId.text($("#e_userId").val());
-                        title.text($("#e_title").val());
-                        initials.text($("#e_initials").val());
-                        name.text($("#e_name").val());
-                        surname.text($("#e_surname").val());
-                        cell.text($("#e_cell").val());
-                        email.text($("#e_email").val());
-                        status.text(uStatus);
-                    }
-                });
-            });
-
-            $("#resetPassword").on("click", function () {
-                if (confirm("Are you sure you want to reset the password for this user?")) {
-                    $.ajax({
-                        type: 'POST',
-                        url: '/userAdmin/resetPassword/' + pk,
-                        data: {
-                            'csrfmiddlewaretoken': token
-                        },
-                        success: function() {
-                            alert("Password reset");
-                        }
-                    });
-                }
-            });
-
-            $("#more").on("click", function () {
-                var pk = $(this).data("pk");
-                window.location.href = "/userAdmin/userProfile/" + pk;
-            });
-        });
     </script>
 
 {% endblock context %}

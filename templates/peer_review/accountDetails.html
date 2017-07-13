@@ -19,54 +19,66 @@
                     </h4>
                 </div>
                 <div class="panel">
-                    <div class="panel-body form-horizontal">
+                    <div class="panel-body form-horizontal" id="user{{ user.userId }}">
                         <div class="form-group">
                             <label for="title" class="col-sm-2 control-label">Title:</label>
                             <div class="col-sm-3">
-                                <input id="title" type="text" class="form-control" readonly="readonly"
-                                       value="{{ user.title }}"/>
+                                <div id="title" type="text" class="form-control" readonly="readonly" data-id="title"
+                                       value="{{ user.title }}">{{ user.title }}</div>
                             </div>
 
                             <label for="initials" class="col-sm-2 control-label">Initials:</label>
                             <div class="col-sm-3">
-                                <input id="initials" type="text" class="form-control" readonly="readonly"
-                                       value="{{ user.initials }}"/>
+                                <div id="initials" type="text" class="form-control" readonly="readonly" data-id="initials"
+                                       value="{{ user.initials }}">{{ user.initials }}</div>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="name" class="col-sm-2 control-label">Name:</label>
                             <div class="col-sm-3">
-                                <input id="name" type="text" class="form-control" readonly="readonly"
-                                       value="{{ user.name }}"/>
+                                <div id="name" type="text" class="form-control" readonly="readonly" data-id="name"
+                                       value="{{ user.name }}">{{ user.name }}</div>
                             </div>
 
                             <label for="surname" class="col-sm-2 control-label">Surname:</label>
                             <div class="col-sm-3">
-                                <input id="surname" type="text" class="form-control" readonly="readonly"
-                                       value="{{ user.surname }}"/>
+                                <div id="surname" type="text" class="form-control" readonly="readonly" data-id="surname"
+                                       value="{{ user.surname }}">{{ user.surname }}</div>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="email" class="col-sm-2 control-label">Email:</label>
                             <div class="col-sm-3">
-                                <input id="email" type="text" class="form-control" readonly="readonly"
-                                       value="{{ user.email }}"/>
+                                <div id="email" type="text" class="form-control" readonly="readonly" data-id="email"
+                                       value="{{ user.email }}">{{ user.email }}</div>
                             </div>
 
                             <label for="cell" class="col-sm-2 control-label">Cell Number:</label>
                             <div class="col-sm-3">
-                                <input id="cell" type="text" class="form-control" readonly="readonly"
-                                       value="{{ user.cell }}"/>
+                                <div id="cell" type="text" class="form-control" readonly="readonly" data-id="cell"
+                                       value="{{ user.cell }}">{{ user.cell }}</div>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="userId" class="col-sm-2 control-label">User Name:</label>
                             <div class="col-sm-3">
-                                <input id="userId" type="text" class="form-control" readonly="readonly"
-                                       value="{{ user.userId }}"/>
+                                <div id="userId" type="text" class="form-control" readonly="readonly" data-id="userId"
+                                       value="{{ user.userId }}">{{ user.userId }}</div>
+                            </div>
+                            <label for="userStatus" class="col-sm-2 control-label">User Status:</label>
+                            <div class="col-sm-3">
+                                <div id="userStatus" type="text" class="form-control" readonly="readonly" data-id="status"
+                                       value="{{ user.status }}">{{ user.status }}</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <button type="button" name="edit" class='btn btn-primary pull-right edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ user.userId }}" data-pk="{{ user.pk }}">
+                                    Edit
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -74,4 +86,5 @@
             </div>
         </div>
     </div>
+    {% include "peer_review/userEditModal.html" %}
 {% endblock context %}
