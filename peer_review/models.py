@@ -230,13 +230,13 @@ class TeamDetail(models.Model):
         return self.status == TeamDetail.IN_PROGRESS
 
     def is_completed(self):
-        return self.status == TeamDetail.IN_PROGRESS and self.is_expired();
+        return self.is_in_progress() and self.is_in_past();
 
     def is_not_attempted(self):
         return self.status == TeamDetail.NOT_ATTEMPTED
 
     def is_expired(self):
-        return datetime.now(tz=timezone.get_current_timezone())>self.roundDetail.endingDate
+        return datetime.now(tz=timezone.get_current_timezone())>self.roundDetail.endingDate and not self.is_completed()
 
     def is_in_future(self):
         return datetime.now(tz=timezone.get_current_timezone())<self.roundDetail.startingDate
