@@ -184,12 +184,12 @@
                 }
                 if(teamID != null)
                 {
-                    addTeamCont(teamID);
+                    addTeamCont(teamID, 0);
                 }
             }
         }
 
-        function addTeamCont(teamID)
+        function addTeamCont(teamID, teamSize)
         {
             numTeams++;
             var newTeam = '<div class="panel panel-default">'+
@@ -197,7 +197,7 @@
                           '          <h4 class="panel-title">'+
                           '              <input type="button" value="-" class="btn btn-info btn-xs minus" field="" onclick="removeTeam(\''+teamID+'\')"/>'+
                           '              <a data-toggle="collapse" data-parent="#teams" href="#'+teamID+'">'+
-                          '                  '+teamID+'<b class="caret"></b>'+
+                          '                  '+teamID+ " " + teamSize+'<b class="caret"></b>'+
                           '              </a>'+
                           '          </h4>'+
                           '      </div>'+
@@ -374,9 +374,9 @@
                                 team = data[team];
                                 if($("#"+team["teamName"]).length == 0)
                                 {
-                                    addTeamCont(team["teamName"]);
+                                    addTeamCont(team["teamName"], team["teamSize"]);
                                 }
-
+                              
                                 selected = team["teamName"];
                                 $("#"+team["teamName"]).addClass("in");
 
