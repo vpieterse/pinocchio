@@ -14,14 +14,15 @@ from pip._vendor.requests.packages.urllib3.exceptions import TimeoutStateError
 
 from peer_review.email import generate_otp_email
 from peer_review.forms import ResetForm
-from peer_review.generate_otp import generate_otp
 from peer_review.models import RoundDetail, TeamDetail, User
 from pinocchio import baseSettings
 
 @user_required
 def account_details(request):
     user = User.objects.get(userId=request.user.userId)
-    context = {'user': user}
+    reset_link = '/recoverPassword/' + sign_userId(request.user.userId)
+
+    context = {'user': user, 'reset_link': reset_link}
     return render(request, 'peer_review/accountDetails.html', context)
 
 @user_required
@@ -33,7 +34,7 @@ def member_details(request, userId):
         context = {'user': member}
         return render(request, 'peer_review/accountDetails.html', context)
     except:
-        context = {'navSelect':"accountDetails"}
+        context = {'navSelect': "accountDetails"}
         return render(request, 'peer_review/user404.html', context)
     
 @user_required

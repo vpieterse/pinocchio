@@ -201,8 +201,8 @@
                                         <p>Something seems to be wrong with the CSV file.</p>
                                     </div>
                                     <p>The format should be:</p>
-                                    <p><em>"Title","Initials","Name","Surname","Email","Cell","UserID"</em></p>
-                                    <p>An example entry is <em>"Mr","TS", "Tom", "Smith", "tsmith@gmail.com", "0848259675", "TomSmith"</em></p>
+                                    <p><em>title,initials,name,surname,email,cell,user_id</em></p>
+                                    <p>An example entry is <em>"Mr","M","Matthew","Botha","mmm@gmail.com","0123456789","14141414","S"</em></p>
                                 {% else %}
                                     <div class="alert alert-danger" role="alert">
                                         There is an error in the CSV, at line {{ message }}:

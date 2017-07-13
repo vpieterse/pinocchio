@@ -49,22 +49,33 @@ def change_user_team_for_round(request, round_pk, userId, team_name):
             user=User.objects.get(userId=userId),
             roundDetail=RoundDetail.objects.get(pk=round_pk)
         )
+
     team.teamName = team_name
     if team_name == 'emptyTeam':
-        team.status = 'NA'
-    team.save()
-    return JsonResponse({'success': True, 'team_pk': team.pk})
+        team.delete()
+    else:
+        team.save()
+    return JsonResponse({'success': True})
 
 
 @admin_required
 def get_teams_for_round(request, round_pk):
     teams = TeamDetail.objects.filter(roundDetail_id=round_pk)
     response = {}
+    teamSizes = {}
+
+    for team in teams:
+        if team.teamName not in teamSizes:
+            teamSizes[team.teamName] = 0
+        teamSizes[team.teamName] += 1
+
+
     for team in teams:
         response[team.pk] = {
             'userId': team.user.userId,
             'teamName': team.teamName,
             'status': team.status,
+            'teamSize': teamSizes[team.teamName]
         }
     # print(response)
     return JsonResponse(response)

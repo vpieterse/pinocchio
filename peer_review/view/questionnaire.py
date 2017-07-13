@@ -20,11 +20,6 @@ def questionnaire(request, round_pk):
                                      teamdetail__roundDetail=RoundDetail.objects.get(pk=round_pk))
 
         # Does the user have access to this page?
-        # TODO: FIX THIS UGLY HACK
-        if team_name == 'emptyTeam':
-            messages.add_message(request, messages.ERROR, "You are not part of that team.")
-            return redirect('activeRounds')
-
         # Has the questionnaire expired / is it in the future?
         if round_object.startingDate > timezone.now():
             messages.add_message(request, messages.ERROR, "That questionnaire is not yet available.")
@@ -39,9 +34,10 @@ def questionnaire(request, round_pk):
                    'round': round_pk}
         return render(request, 'peer_review/questionnaire.html', context)
 
-    except RoundDetail.DoesNotExist:
-        messages.add_message(request, messages.ERROR, "The questionnaire does not exist.")
+    except:
+        messages.add_message(request, messages.ERROR, "The questionnaire is currently unavailable.")
         return redirect('activeRounds')
+
 
 # Returning a JsonResponse with a result field of 1 indicates an error in saving the questionnaire progress
 # A 0 indicates success

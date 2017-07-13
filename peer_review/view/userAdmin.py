@@ -2,19 +2,14 @@ import csv
 import os
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from peer_review.decorators.adminRequired import admin_required
-from peer_review.email import generate_otp_email
 from peer_review.forms import DocumentForm, UserForm
 from peer_review.models import User, Document
 from peer_review.view.userFunctions import user_error
 from peer_review.view.userManagement import create_user_send_otp
-from peer_review.views import generate_otp, hash_password
 
 
 def add_csv_info(user_list):
     for row in user_list:
-        otp = generate_otp()
-
         module_dir = os.path.dirname(__file__)
         file_path = os.path.join(module_dir)
         file = open(file_path + '/../text/otp_email.txt', 'a+')
@@ -81,7 +76,7 @@ def submit_csv(request):
                         # ToDo check for errors in multiple rows
                     else:
                         error = True
-                        if valid == 0:
+                        if valid != 1:
                             message = "The format of the CSV is incorrect."
                             errortype = 0
                             return render(request, 'peer_review/userAdmin.html',
@@ -172,6 +167,27 @@ def validate(row):
     #             int(value)
     #         except ValueError:
     #             return 3
+
+    if 'user_id' not in row:
+        return 3
+
+    if 'title' not in row:
+        return 3
+
+    if 'initials' not in row:
+        return 3
+
+    if 'name' not in row:
+        return 3
+
+    if 'surname' not in row:
+        return 3
+
+    if 'email' not in row:
+        return 3
+
+    if 'cell' not in row:
+        return 3
 
     user = User.objects.filter(userId=row['user_id'])
 
