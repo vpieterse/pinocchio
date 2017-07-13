@@ -272,10 +272,8 @@ def user_delete(request):
 
 
 def write_dump(round_pk):
-    dump_file = 'media/dumps/' + str(round_pk) + '.csv'
-    data = [['ROUND ID:', round_pk],
-            ['DUMP DATE:', time.strftime("%d/%m/%Y %H:%M:%S")], [''],
-            ['USERID', 'QUESTION', 'LABEL', 'SUBJECT', 'ANSWER']]
+    dump_file = 'media/dumps/' + time.strftime("%Y-%m-%d %H:%M:%S") + 'round_' + str(round_pk) + '.csv'
+    data = [['USERID', 'QUESTION', 'LABEL', 'SUBJECT', 'ANSWER']]
 
     # First, find the row id of the most recent answer to each question
     distinctResponses = Response.objects.filter(roundDetail=round_pk).values(
@@ -323,7 +321,7 @@ def round_dump(request):
         content_type = mimetypes.guess_type(dump_file)[0]
         response = HttpResponse(wrapper,content_type=content_type)
         #response['Content-Length'] = os.path.getsize(dump_file)    
-        response['Content-Disposition'] = "attachment; filename=dump-r" + str(roundPk) + ".csv"
+        response['Content-Disposition'] = "attachment; filename=" + time.strftime("%Y-%m-%d %H.%M.%S") + ' round_' + str(roundPk) + ".csv"
         return response
     return user_error(request)
 
