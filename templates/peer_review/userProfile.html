@@ -5,7 +5,7 @@
     <title>User Profile</title>
     <!--Edit navbar active-->
     <script>
-        title = "";
+        title = "userAdmin";
     </script>
 {% endblock extrahead %}
 
@@ -15,86 +15,6 @@
 
         <div class="panel-group" id="accordion">
             <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
-                    <h4 class="panel-title">
-                        <a>
-                            User Details <b class="caret"></b>
-                        </a>
-                    </h4>
-                </div>
-
-                <div id="collapseOne" class="panel-collapse collapse in">
-                    <div class="panel-body">
-                        <form class="form-horizontal user-form" id="userForm" role="form">
-                            <div class="form-group">
-                                <label for="title" class="col-sm-2 control-label">Title:</label>
-                                <div class="col-sm-3">
-                                    <select class="form-control" id="title">
-                                        <option>Mr</option>
-                                        <option>Ms</option>
-                                        <option>Miss</option>
-                                        <option>Mrs</option>
-                                        <option>Dr</option>
-                                    </select>
-                                </div>
-
-                                <label for="initials" class="col-sm-2 control-label">Initials:</label>
-                                <div class="col-sm-3">
-
-                                    <input class="form-control" id="initials" type="text" value="{{ user.initials }}">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="firstName" class="col-sm-2 control-label">First Name:</label>
-                                <div class="col-sm-3">
-                                    <input class="form-control" id="firstName" type="text" value="{{ user.name }}">
-                                </div>
-
-                                <label for="surname" class="col-sm-2 control-label">Surname:</label>
-                                <div class="col-sm-3">
-                                    <input class="form-control" id="surname" type="text" value="{{ user.surname }}">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="email" class="col-sm-2 control-label">Email:</label>
-                                <div class="col-sm-3">
-                                    <input class="form-control" id="email" type="text" value="{{ user.email }}">
-                                </div>
-
-                                <label for="cellNumber" class="col-sm-2 control-label">Cell Number:</label>
-                                <div class="col-sm-3">
-                                    <input class="form-control" id="cellNumber" type="text" value="{{ user.cell }}">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="userName" class="col-sm-2 control-label">User Name:</label>
-                                <div class="col-sm-3">
-                                    <input class="form-control" id="userName" type="text" value="{{ user.userId }}">
-                                </div>
-
-                                <label for="status" class="col-sm-2 control-label">Status:</label>
-                                <div class="col-sm-3">
-                                    <select class="form-control" id="status">
-                                        <option value="U">User</option>
-                                        <option value="A">Admin</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <div class="col-sm-offset-2 col-sm-10">
-                                    <button type="button" class="save btn btn-info" id="updateUser" data-pk="{{ user.pk }}">Update</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <div class="panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
                     <h4 class="panel-title">
                         <a>
@@ -103,7 +23,7 @@
                     </h4>
                 </div>
 
-                <div id="collapseTwo" class="panel-collapse collapse">
+                <div id="collapseTwo" class="panel-collapse collapse in">
                     <div class="panel-body">
                         <table class="table" id="userRoundsTable" data-pk="{{ user.pk }}" data-csrf="{{ csrf_token }}">
                             <thead>

@@ -78,12 +78,12 @@
                                                             <th>User Name</th>
                                                             <th>Name</th>
                                                             <th>Surname</th>
-                                                            <th></th>
+                                                          -
+                                                            +<th></th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         {% for user in users %}
-                                                            {% csrf_token %}
                                                             <tr id="{{ user.pk }}">
                                                                 <td>{{ user.userId }}</td>
                                                                 <td>{{ user.name }}</td>
@@ -155,7 +155,6 @@
                                     <th>Surname</th>
                                     <th>Round</th>
                                     <th>Team</th>
-                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -280,19 +279,7 @@
             }
 
             $("#teamViewTable").DataTable({
-                "orderClasses": false,
-                "columnDefs": [{
-                    "orderable": true,
-                    "searchable": true,
-                    "render": function(data, type, full, meta){
-                        return  '<select class="form-control status">'+
-                                '    <option value="NA" class="NA">Not attempted</option>'+
-                                '    <option value="IP" class="IP">In progress</option>'+
-                                '    <option value="C" class="C">Completed</option>'+
-                                '</select>';
-                    },
-                    "targets": [5]
-                }]
+                "orderClasses": false
             });
 
             var users = $("#users").DataTable({
@@ -385,21 +372,18 @@
                             for(var team in data)
                             {
                                 team = data[team];
-                                if(team["teamName"] != "emptyTeam")
+                                if($("#"+team["teamName"]).length == 0)
                                 {
-                                    if($("#"+team["teamName"]).length == 0)
-                                    {
-                                        addTeamCont(team["teamName"], team["teamSize"]);
-                                    }
-
-                                    selected = team["teamName"];
-                                    $("#"+team["teamName"]).addClass("in");
-
-                                    $("#users").find("#"+team["userId"]).find('div.addUser').click();
-
-                                    $("#"+team["teamName"]).removeClass("in");
-                                    selected = "";
+                                    addTeamCont(team["teamName"], team["teamSize"]);
                                 }
+                              
+                                selected = team["teamName"];
+                                $("#"+team["teamName"]).addClass("in");
+
+                                $("#users").find("#"+team["userId"]).find('div.addUser').click();
+
+                                $("#"+team["teamName"]).removeClass("in");
+                                selected = "";
                             }
                         },
                         failure: function(data) {
@@ -417,23 +401,20 @@
                     success: function(data) {
                         var table = $("#teamViewTable").DataTable();
                         table.clear().draw();
-                        for(var team in data)
-                        {
+                        for(var team in data) {
                             team = data[team];
                             var teamName = team["team"];
-                            if(teamName != "emptyTeam")
-                            {
-                                var status = team["status"];
-                                var row = table.row.add([
-                                        team["userId"],
-                                        team["initials"],
-                                        team["surname"],
-                                        team["round"],
-                                        teamName
-                                    ]).draw(false).node();
-                                $(row).attr("id", team["teamId"]);
-                                $(row).find("."+status).attr("selected", "selected");
-                            }
+                            var status = team["status"];
+                            var row = table.row.add([
+                                    team["userId"],
+                                    team["initials"],
+                                    team["surname"],
+                                    team["round"],
+                                    teamName,
+
+                                ]).draw(false).node();
+                            $(row).attr("id", team["teamId"]);
+                            $(row).find("."+status).attr("selected", "selected");
                         }
                     },
                     failure: function(data) {

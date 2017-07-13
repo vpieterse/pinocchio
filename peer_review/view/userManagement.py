@@ -1,12 +1,16 @@
+import random
+import string
+
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
+from peer_review.decorators.userRequired import user_required
 
 from peer_review.email import generate_otp_email
 from peer_review.forms import ResetForm, UserForm
-from peer_review.generate_otp import generate_otp
 from peer_review.models import User, RoundDetail, TeamDetail
-from peer_review.decorators.adminRequired import admin_required
+from peer_review.decorators.adminRequired import admin_required, admin_required_test
+from django.http import HttpResponse
 
 
 def forgot_password(request):
@@ -14,6 +18,12 @@ def forgot_password(request):
     context = {'resetForm': reset_form}
     return render(request, 'peer_review/forgotPassword.html', context)
 
+
+def generate_otp():
+    n = random.randint(4, 10)
+    otp = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits + string.ascii_lowercase)
+                  for _ in range(n))
+    return otp
 
 # Creates a new user, sends a confirmation OTP email and returns the newly created user
 def create_user_send_otp(user_title, user_initials, user_name, user_surname, user_cell, user_email, user_userId, user_status):
@@ -24,10 +34,6 @@ def create_user_send_otp(user_title, user_initials, user_name, user_surname, use
     if user:
         generate_otp_email(otp, user_name, user_surname, user_email, user_userId)
         user.save()
-
-        for roundObj in RoundDetail.objects.all():
-            team = TeamDetail(user=user, roundDetail=roundObj)
-            team.save()
 
     return user
 
@@ -63,3 +69,28 @@ def submit_new_user_form(request):
     else:
         user_form = UserForm()
     return HttpResponseRedirect("/userAdmin")
+
+@user_required
+def user_update(request, userId):
+    if request.method == "POST":
+        user = User.objects.get(pk=userId)
+        if request.user == user or admin_required_test(request.user):
+            post_title = request.POST.get("title")
+            post_initials = request.POST.get("initials")
+            post_name = request.POST.get("name")
+            post_surname = request.POST.get("surname")
+            post_cell = request.POST.get("cell")
+            post_email = request.POST.get("email")
+            if admin_required_test(request.user):
+                post_status = request.POST.get("status")
+                user.status = post_status
+
+            user.title = post_title
+            user.initials = post_initials
+            user.name = post_name
+            user.surname = post_surname
+            user.cell = post_cell
+            user.email = post_email
+
+            user.save()
+    return HttpResponse()
