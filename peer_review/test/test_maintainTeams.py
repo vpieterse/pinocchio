@@ -14,6 +14,7 @@ class MaintainTeamTests(TestCase):
         self.client = Client()
         self.user1 = User.objects.create_user('bob@bob.com', 'bob', 'bob', 'simons', userId=1)
         self.user2 = User.objects.create_user('joe@joe.com', 'joe', 'joe', 'simons', userId=2)
+        self.user3 = User.objects.create_user('rufy@rufy.com', 'rufy', 'rufy', 'simons', userId=3)
         self.admin = User.objects.create_superuser('admin', 'admin', userId=2)
         self.round1 = RoundDetail.objects.create(name='Round 1',
                                                  startingDate=datetime.datetime.now(tz=timezone.get_current_timezone()),
@@ -25,6 +26,7 @@ class MaintainTeamTests(TestCase):
                                                  description='Test Round 2')
         self.team1 = TeamDetail.objects.create(user=self.user1, roundDetail=self.round1, teamName='Team1', pk=123)
         self.team2 = TeamDetail.objects.create(user=self.user2, roundDetail=self.round1, teamName='Team2', pk=321)
+        TeamDetail.objects.create(user=self.user3, roundDetail=self.round1, teamName='Team2', pk=453)
 
     # Test that the user's team name is changed for the round
     def test_change_user_team_for_round(self):
@@ -72,8 +74,10 @@ class MaintainTeamTests(TestCase):
         self.assertEqual(json_response_team1['teamName'], self.team1.teamName)
         self.assertEqual(json_response_team1['userId'], str(self.user1.pk))
         self.assertEqual(json_response_team1['status'], self.team1.status)
+        self.assertEqual(json_response_team1['teamSize'], 1)
 
         json_response_team2 = json_response[str(self.team2.pk)]
         self.assertEqual(json_response_team2['teamName'], self.team2.teamName)
         self.assertEqual(json_response_team2['userId'], str(self.user2.pk))
         self.assertEqual(json_response_team2['status'], self.team2.status)
+        self.assertEqual(json_response_team2['teamSize'], 2)

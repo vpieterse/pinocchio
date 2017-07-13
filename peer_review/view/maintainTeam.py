@@ -60,11 +60,20 @@ def change_user_team_for_round(request, round_pk, userId, team_name):
 def get_teams_for_round(request, round_pk):
     teams = TeamDetail.objects.filter(roundDetail_id=round_pk)
     response = {}
+    teamSizes = {}
+
+    for team in teams:
+        if team.teamName not in teamSizes:
+            teamSizes[team.teamName] = 0
+        teamSizes[team.teamName] += 1
+
+
     for team in teams:
         response[team.pk] = {
             'userId': team.user.userId,
             'teamName': team.teamName,
             'status': team.status,
+            'teamSize': teamSizes[team.teamName]
         }
     # print(response)
     return JsonResponse(response)
