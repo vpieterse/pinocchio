@@ -303,7 +303,7 @@ def write_dump(round_pk):
         data.append(['NO DATA'])
 
     with open(dump_file, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile, delimiter=',')
+        writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_ALL)
         writer.writerows(data)
 
     csvfile.close()
