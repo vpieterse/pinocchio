@@ -205,10 +205,9 @@
                                 <div class="form-group">
                                     <label for="description">Description</label>
 
-                        <textarea class="form-control" rows="2" style="resize:none;width:45%" id="description"
-                                  name="description"></textarea>
-                                    <div id = "round-label2-error">
-                                    </div>
+                                    <textarea class="form-control" rows="2" style="resize:none;width:45%" id="description"
+                                        name="description"></textarea>
+                                    <div id = "round-label2-error"></div>
                                     <br/>
                                     <!--Questionnaire-->
                                     <div>
@@ -326,7 +325,7 @@
                                         </td>
                                         <td data-id="roundQuestionnaireIntroData" class="hidden">
                                             <div >
-                                                <option selected value="{{round.questionnaire.pk}}">{{ round.questionnaire.intro}}</option>
+                                                <option selected value="{{round.questionnaire.pk}}">{{ round.questionnaire.label}}</option>
                                                     {% for quest in questionnaires %}
                                                         {% if round.questionnaire.intro == quest.intro %}
 
@@ -482,59 +481,62 @@
                     {% csrf_token %}
                     <input type="hidden" name = "pk" id = "round-pk">
                 </form> 
-            <script>
+                <script>
 
-                // Init date-time-picker
-                $("#startingDate").datetimepicker({format: "Y-m-d H:i"});
-                $("#endingDate").datetimepicker({format: "Y-m-d H:i"});
+                    // Init date-time-picker
+                    $("#startingDate").datetimepicker({format: "Y-m-d H:i"});
+                    $("#endingDate").datetimepicker({format: "Y-m-d H:i"});
 
 
-                $("#e_startingDate").datetimepicker({format: "Y-m-d H:i"});
-                $("#e_endingDate").datetimepicker({format: "Y-m-d H:i"});
+                    $("#e_startingDate").datetimepicker({format: "Y-m-d H:i"});
+                    $("#e_endingDate").datetimepicker({format: "Y-m-d H:i"});
 
-                var glob_roundPk = 0;
+                    var glob_roundPk = 0;
 
-                $(".edit").on("click", function() {
-                    var pk = $(this).data("pk");
-                    var token = $(this).data("csrf");
-                    var row = $("#round > tbody > tr#" + pk);
-                    var roundName = row.children("[data-id='roundName']");
-                    var roundDescription = row.children("[data-id='description']");
-                    var roundQuestionnaireIntro = row.children("[data-id='questionnaire']");
-                    var roundQuestionnaireIntroData = row.children("[data-id='roundQuestionnaireIntroData']");
-                    var startingDate = row.children("[data-id='startingDate']");
-                    var endingDate = row.children("[data-id='endingDate']");
+                    $(".edit").on("click", function() {
+                        var pk = $(this).data("pk");
+                        var token = $(this).data("csrf");
+                        var row = $("#round > tbody > tr#" + pk);
+                        var roundName = row.children("[data-id='roundName']");
+                        var roundDescription = row.children("[data-id='description']");
+                        var roundQuestionnaireIntro = row.children("[data-id='questionnaire']");
+                        var roundQuestionnaireIntroData = row.children("[data-id='roundQuestionnaireIntroData']");
+                        var startingDate = row.children("[data-id='startingDate']");
+                        var endingDate = row.children("[data-id='endingDate']");
 
-                    $("#e_roundName").val(roundName.text());
-                    $("#e_roundDescription").val(roundDescription.text());
-                    $("#e_roundQuestionnaireIntro").html(roundQuestionnaireIntroData.html());
-                    $("#e_startingDate").val(startingDate.text());
-                    $("#e_endingDate").val(endingDate.text());
+                        $("#e_roundName").val(roundName.text());
+                        $("#e_roundDescription").val(roundDescription.text());
+                        $("#e_roundQuestionnaireIntro").html(roundQuestionnaireIntroData.html());
+                        $("#e_startingDate").val(startingDate.text());
+                        $("#e_endingDate").val(endingDate.text());
 
-                    $("#updateConfirm").on("click", function () {
-                        var data = {
-                            'roundName': $("#e_roundName").val(),
-                            'description': $("#e_roundDescription").val(),
-                            'questionnaire': $("#e_roundQuestionnaireIntro").val(),
-                            'startingDate': $("#e_startingDate").val(),
-                            'endingDate': $("#e_endingDate").val(),
-                            'csrfmiddlewaretoken': token
-                        };
+                        $("#updateConfirm").on("click", function () {
+                            var data = {
+                                'roundName': $("#e_roundName").val(),
+                                'description': $("#e_roundDescription").val(),
+                                'questionnaire': $("#e_roundQuestionnaireIntro").val(),
+                                'startingDate': $("#e_startingDate").val(),
+                                'endingDate': $("#e_endingDate").val(),
+                                'csrfmiddlewaretoken': token
+                            };
 
-                        $.ajax({
-                            type: 'POST',
-                            url: '/maintainRound/update/' + pk,
-                            data: data,
-                            success: function() {
-                                roundName.text($("#e_roundName").val());
-                                roundDescription.text($("#e_roundDescription").val());
-                                roundQuestionnaireIntro.text($("#e_roundQuestionnaireIntro option:selected").text());
-                                startingDate.text($("#e_startingDate").val());
-                                endingDate.text($("#e_endingDate").val());
-                            }
+                            $.ajax({
+                                type: 'POST',
+                                url: '/maintainRound/update/' + pk,
+                                data: data,
+                                success: function() {
+                                    roundName.text($("#e_roundName").val());
+                                    roundDescription.text($("#e_roundDescription").val());
+                                    roundQuestionnaireIntro.text($("#e_roundQuestionnaireIntro option:selected").text());
+                                    startingDate.text($("#e_startingDate").val());
+                                    endingDate.text($("#e_endingDate").val());
+                                }
+                            });
                         });
                     });
-                });
 
-            </script>
+                </script>
+            </div>
+        </div>
+    </div>
 {% endblock context %}

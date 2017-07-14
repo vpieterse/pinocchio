@@ -1,10 +1,4 @@
-from django.http import HttpResponse
-
-from django.http.response import Http404
 from django.shortcuts import redirect
-
-from peer_review.view.questionAdmin import user_error
-
 
 def user_required(function=None, login_url='/login/'):
     """

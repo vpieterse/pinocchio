@@ -1,6 +1,3 @@
-/**
-* Created by jeffreyrussell on 5/26/17.
-*/
 $(document).on("ready", function() {
     $(".edit").on("click", function () {
         var pk = $(this).data("pk");
@@ -8,7 +5,7 @@ $(document).on("ready", function() {
         var token = $(this).data("csrf");
         var row = $("#user" + pk);
 
-        var userId = row.find("[data-id='userId']");
+        var user_id = row.find("[data-id='user_id']");
         var title = row.find("[data-id='title']");
         var initials = row.find("[data-id='initials']");
         var name = row.find("[data-id='name']");
@@ -17,7 +14,7 @@ $(document).on("ready", function() {
         var email = row.find("[data-id='email']");
         var status = row.find("[data-id='status']");
 
-        $("#e_userId").val(userId.val());
+        $("#e_user_id").val(user_id.val());
         $("#e_title").val(title.text());
         $("#e_initials").val(initials.text());
         $("#e_name").val(name.text());
@@ -25,16 +22,17 @@ $(document).on("ready", function() {
         $("#e_cell").val(cell.text());
         $("#e_email").val(email.text());
 
+        var e_status = $("#e_status");
         if (status.text() == "U") {
-            $("#e_status").val("User");
+            e_status.val("User");
         } else if (status.text() == "A") {
-            $("#e_status").val("Admin");
+            e_status.val("Admin");
         } else {
-            $("#e_status").val("");
+            e_status.val("");
         }
 
         if(!isAdmin) {
-            $("#e_status").prop("disabled", true);
+            e_status.prop("disabled", true);
         } else if(userPK == pk) {
             $("#resetPassword").show();
         } else {
@@ -44,14 +42,14 @@ $(document).on("ready", function() {
         $("#updateConfirm").on("click", function () {
             var uStatus = "";
 
-            if ($("#e_status").val() == "User") {
+            if (e_status.val() == "User") {
                 uStatus = "U";
             } else if ($("#e_status").val() == "Admin") {
                 uStatus = "A";
             }
 
             var data = {
-                'userId': $("#e_userId").val(),
+                'user_id': $("#e_user_id").val(),
                 'title': $("#e_title").val(),
                 'initials': $("#e_initials").val(),
                 'name': $("#e_name").val(),
@@ -67,7 +65,7 @@ $(document).on("ready", function() {
                 url: '/userAdmin/update/' + pk,
                 data: data,
                 success: function () {
-                    userId.text($("#e_userId").val());
+                    user_id.text($("#e_user_id").val());
                     title.text($("#e_title").val());
                     initials.text($("#e_initials").val());
                     name.text($("#e_name").val());

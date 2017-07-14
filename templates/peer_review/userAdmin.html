@@ -89,7 +89,7 @@
                                     <label for="userName" class="col-sm-2 control-label">User Name</label>
 
                                     <div class="col-sm-3">
-                                        {{ userForm.userId }}
+                                        {{ userForm.user_id }}
                                     </div>
 
                                     <!-- Status Input -->
@@ -130,11 +130,11 @@
                             {% csrf_token %}
                             <p>{{ docForm.non_field_errors }}</p>
 
-                            <p>{{ docForm.docfile.label_tag }} {{ docForm.docfile.help_text }}</p>
+                            <p>{{ docForm.doc_file.label_tag }} {{ docForm.doc_file.help_text }}</p>
 
                             <p>
-                                {{ docForm.docfile.errors }}
-                                {{ docForm.docfile }}
+                                {{ docForm.doc_file.errors }}
+                                {{ docForm.doc_file }}
                             </p>
 
                             <!-- Flag if upload is for testing or changing database
@@ -306,7 +306,7 @@
                                 <tbody>
                                 {% for user in users %}
                                     <tr id="user{{ user.pk }}">
-                                        <td data-id="userId">{{ user.userId }}</td>
+                                        <td data-id="user_id">{{ user.user_id }}</td>
                                         <td data-id="title">{{ user.title }}</td>
                                         <td data-id="initials">{{ user.initials }}</td>
                                         <td data-id="name">{{ user.name }}</td>
@@ -318,20 +318,20 @@
                                             <a type="button" class="btn btn-success btn-xs" href="/userAdmin/userProfile/{{ user.pk }}">R</a>
                                         </td>
                                         <td>
-                                            <button type="button" name="edit" class='btn btn-success btn-xs edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ user.userId }}" data-pk="{{ user.pk }}">
+                                            <button type="button" name="edit" class='btn btn-success btn-xs edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ user.user_id }}" data-pk="{{ user.pk }}">
                                                 &#9998;
                                             </button>
                                         </td>
 
                                         <td>
-                                            <input type="checkbox" class="multiRemove" data-id="{{ user.userId }}" data-pk="{{ user.pk }}">
+                                            <input type="checkbox" class="multiRemove" data-id="{{ user.user_id }}" data-pk="{{ user.pk }}">
                                         </td>
                                     </tr>
                                 {% endfor %}
                                 </tbody>
                             </table>
                             <br>
-                            <button type="button" name="remove" id="remove" class='btn btn-warning pull-right' data-csrf="{{ csrf_token }}" data-id="{{ user.userId }}" data-pk="{{ user.pk }}">
+                            <button type="button" name="remove" id="remove" class='btn btn-warning pull-right' data-csrf="{{ csrf_token }}" data-id="{{ user.user_id }}" data-pk="{{ user.pk }}">
                                 Delete Users
                             </button>
                         </div>
@@ -353,11 +353,11 @@
                 <div class="modal-body">
                     <form role="form" id="modalEmailForm">
                         <div class="form-group">
-                            <label for="userId">Email Text:</label>
+                            <label for="user_id">Email Text:</label>
                             <p>
-                                Please use {firstname}, {lastname}, {otp}, {datetime} and {login} to indicate the positioning of the user's first name, last name, one time password,
+                                Please use {first_name}, {last_name}, {otp}, {datetime} and {login} to indicate the positioning of the user's first name, last name, one time password,
                                 time of registration and login details, example:<br><br>
-                                Hello {firstname} {lastname} your username is {login} and your OTP is {otp}. It expires in 7 days from {datetime}
+                                Hello {first_name} {last_name} your username is {login} and your OTP is {otp}. It expires in 7 days from {datetime}
                             </p>
                             <textarea id="emailText" rows="15" type="text" class="form-control" id="email_text">{{ email_text }}</textarea>
                         </div>
