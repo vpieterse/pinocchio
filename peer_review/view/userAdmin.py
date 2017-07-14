@@ -2,6 +2,7 @@ import csv
 import os
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
+from peer_review.decorators.adminRequired import admin_required
 from peer_review.forms import DocumentForm, UserForm
 from peer_review.models import User, Document
 from peer_review.view.userFunctions import user_error
@@ -33,10 +34,8 @@ def add_csv_info(user_list):
     return
 
 
+@admin_required
 def submit_csv(request):
-    if not request.user.is_authenticated():
-        return user_error(request)
-
     global error_type
     file_path = ""
     if request.method == 'POST':

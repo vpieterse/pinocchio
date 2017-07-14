@@ -158,16 +158,19 @@ def submit_team_csv(request):
                         message = "Oops! Something seems to be wrong with the CSV file at row " + str(count) + "."
 
                         row_list = list()
-                        row_list.append(row['user_id'])
-                        row_list.append(row['roundDetail'])
-                        row_list.append(row['teamName'])
+                        try:
+                            row_list.append(row['user_id'])
+                            row_list.append(row['round_name'])
+                            row_list.append(row['team_name'])
+                        except KeyError:
+                            valid = 4
 
                         if valid == 1:
                             error_type = "Incorrect number of fields."
                         elif valid == 2:
                             error_type = "Not all fields contain values."
-                        elif valid == 3:
-                            error_type = "user ID is not a number."
+                        elif valid == 4:
+                            error_type = "One of these headers does not exist, 'user_id', 'round_name', or 'team_name'."
 
                         os.remove(file_path)
                         return render(request, 'peer_review/csvError.html',
@@ -175,7 +178,7 @@ def submit_team_csv(request):
         else:
             message = "Oops! Something seems to be wrong with the CSV file."
             error_type = "No file selected."
-            return render(request, 'peer_review/csvError.html', {'message': message, 'error': error_type})
+            return render(request, 'peer_review/csvTeamError.html', {'message': message, 'error': error_type})
 
         if not error:
             add_team_csv_info(team_list)
@@ -193,9 +196,4 @@ def validate_team_csv(row):
     for key, value in row.items():
         if value is None:
             return 2
-        if key == "user_id":
-            try:
-                int(value)
-            except ValueError:
-                return 3
     return 0

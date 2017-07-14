@@ -168,14 +168,25 @@
         {
             numTeams++;
             var newTeam = '<div class="panel panel-default">'+
-                          '      <div class="panel-heading">'+
-                          '          <h4 class="panel-title">'+
-                          '              <input type="button" value="-" class="btn btn-info btn-xs minus" field="" onclick="removeTeam(\''+teamID+'\')"/>'+
-                          '              <a data-toggle="collapse" data-parent="#teams" href="#'+teamID+'">'+
-                          '                  '+teamID+ " " + teamSize+'<b class="caret"></b>'+
-                          '              </a>'+
-                          '          </h4>'+
-                          '      </div>'+
+                          '     <div class="panel-heading" data-toggle="collapse" data-parent="#teams" href="#'+teamID+'">'+
+                          '         <div class="panel-title">'+
+                          '             <div class="pull-left">'+
+                          '                <h4>'+
+                          '                   <input type="button" value="-" class="btn btn-info btn-xs minus" field="" onclick="removeTeam(\''+teamID+'\')"/>'+
+                          '                   <a data-toggle="collapse" style="color:black" data-parent="#teams" href="#'+teamID+'">'+
+                          '                       '+teamID+''+
+                          '                   </a>'+
+                          '                </h4>'+
+                          '             </div>'+
+                          '             <div class="panel-title pull-right">'+
+                          '                 <a data-toggle="collapse" data-parent="#teams" href="#'+teamID+'">'+
+                          '                     <h4>'+
+                          '                         <span class="team-size">'+teamSize+'</span><b class="caret"></b>'+
+                          '                     </h4>'+
+                          '                 </a>'+
+                          '             </div>'+
+                          '         </div>'+
+                          '      <div class="clearfix"></div>'+
                           '      <div id="'+teamID+'" class="panel-collapse collapse  panel-team">'+
                           '          <div class="panel-body">'+
                           '              <table class="table sortable moveable teamTable">'+
@@ -246,7 +257,7 @@
         }
 
         $(document).ready(function () {
-            
+
             if ('{{ roundPk }}' != 'none')
             {
                 $("#selectedRound").val('{{ roundPk }}')
@@ -316,7 +327,11 @@
             });
 
             $(document).on('click', 'div.removeUser', function() {
+                var teamSizeElement = $(this).closest(".panel-heading").find(".team-size");
+                var newTeamSize = teamSizeElement.text()*1-1;
+                teamSizeElement.text(newTeamSize);
                 var teamTable = $(this).parents("table").DataTable();
+
                 var row = $(this).parents('tr');
                 moveUser(teamTable, users, row);
 

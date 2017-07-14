@@ -16,7 +16,7 @@ def account_details(request):
     user = get_object_or_404(User, user_id=request.user.user_id)
     reset_link = '/recoverPassword/' + sign_user_id(request.user.user_id)
 
-    context = {'user': user, 'reset_link': reset_link}
+    context = {'user': user, 'reset_link': reset_link, 'is_logged_user': True}
     return render(request, 'peer_review/accountDetails.html', context)
 
 
@@ -27,7 +27,7 @@ def member_details(request, user_id):
     member = get_object_or_404(User, user_id=user_id)
     context = {'user': member, 'is_logged_user': False}
     return render(request, 'peer_review/accountDetails.html', context)
-    
+
 
 @user_required
 def active_rounds(request):
