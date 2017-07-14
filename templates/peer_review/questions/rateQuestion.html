@@ -3,7 +3,7 @@
     //This function gets called when the Save button is pushed
     saveFunctions.push(function () {
         d = new Date();
-        var batchid = d.getTime()+ "" + batchnum;
+        var batch_id = d.getTime()+ "" + batchnum;
         batchnum++;
         $("#{{ q.id }}").find("input[type=range]").each( function(i, rangeItem)
         {
@@ -14,7 +14,7 @@
                 'label': rangeItem.dataset.labelid,
                 'answer': $input.val(),
                 'subjectUser': rangeItem.dataset.labelid,
-                'batchid': batchid
+                'batch_id': batch_id
             };
             optional = $input.siblings().find('input[type=checkbox]');
             if (optional.size()) {

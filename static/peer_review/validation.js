@@ -9,7 +9,7 @@ function validateUserForm() {
 	var surname = $("#surname").val();
 	var email = $("#email").val();
 	var cell = $("#cell").val();
-	var userId = $("#userId").val();
+	var user_id = $("#user_id").val();
 	var status = $("#status").val();
 
 	if (title == null || title == "")
@@ -23,7 +23,7 @@ function validateUserForm() {
 		surname == null || surname == "" ||
 		email == null || email == "" ||
 		cell == null || cell == "" ||
-		userId == null || userId == "" ||
+		user_id == null || user_id == "" ||
 		status == null || status == "") {
         alert("Please fill in all fields");
         return false;
@@ -40,15 +40,15 @@ function validateUserForm() {
 		return false;
 	}
 	
-	if (userId.length < 8 || userId.length > 8)
+	if (user_id.length < 8 || user_id.length > 8)
 	{
 		alert("Invalid user ID length");
 		return false;
 	}
 
-	for (i = 0; i < userId.length; ++i)
+	for (i = 0; i < user_id.length; ++i)
 	{
-		if (isNaN(userId[i]))
+		if (isNaN(user_id[i]))
 		{
 			alert("Please enter a valid user ID");
 			return false;

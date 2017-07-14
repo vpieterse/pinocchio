@@ -8,7 +8,7 @@ $(document).on("ready", function() {
         var token = $(this).data("csrf");
         var row = $("#user" + pk);
 
-        var userId = row.find("[data-id='userId']");
+        var user_id = row.find("[data-id='user_id']");
         var title = row.find("[data-id='title']");
         var initials = row.find("[data-id='initials']");
         var name = row.find("[data-id='name']");
@@ -17,7 +17,7 @@ $(document).on("ready", function() {
         var email = row.find("[data-id='email']");
         var status = row.find("[data-id='status']");
 
-        $("#e_userId").val(userId.val());
+        $("#e_user_id").val(user_id.val());
         $("#e_title").val(title.text());
         $("#e_initials").val(initials.text());
         $("#e_name").val(name.text());
@@ -51,7 +51,7 @@ $(document).on("ready", function() {
             }
 
             var data = {
-                'userId': $("#e_userId").val(),
+                'user_id': $("#e_user_id").val(),
                 'title': $("#e_title").val(),
                 'initials': $("#e_initials").val(),
                 'name': $("#e_name").val(),
@@ -67,7 +67,7 @@ $(document).on("ready", function() {
                 url: '/userAdmin/update/' + pk,
                 data: data,
                 success: function () {
-                    userId.text($("#e_userId").val());
+                    user_id.text($("#e_user_id").val());
                     title.text($("#e_title").val());
                     initials.text($("#e_initials").val());
                     name.text($("#e_name").val());

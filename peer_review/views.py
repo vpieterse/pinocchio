@@ -10,7 +10,7 @@ from django.db.models.aggregates import Max
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from wsgiref.util import FileWrapper
@@ -18,7 +18,7 @@ from wsgiref.util import FileWrapper
 from peer_review.decorators.adminRequired import admin_required
 from peer_review.decorators.userRequired import user_required
 from peer_review.forms import RecoverPasswordForm
-from peer_review.view.userFunctions import unsign_userId, sign_userId
+from peer_review.view.userFunctions import unsign_user_id, sign_user_id
 from .forms import DocumentForm, UserForm, LoginForm, ResetForm
 from .models import Document
 from .models import Question, RoundDetail, TeamDetail, Label, Response
@@ -45,7 +45,7 @@ from .view.userAdmin import add_csv_info, submit_csv
 
 from .view.userAdmin import add_csv_info, submit_csv
 from .view.userManagement import forgot_password
-from .view.userFunctions import account_details, member_details, active_rounds, get_team_members, reset_password, user_error, user_reset_password
+from .view.userFunctions import account_details, member_details, active_rounds, get_team_members, user_error, user_reset_password
 from .view.roundManagement import maintain_round
 
 
@@ -62,11 +62,11 @@ def auth(request):
         if form.is_valid():
             user_id = request.POST.get('userName')
             password = request.POST.get('password')
-            user = authenticate(userId=user_id, password=password)
+            user = authenticate(user_id=user_id, password=password)
             if user:
                 if user.is_active:
                     # Redirect if OTP is set
-                    if User.objects.get(userId=user_id).OTP:
+                    if User.objects.get(user_id=user_id).OTP:
                         request.user = user
                         return change_password(request)
                     # return change_password_request(request, user_id, password)
@@ -80,7 +80,7 @@ def auth(request):
         messages.add_message(request, messages.ERROR, "Incorrect username or password")
         return redirect('/login/')
 
-        print(userId)
+        print(user_id)
         return redirect('/login/')
 
     else:
@@ -96,25 +96,27 @@ user requesting this page is the real user. However,
 they are not logged in; this page only allows for
 changing their password.
 """
+
+
 def recover_password(request, key):
     if request.method == 'GET':
         # Test if the key is still valid
-        userId = unsign_userId(key, settings.FORGOT_PASSWORD_AGE)
-        if not userId:
+        user_id = unsign_user_id(key, settings.FORGOT_PASSWORD_AGE)
+        if not user_id:
             messages.error(request, 'The link has expired or is invalid. Please generate a new one.')
             return redirect('forgotPassword')
 
         context = {}
 
         try:
-            user = User.objects.get(userId=userId)
+            user = User.objects.get(user_id=user_id)
             context['name'] = user.name
             context['surname'] = user.surname
 
         except Exception as e:
             print(e)
 
-        form = RecoverPasswordForm(request.user, urlToken=key)
+        form = RecoverPasswordForm(request.user, url_token=key)
         context['form'] = form
         return render(request, 'peer_review/forgotPasswordChange.html', context)
 
@@ -128,12 +130,12 @@ def recover_password(request, key):
         # If the form is valid, go ahead and change the user's password.
         if newForm.is_valid():
             try:
-                user_id = unsign_userId(key, settings.FORGOT_PASSWORD_AGE)
+                user_id = unsign_user_id(key, settings.FORGOT_PASSWORD_AGE)
                 if not user_id:
                     messages.error(request, 'The link has expired or is invalid. Please generate a new one.')
                     return redirect('forgotPassword')
 
-                user = User.objects.get(userId=user_id)
+                user = User.objects.get(user_id=user_id)
                 user.set_password(newForm.cleaned_data['new_password1'])
                 user.OTP = False
                 user.save()
@@ -155,7 +157,7 @@ def recover_password(request, key):
 
 def change_password(request):
     user = request.user
-    key = sign_userId(user.userId)
+    key = sign_user_id(user.user_id)
     request.method = 'GET'
     return recover_password(request, key)
 
@@ -170,7 +172,7 @@ def file_upload(request):
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
         if form.is_valid():
-            new_doc = Document(docfile=request.FILES['docfile'])
+            new_doc = Document(doc_file=request.FILES['doc_file'])
             new_doc.save()
 
             # Redirect to the document list after POST
@@ -192,12 +194,11 @@ def file_upload(request):
 @admin_required
 def get_questionnaire_for_team(request):
     if request.method == "POST":
-        # TEST
-        team = TeamDetail.objects.get(pk=request.POST.get("teamPk"))
-        user = User.objects.get(pk=team.user.pk)
-        questionnaire = Questionnaire.objects.get(pk=team.roundDetail.questionnaire.pk)
+        team = get_object_or_404(TeamDetail, pk=request.POST.get("teamPk"))
+        user = get_object_or_404(User, pk=team.user.pk)
+        current_questionnaire = get_object_or_404(Questionnaire, pk=team.roundDetail.questionnaire.pk)
         # TODO if team progress exists...
-        context = {'team': team, 'user': user, 'questionnaire': questionnaire}
+        context = {'team': team, 'user': user, 'questionnaire': current_questionnaire}
         return render(request, 'peer_review/questionnaireTest.html', context)
     else:
         return redirect('accountDetails')
@@ -215,7 +216,7 @@ def user_list(request):
     email_text = file.read()
     file.close()
 
-    reset_link = '/recoverPassword/' + sign_userId(request.user.userId)
+    reset_link = '/recoverPassword/' + sign_user_id(request.user.user_id)
     return render(request, 'peer_review/userAdmin.html',
                   {'users': users, 'userForm': user_form, 'docForm': doc_form, 'email_text': email_text,
                    'reset_link': reset_link})
@@ -233,24 +234,24 @@ def get_questionnaire_for_round(request, round_pk):
 
 
 @admin_required
-def get_user(request, userId):
+def get_user(request, user_id):
     if not request.user.is_authenticated():
         return user_error(request)
 
     response = {}
     if request.method == "GET":
-        user = User.objects.get(pk=userId)
+        user = get_object_or_404(User, pk=user_id)
         response = {
-            'userId': user.userId,
+            'user_id': user.user_id,
             'name': user.name,
             'surname': user.surname
         }
     return JsonResponse(response)
 
 @admin_required
-def user_profile(request, userId):
+def user_profile(request, user_id):
     if request.method == "GET":
-        user = User.objects.get(pk=userId)
+        user = get_object_or_404(User, pk=user_id)
     # TODO Add else
     return render(request, 'peer_review/userProfile.html', {'user': user})
 
@@ -261,7 +262,7 @@ def user_delete(request):
         to_delete = request.POST.getlist("toDelete[]")
 
         for userPk in to_delete:
-            user = User.objects.get(pk=userPk)
+            user = get_object_or_404(User, pk=userPk)
 
             user.delete()
 
@@ -275,39 +276,39 @@ def write_dump(round_pk):
     data = [['ResponseID', 'Respondent', 'QuestionTitle', 'LabelTitle', 'SubjectUser', 'Answer']]
 
     # First, find the row id of the most recent answer to each question
-    distinctResponses = Response.objects.filter(roundDetail=round_pk).values(
+    distinct_responses = Response.objects.filter(roundDetail=round_pk).values(
         "question_id", "user_id", "label_id", "subjectUser_id").annotate(max_id=Max('id'))
 
     # Filter response id's
-    distinctResponseIds = [x['max_id'] for x in distinctResponses]
+    distinct_response_ids = [x['max_id'] for x in distinct_responses]
 
     # Fetch the most recent responses separately
-    roundData = Response.objects.filter(id__in=distinctResponseIds).order_by(
+    round_data = Response.objects.filter(id__in=distinct_response_ids).order_by(
         "user_id", "question_id", "label_id", "subjectUser_id")
-    distinctRoundData = roundData.values('user_id', 'question_id', 'label_id', 'subjectUser_id', 'id')
+    distinct_round_data = round_data.values('user_id', 'question_id', 'label_id', 'subjectUser_id', 'id')
 
-    if len(distinctRoundData) > 0:
-        for itemd in distinctRoundData:
-            item = roundData.get(id=itemd['id'])
-            responseId = item.id
-            userId = item.user.userId
-            questionLabel = item.question.questionLabel
+    if len(distinct_round_data) > 0:
+        for item_id in distinct_round_data:
+            item = round_data.get(id=item_id['id'])
+            response_id = item.id
+            user_id = item.user.user_id
+            question_label = item.question.questionLabel
             label = item.label
 
-            subjectId = ""
+            subject_id = ""
             if item.subjectUser:
-                subjectId = item.subjectUser.userId
+                subject_id = item.subjectUser.user_id
             answer = item.answer
 
-            data.append([responseId, userId, questionLabel, label, subjectId, answer])
+            data.append([response_id, user_id, question_label, label, subject_id, answer])
     else:
         data.append(['NO DATA'])
 
-    with open(dump_file, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_ALL)
+    with open(dump_file, 'w', newline='') as csv_file:
+        writer = csv.writer(csv_file, delimiter=',', quoting=csv.QUOTE_ALL)
         writer.writerows(data)
 
-    csvfile.close()
+    csv_file.close()
     return str(dump_file)  # Returns dump filename
 
 
@@ -320,7 +321,7 @@ def round_dump(request):
         wrapper = FileWrapper(open(dump_file))
         content_type = mimetypes.guess_type(dump_file)[0]
         response = HttpResponse(wrapper, content_type=content_type)
-        current_round = RoundDetail.objects.get(id=round_pk)
+        current_round = get_object_or_404(RoundDetail, id=round_pk)
         # response['Content-Length'] = os.path.getsize(dump_file)
         response['Content-Disposition'] = "attachment; filename=" + time.strftime("%Y-%m-%d %H.%M.%S") + ' round_' + current_round.name + ".csv"
         return response
@@ -380,9 +381,9 @@ def get_group_id(question_group):
 
 @admin_required
 def round_delete(request):
-    if (request.method == "POST"):
-        round = RoundDetail.objects.get(pk=request.POST.get("pk"))
-        round.delete()
+    if request.method == "POST":
+        current_round = get_object_or_404(RoundDetail, pk=request.POST.get("pk"))
+        current_round.delete()
     return HttpResponseRedirect('../')
 
 
@@ -390,21 +391,21 @@ def round_delete(request):
 def round_update(request, round_pk):
     try:
         if request.method == "POST":
-            round = RoundDetail.objects.get(pk=round_pk)
+            current_round = get_object_or_404(RoundDetail, pk=round_pk)
 
             post_starting_date = request.POST.get("startingDate")
             post_description = request.POST.get("description")
             post_questionnaire = request.POST.get("questionnaire")
             post_name = request.POST.get("roundName")
             post_ending_date = request.POST.get("endingDate")
-            round.description = post_description
-            round.questionnaire = Questionnaire.objects.get(pk=post_questionnaire)
-            round.name = post_name
-            round.startingDate = post_starting_date
-            round.endingDate = post_ending_date
-            round.save()
+            current_round.description = post_description
+            current_round.questionnaire = Questionnaire.objects.get(pk=post_questionnaire)
+            current_round.name = post_name
+            current_round.startingDate = post_starting_date
+            current_round.endingDate = post_ending_date
+            current_round.save()
         return HttpResponseRedirect('../')
-    except:
+    except Questionnaire.DoesNotExist:
         return HttpResponseRedirect('../1')
 
 
@@ -414,23 +415,23 @@ def create_round(request):
     try:
 
         if 'description' in request.GET:
-            r_description = request.GET['description']
+            round_description = request.GET['description']
             try:
-                r_questionnaire = Questionnaire.objects.get(pk=request.GET['questionnaire'])
+                round_questionnaire = Questionnaire.objects.get(pk=request.GET['questionnaire'])
             except Questionnaire.DoesNotExist:
-                r_questionnaire = None
-            r_starting_date = request.GET['startingDate']
-            r_ending_date = request.GET['endingDate']
-            r_name = request.GET['name']
-            r = RoundDetail(description=r_description,
-                            questionnaire=r_questionnaire,
-                            startingDate=r_starting_date,
-                            name=r_name,
-                            endingDate=r_ending_date,
-                            )
-            r.save()
+                round_questionnaire = None
+            round_starting_date = request.GET['startingDate']
+            round_ending_date = request.GET['endingDate']
+            round_name = request.GET['name']
+            current_round = RoundDetail(description=round_description,
+                                        questionnaire=round_questionnaire,
+                                        startingDate=round_starting_date,
+                                        name=round_name,
+                                        endingDate=round_ending_date,
+                                        )
+            current_round.save()
         return HttpResponseRedirect('../maintainRound')
-    except:
+    except ValueError:
         return HttpResponseRedirect('../maintainRound/1')
 
 
@@ -448,27 +449,27 @@ def maintain_round_with_error(request, error):
 
 
 # Create a response
-# {responsdentPk, labelPk/userPk, roundPk, answer, questionPk}
-@user_required
-def create_response(request):
-    if 'labelPk' in request.POST:
-        target = request.POST['labelPk']
-    else:
-        target = request.POST['userPk']
+# {respondent_pk, labelPk/userPk, roundPk, answer, questionPk}
+# @user_required
+# def create_response(request):
+    # if 'labelPk' in request.POST:
+    #     target = request.POST['labelPk']
+    # else:
+    #     target = request.POST['userPk']
 
-    question = Question.objects.get(pk=request.POST['questionPk'])
-    round_detail = RoundDetail.objects.get(pk=request.POST['roundPk'])
-    user = User.objects.get(pk=request.POST['responsdentPk'])
-    other_user = User.objects.get(pk=request.POST['userPk'])
-    label = Label.objects.get(pk=labelPk)
-
-    Response.objects.create(question=question,
-                            roundDetail=round_detail,
-                            user=user,
-                            otherUser=other_user,
-                            label=label,
-                            answer=answer)
-    return HttpResponse()
+#    question = Question.objects.get(pk=request.POST['questionPk'])
+#    round_detail = RoundDetail.objects.get(pk=request.POST['roundPk'])
+#    user = User.objects.get(pk=request.POST['respondent_pk'])
+#    other_user = User.objects.get(pk=request.POST['userPk'])
+#    label = Label.objects.get(pk=labelPk)
+#
+#    Response.objects.create(question=question,
+#                            roundDetail=round_detail,
+#                            user=user,
+#                            otherUser=other_user,
+#                            label=label,
+#                            answer=answer)
+#    return HttpResponse()
 
 
 @admin_required

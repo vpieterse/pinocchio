@@ -4,7 +4,7 @@
     var freeformType = "{{ q.getFreeformItem.freeformType }}";
     saveFunctions.push(function () {
         d = new Date();
-        var batchid = d.getTime()+ "" + batchnum;
+        var batch_id = d.getTime()+ "" + batchnum;
         batchnum++;
         $("#{{ q.id }}").find('.answer').each(function (i, elem) {
             var json = {
@@ -12,7 +12,7 @@
                 'roundPk': roundPk,
                 'label': $(elem).closest('label').data('id'),
                 'subjectUser': $(elem).closest('label').data('id'),
-                'batchid': batchid
+                'batch_id': batch_id
             };
             {% if q.get_freeform_item.freeformType == q.get_freeform_item.PARAGRAPH %} 
                 json.answer = tinyMCE.get(elem.id).getContent();

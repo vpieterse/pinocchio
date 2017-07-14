@@ -4,7 +4,7 @@
     //This function gets called when the Save button is pushed
     saveFunctions.push(function () {
         d = new Date();
-        var batchid = d.getTime()+ "" + batchnum;
+        var batch_id = d.getTime()+ "" + batchnum;
         batchnum++;
         $("#{{ q.id }}").find("input:checked").each( function(i, choiceItem)
         {
@@ -14,7 +14,7 @@
                 'label': choiceItem.dataset.labelid,
                 'answer': choiceItem.value,
                 'subjectUser': choiceItem.dataset.labelid,
-                'batchid': batchid
+                'batch_id': batch_id
             };
             sendToView(json);
         });

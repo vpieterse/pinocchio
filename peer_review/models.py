@@ -1,14 +1,13 @@
-from datetime import datetime, date
+from datetime import datetime, timedelta
 
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.core.management import call_command
 from django.db import models
 from django.utils import timezone
-from peer_review.email import generate_otp_email
 
 
 class Document(models.Model):
-    docfile = models.FileField(upload_to='documents')
+    doc_file = models.FileField(upload_to='documents')
 
 
 class QuestionType(models.Model):
@@ -36,7 +35,7 @@ class Question(models.Model):
         return self.questionText
 
     def was_published_recently(self):
-        return self.pubDate >= timezone.now() - datetime.timedelta(days=1)
+        return self.pubDate >= timezone.now() - timedelta(days=1)
 
     @staticmethod
     def make_dump():
@@ -146,11 +145,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     cell = models.CharField(max_length=10)
     email = models.EmailField(max_length=254)
 
-    userId = models.CharField(max_length=12, primary_key=True)
+    user_id = models.CharField(max_length=12, primary_key=True)
     OTP = models.BooleanField(default=True)
     status = models.CharField(max_length=1)
 
-    USERNAME_FIELD = 'userId'
+    USERNAME_FIELD = 'user_id'
     # TODO Add more required fields maybe
     REQUIRED_FIELDS = ['email']
 
@@ -173,7 +172,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email + " - " + self.surname + " " + self.initials
 
     def is_admin(self):
-        return (self.is_staff() or status == "A" or self.is_superuser())
+        if self.is_staff() or self.status == "A" or self.is_superuser():
+            return True
+        return False
 
 
 class Questionnaire(models.Model):
@@ -246,7 +247,7 @@ class TeamDetail(models.Model):
 
 
 class Response(models.Model):
-    batchid = models.IntegerField()
+    batch_id = models.IntegerField()
     question = models.ForeignKey(Question)  # The question
     roundDetail = models.ForeignKey(RoundDetail)  # The round
     user = models.ForeignKey(User, null=False, related_name="user")  # The answerer

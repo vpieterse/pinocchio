@@ -4,13 +4,13 @@ import time
 from django.core.mail import send_mail
 
 
-def generate_otp_email(user_otp, post_name, post_surname, email, userID):
-    fn = "{firstname}"
-    ln = "{lastname}"
+def generate_otp_email(user_otp, post_name, post_surname, email, user_id):
+    fn = "{first_name}"
+    ln = "{last_name}"
     otp = "{otp}"
     datetime = "{datetime}"
     login = "{login}"
-    userid = "{userID}"
+    post_user_id = "{user_id}"
 
     module_dir = os.path.dirname(__file__)
     file_path = os.path.join(module_dir)
@@ -26,7 +26,7 @@ def generate_otp_email(user_otp, post_name, post_surname, email, userID):
     email_text = email_text.replace(otp, user_otp)
     email_text = email_text.replace(datetime, time.strftime("%H:%M:%S %d/%m/%Y"))
     email_text = email_text.replace(login, email)
-    email_text = email_text.replace(userid, userID)
+    email_text = email_text.replace(post_user_id, user_id)
 
     print(email_text)
 

@@ -15,11 +15,11 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
-                        <b>{{ user.userId }} - {{ user.initials }} ({{ user.name }}) {{ user.surname }}</b>
+                        <b>{{ user.user_id }} - {{ user.initials }} ({{ user.name }}) {{ user.surname }}</b>
                     </h4>
                 </div>
                 <div class="panel">
-                    <div class="panel-body form-horizontal" id="user{{ user.userId }}">
+                    <div class="panel-body form-horizontal" id="user{{ user.user_id }}">
                         <div class="form-group">
                             <label for="title" class="col-sm-2 control-label">Title:</label>
                             <div class="col-sm-3">
@@ -63,10 +63,10 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="userId" class="col-sm-2 control-label">User Name:</label>
+                            <label for="user_id" class="col-sm-2 control-label">User Name:</label>
                             <div class="col-sm-3">
-                                <div id="userId" type="text" class="form-control" readonly="readonly" data-id="userId"
-                                       value="{{ user.userId }}">{{ user.userId }}</div>
+                                <div id="user_id" type="text" class="form-control" readonly="readonly" data-id="user_id"
+                                       value="{{ user.user_id }}">{{ user.user_id }}</div>
                             </div>
                             <label for="userStatus" class="col-sm-2 control-label">User Status:</label>
                             <div class="col-sm-3">
@@ -76,7 +76,7 @@
                         </div>
                         <div class="form-group">
                             <div class="col-sm-12">
-                                <button type="button" name="edit" class='btn btn-primary pull-right edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ user.userId }}" data-pk="{{ user.pk }}">
+                                <button type="button" name="edit" class='btn btn-primary pull-right edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ user.user_id }}" data-pk="{{ user.pk }}">
                                     Edit
                                 </button>
                             </div>

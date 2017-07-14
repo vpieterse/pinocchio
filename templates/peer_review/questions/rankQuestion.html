@@ -4,7 +4,7 @@
     var batchnum = 0;
     saveFunctions.push(function () {
         d = new Date();
-        var batchid = d.getTime()+ "" + batchnum;
+        var batch_id = d.getTime()+ "" + batchnum;
         batchnum++;
         $("#{{ q.id }}").find('.rankItem').each(function (i, rankItem) {
             var json = {
@@ -13,7 +13,7 @@
                 'label': rankItem.dataset.id,
                 'answer': i,
                 'subjectUser': rankItem.dataset.id,
-                'batchid': batchid
+                'batch_id': batch_id
             };
             sendToView(json);
         });
@@ -55,7 +55,7 @@
             {% if q.questionGrouping.grouping == "Rest" %}
                 {% if u != currentUser %}
                     <tr>
-                        <td data-id="{{ u.userId }}" class="rankItem">{{ u.name }} {{ u.surname }}</td>
+                        <td data-id="{{ u.user_id }}" class="rankItem">{{ u.name }} {{ u.surname }}</td>
                         <td>
                             <div style="text-align: right; width: auto;">
                                 <a class="move up" href="javascript:void(0)" title="move up">
@@ -70,7 +70,7 @@
                 {% endif %}
             {% else %}
                 <tr>
-                    <td data-id="{{ u.userId }}" class="rankItem">{{ u.name }} {{ u.surname }}</td>
+                    <td data-id="{{ u.user_id }}" class="rankItem">{{ u.name }} {{ u.surname }}</td>
                     <td>
                         <div style="text-align: right; width: auto;">
                             <a class="move up" href="javascript:void(0)" title="move up">
