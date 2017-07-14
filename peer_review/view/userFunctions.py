@@ -25,7 +25,7 @@ def member_details(request, user_id):
     if not request.user.is_authenticated():
         return user_error(request)
     member = get_object_or_404(User, user_id=user_id)
-    context = {'user': member}
+    context = {'user': member, 'is_logged_user': False}
     return render(request, 'peer_review/accountDetails.html', context)
     
 
