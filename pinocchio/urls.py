@@ -86,3 +86,6 @@ urlpatterns = [
                         name='maintainRoundWithError'),
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler404 = 'peer_review.view.errorViews.page_not_found'
+handler500 = 'peer_review.view.errorViews.page_not_found'
