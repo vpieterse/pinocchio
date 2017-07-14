@@ -76,9 +76,11 @@
                         </div>
                         <div class="form-group">
                             <div class="col-sm-12">
+                              {% if is_logged_user == True %}
                                 <button type="button" name="edit" class='btn btn-primary pull-right edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ user.userId }}" data-pk="{{ user.pk }}">
                                     Edit
                                 </button>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

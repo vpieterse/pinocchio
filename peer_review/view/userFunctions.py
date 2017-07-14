@@ -22,7 +22,7 @@ def account_details(request):
     user = User.objects.get(userId=request.user.userId)
     reset_link = '/recoverPassword/' + sign_userId(request.user.userId)
 
-    context = {'user': user, 'reset_link': reset_link}
+    context = {'user': user, 'reset_link': reset_link, 'is_logged_user': True}
     return render(request, 'peer_review/accountDetails.html', context)
 
 @user_required
@@ -31,12 +31,12 @@ def member_details(request, userId):
         return user_error(request)
     try:
         member = User.objects.get(userId=userId)
-        context = {'user': member}
+        context = {'user': member, 'is_logged_user': False}
         return render(request, 'peer_review/accountDetails.html', context)
     except:
         context = {'navSelect': "accountDetails"}
         return render(request, 'peer_review/user404.html', context)
-    
+
 @user_required
 def active_rounds(request):
     user = request.user
