@@ -64,48 +64,47 @@
             {% counter_reset %}
 
             {# Display Current Rounds #}
+            <fieldset><legend>Current Rounds</legend>
             {% if currentRounds > 0 %}
-                <fieldset><legend>Current Rounds</legend>
+                {% for team in teams %}
+                    {% if team.is_in_past != True and team.is_in_future != True %}
+                        {# Inclusion custom tag to render using rounditem.html #}
+                        {% round_load team %}
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-success" role="alert">You have no current rounds.</div>
             {% endif %}
-            {% for team in teams %}
-                {% if team.is_in_past != True and team.is_in_future != True %}
-                    {% counter_inc %}
-                    {# Inclusion custom tag to render using rounditem.html #}
-                    {% round_load team %}
-                {% endif %}
-            {% endfor %}
-             {% counter_get as teamCount %}
-            {% if teamCount == 0 %}
-            <div>
-            <h2>{{ user.name }}, you currently have no team.</h2>
-            <br><img src="{% static "peer_review/pinocchioError.png" %}" id="errorImage" style="width: 36%; height: 72%; "/>
-            </div>
-            {% endif %}
+            </fieldset>
+
             {% counter_reset %}
-            {# Close Current Rounds fieldset #}
-            {% if currentRounds > 0 %}
-                </fieldset>
-            {% endif %}
+
             {# Display Future Rounds #}
+            <br><br><fieldset><legend>Upcoming Rounds</legend>
             {% if futureRounds > 0 %}
-                <br><br><fieldset><legend>Future Rounds</legend>
                 {% for teamFuture in teams %}
                     {% if teamFuture.is_in_future %}
                         {% round_load teamFuture %}
                     {% endif %}
                 {% endfor %}
-                </fieldset>
+            {% else %}
+                <div class="alert alert-info" role="alert">You have no upcoming rounds.</div>
             {% endif %}
+            </fieldset>
+
             {# Display Past Rounds #}
+            <br><br><fieldset><legend>Past Rounds</legend>
             {% if pastRounds > 0 %}
-                <br><br><fieldset><legend>Past Rounds</legend>
                 {%for teamPast in teams %}
                     {% if teamPast.is_in_past %}
                         {% round_load teamPast %}
                     {% endif %}
                 {% endfor %}
-                </fieldset>
+            {% else %}
+                <div class="alert alert-info" role="alert">You have no past rounds.</div>
             {% endif %}
+
+            </fieldset>
     </div></div> 
 {% endspaceless %}
 {% endblock context %}
