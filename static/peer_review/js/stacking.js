@@ -37,7 +37,7 @@
         var tableData = $('#table').bootstrapTable('getData');
         console.log(tableData);    
     });
-});*/
+});
 
 function initialiseStacking() {
     $('.table').on("click", '.move', function () {
@@ -59,24 +59,23 @@ function initialiseStacking() {
         } else {
             $(this).closest('tr').remove(); 
         }
-    });
-
-    $('table').on('change', '#type', function()
+    }).on('change', '#type', function()
     {
-        inputBox =  $(this).parents('tr').find('input');
+        var input_box =  $(this).parents('tr').find('input');
         //console.log($(this).parents('tr').find('select').val());
         switch ($(this).parents('tr').find('select').val())
         {
             case 'Real':
             case 'Integer':
-                inputBox.attr('type', 'number');
+                input_box.attr('type', 'number');
                 break;
             case 'Paragraph':
             case 'Default':
             case 'Word':
-                inputBox.attr('type', 'text');
+                input_box.attr('type', 'text');
                 break;
         }
     });
 
 }
+*/

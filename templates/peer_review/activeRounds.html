@@ -70,7 +70,7 @@
             {% for team in teams %}
                 {% if team.is_in_past != True and team.is_in_future != True %}
                     {% counter_inc %}
-                    {# Inclusion custom tag to render using rounditem.html #}
+                    {# Inclusion custom tag to render using roundItem.html #}
                     {% round_load team %}
                 {% endif %}
             {% endfor %}

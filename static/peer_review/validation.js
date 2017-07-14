@@ -1,7 +1,3 @@
-function validateUserDelete() {
-	alert("clicky");
-}
-
 function validateUserForm() {
 	var title = $("#title").val();
 	var initials = $("#initials").val();
@@ -46,7 +42,7 @@ function validateUserForm() {
 		return false;
 	}
 
-	for (i = 0; i < user_id.length; ++i)
+	for (var i = 0; i < user_id.length; ++i)
 	{
 		if (isNaN(user_id[i]))
 		{
@@ -61,24 +57,12 @@ function validateUserForm() {
 		return false;
 	}	
 
-	for (i = 0; i < cell.length; ++i)
+	for (var j = 0; j < cell.length; ++j)
 	{
-		if (isNaN(cell[i]))
+		if (isNaN(cell[j]))
 		{
 			alert("Please enter a valid cell number");
 			return false;
 		}
 	}
-}
-
-
-/* Nigel
-	Delete Confirmation function for form submission
-*/
-function confirmDeletion() {
-	return confirm('Are you sure you wish to delete this?');
-}
-
-function confirmSubmit() {
-	return confirm('Are you sure you wish to submit this?');
 }

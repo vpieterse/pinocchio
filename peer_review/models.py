@@ -172,9 +172,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email + " - " + self.surname + " " + self.initials
 
     def is_admin(self):
-        if self.is_staff() or self.status == "A" or self.is_superuser():
-            return True
-        return False
+        return self.is_staff or self.status == "A" or self.is_superuser
 
 
 class Questionnaire(models.Model):
@@ -222,28 +220,30 @@ class TeamDetail(models.Model):
 
     def __str__(self):
         return self.roundDetail.description + " " + self.teamName + " (" + self.user.surname + ", " \
-               + self.user.initials + ")"
+            + self.user.initials + ")"
 
     def is_active(self):
-        return self.roundDetail.startingDate < datetime.now(tz=timezone.get_current_timezone()) < self.roundDetail.endingDate
+        starting_date = self.roundDetail.startingDate
+        ending_date = self.roundDetail.endingDate
+        return starting_date < datetime.now(tz=timezone.get_current_timezone()) < ending_date
 
     def is_in_progress(self):
         return self.status == TeamDetail.IN_PROGRESS
 
     def is_completed(self):
-        return self.status == TeamDetail.IN_PROGRESS and self.is_expired();
+        return self.status == TeamDetail.IN_PROGRESS and self.is_expired()
 
     def is_not_attempted(self):
         return self.status == TeamDetail.NOT_ATTEMPTED
 
     def is_expired(self):
-        return datetime.now(tz=timezone.get_current_timezone())>self.roundDetail.endingDate
+        return datetime.now(tz=timezone.get_current_timezone()) > self.roundDetail.endingDate
 
     def is_in_future(self):
-        return datetime.now(tz=timezone.get_current_timezone())<self.roundDetail.startingDate
+        return datetime.now(tz=timezone.get_current_timezone()) < self.roundDetail.startingDate
 
     def is_in_past(self):
-        return datetime.now(tz=timezone.get_current_timezone())>self.roundDetail.endingDate
+        return datetime.now(tz=timezone.get_current_timezone()) > self.roundDetail.endingDate
 
 
 class Response(models.Model):

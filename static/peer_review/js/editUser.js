@@ -1,6 +1,3 @@
-/**
-* Created by jeffreyrussell on 5/26/17.
-*/
 $(document).on("ready", function() {
     $(".edit").on("click", function () {
         var pk = $(this).data("pk");
@@ -25,16 +22,17 @@ $(document).on("ready", function() {
         $("#e_cell").val(cell.text());
         $("#e_email").val(email.text());
 
+        var e_status = $("#e_status");
         if (status.text() == "U") {
-            $("#e_status").val("User");
+            e_status.val("User");
         } else if (status.text() == "A") {
-            $("#e_status").val("Admin");
+            e_status.val("Admin");
         } else {
-            $("#e_status").val("");
+            e_status.val("");
         }
 
         if(!isAdmin) {
-            $("#e_status").prop("disabled", true);
+            e_status.prop("disabled", true);
         } else if(userPK == pk) {
             $("#resetPassword").show();
         } else {
@@ -44,7 +42,7 @@ $(document).on("ready", function() {
         $("#updateConfirm").on("click", function () {
             var uStatus = "";
 
-            if ($("#e_status").val() == "User") {
+            if (e_status.val() == "User") {
                 uStatus = "U";
             } else if ($("#e_status").val() == "Admin") {
                 uStatus = "A";

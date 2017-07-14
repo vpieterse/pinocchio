@@ -2,6 +2,7 @@ import csv
 import os
 import time
 import mimetypes
+from wsgiref.util import FileWrapper
 
 from django.conf import settings
 from django.contrib import messages
@@ -11,28 +12,17 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.shortcuts import render_to_response
-from django.template import RequestContext
-from wsgiref.util import FileWrapper
 
 from peer_review.decorators.adminRequired import admin_required
-from peer_review.decorators.userRequired import user_required
 from peer_review.forms import RecoverPasswordForm
 from peer_review.view.userFunctions import unsign_user_id, sign_user_id
-from .forms import DocumentForm, UserForm, LoginForm, ResetForm
-from .models import Document
-from .models import Question, RoundDetail, TeamDetail, Label, Response
-from .models import Questionnaire, QuestionOrder
+from .forms import DocumentForm, UserForm, LoginForm
+from .models import RoundDetail, TeamDetail, Response
+from .models import Questionnaire
 from .models import User
 
-# Moved these views into seperate files
-from peer_review.email import generate_otp_email
-from .view.questionAdmin import question_admin, edit_question, save_question, delete_question
-from .view.questionnaireAdmin import questionnaire_admin, questionnaire_preview, edit_questionnaire, save_questionnaire, delete_questionnaire
-from .view.maintainTeam import maintain_team, change_team_status, change_user_team_for_round, get_teams_for_round, get_teams, submit_team_csv
 
-from .view.questionnaire import questionnaire, save_questionnaire_progress, get_responses
-from .view.userAdmin import add_csv_info, submit_csv
+# Moved these views into separate files
 
 # def forgot_password(request):
 #     resetForm = ResetForm()
@@ -43,10 +33,7 @@ from .view.userAdmin import add_csv_info, submit_csv
 #         return user_error(request)
 
 
-from .view.userAdmin import add_csv_info, submit_csv
-from .view.userManagement import forgot_password
-from .view.userFunctions import account_details, member_details, active_rounds, get_team_members, user_error, user_reset_password
-from .view.roundManagement import maintain_round
+from .view.userFunctions import user_error
 
 
 def login(request):
@@ -79,10 +66,6 @@ def auth(request):
         # Access Denied
         messages.add_message(request, messages.ERROR, "Incorrect username or password")
         return redirect('/login/')
-
-        print(user_id)
-        return redirect('/login/')
-
     else:
         return redirect('/login/')
 
@@ -121,14 +104,14 @@ def recover_password(request, key):
         return render(request, 'peer_review/forgotPasswordChange.html', context)
 
     if request.method == 'POST':
-        newForm = RecoverPasswordForm(request.user, None, request.POST)
-        newForm.full_clean()
-        key = newForm.cleaned_data['urlTokenField']
-        for err, description in newForm.errors.items():
+        new_form = RecoverPasswordForm(request.user, None, request.POST)
+        new_form.full_clean()
+        key = new_form.cleaned_data['urlTokenField']
+        for err, description in new_form.errors.items():
             messages.error(request, description)
 
         # If the form is valid, go ahead and change the user's password.
-        if newForm.is_valid():
+        if new_form.is_valid():
             try:
                 user_id = unsign_user_id(key, settings.FORGOT_PASSWORD_AGE)
                 if not user_id:
@@ -136,7 +119,7 @@ def recover_password(request, key):
                     return redirect('forgotPassword')
 
                 user = User.objects.get(user_id=user_id)
-                user.set_password(newForm.cleaned_data['new_password1'])
+                user.set_password(new_form.cleaned_data['new_password1'])
                 user.OTP = False
                 user.save()
                 messages.success(request, "Success! Please log in with your new password")
@@ -164,31 +147,6 @@ def change_password(request):
 
 def index(request):
     return login(request)
-
-
-@admin_required
-def file_upload(request):
-    # Handle file upload
-    if request.method == 'POST':
-        form = DocumentForm(request.POST, request.FILES)
-        if form.is_valid():
-            new_doc = Document(doc_file=request.FILES['doc_file'])
-            new_doc.save()
-
-            # Redirect to the document list after POST
-            return HttpResponseRedirect('')
-    else:
-        form = DocumentForm()  # A empty, unbound form
-
-    # Load documents for the list page
-    documents = Document.objects.all()
-
-    # Render list page with the documents and the form
-    return render_to_response(
-        'peer_review/fileUpload.html',
-        {'documents': documents, 'form': form}
-        , context_instance=RequestContext(request)
-    )
 
 
 @admin_required
@@ -224,11 +182,11 @@ def user_list(request):
 
 @admin_required()
 def get_questionnaire_for_round(request, round_pk):
-    round = RoundDetail.objects.get(pk=round_pk)
+    current_round = RoundDetail.objects.get(pk=round_pk)
     response = {}
     if request.method == "GET":
         response = {
-            'questionnaire': round.questionnaire.label
+            'questionnaire': current_round.questionnaire.label
         }
     return JsonResponse(response)
 
@@ -248,12 +206,15 @@ def get_user(request, user_id):
         }
     return JsonResponse(response)
 
+
 @admin_required
 def user_profile(request, user_id):
     if request.method == "GET":
         user = get_object_or_404(User, pk=user_id)
-    # TODO Add else
-    return render(request, 'peer_review/userProfile.html', {'user': user})
+        return render(request, 'peer_review/userProfile.html', {'user': user})
+    else:
+        messages.success(request, "Something went wrong while trying to view the user profile")
+        return HttpResponseRedirect('../')
 
 
 @admin_required
@@ -323,9 +284,11 @@ def round_dump(request):
         response = HttpResponse(wrapper, content_type=content_type)
         current_round = get_object_or_404(RoundDetail, id=round_pk)
         # response['Content-Length'] = os.path.getsize(dump_file)
-        response['Content-Disposition'] = "attachment; filename=" + time.strftime("%Y-%m-%d %H.%M.%S") + ' round_' + current_round.name + ".csv"
+        response['Content-Disposition'] = "attachment; filename=" + time.strftime("%Y-%m-%d %H.%M.%S") \
+                                          + ' round_' + current_round.name + ".csv"
         return response
     return user_error(request)
+
 
 @admin_required
 def update_email(request):
@@ -444,7 +407,7 @@ def maintain_round_with_error(request, error):
 
     context = {'roundDetail': RoundDetail.objects.all(),
                'questionnaires': Questionnaire.objects.all(),
-               'error': str_error,}
+               'error': str_error}
     return render(request, 'peer_review/maintainRound.html', context)
 
 

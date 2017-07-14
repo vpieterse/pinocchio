@@ -56,13 +56,13 @@
 <p><strong>{{ number|add:"1" }}</strong>. {{ q.questionText }}</p>
 {% if q.questionGrouping.grouping == "None" %}
     {% if q.get_freeform_item.freeformType == q.get_freeform_item.PARAGRAPH %}
-        <textarea class="answer tinymce" id = 'tinymce{{number}}' rows="5" class="answer"></textarea>
+        <textarea class="answer tinymce" id = 'tinymce{{number}}' rows="5"></textarea>
     {% elif q.get_freeform_item.freeformType == q.get_freeform_item.WORD %}
-        <input type="text" maxlength="25" class="answer"></input>
+        <input type="text" maxlength="25" class="answer"/>
     {% elif q.get_freeform_item.freeformType == q.get_freeform_item.INTEGER %}
-        <input type="number" step='1' class="answer"></input>
+        <input type="number" step='1' class="answer"/>
     {% elif q.get_freeform_item.freeformType == q.get_freeform_item.REAL %}
-        <input type="number" class="answer"></input>
+        <input type="number" class="answer"/>
     {% endif %}
 {% elif q.questionGrouping.grouping == "Label" %}
     {% for l in q.get_labels %}
@@ -72,11 +72,11 @@
                 {% if q.get_freeform_item.freeformType == q.get_freeform_item.PARAGRAPH %}
                     <textarea class="answer tinymce" id = "tinymce-{{number}}-{{l.id}}"></textarea>
                 {% elif q.get_freeform_item.freeformType == q.get_freeform_item.WORD %}
-                    <input type="text" maxlength="25" class="answer"></input>
+                    <input type="text" maxlength="25" class="answer"/>
                 {% elif q.get_freeform_item.freeformType == q.get_freeform_item.INTEGER %}
-                    <input type="number" step='1' class="answer"></input>
+                    <input type="number" step='1' class="answer"/>
                 {% elif q.get_freeform_item.freeformType == q.get_freeform_item.REAL %}
-                    <input type="number" class="answer"></input>
+                    <input type="number" class="answer"/>
                 {% endif %}
             </label>
         </p>
@@ -88,13 +88,13 @@
             {# I don't like using the primary keys of the users but I can't think of another field to use - Jason #}
             <label data-id="{{ u.pk }}">   
                 {% if q.get_freeform_item.freeformType == q.get_freeform_item.PARAGRAPH %}
-                    <textarea class="answer tinymce" id = "tinymce-{{number}}-{{u.pk}}" class="answer"></textarea>
+                    <textarea class="answer tinymce" id = "tinymce-{{number}}-{{u.pk}}"></textarea>
                 {% elif q.get_freeform_item.freeformType == q.get_freeform_item.WORD %}
-                    <input type="text" maxlength="25" class="answer"></input>
+                    <input type="text" maxlength="25" class="answer"/>
                 {% elif q.get_freeform_item.freeformType == q.get_freeform_item.INTEGER %}
-                    <input type="number" step='1' class="answer"></input>
+                    <input type="number" step='1' class="answer"/>
                 {% elif q.get_freeform_item.freeformType == q.get_freeform_item.REAL %}
-                    <input type="number" class="answer"></input>
+                    <input type="number" class="answer"/>
                 {% endif %}
                 </label>
         </p>
@@ -108,13 +108,13 @@
                 <label data-id="{{ u.pk }}"><span
                         style="width:100%; float:left">{{ u.name }} {{ u.surname }}:</span>
                     {% if q.get_freeform_item.freeformType == q.get_freeform_item.PARAGRAPH %}
-                        <textarea class="answer tinymce" class="answer" id = "tinymce-{{number}}-{{u.pk}}"></textarea>
+                        <textarea class="answer tinymce" id = "tinymce-{{number}}-{{u.pk}}"></textarea>
                     {% elif q.get_freeform_item.freeformType == q.get_freeform_item.WORD %}
-                        <input type="text" maxlength="25" class="answer"></input>
+                        <input type="text" maxlength="25" class="answer"/>
                     {% elif q.get_freeform_item.freeformType == q.get_freeform_item.INTEGER %}
-                        <input type="number" step='1' class="answer"></input>
+                        <input type="number" step='1' class="answer"/>
                     {% elif q.get_freeform_item.freeformType == q.get_freeform_item.REAL %}
-                        <input type="number" class="answer"></input>
+                        <input type="number" class="answer"/>
                     {% endif %}
                     </label>
             </p>

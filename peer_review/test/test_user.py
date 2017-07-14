@@ -17,8 +17,8 @@ class UserTests(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_user('bob@bob.com', 'bob', 'bob', user_id=str(1234), surname="bob", initials="B")
-        self.user = User.objects.create_user('joe@joe.com', 'joe', 'joe', user_id=str(5678), surname="Joe", initials="J")
+        self.user = User.objects.create_user('b@bob.com', 'bob', 'bob', user_id=str(1234), surname="bob", initials="B")
+        self.user = User.objects.create_user('j@joe.com', 'joe', 'joe', user_id=str(5678), surname="Joe", initials="J")
         User.objects.create_superuser('admin@admin.com', 'admin', user_id=str(1111))
         # self.user2 = User.objects.create_user('joe@joe.com', 'joe')
 

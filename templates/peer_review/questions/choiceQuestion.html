@@ -1,11 +1,11 @@
 <script>
-    var batchnum = 0;
+    var batch_num = 0;
 
     //This function gets called when the Save button is pushed
     saveFunctions.push(function () {
         d = new Date();
-        var batch_id = d.getTime()+ "" + batchnum;
-        batchnum++;
+        var batch_id = d.getTime()+ "" + batch_num;
+        batch_num++;
         $("#{{ q.id }}").find("input:checked").each( function(i, choiceItem)
         {
             var json = {

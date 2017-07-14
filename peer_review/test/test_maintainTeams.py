@@ -1,9 +1,6 @@
-from django.core.urlresolvers import reverse, resolve
+from django.core.urlresolvers import reverse
 from django.test import TestCase, Client
 from django.utils import timezone
-
-from peer_review.models import User, TeamDetail, RoundDetail
-
 from peer_review.views import *
 import json
 import datetime
@@ -14,7 +11,7 @@ class MaintainTeamTests(TestCase):
         self.client = Client()
         self.user1 = User.objects.create_user('bob@bob.com', 'bob', 'bob', 'simons', user_id=1)
         self.user2 = User.objects.create_user('joe@joe.com', 'joe', 'joe', 'simons', user_id=2)
-        self.user3 = User.objects.create_user('rufy@rufy.com', 'rufy', 'rufy', 'simons', user_id=3)
+        self.user3 = User.objects.create_user('rufy@rufy.com', 'roy', 'roy', 'simons', user_id=3)
         self.admin = User.objects.create_superuser('admin', 'admin', user_id=2)
         self.round1 = RoundDetail.objects.create(name='Round 1',
                                                  startingDate=datetime.datetime.now(tz=timezone.get_current_timezone()),
@@ -38,7 +35,7 @@ class MaintainTeamTests(TestCase):
         response = self.client.get(url)
         # Check if there are no errors
         self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content.decode())
+        json.loads(response.content.decode())
         team = TeamDetail.objects.filter(user_id=self.user1.user_id).get(roundDetail_id=self.round1.pk)
         # Test that the teamName is 'Red'
         self.assertEqual(team.teamName, 'Red')
@@ -49,7 +46,7 @@ class MaintainTeamTests(TestCase):
         response = self.client.get(url)
         # Check if there are no errors
         self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content.decode())
+        json.loads(response.content.decode())
         team = TeamDetail.objects.filter(user_id=self.user1.user_id).get(roundDetail_id=self.round1.pk)
         # Test that the teamName is 'Green'
         self.assertEqual(team.teamName, 'Green')
@@ -57,7 +54,7 @@ class MaintainTeamTests(TestCase):
     def test_change_team_status(self):
         self.client.login(username='2', password='admin')
         team = TeamDetail.objects.create(roundDetail=self.round1, user=self.user2)
-        url = reverse('changeTeamStatus', kwargs={'team_pk': team.pk, 'status': 'U'})
+        reverse('changeTeamStatus', kwargs={'team_pk': team.pk, 'status': 'U'})
 
     def test_get_teams_for_round(self):
         self.client.login(username='2', password='admin')

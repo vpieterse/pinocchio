@@ -6,7 +6,13 @@ from peer_review.models import User, Questionnaire, RoundDetail, TeamDetail, Que
 
 class AuthenticationTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user('joe@joe.com', 'joe', 'joe', user_id=str(5678), surname="Joe", initials="J")
+        self.user = User.objects.create_user('joe@joe.com',
+                                             'joe',
+                                             'joe',
+                                             user_id=str(5678),
+                                             surname="Joe",
+                                             initials="J")
+
         self.admin = User.objects.create_superuser('admin@admin.com', 'admin', user_id=str(1111))
         self.questionnaire = Questionnaire.objects.create(intro='Hello, this is a question',
                                                           label='This is the description')

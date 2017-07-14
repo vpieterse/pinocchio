@@ -1,11 +1,11 @@
 <script>
     //Add a function that saves every rank-type question
     //This function gets called when the Save button is pushed
-    var batchnum = 0;
+    var batch_num = 0;
     saveFunctions.push(function () {
         d = new Date();
-        var batch_id = d.getTime()+ "" + batchnum;
-        batchnum++;
+        var batch_id = d.getTime()+ "" + batch_num;
+        batch_num++;
         $("#{{ q.id }}").find('.rankItem').each(function (i, rankItem) {
             var json = {
                 'questionPk': {{ q.id }},

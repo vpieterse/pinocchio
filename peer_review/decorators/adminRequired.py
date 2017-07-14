@@ -21,7 +21,7 @@ def admin_required(function=None, redirect_field_name=None, login_url='/login/')
             if admin_required_test(request.user):
                 return view_func(request, *args, **kwargs)
             else:
-                #return view_func(request, *args, **kwargs)
+                # return view_func(request, *args, **kwargs)
                 return redirect(login_url)
 
         _view.__name__ = view_func.__name__

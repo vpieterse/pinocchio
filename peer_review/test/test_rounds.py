@@ -1,13 +1,8 @@
 from django.core.urlresolvers import reverse
 from django.test import TestCase, Client
-from peer_review.models import User, Response, Question, QuestionType, QuestionGrouping, QuestionOrder, FreeformItem, \
-    Choice
 from peer_review.models import RoundDetail
-from peer_review.models import Questionnaire
-from datetime import datetime, timezone, timedelta
-import time
 from peer_review.test.TestSetup import TestSetup
-import json
+
 
 class RoundTests(TestCase):
     def test_test(self):
@@ -43,11 +38,12 @@ class RoundTests(TestCase):
         post_questionnaire = 1
         post_name = 'A better round name'
         post_ending_date = '2016-06-29 11:12+02:00'
-        response = self.client.post('/maintainRound/update/'+str(self.ts.round.pk), {'startingDate': post_starting_date,
-                                                                                     'description': post_description,
-                                                                                     'questionnaire': post_questionnaire,
-                                                                                     'roundName': post_name,
-                                                                                     'endingDate': post_ending_date})
+        response = self.client.post('/maintainRound/update/'+str(self.ts.round.pk),
+                                    {'startingDate': post_starting_date,
+                                     'description': post_description,
+                                     'questionnaire': post_questionnaire,
+                                     'roundName': post_name,
+                                     'endingDate': post_ending_date})
         round_test = RoundDetail.objects.get(pk=self.ts.round.pk)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(round_test.description, 'New description, better than the old')
