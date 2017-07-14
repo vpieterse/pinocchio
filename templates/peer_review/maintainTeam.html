@@ -78,8 +78,7 @@
                                                             <th>User Name</th>
                                                             <th>Name</th>
                                                             <th>Surname</th>
-                                                          -
-                                                            +<th></th>
+                                                            <th></th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -352,15 +351,13 @@
             });
 
             $(document).on('click', 'div.removeUser', function() {
-                var teamSizeElement = $(this).parent(".panel-body").find(".team-size");
+                var teamSizeElement = $(this).closest(".panel-heading").find(".team-size");
                 var newTeamSize = teamSizeElement.text()*1-1;
                 teamSizeElement.text(newTeamSize);
                 var teamTable = $(this).parents("table").DataTable();
-                console.log(teamSizeElement);
 
                 var row = $(this).parents('tr');
                 moveUser(teamTable, users, row);
-
 
                 if(!loading)
                 {
