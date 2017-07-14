@@ -1,7 +1,7 @@
 Good day {first_name} {last_name}.
 
 Your username for Pinocchio is:
-{userID}
+{user_id}
 
 Your one time password for Pinocchio is:
 {otp}
