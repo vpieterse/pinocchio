@@ -17,8 +17,8 @@ class TestSetup:
                                                 endingDate=end_date,
                                                 description='Hey there, we have a round')
 
-        self.user = User.objects.create_user('bob@bob.com', 'bob', 'bob', 'simons', userId=12345)
-        self.user2 = User.objects.create_user('joe@gmail.com', 'joe', 'Smith', '12345', userId=6789)
+        self.user = User.objects.create_user('bob@bob.com', 'bob', 'bob', 'simons', user_id=12345)
+        self.user2 = User.objects.create_user('joe@gmail.com', 'joe', 'Smith', '12345', user_id=6789)
 
         self.question1 = Question.objects.create(questionText="Hey I'm a question number 1",
                                                  questionLabel="I'm the label",
@@ -66,7 +66,7 @@ class TestSetup:
                                 subjectUser=self.user2,
                                 label=None,
                                 answer="We have an answer",
-                                batchid=str(int(time.time()*1000)) + str(batch_num))
+                                batch_id=str(int(time.time()*1000)) + str(batch_num))
         batch_num += 1
         Response.objects.create(question=self.question1,
                                 roundDetail=self.round,
@@ -74,7 +74,7 @@ class TestSetup:
                                 subjectUser=self.user2,
                                 label=None,
                                 answer="We have a different answer",
-                                batchid=str(int(time.time()*1000)) + str(batch_num))
+                                batch_id=str(int(time.time()*1000)) + str(batch_num))
         batch_num += 1
         Response.objects.create(question=self.question2,
                                 roundDetail=self.round,
@@ -82,7 +82,7 @@ class TestSetup:
                                 subjectUser=self.user2,
                                 label=None,
                                 answer="choice 1",
-                                batchid=str(int(time.time()*1000)) + str(batch_num))
+                                batch_id=str(int(time.time()*1000)) + str(batch_num))
         batch_num += 1
         Response.objects.create(question=self.question2,
                                 roundDetail=self.round,
@@ -90,7 +90,7 @@ class TestSetup:
                                 subjectUser=self.user2,
                                 label=None,
                                 answer="choice 2",
-                                batchid=str(int(time.time()*1000)) + str(batch_num))
+                                batch_id=str(int(time.time()*1000)) + str(batch_num))
         batch_num += 1
         Response.objects.create(question=self.question3,
                                 roundDetail=self.round,
@@ -98,7 +98,7 @@ class TestSetup:
                                 subjectUser=self.user2,
                                 label=None,
                                 answer="Apples",
-                                batchid=str(int(time.time()*1000)) + str(batch_num))
+                                batch_id=str(int(time.time()*1000)) + str(batch_num))
         batch_num += 1
         Response.objects.create(question=self.question3,
                                 roundDetail=self.round,
@@ -106,7 +106,7 @@ class TestSetup:
                                 subjectUser=self.user2,
                                 label=None,
                                 answer="Bananas",
-                                batchid=str(int(time.time()*1000)) + str(batch_num))
+                                batch_id=str(int(time.time()*1000)) + str(batch_num))
         batch_num += 1
 
-        User.objects.create_superuser('admin', 'admin', userId=str(1111))
+        User.objects.create_superuser('admin', 'admin', user_id=str(1111))

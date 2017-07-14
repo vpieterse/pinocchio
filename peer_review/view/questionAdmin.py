@@ -1,8 +1,7 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.http import HttpResponseForbidden
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 
 from ..models import Question, QuestionOrder, QuestionType, QuestionGrouping, Choice, Rank, Rate, FreeformItem, Label
@@ -13,11 +12,13 @@ def user_error(request):
     # Renders error page with a 403 status code for forbidden users
     return HttpResponseForbidden(render(request, 'peer_review/userError.html'))
 
+
 def is_user_staff(request):
     if request.user.is_staff or request.user.is_superuser:
         return True
     else:
         return False
+
 
 # Render the questionAdmin template
 @admin_required
@@ -35,7 +36,7 @@ def question_admin(request):
 # Render the questionAdmin template with the questions detailed loaded in
 @admin_required
 def edit_question(request, question_pk):
-    question = Question.objects.get(pk=question_pk)
+    question = get_object_or_404(Question, pk=question_pk)
     context = {'question': question,
                'questions': get_questions(),
                'labels': Label.objects.filter(question=question),
@@ -52,7 +53,7 @@ def delete_question(request):
     if request.method == "POST":
         pks = request.POST['question-pk'].split(';#')
         for pk in pks:
-            Question.objects.get(pk=pk).delete()
+            get_object_or_404(Question, pk=pk).delete()
         messages.add_message(request, messages.SUCCESS, str(len(pks)) + " question(s) deleted successfully")
         return HttpResponseRedirect('/questionAdmin')
     else:
@@ -73,7 +74,7 @@ def save_question(request):
             QuestionGrouping.objects.create(grouping=question_grouping)
 
         if 'question-pk' in request.POST:
-            q = Question.objects.get(pk=request.POST['question-pk'])
+            q = get_object_or_404(Question, pk=request.POST['question-pk'])
             Choice.objects.filter(question=q).delete()
             Rank.objects.filter(question=q).delete()
             Rate.objects.filter(question=q).delete()

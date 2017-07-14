@@ -1,7 +1,6 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from peer_review.decorators.adminRequired import admin_required
 
 from ..models import Question, Questionnaire, RoundDetail, QuestionOrder, User, TeamDetail
@@ -14,25 +13,32 @@ def questionnaire_admin(request):
                'questionnaires': get_questionnaires(request)}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
+
 @admin_required
 def questionnaire_preview(request, questionnaire_pk):
-    alice = User(title='Miss', initials='A', name='Alice', surname='Test', userId='Alice')
-    bob = User(title='Mr', initials='B', name='Bob', surname='Test', userId='Bob')
-    carol = User(title='Miss', initials='C', name='Carol', surname='Test', userId='Carol')
+    alice = User(title='Miss', initials='A', name='Alice', surname='Test', user_id='Alice')
+    bob = User(title='Mr', initials='B', name='Bob', surname='Test', user_id='Bob')
+    carol = User(title='Miss', initials='C', name='Carol', surname='Test', user_id='Carol')
     
-    questionnaire = Questionnaire.objects.get(pk=questionnaire_pk)
-    q_orders = QuestionOrder.objects.filter(questionnaire=questionnaire)
+    questionnaire = get_object_or_404(Questionnaire, pk=questionnaire_pk)
+    q_orders = get_object_or_404(QuestionOrder, questionnaire=questionnaire)
     
-    mockRound = RoundDetail(name='Preview Round', questionnaire=questionnaire, description='This is a preview round')
+    mock_round = RoundDetail(name='Preview Round', questionnaire=questionnaire, description='This is a preview round')
     
     team_name = 'Preview'
-    teamDetailAlice = TeamDetail(user=alice, roundDetail=mockRound, teamName=team_name)
-    teamDetailBob = TeamDetail(user=bob, roundDetail=mockRound, teamName=team_name)
-    teamDetailCarol = TeamDetail(user=carol, roundDetail=mockRound, teamName=team_name)
+    TeamDetail(user=alice, roundDetail=mock_round, teamName=team_name)
+    TeamDetail(user=bob, roundDetail=mock_round, teamName=team_name)
+    TeamDetail(user=carol, roundDetail=mock_round, teamName=team_name)
     
     q_team = [alice, bob, carol]
-    context = {'questionOrders': q_orders, 'teamMembers': q_team, 'questionnaire': questionnaire, 'currentUser': alice, 'round': 0, 'preview': 1}
+    context = {'questionOrders': q_orders,
+               'teamMembers': q_team,
+               'questionnaire': questionnaire,
+               'currentUser': alice,
+               'round': 0,
+               'preview': 1}
     return render(request, 'peer_review/questionnaire.html', context)
+
 
 # Save a questionnaire
 @admin_required
@@ -42,7 +48,7 @@ def save_questionnaire(request):
         title = request.POST.get("title")
         questions = str(request.POST.get('questions')).split(";#")
         if 'pk' in request.POST:
-            q = Questionnaire.objects.get(pk=request.POST.get("pk"))
+            q = get_object_or_404(Questionnaire, pk=request.POST.get("pk"))
             QuestionOrder.objects.filter(questionnaire=q).delete()
             q.intro = intro
             q.label = title
@@ -55,9 +61,9 @@ def save_questionnaire(request):
 
         for index, question in enumerate(questions):
             if question.isdigit():
-                qo = QuestionOrder.objects.create(questionnaire=q,
-                                                  question=Question.objects.get(pk=question),
-                                                  order=index)
+                QuestionOrder.objects.create(questionnaire=q,
+                                             question=get_object_or_404(Question, pk=question),
+                                             order=index)
         messages.add_message(request, messages.SUCCESS, "Questionnaire saved successfully.")
     return HttpResponseRedirect('/questionnaireAdmin')
 
@@ -65,11 +71,12 @@ def save_questionnaire(request):
 # Render the questionnaireAdmin template with the questionnaires details filled in
 @admin_required
 def edit_questionnaire(request, questionnaire_pk):
+    current_questionnaire = get_object_or_404(Questionnaire, pk=questionnaire_pk)
     context = {'questions': Question.objects.all(),
                'questionnaires': get_questionnaires(request),
-               'questionnaire': Questionnaire.objects.get(pk=questionnaire_pk),
+               'questionnaire': current_questionnaire,
                'questionOrders': QuestionOrder.objects.filter(
-                   questionnaire=Questionnaire.objects.get(pk=questionnaire_pk))}
+                   questionnaire=current_questionnaire)}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
 
@@ -80,7 +87,7 @@ def delete_questionnaire(request):
         pks = request.POST['pk'].split(';#')
         for pk in pks:
             if str(pk).isdigit():
-                Questionnaire.objects.get(pk=pk).delete()
+                get_object_or_404(Questionnaire, pk=pk).delete()
             else:
                 messages.add_message(request, messages.WARNING,
                                      "Error: Something went wrong when deleting the questionnaire")

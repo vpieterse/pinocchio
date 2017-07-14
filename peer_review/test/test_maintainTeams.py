@@ -1,9 +1,6 @@
-from django.core.urlresolvers import reverse, resolve
+from django.core.urlresolvers import reverse
 from django.test import TestCase, Client
 from django.utils import timezone
-
-from peer_review.models import User, TeamDetail, RoundDetail
-
 from peer_review.views import *
 import json
 import datetime
@@ -12,10 +9,10 @@ import datetime
 class MaintainTeamTests(TestCase):
     def setUp(self):
         self.client = Client()
-        self.user1 = User.objects.create_user('bob@bob.com', 'bob', 'bob', 'simons', userId=1)
-        self.user2 = User.objects.create_user('joe@joe.com', 'joe', 'joe', 'simons', userId=2)
-        self.user3 = User.objects.create_user('rufy@rufy.com', 'rufy', 'rufy', 'simons', userId=3)
-        self.admin = User.objects.create_superuser('admin', 'admin', userId=2)
+        self.user1 = User.objects.create_user('bob@bob.com', 'bob', 'bob', 'simons', user_id=1)
+        self.user2 = User.objects.create_user('joe@joe.com', 'joe', 'joe', 'simons', user_id=2)
+        self.user3 = User.objects.create_user('rufy@rufy.com', 'roy', 'roy', 'simons', user_id=3)
+        self.admin = User.objects.create_superuser('admin', 'admin', user_id=2)
         self.round1 = RoundDetail.objects.create(name='Round 1',
                                                  startingDate=datetime.datetime.now(tz=timezone.get_current_timezone()),
                                                  endingDate=datetime.datetime.now(tz=timezone.get_current_timezone()),
@@ -34,30 +31,30 @@ class MaintainTeamTests(TestCase):
 
         # Change user1's teamName for round1 to 'Red'
         url = reverse('changeUserTeamForRound', kwargs={'round_pk': self.round1.pk,
-                                                        'userId': self.user1.userId, 'team_name': 'Red'})
+                                                        'user_id': self.user1.user_id, 'team_name': 'Red'})
         response = self.client.get(url)
         # Check if there are no errors
         self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content.decode())
-        team = TeamDetail.objects.filter(user_id=self.user1.userId).get(roundDetail_id=self.round1.pk)
+        json.loads(response.content.decode())
+        team = TeamDetail.objects.filter(user_id=self.user1.user_id).get(roundDetail_id=self.round1.pk)
         # Test that the teamName is 'Red'
         self.assertEqual(team.teamName, 'Red')
 
         # Change user1's teamName for round1 to 'Green'
         url = reverse('changeUserTeamForRound', kwargs={'round_pk': self.round1.pk,
-                                                        'userId': self.user1.userId, 'team_name': 'Green'})
+                                                        'user_id': self.user1.user_id, 'team_name': 'Green'})
         response = self.client.get(url)
         # Check if there are no errors
         self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content.decode())
-        team = TeamDetail.objects.filter(user_id=self.user1.userId).get(roundDetail_id=self.round1.pk)
+        json.loads(response.content.decode())
+        team = TeamDetail.objects.filter(user_id=self.user1.user_id).get(roundDetail_id=self.round1.pk)
         # Test that the teamName is 'Green'
         self.assertEqual(team.teamName, 'Green')
 
     def test_change_team_status(self):
         self.client.login(username='2', password='admin')
         team = TeamDetail.objects.create(roundDetail=self.round1, user=self.user2)
-        url = reverse('changeTeamStatus', kwargs={'team_pk': team.pk, 'status': 'U'})
+        reverse('changeTeamStatus', kwargs={'team_pk': team.pk, 'status': 'U'})
 
     def test_get_teams_for_round(self):
         self.client.login(username='2', password='admin')
@@ -72,12 +69,12 @@ class MaintainTeamTests(TestCase):
         # Both users should be in their respective teams
         json_response_team1 = json_response[str(self.team1.pk)]
         self.assertEqual(json_response_team1['teamName'], self.team1.teamName)
-        self.assertEqual(json_response_team1['userId'], str(self.user1.pk))
+        self.assertEqual(json_response_team1['user_id'], str(self.user1.pk))
         self.assertEqual(json_response_team1['status'], self.team1.status)
         self.assertEqual(json_response_team1['teamSize'], 1)
 
         json_response_team2 = json_response[str(self.team2.pk)]
         self.assertEqual(json_response_team2['teamName'], self.team2.teamName)
-        self.assertEqual(json_response_team2['userId'], str(self.user2.pk))
+        self.assertEqual(json_response_team2['user_id'], str(self.user2.pk))
         self.assertEqual(json_response_team2['status'], self.team2.status)
         self.assertEqual(json_response_team2['teamSize'], 2)

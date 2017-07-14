@@ -45,7 +45,7 @@
                                     {% for member in members %}
                                         {% if member.teamName == team.teamName %}
                                             <tr>
-                                                <td><a href="/accountDetails/{{ member.user.userId }}">{{ member.user.userId }}</a></td>
+                                                <td><a href="/accountDetails/{{ member.user.user_id }}">{{ member.user.user_id }}</a></td>
                                                 <td>{{ member.user.name }} {{ member.user.surname }}</td>
                                                 <td>{{ member.user.email }}</td>
                                                 <td>{{ member.user.cell }}</td>

@@ -17,9 +17,9 @@ class UserTests(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_user('bob@bob.com', 'bob', 'bob', userId=str(1234), surname="bob", initials="B")
-        self.user = User.objects.create_user('joe@joe.com', 'joe', 'joe', userId=str(5678), surname="Joe", initials="J")
-        User.objects.create_superuser('admin@admin.com', 'admin', userId=str(1111))
+        self.user = User.objects.create_user('b@bob.com', 'bob', 'bob', user_id=str(1234), surname="bob", initials="B")
+        self.user = User.objects.create_user('j@joe.com', 'joe', 'joe', user_id=str(5678), surname="Joe", initials="J")
+        User.objects.create_superuser('admin@admin.com', 'admin', user_id=str(1111))
         # self.user2 = User.objects.create_user('joe@joe.com', 'joe')
 
     # Simple test to see if questionAdmin is rendered
@@ -51,8 +51,8 @@ class UserTests(TestCase):
         self.client.login(username='1111', password='admin')
         response = self.client.get('/accountDetails/1234')
         request = response.wsgi_request
-        logged_user = json.loads(get_user(request, request.user.userId).content.decode())
-        expected_user = json.loads(get_user(request, "1111").content.decode())  # Joe userId
+        logged_user = json.loads(get_user(request, request.user.user_id).content.decode())
+        expected_user = json.loads(get_user(request, "1111").content.decode())  # Joe user_id
         # print("Logged user: " + str(logged_user))
         # print("Expected user: " + str(expected_user))
         self.assertEqual(logged_user, expected_user)
