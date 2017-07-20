@@ -2,6 +2,7 @@ import csv
 import os
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
+from peer_review.decorators.adminRequired import admin_required
 from peer_review.forms import DocumentForm, UserForm
 from peer_review.models import User, Document
 from peer_review.view.userFunctions import user_error
@@ -18,7 +19,7 @@ def add_csv_info(user_list):
         file.close()
 
         user = create_user_send_otp(
-            user_userId=row['user_id'],
+            user_user_id=row['user_id'],
             user_status='U',
             user_title=row['title'],
             user_initials=row['initials'],
@@ -33,11 +34,9 @@ def add_csv_info(user_list):
     return
 
 
+@admin_required
 def submit_csv(request):
-    if not request.user.is_authenticated():
-        return user_error(request)
-
-    global errortype
+    global error_type
     file_path = ""
     if request.method == 'POST':
         users = User.objects.all
@@ -51,13 +50,13 @@ def submit_csv(request):
         file.close()
         form = DocumentForm(request.POST, request.FILES)
 
-        test_flag = (request.POST["test-submit-flag"] == "1");
+        test_flag = (request.POST["test-submit-flag"] == "1")
 
         if form.is_valid():
-            newdoc = Document(docfile=request.FILES['docfile'])
-            newdoc.save()
+            new_doc = Document(doc_file=request.FILES['doc_file'])
+            new_doc.save()
 
-            file_path = newdoc.docfile.url
+            file_path = new_doc.doc_file.url
             file_path = file_path[1:]
 
             user_list = list()
@@ -66,22 +65,21 @@ def submit_csv(request):
             # documents = Document.objects.all()
 
             count = 0
-            with open(file_path, encoding='unicode') as csvfile:
-                reader = csv.DictReader(csvfile)
+            with open(file_path, encoding='unicode') as csv_file:
+                reader = csv.DictReader(csv_file)
                 for row in reader:
                     valid = validate(row)
                     count += 1
                     if valid == 1:
-                       user_list.append(row)
-                        # ToDo check for errors in multiple rows
+                        user_list.append(row)
+                        # Todo check for errors in multiple rows
                     else:
-                        error = True
                         if valid != 1:
                             message = "The format of the CSV is incorrect."
-                            errortype = 0
+                            error_type = 0
                             return render(request, 'peer_review/userAdmin.html',
                                           {'message': message,
-                                           'error': errortype,
+                                           'error': error_type,
                                            'users': users,
                                            'userForm': user_form,
                                            'docForm': doc_form,
@@ -99,48 +97,48 @@ def submit_csv(request):
                             rowlist.append(row['user_id'])
 
                         if valid == 2:
-                            errortype = 2
+                            error_type = 2
                         if valid == 3:
-                            errortype = 3
+                            error_type = 3
                         if valid == 4:
-                            errortype = 4
+                            error_type = 4
 
-                        csvfile.close()
+                        csv_file.close()
 
                         if os.path.isfile(file_path):
                             os.remove(file_path)
 
                         return render(request, 'peer_review/userAdmin.html',
                                       {'message': message, 
-                                           'row': rowlist, 
-                                           'error': errortype, 
-                                           'users': users,
-                                           'userForm': user_form,
-                                           'docForm': doc_form,
-                                           'email_text': email_text})
+                                       'row': rowlist,
+                                       'error': error_type,
+                                       'users': users,
+                                       'userForm': user_form,
+                                       'docForm': doc_form,
+                                       'email_text': email_text})
         else:
-            form = DocumentForm()
+            DocumentForm()
             message = "Oops! Something seems to be wrong with the CSV file."
-            errortype = "No file selected."
-            return render(request, 'peer_review/csvError.html', {'message': message, 'error': errortype})
+            error_type = "No file selected."
+            return render(request, 'peer_review/csvError.html', {'message': message, 'error': error_type})
 
         if not error:
             # todo: add confirmation dialog, and print out names of new users
             if not test_flag:
                 add_csv_info(user_list)
                 return render(request, 'peer_review/userAdmin.html',
-                                      {'new_users': user_list,
-                                           'users': users,
-                                           'userForm': user_form,
-                                           'docForm': doc_form,
-                                           'email_text': email_text})
+                              {'new_users': user_list,
+                               'users': users,
+                               'userForm': user_form,
+                               'docForm': doc_form,
+                               'email_text': email_text})
             else:
                 return render(request, 'peer_review/userAdmin.html',
-                                      {'possible_users': user_list,
-                                           'users': users,
-                                           'userForm': user_form,
-                                           'docForm': doc_form,
-                                           'email_text': email_text})
+                              {'possible_users': user_list,
+                               'users': users,
+                               'userForm': user_form,
+                               'docForm': doc_form,
+                               'email_text': email_text})
 
     if os.path.isfile(file_path):
         os.remove(file_path)
@@ -189,7 +187,7 @@ def validate(row):
     if 'cell' not in row:
         return 3
 
-    user = User.objects.filter(userId=row['user_id'])
+    user = User.objects.filter(user_id=row['user_id'])
 
     if user.count() > 0:
         return 4

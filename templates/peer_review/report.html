@@ -144,10 +144,10 @@
                         if (teamName == team.teamName) {
                             $.ajax({
                                 type: 'GET',
-                                url: '/report/getUser/' + team.userId,
+                                url: '/report/getUser/' + team.user_id,
                                 success: function (data) {
                                     var row = table.row.add([
-                                        data.userId,
+                                        data.user_id,
                                         data.name,
                                         data.surname
                                     ]).draw(false).node();

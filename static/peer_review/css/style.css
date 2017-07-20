@@ -19,7 +19,7 @@
 
 .btn-info{
     background-color: #808080;
-    border-color: none;
+    border-color: #808080;
 }
 
 .btn-info:hover{
@@ -33,7 +33,7 @@
 
 .btn-danger{
     background-color: #ff6a00;
-    border-color: none;
+    border-color: #ff6a00;
 }
 
 .btn-danger:hover{
@@ -43,7 +43,7 @@
 
 .btn-warning{
     background-color: #d9534f;
-    border-color: none;
+    border-color: #d9534f;
 }
 
 .btn-warning:hover{
@@ -62,7 +62,7 @@ body{
 
 #wizard{
     background-color: #ff6a00;
-    border-color: none;
+    border-color: #ff6a00;
 }
 
 .navbar-nav > li.active > a{
@@ -77,7 +77,6 @@ body{
 
 .panel-heading {
     cursor: pointer;
-    cursor: hand;
 }
 
 .noBorder {
@@ -132,4 +131,13 @@ tr .selectable {
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff2dede', endColorstr='#ffe7c3c3', GradientType=0);
   background-repeat: repeat-x;
   border-color: #dca7a7;
+}
+
+.panel-disabled {
+    display: block;
+    margin: 0;
+    padding: 6px 15px;
+    border: 1px solid #ddd;
+    background-color: #f5f5f5;
+    border-radius: 4px;
 }

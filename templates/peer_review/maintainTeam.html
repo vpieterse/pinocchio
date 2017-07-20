@@ -68,7 +68,7 @@
                                 <div class="col-xs-5">
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
-                                            <h4 class="panel-title"><b>Class List</b></h4>
+                                            <h4 class="panel-title"><b>User List</b></h4>
                                         </div>
                                         <div class="panel-body">
                                             <div class='table-responsive'>
@@ -84,7 +84,7 @@
                                                     <tbody>
                                                         {% for user in users %}
                                                             <tr id="{{ user.pk }}">
-                                                                <td>{{ user.userId }}</td>
+                                                                <td>{{ user.user_id }}</td>
                                                                 <td>{{ user.name }}</td>
                                                                 <td>{{ user.surname }}</td>
                                                                 <td></td>
@@ -128,37 +128,13 @@
                         <form role="form" method="post" action="{% url 'submitTeamCSV' %}" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="form-group">
-                                <label for="docfile">Upload CSV File:</label>
-                                <input type="file" id="docfile" name="docfile">
+                                <label for="doc_file">Upload CSV File:</label>
+                                <input type="file" id="doc_file" name="doc_file">
                                 <p class="help-block">Select a CSV file to create teams</p>
                             </div>
                             
                             <button type="submit" class="btn btn-info">Submit</button>
                         </form>
-                    </div>
-                </div>
-            </div>
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseThree">
-                    <h4 class="panel-title">
-                        <b>Maintain Teams</b><b class="caret"></b>
-                    </h4>
-                </div>
-                <div id="collapseThree" class="panel-collapse collapse">
-                    <div class="panel-body">
-                        <table class="table sortable moveable" id="teamViewTable">
-                            <thead>
-                                <tr>
-                                    <th>User Name</th>
-                                    <th>Initials</th>
-                                    <th>Surname</th>
-                                    <th>Round</th>
-                                    <th>Team</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </div>
@@ -311,23 +287,23 @@
                 selected = e.currentTarget.id;
             });
 
-            function changeTeam(userId, roundId, newTeam)
+            function changeTeam(user_id, roundId, newTeam)
             {
                 $.ajax({
-                    url: '/maintainTeam/changeUserTeamForRound/'+roundId+'/'+userId+'/'+newTeam+'/',
+                    url: '/maintainTeam/changeUserTeamForRound/'+roundId+'/'+user_id+'/'+newTeam+'/',
                     type: 'GET',
                     success: function(data) {
                         if(data["success"] == true)
                         {
-                            console.log("Changed user: "+userId+" to team: "+newTeam+" for round: "+roundId);
+                            console.log("Changed user: "+user_id+" to team: "+newTeam+" for round: "+roundId);
                         }
                         else
                         {
-                            console.log("ERROR: Could not change user: "+userId+" to team: "+newTeam+" for round: "+roundId);
+                            console.log("ERROR: Could not change user: "+user_id+" to team: "+newTeam+" for round: "+roundId);
                         }
                     },
                     failure: function(data) {
-                        console.log("ERROR: Could not change user: "+userId+" to team: "+newTeam+" for round: "+roundId);
+                        console.log("ERROR: Could not change user: "+user_id+" to team: "+newTeam+" for round: "+roundId);
                     }
                 });
             }
@@ -341,9 +317,9 @@
                         var row = $(this).parents('tr');
                         if (!loading)
                         {
-                            var userId=row[0].id;
+                            var user_id=row[0].id;
                             var newTeam = selected;
-                            changeTeam(userId, roundId, newTeam);
+                            changeTeam(user_id, roundId, newTeam);
                         }
                         moveUser(users, teamTable, row);
                     }
@@ -361,8 +337,8 @@
 
                 if(!loading)
                 {
-                    var userId = row[0].id;
-                    changeTeam(userId, roundId, "emptyTeam");
+                    var user_id = row[0].id;
+                    changeTeam(user_id, roundId, "emptyTeam");
                 }
             });
 
@@ -394,7 +370,7 @@
                                 selected = team["teamName"];
                                 $("#"+team["teamName"]).addClass("in");
 
-                                $("#users").find("#"+team["userId"]).find('div.addUser').click();
+                                $("#users").find("#"+team["user_id"]).find('div.addUser').click();
 
                                 $("#"+team["teamName"]).removeClass("in");
                                 selected = "";
@@ -420,7 +396,7 @@
                             var teamName = team["team"];
                             var status = team["status"];
                             var row = table.row.add([
-                                    team["userId"],
+                                    team["user_id"],
                                     team["initials"],
                                     team["surname"],
                                     team["round"],
@@ -432,7 +408,7 @@
                         }
                     },
                     failure: function(data) {
-                        console.log("ERROR: Could not change user: "+userId+" to team: "+newTeam+" for round: "+roundId)
+                        console.log("ERROR: Could not change user: "+user_id+" to team: "+newTeam+" for round: "+roundId)
                     }
                 });
             });

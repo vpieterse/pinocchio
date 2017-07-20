@@ -54,8 +54,7 @@ ROOT_URLCONF = 'pinocchio.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')]
-        ,
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -65,7 +64,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
             'libraries': {
-                'custom_tags' : 'peer_review.templatetags.custom_tags'
+                'custom_tags': 'peer_review.templatetags.custom_tags'
             },
         },
     },
@@ -138,4 +137,3 @@ try:
 except ImportError as e:
     print("ERROR: COULD NOT LOAD GLOBAL SETTINGS FROM globalSettings.py")
     print(e)
-

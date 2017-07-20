@@ -1,0 +1,94 @@
+﻿{% extends "peer_review/base.html" %}
+{% load staticfiles %}
+{% block extrahead %}
+    <title>User Admin</title>
+
+    <script src="{% static "peer_review/search.js" %}"></script>
+    <script src="{% static "peer_review/validation.js" %}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#users tr').each(function () {
+                $(this).find('input[type="text"]').each(function () {
+                    $(this).attr('size', $(this).val().length);
+                });
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block context %}
+
+    <div class="container">
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
+                    <h4 class="panel-title">
+                        <a>
+                            Error <b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <h3>
+                            {{ message }}<br>
+                            <b>Error: </b>{{ error }}
+                        </h3>
+                        {% if row %}
+                            <h4>
+                                This is how we interpreted the CSV file at this row:
+                            </h4>
+                            <div class='table-responsive'>
+                                <table class='table sortable' id='users'>
+                                    <thead>
+                                    <tr>
+                                        <th>user_id</th>
+                                        <th>round_name</th>
+                                        <th>team_name</th>
+                                    </thead>
+                                    <tr>
+                                        <td>
+                                            {{ row.0 }}
+                                        </td>
+                                        <td>
+                                            {{ row.1 }}
+                                        </td>
+                                        <td>
+                                            {{ row.2 }}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h4>Please take note of the format we use to interpret a CSV:</h4>
+
+                            <div>
+                                "user_id","round_name","team_name"<br>
+                                "u14035548","Test Round 1","Red"<br>
+                                "u14578841","Test Round 1","Red"<br>
+                                "u14671148","Test Round 1","Blue"<br>
+                                "u15123123","Test Round 1","Yellow"<br>
+                                "u14578841","Test Round 1","Green"<br>
+                            </div>
+                            <div>
+                                <br>
+                                <a href="/userAdmin/">Home</a>
+                                <a href="#">Template</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container">
+            <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
+            <a class="navbar-btn btn-danger btn pull-right">Log Out</a>
+        </div>
+    </div>
+
+{% endblock %}

@@ -6,8 +6,14 @@ from peer_review.models import User, Questionnaire, RoundDetail, TeamDetail, Que
 
 class AuthenticationTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user('joe@joe.com', 'joe', 'joe', userId=str(5678), surname="Joe", initials="J")
-        self.admin = User.objects.create_superuser('admin@admin.com', 'admin', userId=str(1111))
+        self.user = User.objects.create_user('joe@joe.com',
+                                             'joe',
+                                             'joe',
+                                             user_id=str(5678),
+                                             surname="Joe",
+                                             initials="J")
+
+        self.admin = User.objects.create_superuser('admin@admin.com', 'admin', user_id=str(1111))
         self.questionnaire = Questionnaire.objects.create(intro='Hello, this is a question',
                                                           label='This is the description')
         self.question = Question.objects.create(questionText="Hey I'm a question",
@@ -25,7 +31,7 @@ class AuthenticationTests(TestCase):
     def test_admin_authentication(self):
         # pages = ['resetPassword'] # these are pages that need to be included once those pages are finished
         admin_pages = ['maintainRound', 'createRound', 'maintainTeam', 'submitUserForm', 'submitCSV',
-                       'userDelete', 'userUpdate|userId='+str(self.user.userId),
+                       'userDelete', 'userUpdate|user_id='+str(self.user.user_id),
                        'updateEmail', 'userAdmin', 'saveQuestion', 'deleteQuestion',
                        'editQuestion|question_pk='+str(self.question.pk),
                        'questionAdmin', 'saveQuestionnaire',
@@ -35,10 +41,10 @@ class AuthenticationTests(TestCase):
                        'getTeamsForRound|round_pk='+str(self.round.pk),
                        'getQuestionnaireRound|round_pk='+str(self.round.pk),
                        'changeUserTeamForRound|round_pk='+str(self.round.pk) +
-                       '|userId='+str(self.user.userId) +
+                       '|user_id='+str(self.user.user_id) +
                        '|team_name='+str(self.team.teamName), 'getTeams',
                        'changeTeamStatus|team_pk='+str(self.team.pk)+'|status=C',
-                       'submitTeamCSV', 'report', 'getUserReport|userId='+str(self.user.userId),
+                       'submitTeamCSV', 'report', 'getUserReport|user_id='+str(self.user.user_id),
                        'maintainRoundWithError|error=2',
                        'deleteRound', 'updateRound|round_pk='+str(self.round.pk)]
         # print("not logged in")
@@ -55,7 +61,7 @@ class AuthenticationTests(TestCase):
 
     def test_user_authentication(self):
         self.client.logout()
-        user_pages = ['userProfile|userId='+str(self.user.userId),
+        user_pages = ['userProfile|user_id='+str(self.user.user_id),
                       'getQuestionnaireForTeam', 'questionnaire|round_pk='+str(self.round.pk),
                       'saveQuestionnaireProgress', 'getResponses',
                       'activeRounds', 'teamMembers', 'accountDetails']
