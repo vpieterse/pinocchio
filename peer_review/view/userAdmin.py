@@ -66,7 +66,7 @@ def submit_csv(request):
             # documents = Document.objects.all()
 
             count = 0
-            with open(file_path, encoding='utf-8') as csvfile:
+            with open(file_path, encoding='unicode') as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
                     valid = validate(row)
