@@ -58,21 +58,79 @@ def change_user_team_for_round(request, round_pk, user_id, team_name):
 @admin_required
 def get_teams_for_round(request, round_pk):
     teams = TeamDetail.objects.filter(roundDetail_id=round_pk)
-    response = {}
+    response = {"users": {},
+                "teamTables": []}
     team_sizes = {}
-
+    team_tables = {}
+    users = {}
     for team in teams:
         if team.teamName not in team_sizes:
             team_sizes[team.teamName] = 0
         team_sizes[team.teamName] += 1
 
     for team in teams:
-        response[team.pk] = {
+        if team.teamName not in team_tables:
+            team_tables[team.teamName] = []
+
+        team_tables[team.teamName].append({
             'user_id': team.user.user_id,
+            'pk': team.user.pk,
+            'name': team.user.name,
+            'surname': team.user.surname,
             'teamName': team.teamName,
             'status': team.status,
-            'teamSize': team_sizes[team.teamName]
-        }
+            'teamSize': team_sizes[team.teamName],
+            'team_id': team.pk
+        })
+        response["users"][team.user.user_id] = True
+    for userList in team_tables:
+        print(team_tables[userList])
+        team_id = str(team_tables[userList][0]['pk'])
+        new_team = '<div class="panel panel-default">' + \
+                   '     <div class="panel-heading" data-toggle="collapse" data-parent="#teams" href="#' + team_id +'">' + \
+                   '         <div class="panel-title">' + \
+                   '             <div class="pull-left">' + \
+                   '                <h4>' + \
+                   '                   <input type="button" value="-" class="btn btn-info btn-xs minus" field="" onclick="removeTeam(\''+team_id+'\')"/>' + \
+                   '                   <a data-toggle="collapse" style="color:black" data-parent="#teams" href="#'+team_id+'">' + \
+                   '                       ' + team_id + \
+                   '                   </a>' + \
+                   '                </h4>' + \
+                   '             </div>' + \
+                   '             <div class="panel-title pull-right">' + \
+                   '                 <a data-toggle="collapse" data-parent="#teams" href="#' + team_id + '">' + \
+                   '                     <h4>' + \
+                   '                         <span class="team-size">'+str(team_tables[userList][0]['teamSize'])+'</span><b class="caret"></b>' + \
+                   '                     </h4>' + \
+                   '                 </a>' + \
+                   '             </div>' + \
+                   '         </div>' + \
+                   '      <div class="clearfix"></div>' + \
+                   '      <div id="'+team_id+'" class="panel-collapse collapse  panel-team">' + \
+                   '          <div class="panel-body">' + \
+                   '              <table class="table sortable moveable teamTable">' + \
+                   '                  <thead>' + \
+                   '                      <tr>' + \
+                   '                          <th>User Name</th>' + \
+                   '                          <th>Name</th>' + \
+                   '                          <th>Surname</th>' + \
+                   '                          <th></th>' + \
+                   '                      </tr>' + \
+                   '                  </thead>' + \
+                   '                  <tbody>'
+        for user in team_tables[userList]:
+            new_team += '                 <tr id="' + user['pk'] + '">' + \
+                        '                     <td>' + user['user_id'] + '</td>' + \
+                        '                     <td>' + user['name'] + '</td>' + \
+                        '                     <td>' + user['surname'] + '</td>' + \
+                        '                     <td></td>' + \
+                        '                 </tr>'
+        new_team += '                  </tbody>' + \
+                    '              </table>' + \
+                    '          </div>' + \
+                    '      </div>' + \
+                    '  </div>'
+        response['teamTables'].append(new_team)
     # print(response)
     return JsonResponse(response)
 
@@ -173,7 +231,7 @@ def submit_team_csv(request):
                             error_type = "One of these headers does not exist, 'user_id', 'round_name', or 'team_name'."
 
                         os.remove(file_path)
-                        return render(request, 'peer_review/csvError.html',
+                        return render(request, 'peer_review/csvTeamError.html',
                                       {'message': message, 'row': row_list, 'error': error_type})
         else:
             message = "Oops! Something seems to be wrong with the CSV file."
