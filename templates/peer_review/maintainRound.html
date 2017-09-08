@@ -287,6 +287,7 @@
                                     <th>Questionnaire Description</th>
                                     <th>Starting Date</th>
                                     <th>Ending Date</th>
+                                    <th>Team Builder</th>
                                     <th>Edit</th>
                                     <th>Remove</th>
                                     <th>Dump</th>
@@ -302,6 +303,13 @@
                                         <td data-id="questionnaire">{{ round.questionnaire.label }}</td>
                                         <td data-id="startingDate">{{ round.startingDate|date:'DATETIME_FORMAT' }}</td>
                                         <td data-id="endingDate">{{ round.endingDate|date:'DATETIME_FORMAT' }}</td>
+                                        <td>
+                                            <form method="post" action="/maintainTeam/{{ roundPk }}">
+                                                <input type="hidden" name="roundPk" value="{{ round.pk }}">
+                                                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                                                <input type="submit" class="btn btn-primary btn-xs" value="&#x21A0;">
+                                            </form>
+                                        </td>
                                         <td>
                                             <button type="button" name="edit" class='btn btn-success btn-xs edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ round.pk }}" data-pk="{{ round.pk }}">
                                                 &#9998;
