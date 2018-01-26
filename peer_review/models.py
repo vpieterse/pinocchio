@@ -29,7 +29,7 @@ class Question(models.Model):
     questionLabel = models.CharField(max_length=300, unique=True)
     pubDate = models.DateTimeField('date published')
     questionType = models.ForeignKey(QuestionType)
-    questionGrouping = models.ForeignKey(QuestionGrouping)
+    # questionGrouping = models.ForeignKey(QuestionGrouping)
 
     def __str__(self):
         return self.questionText
@@ -187,6 +187,7 @@ class Questionnaire(models.Model):
 class QuestionOrder(models.Model):
     questionnaire = models.ForeignKey(Questionnaire)
     question = models.ForeignKey(Question)
+    questionGrouping = models.ForeignKey(QuestionGrouping, default=4) # default: None
     order = models.IntegerField(default=1)
 
     def __str__(self):
