@@ -54,7 +54,6 @@ Todo:
                                                 <th>Question</th>
                                                 <th>Question Type</th>
                                                 <th>Grouping</th>
-                                                <th>Grouping</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
@@ -63,9 +62,20 @@ Todo:
                                             <tr id="{{ question.pk }}">
                                                 <td class="question-label">{{ question.questionLabel }}</td>
                                                 <td class="question-type">{{ question.questionType.name }}</td>
-                                                <td class="question-grouping">{{ question.questionGrouping.grouping }}</td>
-                                                <td class = "hidden"> {{ question.questionText }} </td>
-                                                
+                                                <td class="question-grouping-select" align="center">
+                                                    <div class="dropdown">
+                                                      <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" id="group-select-{{ question.pk }}">Select Grouping
+                                                      <span class="caret"></span></button>
+                                                      <ul class="dropdown-menu" id="groups">
+                                                        <li class="list-group-item" id="group-select-All-{{ question.pk }}"  align="center"><a style="cursor:pointer" onclick="changeGrouping('All', {{ question.pk }})">All</a></li>
+                                                        <li class="list-group-item" id="group-select-Rest-{{ question.pk }}"  align="center"><a style="cursor:pointer" onclick="changeGrouping('Rest', {{ question.pk }})">Rest</a></li>
+                                                        <li class="list-group-item" id="group-select-Label-{{ question.pk }}" align="center"><a style="cursor:pointer" onclick="changeGrouping('Label', {{ question.pk }})">Label <span class="glyphicon glyphicon glyphicon-arrow-right text-success pull-right"></span></a></li>
+                                                        <li class="list-group-item" id="group-select-None-{{ question.pk }}" align="center"><a style="cursor:pointer" onclick="changeGrouping('None', {{ question.pk }})">None</a></li>
+                                                      </ul>
+                                                    </div>
+                                                </td>
+                                                <td class = "hidden"> {{ question.questionLabel }} </td>
+                                                <input type="hidden" name="question-grouping-{{ question.pk }}" id="question-grouping-{{ question.pk }}" value="Rest">
                                                 <td>
                                                     <span onclick="addQuestion(this)" class="glyphicon glyphicon glyphicon-plus-sign text-primary pull-right"  style="cursor:pointer"></span>
                                                 </td>
@@ -73,6 +83,27 @@ Todo:
                                         {% endfor %}
                                         </tbody>
                                     </table>
+                                </div>
+                                <!-- Label table -->
+                                <div class="hidden" id="label-table">
+                                    <small class="text-muted">Click the <span class="glyphicon glyphicon-plus-sign text-primary"></span> icon to add
+                                        labels.
+                                    </small>
+                                    <table class="table table-bordered" id="labeltable">
+                                        <thead>
+                                        <tr>
+                                            <th class="text-center">
+                                                <span>Labels for { question.pk }</span>
+                                                <span style="cursor: pointer" onclick="addRowToTable(this)"
+                                                      class="glyphicon glyphicon-plus-sign pull-right text-primary"></span>
+                                            </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-xs-6 labels-go-here">
                                 </div>
                                 <div class="col-md-6">
                                     <small class="text-muted">Click the <span class="glyphicon glyphicon glyphicon-minus-sign text-primary"></span> icon to remove questions from the questionnaire.</small>
@@ -203,6 +234,11 @@ Todo:
                     $(this).toggle(id.toLowerCase().indexOf(value.toLowerCase()) !== -1);
                 });
             });
+            $('.labels-go-here').hide();
+            $('.labels-go-here').html($('#label-table').html());
+            {% for label in labels %}
+                addLabel("{{label}}");
+            {% endfor %}
 
             //Allows selecting of questions to delete multiple questions
             $('#delete-many').hide();
@@ -223,6 +259,30 @@ Todo:
             $('#question-table').DataTable();
 
         });
+
+        //** Functions used for table manipulations **//
+        function addRowToTable(el) {
+            var row = $('<td></td>');
+            row.append('<input type="text" placeholder="Enter Label" style="border:none;"/>');
+            row.append('<span onclick="removeRow(this)" class = "glyphicon glyphicon-remove-circle pull-right text-primary" style="cursor:pointer"></span>');
+            row.append('<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-up pull-left text-primary" style="cursor:pointer"></span>');
+            row.append('<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-down pull-left text-primary" style="cursor:pointer"></span>');
+
+            $(el).closest('table').find('tbody').append(row);
+            row.wrap('<tr></tr>');
+            row.addClass('text-center');
+            return row;
+        }
+
+        function addLabel(labelText) {
+            row = addRowToTable($('#content').find('#labeltable')[0]);
+            $(row).find('input').val(labelText);
+
+        }
+
+        function removeRow(el) {
+            $(el).closest('tr').remove();
+        }
 
         function moveRow(el) {
             var row = $(el).closest('tr');
@@ -279,6 +339,15 @@ Todo:
         }
 
         function save() {
+            if ($('#question-type').val() == "Rank" && $('#question-grouping').val() == "Label") {
+                if ($('#labeltable > tbody > tr > td > input').size() < 2) {
+                    a = $('.container').eq(1).prepend('<div class = "alert alert-warning">Error: Rank with label grouping needs at least two labels.</div>');
+                    setTimeout(function () {
+                        $('.container').eq(1).find('.alert').hide(100);
+                    }, 5000);
+                    return false;
+                }
+            }
             var questions = "";
             $('#selected-questions > tbody > tr').each(function(i, el) {
                 questions += el.id + ';#';
@@ -292,5 +361,34 @@ Todo:
             {% endif %}
             $('#selected-questions > tbody').empty();
         }
+
+        function changeGrouping(group, questionId) {
+            $("#group-select-" + questionId).text(group);
+            $("#question-grouping-" + questionId).val(group);
+            $("#groups > li").removeClass('active');
+            $("#group-select-" + group + "-" + questionId).addClass('active');
+            if (group == 'Label') {
+                $(".labels-go-here").show(100);
+            } else {
+                $(".labels-go-here").hide(100);
+            }
+        }
+
+
+        /*
+
+        if ($('#question-grouping').val() == "Label") {
+                var labels = "";
+                $('#labeltable > tbody > tr > td > input').each(function (i, el) {
+                    labels += el.value + ';#';
+                });
+                $('#question-labels').val(labels.slice(0, -2));
+            }
+
+
+            function empty() {
+            $('.labels-go-here').html($('#label-table').html());
+
+        */
     </script>
 {% endblock %}

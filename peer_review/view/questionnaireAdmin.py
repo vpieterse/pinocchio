@@ -109,3 +109,17 @@ def get_questionnaires(request):
                          'inARound': RoundDetail.objects.filter(questionnaire=questionnaire).exists()
                          })
     return response
+
+
+
+# edit -----
+
+#if question_grouping == 'Label':
+#            labels = str(request.POST['question-labels']).split(";#")
+#            for label in labels:
+#                Label.objects.create(question=q, labelText=label)
+
+# 'labels': Label.objects.filter(question=question),
+
+        # if not QuestionGrouping.objects.filter(grouping=question_grouping).exists():
+        #    QuestionGrouping.objects.create(grouping=question_grouping)

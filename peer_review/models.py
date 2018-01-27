@@ -29,7 +29,6 @@ class Question(models.Model):
     questionLabel = models.CharField(max_length=300, unique=True)
     pubDate = models.DateTimeField('date published')
     questionType = models.ForeignKey(QuestionType)
-    # questionGrouping = models.ForeignKey(QuestionGrouping)
 
     def __str__(self):
         return self.questionText
