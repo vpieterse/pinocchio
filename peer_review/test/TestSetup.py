@@ -23,15 +23,13 @@ class TestSetup:
         self.question1 = Question.objects.create(questionText="Hey I'm a question number 1",
                                                  questionLabel="I'm the label",
                                                  pubDate=datetime.now(timezone(timedelta(hours=2))),
-                                                 questionType=QuestionType.objects.create(name="Freeform"),
-                                                 questionGrouping=QuestionGrouping.objects.create(grouping="None"))
+                                                 questionType=QuestionType.objects.create(name="Freeform"))
         FreeformItem.objects.create(question=self.question1, freeformType="Paragraph")
 
         self.question2 = Question.objects.create(questionText="Different question here",
                                                  questionLabel="I'm the label for the question",
                                                  pubDate=datetime.now(timezone(timedelta(hours=2))),
-                                                 questionType=QuestionType.objects.create(name="Choice"),
-                                                 questionGrouping=QuestionGrouping.objects.create(grouping="None"))
+                                                 questionType=QuestionType.objects.create(name="Choice"))
         Choice.objects.create(question=self.question2, choiceText="choice 1", num="0")
         Choice.objects.create(question=self.question2, choiceText="choice 2", num="1")
         Choice.objects.create(question=self.question2, choiceText="choice 3", num="2")
@@ -40,8 +38,7 @@ class TestSetup:
         self.question3 = Question.objects.create(questionText="Hey I'm also a question",
                                                  questionLabel="I'm a label for this question",
                                                  pubDate=datetime.now(timezone(timedelta(hours=2))),
-                                                 questionType=QuestionType.objects.create(name="Choice"),
-                                                 questionGrouping=QuestionGrouping.objects.create(grouping="None"))
+                                                 questionType=QuestionType.objects.create(name="Choice"))
         Choice.objects.create(question=self.question3, choiceText="Apples", num="0")
         Choice.objects.create(question=self.question3, choiceText="Oranges", num="1")
         Choice.objects.create(question=self.question3, choiceText="Kiwis", num="2")
