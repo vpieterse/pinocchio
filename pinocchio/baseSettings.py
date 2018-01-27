@@ -91,7 +91,7 @@ en_formats.DATETIME_FORMAT = "Y-m-d H:i"
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Johannesburg' # UTC+2
 
 USE_I18N = True
 
