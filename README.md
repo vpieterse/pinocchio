@@ -1,4 +1,4 @@
-[![Stories in Ready](https://badge.waffle.io/MatthiasHarvey/pinocchio.png?label=ready&title=Ready)](https://waffle.io/teampinocchio/pinocchio)
+[![Stories in Ready](https://badge.waffle.io/teampinocchio/pinocchio.png?label=ready&title=Ready)](https://waffle.io/teampinocchio/pinocchio)
 -------------
 # Pinocchio
 -------------
