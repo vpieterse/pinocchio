@@ -20,6 +20,24 @@ Todo:
                 <div class="alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
             {% endfor %}
         {% endif %}
+        <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Confirm Delete</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p id="delete-msg"></p>
+                        <p id="delete-question" font-size="14pt"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <a class="btn btn-danger" onclick="$('#form-delete').submit()">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="panel-group" id="accordion">
             <div class="panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
@@ -145,7 +163,7 @@ Todo:
                             <th>Type</th>
                             <th>Publish Date<span
                                     class="glyphicon glyphicon glyphicon-remove-circle text-primary pull-right"
-                                    id="delete-many" onclick="deleteMany()" style="cursor:pointer"></th>
+                                    id="delete-many" onclick="deleteMany()" style="cursor:pointer" data-toggle="modal" data-target="#confirm-delete"></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -165,7 +183,7 @@ Todo:
                                               title="This question has been used in a questionnaire and cannot be deleted."></span>
                                     {% else %}
                                         <span style="cursor: pointer" onclick="deleteQuestion('{{ question.pk }}')"
-                                              class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
+                                              class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary" data-toggle="modal" data-target="#confirm-delete"></span>
                                     {% endif %}
                                     <span style="cursor: pointer" onclick="edit('{{ question.pk }}')"
                                           class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
@@ -323,7 +341,9 @@ Todo:
 
         function closeErrors() {
             setTimeout(function () {
-                $('.alert').hide(100);
+                $(".alert").fadeTo(500, 0).slideUp(500, function(){
+                    $(this).remove(); 
+                });
             }, 3000);
         }
 
@@ -362,10 +382,6 @@ Todo:
 
         }
 
-        function getSeparater() {
-            return "------------------------------------------------------\n";
-        }
-
         function deleteQuestion(pk) {
             var strcnf = "";
             $('#question-pk').val(pk);
@@ -374,9 +390,8 @@ Todo:
                     strcnf = "{{ quest.title }}";
                 }
             {% endfor %}
-            if (confirm("Delete the following question?\n" + getSeparater() + strcnf)) {
-                $('#form-delete').submit();
-            }
+            $('#delete-msg').html('You are about to delete the following question, this procedure is irreversible.');
+            $('#delete-question').html('<strong>' + strcnf + '</strong>');
         }
 
         function deleteMany() {
@@ -384,16 +399,15 @@ Todo:
             var strcnf = "";
             $('#question-list > tbody > tr.active').each(function (i, el) {
                 {% for quest in questions %}
-                if ("{{ quest.pk }}" == el.id) {
-                    strcnf += "{{ quest.title }}\n";
-                }
-            {% endfor %}
+                    if ("{{ quest.pk }}" == el.id) {
+                        strcnf += "{{ quest.title }}<br/>";
+                    }
+                {% endfor %}
                 pks += el.id + ';#';
             });
             $('#question-pk').val(pks.slice(0, -2));
-            if (confirm("Delete the following questions?\n" + getSeparater() + strcnf)) {
-                $('#form-delete').submit();
-            }
+            $('#delete-msg').html('You are about to delete the following questions, this procedure is irreversible.');
+            $('#delete-question').html('<strong>' + strcnf + '</strong>');
         }
 
         $(document).ready(function () {
@@ -408,8 +422,10 @@ Todo:
             {% endif %}
             //Hide alerts
             setTimeout(function () {
-                $('.alert').hide(100);
-            }, 10000);
+                $(".alert").fadeTo(500, 0).slideUp(500, function(){
+                    $(this).remove(); 
+                });
+            }, 5000);
             //ToDo: Search the other columns as well
             $("#question-search").keyup(function () {
                 var value = this.value;

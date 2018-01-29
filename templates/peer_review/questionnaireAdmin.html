@@ -23,6 +23,24 @@ Todo:
             <div class = "alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
             {% endfor %}
         {% endif %}
+        <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Confirm Delete</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p id="delete-msg"></p>
+                        <p id="delete-questionnaire" font-size="14pt"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <a class="btn btn-danger" onclick="$('#form-delete').submit()">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="panel-group" id="accordion">
             <div class = "panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
@@ -60,6 +78,7 @@ Todo:
                                         <tbody>
                                         {% for question in questions %}
                                             <tr id="{{ question.pk }}">
+                                                <span id="diverrors"></span>
                                                 <td class="question-label">{{ question.questionLabel }}</td>
                                                 <td class="question-type">{{ question.questionType.name }}</td>
                                                 <td class="question-grouping-select" align="center">
@@ -174,7 +193,7 @@ Todo:
                                 <th>Title</th>
                                 <th>
                                     Number of Questions
-                                    <span id="delete-many" style = "cursor: pointer" onclick = "deleteMany()" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
+                                    <span id="delete-many" style = "cursor: pointer" onclick = "deleteMany()" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary" data-toggle="modal" data-target="#confirm-delete"></span>
                                 </th>
                             </tr>
                         </thead>
@@ -194,7 +213,7 @@ Todo:
                                         {% if questionnaire.inARound %}
                                             <span class="glyphicon glyphicon glyphicon-remove-circle pull-right text-muted"></span>
                                         {% else %}
-                                            <span style = "cursor: pointer" onclick = "deleteQuestionnaire('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
+                                            <span style = "cursor: pointer" onclick = "deleteQuestionnaire('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary" data-toggle="modal" data-target="#confirm-delete"></span>
                                         {% endif %}
                                         <span style = "cursor: pointer" onclick = "preview('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-eye-open pull-right text-primary">&nbsp</span>
                                         <span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
@@ -223,8 +242,10 @@ Todo:
             toolbar: 'undo redo bold italiclignleft aligncenter alignright bullist numlist outdent indent styleselect fontsizeselect emoticons image a', });
             //Hide alerts
             setTimeout(function() {
-                $('.alert').hide(100);
-            }, 10000);
+                $(".alert").fadeTo(500, 0).slideUp(500, function(){
+                    $(this).remove(); 
+                });
+            }, 5000);
             //Todo: Search the other columns as well
             $("#search").keyup(function() {
                 var value = this.value;
@@ -292,7 +313,8 @@ Todo:
                 row.next().after(row);
         }
 
-        function addQuestion(el) {              
+        function addQuestion(el) {
+            $("#diverrors").html("<div class=\"alert alert-danger\">Please enter choices</div>");             
             if ($(el).hasClass('text-primary')) {
                 var row = $(el).closest('tr'); 
                 var tr = $('<tr id = "'+row.attr('id')+'"></tr>');
@@ -322,20 +344,38 @@ Todo:
             // alert(getElementById('previewLink'));
             document.getElementById('previewLink').click();
             $("#previewLink").remove();
-        } 
+        }
+
+        function getSeparater() {
+            return "------------------------------------------------------\n";
+        }
 
         function deleteQuestionnaire(pk) {
+            var strcnf = "";
             $('#questionnaire-pk').val(pk);
-            $('#form-delete').submit();
+            {% for questn in questionnaires %}
+                if ("{{ questn.pk }}" == pk) {
+                    strcnf = "{{ questn.title }}";
+                }
+            {% endfor %}
+            $('#delete-msg').html('You are about to delete the following questionnaire, this procedure is irreversible.');
+            $('#delete-questionnaire').html('<strong>' + strcnf + '</strong>');
         }
 
         function deleteMany() {
             var pks = "";
+            var strcnf = "";
             $('#questionnaire-list > tbody > tr.active').each(function(i, el) {
+                {% for questn in questionnaires %}
+                    if ("{{ questn.pk }}" == el.id) {
+                        strcnf += "{{ questn.title }}<br/>";
+                    }
+                {% endfor %}
                 pks += el.id + ';#';
             });
             $('#questionnaire-pk').val(pks.slice(0, -2));
-            $('#form-delete').submit();
+            $('#delete-msg').html('You are about to delete the following questionnaires, this procedure is irreversible.');
+            $('#delete-questionnaire').html('<strong>' + strcnf + '</strong>');
         }
 
         function save() {
