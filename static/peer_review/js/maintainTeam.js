@@ -279,13 +279,183 @@ $(document).ready(function () {
     });
 });*/
 
+var UserHandler = function(userTableElement) {
+    var self = this;
+    this.users = {};
+    //this.userDataTable;
+    this.userTableElement = userTableElement;
+    this.teamDataTables = [];
+    this.currentTeam = "";
+    this.init = function() {
+        self.userDataTable = self.userTableElement.DataTable({
+            "orderClasses": false,
+            "columnDefs": [{
+                "orderable": false,
+                "searchable": false,
+                "render": function (data, type, full, meta) {
+                    return "<div class=\"addUser button\" data-id='" + full.DT_RowId + "'><span class=\"glyphicon glyphicon-chevron-right\"></span></div>"
+                },
+                "targets": [3]}]
+        });
+
+        self.userDataTable.on("draw", self.onDraw);
+        self.userDataTable.draw();
+
+        self.addUsers(self.userDataTable.rows().data(), true);
+    };
+
+    this.addUser = function(user, redraw, dontAdd) {
+        redraw = typeof redraw !== 'undefined' ? redraw : true;
+        dontAdd = typeof dontAdd !== 'undefined' ? dontAdd : false;
+        if(user.DT_RowId && !user.id) {
+            user.id = user.DT_RowId;
+        }
+        if(!user.id) {
+            console.log(user);
+            throw "User must have an id";
+        }
+        if(self.users[user.id]) {
+            throw "This user already exists";
+        }
+        if(!user.status) {
+            user.status = "list";
+        }
+        if(!user.team) {
+            user.team = "";
+        }
+        self.users[user.id] = user;
+        if(!dontAdd) {
+            self.userDataTable.row.add(user);
+        }
+        if(redraw) {
+            self.userDataTable.draw();
+        }
+    };
+
+    this.addUsers = function(users, dontAdd) {
+        console.log(users);
+        for(var i in users) {
+            if(!isNaN(i) && users.hasOwnProperty(i)) {
+
+                self.addUser(users[i], false, dontAdd);
+            }
+        }
+        self.userDataTable.draw();
+    };
+
+    this.moveUserToTeam = function(userID, teamID, dontAdd) {
+        dontAdd = typeof dontAdd !== 'undefined' ? dontAdd : false;
+        var user = self.users[userID];
+        if(!user) {
+            throw "Cannot find user, " + userID + ", in users";
+        }
+        if(user.status !== "list") {
+            throw "Cannot move user from one team directly to another";
+        }
+        user.status = "team";
+        user.team = teamID;
+
+        self.userDataTable.row("#" + userID).remove();
+        self.userDataTable.draw();
+
+        if(!dontAdd) {
+            self.teamDataTables[teamID].row.add(user);
+            self.teamDataTables[teamID].draw();
+            $("#" + teamID + "_size").text(self.teamDataTables[teamID].rows().count());
+        }
+    };
+
+    this.removeUserFromTeam = function(userID) {
+        var user = self.users[userID];
+        if(!user) {
+            throw "Cannot find user, " + userID + ", in users";
+        }
+        if(user.status !== "team") {
+            throw "Cannot remove user from a team if they are not already in a team";
+        }
+        var oldTeamID = user.team;
+
+        user.status = "list";
+        user.team = "";
+
+        self.teamDataTables[oldTeamID].row("#" + userID).remove();
+        self.teamDataTables[oldTeamID].draw();
+        $("#" + oldTeamID + "_size").text(self.teamDataTables[oldTeamID].rows().count());
+
+        self.userDataTable.row.add(user);
+        self.userDataTable.draw();
+    };
+
+    this.onDraw = function(e) {
+        var dt = $(e.currentTarget).DataTable();
+        dt.$(".removeUser").removeClass("removeUser").on("click", self.onRemoveUser);
+        dt.$(".addUser").removeClass("addUser").on("click", self.onAddUser);
+    };
+
+    this.onRemoveUser = function(e) {
+        self.removeUserFromTeam(e.currentTarget.getAttribute("data-id"));
+    };
+
+    this.onAddUser = function(e) {
+        if(self.currentTeam == "") {
+            alert("You must open a team on the right in order to add this person to it");
+        }
+        self.moveUserToTeam(e.currentTarget.getAttribute("data-id"), self.currentTeam);
+    };
+
+    this.addTeam = function(html, teamID) {
+        if(self.teamDataTables[teamID]) {
+            throw "That team already exists";
+        }
+        $("#teams").append(html);
+        self.teamDataTables[teamID] = $("#" + teamID + " .teamTable").DataTable({
+            "orderClasses": false,
+            "columnDefs": [{
+                "orderable": false,
+                "searchable": false,
+                "render": function (data, type, full, meta) {
+                    return "<div class=\"removeUser button\" data-id='" + full.DT_RowId + "'><span class=\"glyphicon glyphicon-chevron-left\"></span></div>"
+                },
+                "targets": [3]}]
+        });
+        $("#teams").find(".panel-heading").unbind("click").on("click", function(event) {
+            console.log(event.currentTarget.classList.contains("collapsed"));
+            self.currentTeam = event.currentTarget.getAttribute("href").substring(1);
+        });
+        self.teamDataTables[teamID].on("draw", self.onDraw);
+        self.teamDataTables[teamID].draw();
+
+        var rows = self.teamDataTables[teamID].rows().data();
+
+        for(var i in rows) {
+            if(!isNaN(i) && rows.hasOwnProperty(i)) {
+                self.moveUserToTeam(rows[i].DT_RowId, teamID, true);
+            }
+        }
+    };
+
+    this.resetTeams = function() {
+        for(var i in self.users) {
+            if(self.users.hasOwnProperty(i)) {
+                if(self.users[i].status == "team") {
+                    self.removeUserFromTeam(i);
+                }
+            }
+        }
+        $("#teams").empty();
+        self.teamDataTables = {};
+        self.currentTeam = "";
+    };
+};
+
 var userList = [];
-var RoundHandler = function(dropdownSelector) {
+var RoundHandler = function(dropdownSelector, userHandler) {
     var self = this;
     this.dropdownSelector = dropdownSelector;
     this.roundDescriptionSelector = "#roundDesc";
+    this.userHandler = userHandler;
     this.init = function() {
-        self.dropdown = $(self.dropdownSelector)
+        self.dropdown = $(self.dropdownSelector);
         self.dropdown.on("change", self.changeRoundClicked);
         self.roundDescription = $(self.roundDescriptionSelector);
     };
@@ -295,14 +465,14 @@ var RoundHandler = function(dropdownSelector) {
         var selectedOption = options[options.selectedIndex];
         self.changeRound(selectedOption.getAttribute("value"), selectedOption.getAttribute("desc"));
     };
-    this.changeRound = function(roundId, description) {
-        if (roundId == '') {
+    this.changeRound = function(roundID, description) {
+        if (roundID == '') {
             self.roundDescription.html("Please select a round above");
         }
         else {
             self.roundDescription.html(description);
             $.ajax({
-                url: '/maintainTeam/getTeamsForRound/' + roundId,
+                url: '/maintainTeam/getTeamsForRound/' + roundID,
                 type: 'GET',
                 success: self.changeRoundResult,
                 error: function () {
@@ -315,23 +485,39 @@ var RoundHandler = function(dropdownSelector) {
     this.changeRoundResult = function(data) {
         var users = data.users,
             teamTables = data.teamTables,
-            userId,
+            userID,
             user,
             i,
             teamTable;
-        for(userId in users){
-            if(users.hasOwnProperty(userId)) {
-                user = users[userId];
-                userList[userId].addClass("hidden");
-            }
-        }
-
-        for(i in teamTables) {
+        // for(var i in self.removedUserRows) {
+        //     if(self.removedUserRows.hasOwnProperty(i)) {
+        //         console.log("adding");
+        //         console.log(self.removedUserRows[i]);
+        //         self.userDataTable.row.add(self.removedUserRows[i]);
+        //     }
+        // }
+        // self.removedUserRows = [];
+        //
+        // for(userID in users){
+        //     if(users.hasOwnProperty(userID)) {
+        //         user = users[userID];
+        //         // self.userDataTable.row("#" + userID).node().classList.add("hidden");
+        //         var row = self.userDataTable.row("#" + userID);
+        //         self.removedUserRows.push(row.data());
+        //         row.remove().draw();
+        //     }
+        // }
+        // console.log(self.removedUserRows);
+        $("#teams").empty();
+        self.userHandler.resetTeams();
+        for(i in teamTables){
             if(teamTables.hasOwnProperty(i)) {
+                console.log("hey");
                 teamTable = teamTables[i];
-                $("#teams").append(teamTable);
+                self.userHandler.addTeam(teamTable, i);
             }
         }
+        $("#teams").find(".panel-heading").first().addClass("collapsed").trigger("click");
 
     };
 };
@@ -341,18 +527,21 @@ var PageHandler = function() {
     this.roundDropdownSelector = "#selectedRound";
     this.init = function() {
         self.userTable = $(self.userTableSelector);
-        self.userTable.DataTable({
-            "orderClasses": false,
-            "columnDefs": [{
-                "orderable": false,
-                "searchable": false,
-                "render": function (data, type, full, meta) {
-                    return "<div class=\"addUser button\"><span class=\"glyphicon glyphicon-chevron-right\"></span></div>"
-                },
-                "targets": [3]}]
-        });
-        self.roundHandler = new RoundHandler(self.roundDropdownSelector);
+        self.userHandler = new UserHandler(self.userTable);
+        self.userHandler.init();
+        self.roundHandler = new RoundHandler(self.roundDropdownSelector, self.userHandler);
         self.roundHandler.init();
+        $("#addTeam").on("click", function() {
+            var teamName = prompt("Please enter a team name");
+            if(teamName) {
+                try{
+                    self.userHandler.addTeam("", teamName);
+                    return;
+                } catch(e) {
+                }
+            }
+            alert("Bad team Name, please try again");
+        });
     }
 };
 

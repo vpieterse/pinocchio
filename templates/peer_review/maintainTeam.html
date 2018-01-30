@@ -23,7 +23,7 @@
     <!--end-->
 {% endblock extrahead %}
 {% block context %}
-<div class="container">
+    <div class="container">
         <div class="panel-group" id="accordion">
             <div class="panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
@@ -74,22 +74,22 @@
                                             <div class='table-responsive'>
                                                 <table class='table moveable sortable' id='users'>
                                                     <thead>
-                                                        <tr>
-                                                            <th>User Name</th>
-                                                            <th>Name</th>
-                                                            <th>Surname</th>
-                                                            <th></th>
-                                                        </tr>
+                                                    <tr>
+                                                        <th>User Name</th>
+                                                        <th>Name</th>
+                                                        <th>Surname</th>
+                                                        <th></th>
+                                                    </tr>
                                                     </thead>
                                                     <tbody>
-                                                        {% for user in users %}
-                                                            <tr id="{{ user.pk }}">
-                                                                <td>{{ user.user_id }}</td>
-                                                                <td>{{ user.name }}</td>
-                                                                <td>{{ user.surname }}</td>
-                                                                <td></td>
-                                                            </tr>
-                                                        {% endfor %}
+                                                    {% for user in users %}
+                                                        <tr id="{{ user.pk }}">
+                                                            <td>{{ user.user_id }}</td>
+                                                            <td>{{ user.name }}</td>
+                                                            <td>{{ user.surname }}</td>
+                                                            <td></td>
+                                                        </tr>
+                                                    {% endfor %}
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -106,7 +106,7 @@
                                             </div>
                                             <div class="panel panel-default">
                                                 <div class="panel-heading">
-                                                    <h4 class="panel-title"><input type="button" value="+" class="btn btn-info btn-xs plus" field="" onclick="addTeam()"/><b> Add</b></h4>
+                                                    <h4 class="panel-title"><input type="button" value="+" class="btn btn-info btn-xs plus" id="addTeam"/><b> Add</b></h4>
                                                 </div>
                                             </div>
                                         </div>
@@ -132,7 +132,7 @@
                                 <input type="file" id="doc_file" name="doc_file">
                                 <p class="help-block">Select a CSV file to create teams</p>
                             </div>
-                            
+
                             <button type="submit" class="btn btn-info">Submit</button>
                         </form>
                     </div>

@@ -9,7 +9,7 @@ from ..models import User, RoundDetail, TeamDetail, Document
 from peer_review.decorators.adminRequired import admin_required
 from peer_review.forms import DocumentForm
 from peer_review.view.userFunctions import user_error
-
+from django.template import loader
 
 @admin_required
 def maintain_team(request):
@@ -59,7 +59,8 @@ def change_user_team_for_round(request, round_pk, user_id, team_name):
 def get_teams_for_round(request, round_pk):
     teams = TeamDetail.objects.filter(roundDetail_id=round_pk)
     response = {"users": {},
-                "teamTables": []}
+                "teamTables": {},
+                "teams": []}
     team_sizes = {}
     team_tables = {}
     users = {}
@@ -85,52 +86,18 @@ def get_teams_for_round(request, round_pk):
         response["users"][team.user.user_id] = True
     for userList in team_tables:
         print(team_tables[userList])
-        team_id = str(team_tables[userList][0]['pk'])
-        new_team = '<div class="panel panel-default">' + \
-                   '     <div class="panel-heading" data-toggle="collapse" data-parent="#teams" href="#' + team_id +'">' + \
-                   '         <div class="panel-title">' + \
-                   '             <div class="pull-left">' + \
-                   '                <h4>' + \
-                   '                   <input type="button" value="-" class="btn btn-info btn-xs minus" field="" onclick="removeTeam(\''+team_id+'\')"/>' + \
-                   '                   <a data-toggle="collapse" style="color:black" data-parent="#teams" href="#'+team_id+'">' + \
-                   '                       ' + team_id + \
-                   '                   </a>' + \
-                   '                </h4>' + \
-                   '             </div>' + \
-                   '             <div class="panel-title pull-right">' + \
-                   '                 <a data-toggle="collapse" data-parent="#teams" href="#' + team_id + '">' + \
-                   '                     <h4>' + \
-                   '                         <span class="team-size">'+str(team_tables[userList][0]['teamSize'])+'</span><b class="caret"></b>' + \
-                   '                     </h4>' + \
-                   '                 </a>' + \
-                   '             </div>' + \
-                   '         </div>' + \
-                   '      <div class="clearfix"></div>' + \
-                   '      <div id="'+team_id+'" class="panel-collapse collapse  panel-team">' + \
-                   '          <div class="panel-body">' + \
-                   '              <table class="table sortable moveable teamTable">' + \
-                   '                  <thead>' + \
-                   '                      <tr>' + \
-                   '                          <th>User Name</th>' + \
-                   '                          <th>Name</th>' + \
-                   '                          <th>Surname</th>' + \
-                   '                          <th></th>' + \
-                   '                      </tr>' + \
-                   '                  </thead>' + \
-                   '                  <tbody>'
-        for user in team_tables[userList]:
-            new_team += '                 <tr id="' + user['pk'] + '">' + \
-                        '                     <td>' + user['user_id'] + '</td>' + \
-                        '                     <td>' + user['name'] + '</td>' + \
-                        '                     <td>' + user['surname'] + '</td>' + \
-                        '                     <td></td>' + \
-                        '                 </tr>'
-        new_team += '                  </tbody>' + \
-                    '              </table>' + \
-                    '          </div>' + \
-                    '      </div>' + \
-                    '  </div>'
-        response['teamTables'].append(new_team)
+        team_id = str(team_tables[userList][0]['teamName'])
+        template = loader.get_template('peer_review/maintainTeam-teamPanel.html')
+        context = {
+            'team_id': team_id,
+            'team_tables': team_tables,
+            'userList': team_tables[userList],
+            'team_size': team_tables[userList][0]['teamSize'],
+
+        }
+        new_team = template.render(context, request)
+        response['teamTables'][team_id] = new_team
+        response['teams'].append(team_id)
     # print(response)
     return JsonResponse(response)
 
