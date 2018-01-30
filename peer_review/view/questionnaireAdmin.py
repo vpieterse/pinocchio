@@ -3,14 +3,15 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from peer_review.decorators.adminRequired import admin_required
 
-from ..models import Question, Questionnaire, RoundDetail, QuestionOrder, User, TeamDetail
+from ..models import Question, Questionnaire, RoundDetail, QuestionOrder, User, TeamDetail, QuestionGrouping
 
 
 # Render the questionnaireAdmin template
 @admin_required
 def questionnaire_admin(request):
     context = {'questions': Question.objects.all(),
-               'questionnaires': get_questionnaires(request)}
+               'questionnaires': get_questionnaires(request),
+               'questgrouping': QuestionGrouping.objects.all()}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
 

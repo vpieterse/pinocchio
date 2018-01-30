@@ -103,7 +103,7 @@ Todo:
                             <div id="content">
                                 <div class="row">
                                     <div class="col-xs-6">
-                                        <small>Loading..</small>
+                                        <small>Loading...</small>
                                         <table class="table table-bordered">
                                             <thead>
                                             <tr>
@@ -351,7 +351,7 @@ Todo:
             if ($('#question-type').val() == "Choice") {
                 var choices = "";
                 $('#content').find('#choice-table > tbody > tr > td > input').each(function (i, el) {
-                    choices += el.value + ';#';
+                    choices += el.value.trim() + ';#';
                 });
                 $('#question-choices').val(choices.slice(0, -2));
                 if (choices == "") {
