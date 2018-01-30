@@ -1,5 +1,4 @@
 # Pinocchio
--------------
 [![Build Status](https://travis-ci.org/teampinocchio/pinocchio.svg?branch=master)](https://travis-ci.org/teampinocchio/pinocchio)
 [![Stories in Ready](https://badge.waffle.io/teampinocchio/pinocchio.png?label=ready&title=Ready)](https://waffle.io/teampinocchio/pinocchio)
 
