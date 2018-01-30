@@ -286,7 +286,6 @@
 
                         <div>
                             <!-- ToDo fix sortable -->
-                            <!-- ToDo implement delete confirmation -->
                             <table id='users'>
                                 <thead>
                                 <tr>
@@ -374,7 +373,13 @@
     <script src="{% static "peer_review/validation.js" %}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
-            $("#users").DataTable();
+            const table = $("#users").DataTable({
+                "initComplete": function () {
+                    // Hook update user buttons
+                    editUserHookUpdateButtons(this);
+                }
+            });
+
             $(".btn.more").on("click", function () {
                 var pk = $(this).data("pk");
                 window.location.href = "" + pk;

@@ -1,5 +1,7 @@
-$(document).on("ready", function() {
-    $(".edit").on("click", function () {
+// Call this function with the Datatables object to
+// hook all edit buttons to the edit modal.
+function editUserHookUpdateButtons(DatatablesObject) {
+    DatatablesObject.$(".edit").on("click", function () {
         var pk = $(this).data("pk");
         $("#more").attr("data-pk", pk);
         var token = $(this).data("csrf");
@@ -31,9 +33,9 @@ $(document).on("ready", function() {
             e_status.val("");
         }
 
-        if(!isAdmin) {
+        if (!isAdmin) {
             e_status.prop("disabled", true);
-        } else if(userPK == pk) {
+        } else if (userPK == pk) {
             $("#resetPassword").show();
         } else {
             $("#resetPassword").hide();
@@ -77,4 +79,4 @@ $(document).on("ready", function() {
             });
         });
     });
-});
+};
