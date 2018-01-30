@@ -107,7 +107,7 @@ def get_questionnaires(request):
         response.append({'title': questionnaire.label,
                          'intro': questionnaire.intro,
                          'pk': questionnaire.pk,
-                         'inARound': RoundDetail.objects.filter(questionnaire=questionnaire).exists()
+                         'inARound': RoundDetail.objects.filter(questionnaire=questionnaire).exists(),
                          })
     return response
 

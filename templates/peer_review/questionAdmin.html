@@ -149,9 +149,9 @@ Todo:
                         <input type="text" class="form-control" id="question-search"
                                placeholder="Start typing to search">
                         <small class="text-muted">Click the <span
-                                class="glyphicon glyphicon glyphicon-pencil text-primary"></span> icon to edit
+                                class="glyphicon glyphicon glyphicon-pencil text-muted"></span> icon to edit
                             questions, and the <span
-                                    class="glyphicon glyphicon glyphicon-remove-circle text-primary"></span> icon to
+                                    class="glyphicon glyphicon glyphicon-remove-circle text-muted"></span> icon to
                             remove questions. Note that questions that have been added to questionnaires cannot be
                             deleted.
                         </small>
@@ -183,7 +183,7 @@ Todo:
                                               title="This question has been used in a questionnaire and cannot be deleted."></span>
                                     {% else %}
                                         <span style="cursor: pointer" onclick="deleteQuestion('{{ question.pk }}')"
-                                              class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary" data-toggle="modal" data-target="#confirm-delete"></span>
+                                              class="glyphicon glyphicon glyphicon-remove-circle pull-right text-danger" data-toggle="modal" data-target="#confirm-delete" title="Delete Question"></span>
                                     {% endif %}
                                     <span style="cursor: pointer" onclick="edit('{{ question.pk }}')"
                                           class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
@@ -209,7 +209,7 @@ Todo:
     <div id="Choice" class="hidden">
         <div class="row">
             <div class="col-xs-6">
-                <small class="text-muted">Click the <span class="glyphicon glyphicon-plus-sign text-primary"></span>
+                <small class="text-muted">Click the <span class="glyphicon glyphicon-plus-sign text-muted"></span>
                     icon to add choices.
                 </small>
                 <table class="table table-bordered" id="choice-table">
@@ -226,10 +226,10 @@ Todo:
                     {% for choice in choices %}
                         <tr class="text-center">
                             <td>
-                                <input type="text" placeholder="Enter choice" style="border:none;"
+                                <input type="text" placeholder="Enter Choice" style="border:none;"
                                        value="{{ choice }}"/>
                                 <span onclick="removeRow(this)"
-                                      class="glyphicon glyphicon-remove-circle pull-right text-primary"
+                                      class="glyphicon glyphicon-remove-circle pull-right text-danger"
                                       style="cursor:pointer"></span>
                                 <span onclick="moveRow(this)"
                                       class="glyphicon glyphicon-arrow-up pull-left text-primary"
@@ -317,7 +317,7 @@ Todo:
         function addRowToTable(el) {
             var row = $('<td></td>');
             row.append('<input type="text" placeholder="Enter Choice" style="border:none;" required/>');
-            row.append('<span onclick="removeRow(this)" class = "glyphicon glyphicon-remove-circle pull-right text-primary" style="cursor:pointer"></span>');
+            row.append('<span onclick="removeRow(this)" class = "glyphicon glyphicon-remove-circle pull-right text-danger" style="cursor:pointer"></span>');
             row.append('<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-up pull-left text-primary" style="cursor:pointer"></span>');
             row.append('<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-down pull-left text-primary" style="cursor:pointer"></span>');
 

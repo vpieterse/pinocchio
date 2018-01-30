@@ -67,7 +67,7 @@ Todo:
                             <label for="select-questions">Select Questions</label>
                             <div class="row" id = "select-questions">
                                 <div class="col-md-6">
-                                    <small class="text-muted">Click the <span class="glyphicon glyphicon glyphicon-plus-sign text-primary"></span> icon to add questions to the questionnaire.</small>
+                                    <small class="text-muted">Click the <span class="glyphicon glyphicon glyphicon-plus-sign text-muted"></span> icon to add questions to the questionnaire.</small>
                                     <table class='table moveable' id='question-table'>
                                         <thead>
                                             <tr>
@@ -105,9 +105,7 @@ Todo:
                                 <!-- Label table -->
                                 <div class="hidden" id="label-table">
                                     <input type="hidden" name="labelCount" id="labelCount" value="0">
-                                    <small class="text-muted">Click the <span class="glyphicon glyphicon-plus-sign text-primary"></span> icon to add
-                                        labels.
-                                    </small>
+                                    <small class="text-muted">Click the <span class="glyphicon glyphicon-plus-sign text-muted"></span> icon to add labels.</small>
                                     <table class="table table-bordered" id="labeltable">
                                         <thead>
                                         <tr>
@@ -124,7 +122,7 @@ Todo:
                                 </div>
                                 <div class="col-xs-6 labels-go-here"></div>
                                 <div class="col-md-6">
-                                    <small class="text-muted">Click the <span class="glyphicon glyphicon glyphicon-minus-sign text-primary"></span> icon to remove questions from the questionnaire.</small>
+                                    <small class="text-muted">Click the <span class="glyphicon glyphicon glyphicon-minus-sign text-muted"></span> icon to remove questions from the questionnaire.</small>
                                     <table id="selected-questions" class="table moveable">
                                         <thead>
                                             <tr>
@@ -146,7 +144,7 @@ Todo:
                                                     <td class = "question-type">{{ question.question.questionType.name }}</td>
                                                     <td class = "question-grouping">{{ question.question.questionGrouping.grouping }}</td>
                                                     <td>
-                                                        <span onclick="removeQuestion(this)" class="glyphicon glyphicon glyphicon-minus-sign text-primary pull-right"  style="cursor:pointer"></span>
+                                                        <span onclick="removeQuestion(this)" class="glyphicon glyphicon glyphicon-minus-sign text-danger pull-right"  style="cursor:pointer"></span>
                                                     </td>
                                                 </tr>
                                             {% endfor %}
@@ -156,6 +154,7 @@ Todo:
                             </div>
                             <br/>
                             <input type="hidden" name="questions" id = "questions"> 
+                            <input type="hidden" name="question-labels" id="question-labels" value="[]">
                             {% if questionnaire %}
                                 <input type="hidden" name="pk" value="{{ questionnaire.pk }}">                
                             {% endif %}
@@ -184,7 +183,7 @@ Todo:
                 <div id="collapseTwo" class="panel-collapse collapse">
                     <div class="panel-body">
                         <input type="text" class="form-control" id="search" placeholder="Start typing to search">
-                        <small class = "text-muted">Click the <span class="glyphicon glyphicon glyphicon-pencil text-primary"></span> icon to edit questionnaires, and the <span class="glyphicon glyphicon glyphicon-remove-circle text-primary"></span> icon to remove questionnaires.</small>
+                        <small class = "text-muted">Click the <span class="glyphicon glyphicon glyphicon-pencil text-muted"></span> icon to edit questionnaires, and the <span class="glyphicon glyphicon glyphicon-remove-circle text-muted"></span> icon to remove questionnaires.</small>
                     </div>
                     <table id = "questionnaire-list" class="table table-hover">
                         <thead>
@@ -192,7 +191,7 @@ Todo:
                                 <th>Title</th>
                                 <th>
                                     Number of Questions
-                                    <span id="delete-many" style = "cursor: pointer" onclick = "deleteMany()" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary" data-toggle="modal" data-target="#confirm-delete"></span>
+                                    <span id="delete-many" style = "cursor: pointer" onclick = "deleteMany()" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-danger" data-toggle="modal" data-target="#confirm-delete"></span>
                                 </th>
                             </tr>
                         </thead>
@@ -212,9 +211,9 @@ Todo:
                                         {% if questionnaire.inARound %}
                                             <span class="glyphicon glyphicon glyphicon-remove-circle pull-right text-muted"></span>
                                         {% else %}
-                                            <span style = "cursor: pointer" onclick = "deleteQuestionnaire('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary" data-toggle="modal" data-target="#confirm-delete"></span>
+                                            <span style = "cursor: pointer" onclick = "deleteQuestionnaire('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-danger" data-toggle="modal" data-target="#confirm-delete" title="Delete Questionnaire"></span>
                                         {% endif %}
-                                        <span style = "cursor: pointer" onclick = "preview('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-eye-open pull-right text-primary">&nbsp</span>
+                                        <span style = "cursor: pointer" onclick = "preview('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-eye-open pull-right text-primary" title="Preview">&nbsp</span>
                                         <span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
                                     </td>
                                 </tr>   
@@ -284,7 +283,7 @@ Todo:
         function addRowToTable(el) {
             var row = $('<td></td>');
             row.append('<input type="text" placeholder="Enter Label" style="border:none;"/>');
-            row.append('<span onclick="removeRow(this)" class = "glyphicon glyphicon-remove-circle pull-right text-primary" style="cursor:pointer"></span>');
+            row.append('<span onclick="removeRow(this)" class = "glyphicon glyphicon-remove-circle pull-right text-danger" style="cursor:pointer"></span>');
             row.append('<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-up pull-left text-primary" style="cursor:pointer"></span>');
             row.append('<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-down pull-left text-primary" style="cursor:pointer"></span>');
 
@@ -349,7 +348,15 @@ Todo:
                                 labels += el.value.trim() + ';#';
                             });
                             if(shouldContinue) {
-                                $('#question-labels').val(labels.slice(0, -2));
+                                var questLabels = {};
+                                questLabels["questionId"] = row.attr("id");
+                                questLabels["questionLabel"] = labels.slice(0, -2);
+                                var jsonArr = JSON.parse($("#question-labels").val());
+                                if(jsonArr.length == 0) {
+                                    $('#question-labels').val("[" + JSON.stringify(questLabels) + "]");
+                                } else {
+                                    $('#question-labels').val($('#question-labels').val().slice(0, -1) + ',' + JSON.stringify(questLabels) + "]");
+                                }
                                 // empty table
                                 $('.labels-go-here').html($('#label-table').html());
                                 $(".labels-go-here").hide(100);    
@@ -364,7 +371,7 @@ Todo:
                     tr.append('<td class="question-label">'+row.find('.question-label').html()+'</td>');
                     tr.append('<td>'+row.find('.question-type').html()+'</td>');
                     tr.append('<td>'+row.find("#question-grouping-" + row.attr("id")).val()+'</td>');
-                    tr.append('<td><span onclick="removeQuestion(this)" class="glyphicon glyphicon glyphicon-minus-sign text-primary pull-right"  style="cursor:pointer"></span></td>');
+                    tr.append('<td><span onclick="removeQuestion(this)" class="glyphicon glyphicon glyphicon-minus-sign text-danger pull-right"  style="cursor:pointer"></span></td>');
                     $('#selected-questions').append(tr);
                     // Disable grouping and add buttons
                     $("#group-select-" + row.attr("id")).prop("disabled", true);
@@ -383,7 +390,28 @@ Todo:
             $("#addBtn-" + $(el).closest('tr').attr('id')).html('<span onclick="addQuestion(this)" class="glyphicon glyphicon glyphicon-plus-sign text-primary pull-right"  style="cursor:pointer"></span>');
             questionTable = $('#question-table').DataTable({paging: true});
             questionTable.page(curPage).draw('page');
-            $(el).closest('tr').remove();
+            if($("#question-grouping-" + $(el).closest('tr').attr("id")).val() == "Label") {
+                var jsonArr = JSON.parse($("#question-labels").val());
+                $('#question-labels').val("[]");
+                for(i = 0; i < jsonArr.length; i++) {
+                    if(jsonArr[i].questionId != $(el).closest('tr').attr("id")) {
+                        if(i == 0) {
+                            $('#question-labels').val("[" + JSON.stringify(jsonArr[i]) + "]");
+                        } else {
+                            $('#question-labels').val($('#question-labels').val().slice(0, -1) + ',' + JSON.stringify(jsonArr[i]) + "]");
+                        }
+                    }
+                }
+            }
+            curPage = questionTable.page.info().page;
+            questionTable.destroy(); // Refresh across pages in datatable
+            $("#group-select-" + $(el).closest('tr').attr("id")).html("Select Grouping <span class=\"caret\"></span>");
+            {% for grup in questgrouping %}
+                $("#group-select-{{ grup }}-" + $(el).closest('tr').attr("id")).removeClass('active');
+            {% endfor %}
+            questionTable = $('#question-table').DataTable({paging: true});
+            questionTable.page(curPage).draw('page');
+            $(el).closest('tr').remove(); 
         }
 
         function edit(pk) {
@@ -431,7 +459,7 @@ Todo:
 
              /* TODO ---------------------------------------------------------- */
 
-             
+
             if ($('#question-type').val() == "Rank" && $('#question-grouping').val() == "Label") {
                 if ($('#labeltable > tbody > tr > td > input').size() < 2) {
                     a = $('.container').eq(1).prepend('<div class = "alert alert-warning">Error: Rank with label grouping needs at least two labels.</div>');
@@ -456,22 +484,14 @@ Todo:
                 removeQuestion(el);
             });
             $(".labels-go-here").hide(100);
-            curPage = questionTable.page.info().page;
-            questionTable.destroy(); // Refresh across pages in datatable
-            $('#question-table > tbody > tr').each(function (i, el) {
-                $("#group-select-" + el.id).html("Select Grouping <span class=\"caret\"></span>");
-                {% for label in labels %}
-                    $("#group-select-{{ label }}-" + el.id).removeClass('active');
-                {% endfor %}
-            });
-            questionTable = $('#question-table').DataTable({paging: true});
-            questionTable.page(curPage).draw('page');
         }
 
         function changeGrouping(group, questionId) {
             $("#group-select-" + questionId).html(group + " <span class=\"caret\"></span>");
             $("#question-grouping-" + questionId).val(group);
-            $("#groups > li").removeClass('active');
+            {% for grup in questgrouping %}
+                $("#group-select-{{ grup }}-" + questionId).removeClass('active');
+            {% endfor %}
             $("#group-select-" + group + "-" + questionId).addClass('active');
             if (group == "Label") {
                 $("#label-heading").text("Labels: " + $("#question-label-" + questionId).val());
