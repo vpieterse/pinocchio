@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, get_list_or_404
 from peer_review.decorators.adminRequired import admin_required
 
 from ..models import Question, Questionnaire, RoundDetail, QuestionOrder, User, TeamDetail
@@ -21,7 +21,7 @@ def questionnaire_preview(request, questionnaire_pk):
     carol = User(title='Miss', initials='C', name='Carol', surname='Test', user_id='Carol')
     
     questionnaire = get_object_or_404(Questionnaire, pk=questionnaire_pk)
-    q_orders = get_object_or_404(QuestionOrder, questionnaire=questionnaire)
+    q_orders = get_list_or_404(QuestionOrder, questionnaire=questionnaire)
     
     mock_round = RoundDetail(name='Preview Round', questionnaire=questionnaire, description='This is a preview round')
     
