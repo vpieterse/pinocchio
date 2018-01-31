@@ -16,6 +16,20 @@ class RoundTests(TestCase):
         self.client = Client()
         self.ts = TestSetup()
 
+    def test_round_dump(self):
+        self.client.login(username='1111', password='admin')
+
+        url = reverse('dumpRound')
+        response = self.client.post(url, {'roundPk': self.ts.round.id})
+
+        self.assertEqual(response.status_code, 200)
+        # data = json.loads(response.content.decode())
+        content = response.content
+        self.assertEquals(content, b'"ResponseID","Respondent","QuestionTitle","LabelTitle","SubjectUser","Answer"' +
+                       b'\n"2","12345","I\'m the label","","6789","We have a different answer"' +
+                       b'\n"4","12345","I\'m the label for the question","","6789","choice 2"' +
+                       b'\n"6","12345","I\'m a label for this question","","6789","Bananas"\n')
+
     def test_round_create(self):
         self.client.login(username='1111', password='admin')
 
@@ -48,16 +62,3 @@ class RoundTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(round_test.description, 'New description, better than the old')
 
-    def test_round_dump(self):
-        self.client.login(username='1111', password='admin')
-
-        url = reverse('dumpRound')
-        response = self.client.post(url, {'roundPk': self.ts.round.id})
-
-        self.assertEqual(response.status_code, 200)
-        # data = json.loads(response.content.decode())
-        content = response.content
-        self.assertEquals(content, b'"ResponseID","Respondent","QuestionTitle","LabelTitle","SubjectUser","Answer"' +
-                                   b'\n"2","12345","I\'m the label","","6789","We have a different answer"' +
-                                   b'\n"4","12345","I\'m the label for the question","","6789","choice 2"' +
-                                   b'\n"6","12345","I\'m a label for this question","","6789","Bananas"\n')
