@@ -3,8 +3,9 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from peer_review.decorators.adminRequired import admin_required
 
-from ..models import Question, Questionnaire, RoundDetail, QuestionOrder, User, TeamDetail, QuestionGrouping
+from ..models import Question, Questionnaire, RoundDetail, QuestionOrder, User, TeamDetail, QuestionGrouping, Label, QuestionLabel
 
+import json
 
 # Render the questionnaireAdmin template
 @admin_required
@@ -48,6 +49,8 @@ def save_questionnaire(request):
         intro = request.POST.get("intro")
         title = request.POST.get("title")
         questions = str(request.POST.get('questions')).split(";#")
+        groupings = str(request.POST.get('qgrouping')).split(";#")
+        qlabels = json.loads(request.POST.get('question-labels'))
         if 'pk' in request.POST:
             q = get_object_or_404(Questionnaire, pk=request.POST.get("pk"))
             QuestionOrder.objects.filter(questionnaire=q).delete()
@@ -61,10 +64,23 @@ def save_questionnaire(request):
             q = Questionnaire.objects.create(intro=intro, label=title)
 
         for index, question in enumerate(questions):
-            if question.isdigit():
+            if question.isdigit(): 
                 QuestionOrder.objects.create(questionnaire=q,
                                              question=get_object_or_404(Question, pk=question),
+                                             questionGrouping=QuestionGrouping.objects.get(grouping=groupings[index]),
                                              order=index)
+        labells = []
+        for indx in range(0, len(qlabels)): 
+            tmpjsn = json.dumps(qlabels[int(indx)])
+            curjsn = json.loads(str(tmpjsn))
+            labels = str(curjsn['questionLabel']).split(";#")
+            for lable in labels: 
+                labells.append(Label.objects.create(question=Question.objects.get(pk=curjsn['questionId']), labelText=lable).pk)
+
+        for questo in QuestionOrder.objects.filter(questionnaire=q):
+            for el, lab in enumerate(labells):
+                QuestionLabel.objects.create(questionOrder=questo, label=Label.objects.get(pk=lab))
+
         messages.add_message(request, messages.SUCCESS, "Questionnaire saved successfully.")
     return HttpResponseRedirect('/questionnaireAdmin')
 
@@ -77,7 +93,8 @@ def edit_questionnaire(request, questionnaire_pk):
                'questionnaires': get_questionnaires(request),
                'questionnaire': current_questionnaire,
                'questionOrders': QuestionOrder.objects.filter(
-                   questionnaire=current_questionnaire)}
+                   questionnaire=current_questionnaire),
+               'questgrouping': QuestionGrouping.objects.all()}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
 
@@ -108,19 +125,7 @@ def get_questionnaires(request):
                          'intro': questionnaire.intro,
                          'pk': questionnaire.pk,
                          'inARound': RoundDetail.objects.filter(questionnaire=questionnaire).exists(),
+                         'questionCount': str(QuestionOrder.objects.filter(questionnaire=questionnaire).count())
                          })
     return response
 
-
-
-# edit -----
-
-#if question_grouping == 'Label':
-#            labels = str(request.POST['question-labels']).split(";#")
-#            for label in labels:
-#                Label.objects.create(question=q, labelText=label)
-
-# 'labels': Label.objects.filter(question=question),
-
-        # if not QuestionGrouping.objects.filter(grouping=question_grouping).exists():
-        #    QuestionGrouping.objects.create(grouping=question_grouping)

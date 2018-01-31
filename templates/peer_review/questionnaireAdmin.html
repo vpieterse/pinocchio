@@ -59,7 +59,7 @@ Todo:
                         <form onsubmit="return save()" onreset="empty()" id = "form-save" method="POST" action="/questionnaireAdmin/save">
                             {% csrf_token %}
                             <label for="title">Title</label>
-                            <input type="text" name="title" class="form-control" id="title" placeholder="Enter title" value="{{questionnaire.label}}" required>
+                            <input type="text" name="title" class="form-control" id="title" placeholder="Enter title" value="{{questionnaire.label}}" autocomplete="off" required>
                             <br/>
                             <label for="intro">Introduction</label>
                             <input id="intro" class = "form-control" value="{{ questionnaire.intro }}" name="intro">
@@ -104,7 +104,7 @@ Todo:
                                 </div>
                                 <!-- Label table -->
                                 <div class="hidden" id="label-table">
-                                    <input type="hidden" name="labelCount" id="labelCount" value="0">
+                                    <label id="labelCount" hidden>0</label>
                                     <small class="text-muted">Click the <span class="glyphicon glyphicon-plus-sign text-muted"></span> icon to add labels.</small>
                                     <table class="table table-bordered" id="labeltable">
                                         <thead>
@@ -142,7 +142,7 @@ Todo:
                                                     </td>
                                                     <td class = "question-label">{{ question.question.questionLabel }}</td>
                                                     <td class = "question-type">{{ question.question.questionType.name }}</td>
-                                                    <td class = "question-grouping">{{ question.question.questionGrouping.grouping }}</td>
+                                                    <td class = "question-grouping">{{ question.questionGrouping.grouping }}</td>
                                                     <td>
                                                         <span onclick="removeQuestion(this)" class="glyphicon glyphicon glyphicon-minus-sign text-danger pull-right"  style="cursor:pointer"></span>
                                                     </td>
@@ -153,11 +153,13 @@ Todo:
                                 </div>
                             </div>
                             <br/>
-                            <input type="hidden" name="questions" id = "questions"> 
+                            <input type="hidden" name="questions" id="questions" value="">
+                            <input type="hidden" name="qgrouping" id="qgrouping" value="">
                             <input type="hidden" name="question-labels" id="question-labels" value="[]">
                             {% if questionnaire %}
                                 <input type="hidden" name="pk" value="{{ questionnaire.pk }}">                
                             {% endif %}
+                            <div id="diverrors"></div>
                             <button type="submit" class = "btn btn-primary">
                                 <span class="glyphicon glyphicon-ok"></span>
                                 Submit
@@ -207,7 +209,7 @@ Todo:
                                         {{ questionnaire.title }}
                                     </td>
                                     <td>
-                                        {{ questionnaire.questionOrders.count }}
+                                        {{ questionnaire.questionCount }}
                                         {% if questionnaire.inARound %}
                                             <span class="glyphicon glyphicon glyphicon-remove-circle pull-right text-muted"></span>
                                         {% else %}
@@ -275,7 +277,9 @@ Todo:
                 }
 
             });
-
+            {% if questionnaire %}
+                setupEdit();
+            {% endif %}
             questionTable = $('#question-table').DataTable({paging: true});
         });
 
@@ -290,9 +294,9 @@ Todo:
             $(el).closest('table').find('tbody').append(row);
             row.wrap('<tr></tr>');
             row.addClass('text-center');
-            labCount = $("#labelCount").val();
+            labCount = parseInt($("#labelCount").text());
             labCount++;
-            $("#labelCount").val(labCount);
+            $("#labelCount").text(labCount);
             return row;
         }
 
@@ -304,9 +308,9 @@ Todo:
 
         function removeRow(el) {
             $(el).closest('tr').remove();
-            labCount = $("#labelCount").val();
+            labCount = parseInt($("#labelCount").text());
             labCount--;
-            $("#labelCount").val(labCount);
+            $("#labelCount").text(labCount);
         }
 
         function moveRow(el) {
@@ -333,8 +337,12 @@ Todo:
                     showSnackbar("Please select grouping for: <strong>" + questLabel + "</strong>");
                 } else {
                     if ($("#question-grouping-" + row.attr("id")).val() == "Label") {
-                        if($("#labelCount").val() < 1) {
+                        $(".labels-go-here").show(100);
+                        if(parseInt($("#labelCount").text()) < 1) {
                             showSnackbar("Please enter labels for: <strong>" + questLabel + "</strong>");
+                            return;
+                        } else if(parseInt($("#labelCount").text()) < 2) {
+                            showSnackbar("Please enter at least two labels for: <strong>" + questLabel + "</strong>");
                             return;
                         } else {
                             // Store labels
@@ -348,6 +356,7 @@ Todo:
                                 labels += el.value.trim() + ';#';
                             });
                             if(shouldContinue) {
+                                $("#labelCount").text(0);
                                 var questLabels = {};
                                 questLabels["questionId"] = row.attr("id");
                                 questLabels["questionLabel"] = labels.slice(0, -2);
@@ -376,8 +385,6 @@ Todo:
                     // Disable grouping and add buttons
                     $("#group-select-" + row.attr("id")).prop("disabled", true);
                     $("#addBtn-" + $(el).closest('tr').attr('id')).html('<span class="glyphicon glyphicon glyphicon-plus-sign text-muted pull-right"  title="Question already added"></span>');
-                    //To ensure only one of each question in questionnaire
-                    // $(el).removeClass('text-primary').addClass('text-muted');
                 }
             }
         }
@@ -420,7 +427,6 @@ Todo:
         
         function preview(pk) {
             $("body").append("<a id='previewLink' href='/questionnairePreview/" + pk + "' target='_blank' style='display:none'></a>");
-            // alert(getElementById('previewLink'));
             document.getElementById('previewLink').click();
             $("#previewLink").remove();
         }
@@ -453,27 +459,34 @@ Todo:
             $('#delete-questionnaire').html('<strong>' + strcnf + '</strong>');
         }
 
+        function closeErrors() {
+            setTimeout(function () {
+                $(".alert").fadeTo(500, 0).slideUp(500, function(){
+                    $(this).remove(); 
+                });
+            }, 3000);
+        }
+
         function save() {
-            // Rewrite validation
-
-
-             /* TODO ---------------------------------------------------------- */
-
-
-            if ($('#question-type').val() == "Rank" && $('#question-grouping').val() == "Label") {
-                if ($('#labeltable > tbody > tr > td > input').size() < 2) {
-                    a = $('.container').eq(1).prepend('<div class = "alert alert-warning">Error: Rank with label grouping needs at least two labels.</div>');
-                    setTimeout(function () {
-                        $('.container').eq(1).find('.alert').hide(100);
-                    }, 5000);
-                    return false;
-                }
+            if($('#selected-questions > tbody > tr').size() == 0) {
+                $("#diverrors").html("<div class=\"alert alert-danger\">Please add questions to the questionnaire</div>");
+                closeErrors();
+                return false;
             }
+            // Associative arrays
             var questions = "";
+            var groupings = "";
+            curPage = questionTable.page.info().page;
+            questionTable.destroy(); // Refresh across pages in datatable
             $('#selected-questions > tbody > tr').each(function(i, el) {
                 questions += el.id + ';#';
+                groupings += $("#question-grouping-" + el.id).val() + ';#';
             });
+            questionTable = $('#question-table').DataTable({paging: true});
+            questionTable.page(curPage).draw('page');
             $('#questions').val(questions);
+            $("#qgrouping").val(groupings);
+            return true;
         }
 
         function empty() {
@@ -500,6 +513,15 @@ Todo:
             } else {
                 $(".labels-go-here").hide(100);
             }
+        }
+
+        function setupEdit() {
+            $('#selected-questions > tbody > tr').each(function(i, el) {
+                $("#group-select-" + $(el).closest('tr').attr("id")).html($("#selected-questions > tbody > tr > .question-grouping").html() + " <span class=\"caret\"></span>");
+                $("#group-select-" + $("#selected-questions > tbody > tr > .question-grouping").html() + "-" + $(el).closest('tr').attr("id")).removeClass('active');
+                $("#group-select-" + $(el).closest('tr').attr("id")).prop("disabled", true);
+                $("#addBtn-" + $(el).closest('tr').attr('id')).html('<span class="glyphicon glyphicon glyphicon-plus-sign text-muted pull-right"  title="Question already added"></span>');
+            });
         }
     </script>
 {% endblock %}

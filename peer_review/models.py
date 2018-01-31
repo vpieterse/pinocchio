@@ -193,6 +193,11 @@ class QuestionOrder(models.Model):
         return self.question.questionLabel
 
 
+class QuestionLabel(models.Model): 
+    questionOrder = models.ForeignKey(QuestionOrder, null=False, on_delete=models.CASCADE)
+    label = models.ForeignKey(Label, null=False, on_delete=models.CASCADE)
+
+
 class RoundDetail(models.Model):
     name = models.CharField(max_length=15, unique=True)
     questionnaire = models.ForeignKey(Questionnaire, null=True)
