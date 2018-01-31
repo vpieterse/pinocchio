@@ -14,25 +14,20 @@
 {% spaceless %}
     <div class="container">
         <div class="panel-group" id="accordion">
-            {# Check if no teams available #}
-            {% counter_reset %}
-            {% for teamCheck in teams %}
-                {% counter_inc %}
-            {% endfor %}
-            {% counter_get as teamCount %}
-            {% counter_reset %}
-            {% for team in teams %}
+            {% for teamGroup in teams %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ team.pk }}">
-                                {{ team.roundDetail.name }}: {{ team.teamName }}<b class="caret"></b>
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ teamGroup.team.pk }}">
+                                {{ teamGroup.team.roundDetail.name }}: {{ teamGroup.team.teamName }}
+                                <i style="font-weight: normal">({{ teamGroup.members | length }} teammates)</i>
+                                <b class="caret"></b>
                             </a>
                         </h4>
                     </div>
-                    <div id="collapse{{ team.pk }}" class="panel-collapse collapse">
+                    <div id="collapse{{ teamGroup.team.pk }}" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <table id="table{{ team.pk }}" class="table">
+                            <table id="table{{ teamGroup.team.pk }}" class="table">
                                 <thead>
                                     <tr>
                                         <th>User Name</th>
@@ -42,27 +37,25 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for member in members %}
-                                        {% if member.teamName == team.teamName %}
-                                            <tr>
-                                                <td><a href="/accountDetails/{{ member.user.user_id }}">{{ member.user.user_id }}</a></td>
-                                                <td>{{ member.user.name }} {{ member.user.surname }}</td>
-                                                <td>{{ member.user.email }}</td>
-                                                <td>{{ member.user.cell }}</td>
-                                            </tr>
-                                        {% endif %}
+                                    {% for member in teamGroup.members %}
+                                        <tr>
+                                            <td><a href="/accountDetails/{{ member.user.user_id }}">{{ member.user.user_id }}</a></td>
+                                            <td>{{ member.user.name }} {{ member.user.surname }}</td>
+                                            <td>{{ member.user.email }}</td>
+                                            <td>{{ member.user.cell }}</td>
+                                        </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                             <script>
-                                $("#table{{ team.pk }}").DataTable();
+                                $("#table{{ teamGroup.team.pk }}").DataTable();
                             </script>
                         </div>
                     </div>
                 </div>
             {% endfor %}
         </div>
-        {% if teamCount == 0 %}
+        {% if not teams %}
             <div>
             <h2>{{ user.name }}, you currently have no teams to display.</h2>
             <br><img src="{% static "peer_review/pinocchioError.png" %}" id="errorImage" style="width: 36%; height: 72%; "/>

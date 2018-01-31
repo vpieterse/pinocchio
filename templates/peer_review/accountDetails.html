@@ -81,4 +81,9 @@
         </div>
     </div>
     {% include "peer_review/userEditModal.html" %}
+    <script>
+        $(document).ready(function () {
+           editUserHookUpdateButtons($("#user{{ user.user_id }}"));
+        });
+    </script>
 {% endblock context %}
