@@ -73,32 +73,33 @@ def get_teams_for_round(request, round_pk):
         if team.teamName not in team_tables:
             team_tables[team.teamName] = []
 
-        team_tables[team.teamName].append({
-            'user_id': team.user.user_id,
-            'pk': team.user.pk,
-            'name': team.user.name,
-            'surname': team.user.surname,
-            'teamName': team.teamName,
-            'status': team.status,
-            'teamSize': team_sizes[team.teamName],
-            'team_id': team.pk
-        })
+        team_tables[team.teamName].append(team.user)
         response["users"][team.user.user_id] = True
+
     for userList in team_tables:
-        print(team_tables[userList])
-        team_id = str(team_tables[userList][0]['teamName'])
         template = loader.get_template('peer_review/maintainTeam-teamPanel.html')
         context = {
-            'team_id': team_id,
-            'team_tables': team_tables,
+            'team_name': userList,
             'userList': team_tables[userList],
-            'team_size': team_tables[userList][0]['teamSize'],
-
+            'team_size': team_sizes[userList],
         }
         new_team = template.render(context, request)
-        response['teamTables'][team_id] = new_team
-        response['teams'].append(team_id)
+        response['teamTables'][userList] = new_team
+        response['teams'].append(userList)
     # print(response)
+    return JsonResponse(response)
+
+
+@admin_required
+def get_new_team(request, team_name):
+    template = loader.get_template('peer_review/maintainTeam-teamPanel.html')
+    context = {
+        'team_id': team_name,
+        'userList': [],
+        'team_size': 0,
+
+    }
+    response = {'success': True, 'team': template.render(context, request)}
     return JsonResponse(response)
 
 

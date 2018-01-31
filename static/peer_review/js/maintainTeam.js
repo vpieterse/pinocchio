@@ -1,4 +1,8 @@
 /**
+ * Created by Jeffrey Russell on 8/18/17.
+*/
+
+/**
  * Created by jeffreyrussell on 8/18/17.
 
 function addTeam()
@@ -278,6 +282,20 @@ $(document).ready(function () {
         changeStatus($(row).attr("id"), $(this).val());
     });
 });*/
+function isAlphaNumeric(str) {
+  var code, i, len;
+
+  for (i = 0, len = str.length; i < len; i++) {
+    code = str.charCodeAt(i);
+    if (!(code > 47 && code < 58) && // numeric (0-9)
+        !(code > 64 && code < 91) && // upper alpha (A-Z)
+        !(code > 96 && code < 123)) { // lower alpha (a-z)
+      return false;
+    }
+  }
+  return true;
+}
+
 
 var UserHandler = function(userTableElement) {
     var self = this;
@@ -286,20 +304,21 @@ var UserHandler = function(userTableElement) {
     this.userTableElement = userTableElement;
     this.teamDataTables = [];
     this.currentTeam = "";
+    this.roundID = "";
     this.init = function() {
         self.userDataTable = self.userTableElement.DataTable({
             "orderClasses": false,
             "columnDefs": [{
                 "orderable": false,
                 "searchable": false,
-                "render": function (data, type, full, meta) {
+                "render": function (data, type, full) {
                     return "<div class=\"addUser button\" data-id='" + full.DT_RowId + "'><span class=\"glyphicon glyphicon-chevron-right\"></span></div>"
                 },
                 "targets": [3]}]
         });
 
         self.userDataTable.on("draw", self.onDraw);
-        self.userDataTable.draw();
+        self.userDataTable.draw(false);
 
         self.addUsers(self.userDataTable.rows().data(), true);
     };
@@ -307,6 +326,7 @@ var UserHandler = function(userTableElement) {
     this.addUser = function(user, redraw, dontAdd) {
         redraw = typeof redraw !== 'undefined' ? redraw : true;
         dontAdd = typeof dontAdd !== 'undefined' ? dontAdd : false;
+        /** @namespace user.DT_RowId */
         if(user.DT_RowId && !user.id) {
             user.id = user.DT_RowId;
         }
@@ -328,19 +348,40 @@ var UserHandler = function(userTableElement) {
             self.userDataTable.row.add(user);
         }
         if(redraw) {
-            self.userDataTable.draw();
+            self.userDataTable.draw(false);
         }
     };
 
     this.addUsers = function(users, dontAdd) {
         console.log(users);
         for(var i in users) {
-            if(!isNaN(i) && users.hasOwnProperty(i)) {
+            if(!isNaN(Number(i)) && users.hasOwnProperty(i)) {
 
                 self.addUser(users[i], false, dontAdd);
             }
         }
-        self.userDataTable.draw();
+        self.userDataTable.draw(false);
+    };
+
+    this.moveUserUpdateAJAX = function(userID, teamID) {
+        $.ajax({
+            url: '/maintainTeam/changeUserTeamForRound/'+self.roundID+'/'+userID+'/'+teamID+'/',
+            type: 'GET',
+            success: function(data) {
+                console.log(data);
+                if(data["success"] === true)
+                {
+                    console.log("Changed user: "+userID+" to team: "+teamID+" for round: "+self.roundID);
+                }
+                else
+                {
+                    console.log("ERROR: Could not change user: "+userID+" to team: "+teamID+" for round: "+self.roundID);
+                }
+            },
+            error: function() {
+                console.log("ERROR: Could not change user: "+userID+" to team: "+teamID+" for round: "+self.roundID);
+            }
+        });
     };
 
     this.moveUserToTeam = function(userID, teamID, dontAdd) {
@@ -356,16 +397,18 @@ var UserHandler = function(userTableElement) {
         user.team = teamID;
 
         self.userDataTable.row("#" + userID).remove();
-        self.userDataTable.draw();
+        self.userDataTable.draw(false);
+
 
         if(!dontAdd) {
+            self.moveUserUpdateAJAX(userID, teamID);
             self.teamDataTables[teamID].row.add(user);
-            self.teamDataTables[teamID].draw();
+            self.teamDataTables[teamID].draw(false);
             $("#" + teamID + "_size").text(self.teamDataTables[teamID].rows().count());
         }
     };
 
-    this.removeUserFromTeam = function(userID) {
+    this.removeUserFromTeam = function(userID, justGraphical) {
         var user = self.users[userID];
         if(!user) {
             throw "Cannot find user, " + userID + ", in users";
@@ -378,12 +421,16 @@ var UserHandler = function(userTableElement) {
         user.status = "list";
         user.team = "";
 
+        if(!justGraphical) {
+            self.moveUserUpdateAJAX(userID, "emptyTeam");
+        }
+
         self.teamDataTables[oldTeamID].row("#" + userID).remove();
-        self.teamDataTables[oldTeamID].draw();
+        self.teamDataTables[oldTeamID].draw(false);
         $("#" + oldTeamID + "_size").text(self.teamDataTables[oldTeamID].rows().count());
 
         self.userDataTable.row.add(user);
-        self.userDataTable.draw();
+        self.userDataTable.draw(false);
     };
 
     this.onDraw = function(e) {
@@ -397,8 +444,9 @@ var UserHandler = function(userTableElement) {
     };
 
     this.onAddUser = function(e) {
-        if(self.currentTeam == "") {
+        if(self.currentTeam === "") {
             alert("You must open a team on the right in order to add this person to it");
+            return;
         }
         self.moveUserToTeam(e.currentTarget.getAttribute("data-id"), self.currentTeam);
     };
@@ -407,28 +455,29 @@ var UserHandler = function(userTableElement) {
         if(self.teamDataTables[teamID]) {
             throw "That team already exists";
         }
-        $("#teams").append(html);
+        var $teams = $("#teams");
+        $teams.append(html);
         self.teamDataTables[teamID] = $("#" + teamID + " .teamTable").DataTable({
             "orderClasses": false,
             "columnDefs": [{
                 "orderable": false,
                 "searchable": false,
-                "render": function (data, type, full, meta) {
+                "render": function (data, type, full) {
                     return "<div class=\"removeUser button\" data-id='" + full.DT_RowId + "'><span class=\"glyphicon glyphicon-chevron-left\"></span></div>"
                 },
                 "targets": [3]}]
         });
-        $("#teams").find(".panel-heading").unbind("click").on("click", function(event) {
+        $teams.find(".panel-heading").unbind("click").on("click", function(event) {
             console.log(event.currentTarget.classList.contains("collapsed"));
             self.currentTeam = event.currentTarget.getAttribute("href").substring(1);
         });
         self.teamDataTables[teamID].on("draw", self.onDraw);
-        self.teamDataTables[teamID].draw();
+        self.teamDataTables[teamID].draw(false);
 
         var rows = self.teamDataTables[teamID].rows().data();
 
         for(var i in rows) {
-            if(!isNaN(i) && rows.hasOwnProperty(i)) {
+            if(!isNaN(Number(i)) && rows.hasOwnProperty(i)) {
                 self.moveUserToTeam(rows[i].DT_RowId, teamID, true);
             }
         }
@@ -437,8 +486,8 @@ var UserHandler = function(userTableElement) {
     this.resetTeams = function() {
         for(var i in self.users) {
             if(self.users.hasOwnProperty(i)) {
-                if(self.users[i].status == "team") {
-                    self.removeUserFromTeam(i);
+                if(self.users[i].status === "team") {
+                    self.removeUserFromTeam(i, true);
                 }
             }
         }
@@ -446,27 +495,35 @@ var UserHandler = function(userTableElement) {
         self.teamDataTables = {};
         self.currentTeam = "";
     };
+
+    this.hasTeam = function(teamID) {
+        return self.teamDataTables[teamID];
+    }
 };
 
 var userList = [];
-var RoundHandler = function(dropdownSelector, userHandler) {
+var RoundHandler;
+RoundHandler = function (dropdownSelector, userHandler) {
     var self = this;
     this.dropdownSelector = dropdownSelector;
     this.roundDescriptionSelector = "#roundDesc";
     this.userHandler = userHandler;
-    this.init = function() {
+    self.roundID = "";
+    this.init = function () {
         self.dropdown = $(self.dropdownSelector);
         self.dropdown.on("change", self.changeRoundClicked);
         self.roundDescription = $(self.roundDescriptionSelector);
     };
 
-    this.changeRoundClicked = function(event) {
+    this.changeRoundClicked = function (event) {
         var options = event.target.options;
         var selectedOption = options[options.selectedIndex];
         self.changeRound(selectedOption.getAttribute("value"), selectedOption.getAttribute("desc"));
     };
-    this.changeRound = function(roundID, description) {
-        if (roundID == '') {
+    this.changeRound = function (roundID, description) {
+        self.roundID = roundID;
+        self.userHandler.roundID = roundID;
+        if (roundID === '') {
             self.roundDescription.html("Please select a round above");
         }
         else {
@@ -482,42 +539,22 @@ var RoundHandler = function(dropdownSelector, userHandler) {
         }
     };
 
-    this.changeRoundResult = function(data) {
-        var users = data.users,
-            teamTables = data.teamTables,
-            userID,
-            user,
+    this.changeRoundResult = function (data) {
+        /** @namespace data.teamTables */
+        var teamTables = data.teamTables,
+            $teams = $("#teams"),
             i,
             teamTable;
-        // for(var i in self.removedUserRows) {
-        //     if(self.removedUserRows.hasOwnProperty(i)) {
-        //         console.log("adding");
-        //         console.log(self.removedUserRows[i]);
-        //         self.userDataTable.row.add(self.removedUserRows[i]);
-        //     }
-        // }
-        // self.removedUserRows = [];
-        //
-        // for(userID in users){
-        //     if(users.hasOwnProperty(userID)) {
-        //         user = users[userID];
-        //         // self.userDataTable.row("#" + userID).node().classList.add("hidden");
-        //         var row = self.userDataTable.row("#" + userID);
-        //         self.removedUserRows.push(row.data());
-        //         row.remove().draw();
-        //     }
-        // }
-        // console.log(self.removedUserRows);
-        $("#teams").empty();
+        $teams.empty();
         self.userHandler.resetTeams();
-        for(i in teamTables){
-            if(teamTables.hasOwnProperty(i)) {
+        for (i in teamTables) {
+            if (teamTables.hasOwnProperty(i)) {
                 console.log("hey");
                 teamTable = teamTables[i];
                 self.userHandler.addTeam(teamTable, i);
             }
         }
-        $("#teams").find(".panel-heading").first().addClass("collapsed").trigger("click");
+        $teams.find(".panel-heading").first().addClass("collapsed").trigger("click");
 
     };
 };
@@ -531,17 +568,39 @@ var PageHandler = function() {
         self.userHandler.init();
         self.roundHandler = new RoundHandler(self.roundDropdownSelector, self.userHandler);
         self.roundHandler.init();
-        $("#addTeam").on("click", function() {
+        $("#addTeam").parent("h4").parent("div").on("click", self.addTeamClick);
+    };
+
+    this.addTeamClick = function() {
+        if(self.roundHandler.roundID !== "") {
             var teamName = prompt("Please enter a team name");
-            if(teamName) {
-                try{
-                    self.userHandler.addTeam("", teamName);
-                    return;
-                } catch(e) {
+            if(teamName !== null) {
+                if (teamName !== "") {
+                    if(isAlphaNumeric(teamName)) {
+                        if (!self.userHandler.hasTeam(teamName)) {
+                            $.ajax({
+                                url: "/maintainTeam/getNewTeam/" + teamName,
+                                type: "GET",
+                                success: function (data) {
+                                    self.userHandler.addTeam(data['team'], teamName);
+                                },
+                                error: function () {
+                                    console.log("ERROR: Could not add new team: " + teamName + " to status: ");
+                                }
+                            });
+                        } else {
+                            alert("That team already exists");
+                        }
+                    } else {
+                        alert("Please only use numbers and letters");
+                    }
+                } else {
+                    alert("That name was blank");
                 }
             }
-            alert("Bad team Name, please try again");
-        });
+        } else {
+            alert("Please select a round");
+        }
     }
 };
 

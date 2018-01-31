@@ -64,3 +64,5 @@ db.sqlite3
 pinocchio/production.py
 
 .DS_STORE
+
+media/dumps
