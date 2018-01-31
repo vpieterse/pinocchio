@@ -265,6 +265,7 @@ def write_dump(round_pk):
     else:
         data.append(['NO DATA'])
 
+    os.makedirs(os.path.dirname(dump_file), exist_ok=True)
     with open(dump_file, 'w', newline='') as csv_file:
         writer = csv.writer(csv_file, delimiter=',', quoting=csv.QUOTE_ALL)
         writer.writerows(data)
