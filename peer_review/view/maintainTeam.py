@@ -94,7 +94,7 @@ def get_teams_for_round(request, round_pk):
 def get_new_team(request, team_name):
     template = loader.get_template('peer_review/maintainTeam-teamPanel.html')
     context = {
-        'team_id': team_name,
+        'team_name': team_name,
         'userList': [],
         'team_size': 0,
 
