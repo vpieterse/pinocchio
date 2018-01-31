@@ -1,7 +1,7 @@
-// Call this function with the Datatables object to
-// hook all edit buttons to the edit modal.
-function editUserHookUpdateButtons(DatatablesObject) {
-    DatatablesObject.$(".edit").on("click", function () {
+// Call this function with the jQuery object representing the
+// DOM element from which to start searching for the user's fields
+function editUserHookUpdateButtons(jQueryObject) {
+    jQueryObject.find(".edit").on("click", function () {
         var pk = $(this).data("pk");
         $("#more").attr("data-pk", pk);
         var token = $(this).data("csrf");
@@ -41,7 +41,7 @@ function editUserHookUpdateButtons(DatatablesObject) {
             $("#resetPassword").hide();
         }
 
-        $("#updateConfirm").on("click", function () {
+        $("#updateConfirm").unbind('click').on("click", function () {
             var uStatus = "";
 
             if (e_status.val() == "User") {
