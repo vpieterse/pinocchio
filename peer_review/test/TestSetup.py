@@ -9,13 +9,30 @@ class TestSetup:
         self.questionnaire = Questionnaire.objects.create(intro='Hello, this is a question',
                                                           label='This is a very unique label')
 
-        start_date = datetime.now(timezone(timedelta(hours=2)))
-        end_date = datetime.now(timezone(timedelta(hours=2)))
+        past1_date = datetime.now(timezone(timedelta(hours=-12)))
+        past2_date = datetime.now(timezone(timedelta(hours=-2)))
+        now_date = datetime.now(timezone(timedelta(hours=2)))
+        future1_date = datetime.now(timezone(timedelta(hours=3)))
+        future2_date = datetime.now(timezone(timedelta(hours=12)))
+
+        self.round = RoundDetail.objects.create(name='test round all past', questionnaire=self.questionnaire,
+                                                startingDate=past1_date,
+                                                endingDate=past2_date,
+                                                description='A round which is over and done')
+        self.round = RoundDetail.objects.create(name='test round running', questionnaire=self.questionnaire,
+                                                startingDate=past1_date,
+                                                endingDate=future1_date,
+                                                description='A round which is currently running')
+        self.round = RoundDetail.objects.create(name='test round past', questionnaire=self.questionnaire,
+                                                startingDate=start_date,
+                                                endingDate=end_date,
+                                                description='Hey there, we have a round')
 
         self.round = RoundDetail.objects.create(name='test round', questionnaire=self.questionnaire,
                                                 startingDate=start_date,
                                                 endingDate=end_date,
                                                 description='Hey there, we have a round')
+
 
         self.user = User.objects.create_user('bob@bob.com', 'bob', 'bob', 'simons', user_id=12345)
         self.user2 = User.objects.create_user('joe@gmail.com', 'joe', 'Smith', '12345', user_id=6789)
