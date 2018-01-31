@@ -50,7 +50,7 @@
                             </form>
                         </div>
                         <br />
-                        <div class="container col-md-8">
+                        <div class="">
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <h4 class="panel-title"><b>Round Description</b></h4>
@@ -63,51 +63,49 @@
                         <br />
                         <div class="col-md-12 col-sm-12" style="padding: 5px"></div>
                         <br />
-                        <div class="container">
-                            <div class="row">
-                                <div class="col-xs-5">
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading">
-                                            <h4 class="panel-title"><b>User List</b></h4>
-                                        </div>
-                                        <div class="panel-body">
-                                            <div class='table-responsive'>
-                                                <table class='table moveable sortable' id='users'>
-                                                    <thead>
-                                                    <tr>
-                                                        <th>User Name</th>
-                                                        <th>Name</th>
-                                                        <th>Surname</th>
-                                                        <th></th>
+                        <div class="row" id="tablesContainer">
+                            <div class="col-sm-6">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title"><b>User List</b></h4>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div >
+                                            <table class='table moveable sortable' id='users'>
+                                                <thead>
+                                                <tr>
+                                                    <th>User Name</th>
+                                                    <th>Name</th>
+                                                    <th>Surname</th>
+                                                    <th></th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for user in users %}
+                                                    <tr id="{{ user.pk }}">
+                                                        <td>{{ user.user_id }}</td>
+                                                        <td>{{ user.name }}</td>
+                                                        <td>{{ user.surname }}</td>
+                                                        <td></td>
                                                     </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    {% for user in users %}
-                                                        <tr id="{{ user.pk }}">
-                                                            <td>{{ user.user_id }}</td>
-                                                            <td>{{ user.name }}</td>
-                                                            <td>{{ user.surname }}</td>
-                                                            <td></td>
-                                                        </tr>
-                                                    {% endfor %}
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-xs-6">
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading">
-                                            <h4 class="panel-title"><b>Teams</b></h4>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title"><b>Teams</b></h4>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="panel-group" id="teams">
                                         </div>
-                                        <div class="panel-body">
-                                            <div class="panel-group" id="teams">
-                                            </div>
-                                            <div class="panel panel-default">
-                                                <div class="panel-heading">
-                                                    <h4 class="panel-title"><input type="button" value="+" class="btn btn-info btn-xs plus" id="addTeam"/><b> Add</b></h4>
-                                                </div>
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title"><input type="button" value="+" class="btn btn-info btn-xs plus" id="addTeam"/><b> Add</b></h4>
                                             </div>
                                         </div>
                                     </div>

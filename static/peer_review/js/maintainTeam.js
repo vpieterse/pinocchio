@@ -16,6 +16,10 @@ function isAlphaNumeric(str) {
   return true;
 }
 
+var tableLayout =
+    "<'row text-right'<'col-lg-6'l><'col-lg-6'f>>" +
+    "<'row'<'col-xs-12'tr>>" +
+    "<'row'<'col-lg-6 text-center'i><'col-lg-6'p>>";
 
 var UserHandler = function(userTableElement) {
     var self = this;
@@ -34,7 +38,8 @@ var UserHandler = function(userTableElement) {
                 "render": function (data, type, full) {
                     return "<div class=\"addUser button\" data-id='" + full.DT_RowId + "'><span class=\"glyphicon glyphicon-chevron-right\"></span></div>"
                 },
-                "targets": [3]}]
+                "targets": [3]}],
+            dom: tableLayout
         });
 
         self.userDataTable.on("draw", self.onDraw);
@@ -185,7 +190,8 @@ var UserHandler = function(userTableElement) {
                 "render": function (data, type, full) {
                     return "<div class=\"removeUser button\" data-id='" + full.DT_RowId + "'><span class=\"glyphicon glyphicon-chevron-left\"></span></div>"
                 },
-                "targets": [3]}]
+                "targets": [3]}],
+            dom: tableLayout
         });
         $teams.find(".panel-heading").unbind("click").on("click", function(event) {
             console.log(event.currentTarget.classList.contains("collapsed"));
