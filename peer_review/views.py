@@ -222,6 +222,23 @@ def user_delete(request):
     if request.method == "POST":
         to_delete = request.POST.getlist("toDelete[]")
 
+        have_responses = []
+
+        for userPk in to_delete:
+            user = get_object_or_404(User, pk=userPk)
+
+            user.delete()
+
+    return HttpResponseRedirect('../')
+
+@admin_required
+def user_delete_handler(request):
+    # currently mimics user_delete
+    if request.method == "POST":
+        to_delete = request.POST.getlist("toDelete[]")
+
+        have_responses = []
+
         for userPk in to_delete:
             user = get_object_or_404(User, pk=userPk)
 

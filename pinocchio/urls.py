@@ -53,6 +53,7 @@ urlpatterns = [
         name='submitUserForm'),
     url(r'^userAdmin/submitCSV/$', peer_review.view.userAdmin.submit_csv, name='submitCSV'),
     url(r'^userAdmin/delete/$', views.user_delete, name='userDelete'),
+    url(r'^userAdmin/deleteHandler/$', views.user_delete_handler, name='userDeleteHandler'),
     url(r'^userAdmin/userProfile/(?P<user_id>[0-9a-zA-Z]+)/?$', views.user_profile, name="userProfile"),
     url(r'^userAdmin/update/(?P<user_id>[0-9a-zA-Z]+)/?$',
         peer_review.view.userManagement.user_update,

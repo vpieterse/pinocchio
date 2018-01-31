@@ -418,7 +418,14 @@
                 }
             });
 
-            var toDeleteMessage = "Are you sure you want to delete these users:\n";
+            var toDeleteMessage =
+                    "Are you sure you want to delete the following users?\n\n";
+            var reponsePrompt = [
+                    "The following users have responses assosiated with them:\n\n",
+                    "Are you sure you want to delete these users and all" +
+                    " responses assosiated with them?\n\n"
+                ];
+
             var toDeleteList = [];
 
             $.each(toDelete, function(index, value) {
@@ -434,15 +441,22 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: '/userAdmin/delete/',
+                    url: '/userAdmin/deleteHandler/',
                     data: data,
                     success: function() {
+                        // value is not working properly and therefore fading
+                        // fading isnt happening
                         $.each(toDeleteList, function(index, value) {
-                            $("#users > tbody > tr#" + value).fadeOut(500);
+                            $("#users > tbody > tr#user" + value).fadeOut(500);
                         });
+
+                        var secondConfirmDeleteList = [];
+
                     }
                 });
             }
+
+
         });
 
     </script>
