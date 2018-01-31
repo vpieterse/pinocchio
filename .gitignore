@@ -66,3 +66,4 @@ pinocchio/production.py
 .DS_STORE
 
 media/dumps
+media/documents
