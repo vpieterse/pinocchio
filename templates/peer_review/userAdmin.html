@@ -376,7 +376,7 @@
             const table = $("#users").DataTable({
                 "initComplete": function () {
                     // Hook update user buttons
-                    editUserHookUpdateButtons(this);
+                    editUserHookUpdateButtons(this.api().rows().nodes().toJQuery());
                 }
             });
 
