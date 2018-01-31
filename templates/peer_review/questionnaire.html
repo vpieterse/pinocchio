@@ -43,23 +43,23 @@
                 <div id="{{ q.question.id }}" class="panel-body">
                     {# Label #}
                     {% ifequal q.question.questionType.name 'Label' %}
-                        {% include "peer_review/questions/labelQuestion.html" with q=q.question number=q.order %}
+                        {% include "peer_review/questions/labelQuestion.html" with q=q.question number=q.order grouping=q.questionGrouping.grouping %}
                     {% endifequal %}
                     {# Rate #}
                     {% ifequal q.question.questionType.name 'Rate' %}
-                        {% include "peer_review/questions/rateQuestion.html" with q=q.question number=q.order %}
+                        {% include "peer_review/questions/rateQuestion.html" with q=q.question number=q.order grouping=q.questionGrouping.grouping %}
                     {% endifequal %}
                     {# Rank #}
                     {% ifequal q.question.questionType.name 'Rank' %}
-                        {% include "peer_review/questions/rankQuestion.html"  with q=q.question number=q.order %}
+                        {% include "peer_review/questions/rankQuestion.html"  with q=q.question number=q.order grouping=q.questionGrouping.grouping %}
                     {% endifequal %}
                     {# Choice #}
                     {% ifequal q.question.questionType.name 'Choice' %}
-                        {% include "peer_review/questions/choiceQuestion.html"  with q=q.question number=q.order %}
+                        {% include "peer_review/questions/choiceQuestion.html"  with q=q.question number=q.order  grouping=q.questionGrouping.grouping %}
                     {% endifequal %}
                     {# Freeform #}
                     {% ifequal q.question.questionType.name 'Freeform' %}
-                        {% include "peer_review/questions/freeformQuestion.html"  with q=q.question number=q.order %}
+                        {% include "peer_review/questions/freeformQuestion.html"  with q=q.question number=q.order grouping=q.questionGrouping.grouping %}
                     {% endifequal %}
                     <hr/>
                 </div>
@@ -68,6 +68,10 @@
             <div class="panel-body">
                 <button class='btn btn-success' onclick="saveProgress()">Save Progress</button>
             </div>
+            {% else %}
+                <div class="panel-body">
+                    <button class='btn btn-primary pull-right' onclick="exitPreview()">Close Preview</button>
+                </div>
             {% endif %}
         </div>
     </div>
@@ -93,6 +97,10 @@
         function saveProgress() {
             for (var x = 0; x < saveFunctions.length; x++)
                 saveFunctions[x]();
+        }
+
+        function exitPreview() {
+            window.close();
         }
 
         //Tell the user whether the save succeeded or failed.

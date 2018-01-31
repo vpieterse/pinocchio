@@ -20,6 +20,7 @@
     });
 
     //The function to load the responses
+    {% if not preview %}
     getResponses({{ q.id }}, function (responses) {
         if (responses.answers.length != 0) {
             for (var x = 0; x < responses.answers.length; x++) {
@@ -29,13 +30,14 @@
             }
         }
     });
+    {% endif %}
 </script>
 <p><strong>{{ number|add:"1" }}</strong>. {{ q.questionText }}</p>
 <br/>
 <p><strong> {{ q.get_rank.firstWord }} </strong></p>
 <table class="table table-responsive rankTable">
-    {% if q.questionGrouping.grouping == "Label" %}
-        {% for l in q.get_labels %}
+    {% if grouping == "Label" %}
+        {% for l in questionLabels %}
             <tr>
                 <td data-id="{{ l.id }}" class="rankItem">{{ l }}</td>
                 <td>
@@ -52,7 +54,7 @@
         {% endfor %}
     {% else %}
         {% for u in teamMembers %}
-            {% if q.questionGrouping.grouping == "Rest" %}
+            {% if grouping == "Rest" %}
                 {% if u != currentUser %}
                     <tr>
                         <td data-id="{{ u.user_id }}" class="rankItem">{{ u.name }} {{ u.surname }}</td>

@@ -23,7 +23,9 @@ def questionnaire_preview(request, questionnaire_pk):
     carol = User(title='Miss', initials='C', name='Carol', surname='Test', user_id='Carol')
     
     questionnaire = get_object_or_404(Questionnaire, pk=questionnaire_pk)
-    q_orders = get_object_or_404(QuestionOrder, questionnaire=questionnaire)
+    #q_orders = get_object_or_404(QuestionOrder, questionnaire=questionnaire)
+    q_orders = QuestionOrder.objects.filter(questionnaire=questionnaire)
+    q_labels = QuestionLabel.objects.filter(questionOrder=q_orders)
     
     mock_round = RoundDetail(name='Preview Round', questionnaire=questionnaire, description='This is a preview round')
     
@@ -33,7 +35,7 @@ def questionnaire_preview(request, questionnaire_pk):
     TeamDetail(user=carol, roundDetail=mock_round, teamName=team_name)
     
     q_team = [alice, bob, carol]
-    context = {'questionOrders': q_orders,
+    context = {'questionOrders': q_orders, 'questionLabels': q_labels,
                'teamMembers': q_team,
                'questionnaire': questionnaire,
                'currentUser': alice,

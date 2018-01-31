@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from peer_review.decorators.userRequired import user_required
 
-from ..models import Question, RoundDetail, QuestionOrder, User, TeamDetail, Response, Label
+from ..models import Question, RoundDetail, QuestionOrder, User, TeamDetail, Response, Label, QuestionLabel
 
 
 @user_required
@@ -14,8 +14,8 @@ def questionnaire(request, round_pk):
     try:
         round_object = RoundDetail.objects.get(pk=round_pk)
         questionnaire_object = round_object.questionnaire
-
         q_orders = QuestionOrder.objects.filter(questionnaire=questionnaire_object)
+        q_labels = QuestionLabel.objects.filter(questionOrder=q_orders)
         team_name = TeamDetail.objects.get(user=user, roundDetail=RoundDetail.objects.get(pk=round_pk)).teamName
         q_team = User.objects.filter(teamdetail__teamName=team_name,
                                      teamdetail__roundDetail=RoundDetail.objects.get(pk=round_pk))
@@ -31,8 +31,7 @@ def questionnaire(request, round_pk):
             return redirect('activeRounds')
 
         context = {'questionOrders': q_orders, 'teamMembers': q_team, 'questionnaire': questionnaire_object,
-                   'currentUser': user,
-                   'round': round_pk}
+                   'currentUser': user, 'round': round_pk, 'questionLabels': q_labels}
         return render(request, 'peer_review/questionnaire.html', context)
 
     except (RoundDetail.DoesNotExist, QuestionOrder.DoesNotExist, TeamDetail.DoesNotExist, User.DoesNotExist):
@@ -56,13 +55,13 @@ def save_questionnaire_progress(request):
             return JsonResponse({'result': 1})
         user = request.user
         # user = User.objects.get(userId='14035548')  # TEST
-
+        grup = QuestionOrder.objects.get(questionnaire=round_detail.questionnaire, question=question).questionGrouping
         # If grouping == None, there is no label or subjectUser
-        if question.questionGrouping.grouping == "None":
+        if grup == "None":
             label = None 
             subject_user = None
         # If grouping == Label, there is a label but no subjectUser
-        elif question.questionGrouping.grouping == "Label":
+        elif grup == "Label":
             try:
                 label = Label.objects.get(pk=request.POST.get('label'))
                 subject_user = None
@@ -94,6 +93,7 @@ def get_responses(request):
     question = get_object_or_404(Question, pk=request.GET.get('questionPk'))
     round_detail = get_object_or_404(RoundDetail, pk=request.GET.get('roundPk'))
     user = request.user
+    grup = QuestionOrder.objects.get(questionnaire=round_detail.questionnaire, question=question).questionGrouping
 
     responses = Response.objects.filter(user=user,
                                         roundDetail=round_detail,
@@ -108,14 +108,13 @@ def get_responses(request):
             break
         count += 1
     responses = responses[0:count]
-    print(responses)
     json = {'answers': [], 'labelOrUserIds': [], 'labelOrUserNames': []}
     for r in responses:
         json['answers'].append(r.answer)
-        if question.questionGrouping.grouping == "Label":
+        if grup == "Label":
             json['labelOrUserNames'].append(r.label.labelText)
             json['labelOrUserIds'].append(r.label.id)
-        elif question.questionGrouping.grouping != "None":
+        elif grup != "None":
             json['labelOrUserNames'].append(r.subjectUser.name + ' ' + r.subjectUser.surname)
             json['labelOrUserIds'].append(r.subjectUser.user_id)
     return JsonResponse(json)

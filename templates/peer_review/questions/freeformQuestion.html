@@ -24,9 +24,10 @@
     });
 
     $('document').ready(function() {
+        {% if not preview %}
         getResponses({{ q.id }}, function (responses) {
             for (var x = 0; x < responses.answers.length; x++)
-                {% if q.questionGrouping.grouping == "None" %}
+                {% if grouping == "None" %}
                     {% if q.get_freeform_item.freeformType == q.get_freeform_item.PARAGRAPH %}
                         setTimeout(function () {
                             tinyMCE.get('tinymce{{ number }}').setContent(responses.answers[0]);
@@ -50,11 +51,12 @@
                     {% endif %}
                 {% endif %}
         });
+        {% endif %}
     });
 
 </script>
 <p><strong>{{ number|add:"1" }}</strong>. {{ q.questionText }}</p>
-{% if q.questionGrouping.grouping == "None" %}
+{% if grouping == "None" %}
     {% if q.get_freeform_item.freeformType == q.get_freeform_item.PARAGRAPH %}
         <textarea class="answer tinymce" id = 'tinymce{{number}}' rows="5"></textarea>
     {% elif q.get_freeform_item.freeformType == q.get_freeform_item.WORD %}
@@ -64,8 +66,8 @@
     {% elif q.get_freeform_item.freeformType == q.get_freeform_item.REAL %}
         <input type="number" class="answer"/>
     {% endif %}
-{% elif q.questionGrouping.grouping == "Label" %}
-    {% for l in q.get_labels %}
+{% elif grouping == "Label" %}
+    {% for l in questionLabels %}
         <span>{{ l.labelText }}:</span>
         <p>
             <label data-id="{{ l.id }}">
@@ -81,7 +83,7 @@
             </label>
         </p>
     {% endfor %}
-{% elif q.questionGrouping.grouping == "All" %}
+{% elif grouping == "All" %}
     {% for u in teamMembers %}
         <span>{{ u.name }} {{ u.surname }}:</span>
         <p>
@@ -99,7 +101,7 @@
                 </label>
         </p>
     {% endfor %}
-{% elif q.questionGrouping.grouping == "Rest" %}
+{% elif grouping == "Rest" %}
     {% for u in teamMembers %}
         {% if u != currentUser %}
             <span>{{ u.name }} {{ u.surname }}:</span>
