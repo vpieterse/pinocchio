@@ -68,7 +68,7 @@
     {% endif %}
 {% elif grouping == "Label" %}
     {% for l in questionLabels %}
-        <span>{{ l.labelText }}:</span>
+        <span>{{ l.label.labelText }}:</span>
         <p>
             <label data-id="{{ l.id }}">
                 {% if q.get_freeform_item.freeformType == q.get_freeform_item.PARAGRAPH %}
