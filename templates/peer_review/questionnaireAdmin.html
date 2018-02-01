@@ -517,8 +517,9 @@ Todo:
 
         function setupEdit() {
             $('#selected-questions > tbody > tr').each(function(i, el) {
-                $("#group-select-" + $(el).closest('tr').attr("id")).html($("#selected-questions > tbody > tr > .question-grouping").html() + " <span class=\"caret\"></span>");
-                $("#group-select-" + $("#selected-questions > tbody > tr > .question-grouping").html() + "-" + $(el).closest('tr').attr("id")).removeClass('active');
+                var gruping = $(el).closest('tr').find('td:eq(3)').text();
+                $("#group-select-" + $(el).closest('tr').attr("id")).html(gruping + " <span class=\"caret\"></span>");
+                $("#group-select-" + gruping + "-" + $(el).closest('tr').attr("id")).removeClass('active');
                 $("#group-select-" + $(el).closest('tr').attr("id")).prop("disabled", true);
                 $("#addBtn-" + $(el).closest('tr').attr('id')).html('<span class="glyphicon glyphicon glyphicon-plus-sign text-muted pull-right"  title="Question already added"></span>');
             });
