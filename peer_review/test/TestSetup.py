@@ -9,13 +9,28 @@ class TestSetup:
         self.questionnaire = Questionnaire.objects.create(intro='Hello, this is a question',
                                                           label='This is a very unique label')
 
-        start_date = datetime.now(timezone(timedelta(hours=2)))
-        end_date = datetime.now(timezone(timedelta(hours=2)))
+        past1_date = datetime.now(timezone(timedelta(hours=-12)))
+        past2_date = datetime.now(timezone(timedelta(hours=-2)))
+        future1_date = datetime.now(timezone(timedelta(hours=3)))
+        future2_date = datetime.now(timezone(timedelta(hours=12)))
 
-        self.round = RoundDetail.objects.create(name='test round', questionnaire=self.questionnaire,
-                                                startingDate=start_date,
-                                                endingDate=end_date,
-                                                description='Hey there, we have a round')
+        self.round1 = RoundDetail.objects.create(name='test round 1 past', questionnaire=self.questionnaire,
+                                                startingDate=past1_date,
+                                                endingDate=past2_date,
+                                                description='A round which is over and done')
+        self.round2 = RoundDetail.objects.create(name='test round  2 running', questionnaire=self.questionnaire,
+                                                startingDate=past1_date,
+                                                endingDate=future2_date,
+                                                description='A long round which is currently running')
+        self.round3 = RoundDetail.objects.create(name='test round 3 future', questionnaire=self.questionnaire,
+                                                startingDate=future1_date,
+                                                endingDate=future2_date,
+                                                description='A round which is in the future ')
+        self.round4 = RoundDetail.objects.create(name='test round 4 running', questionnaire=self.questionnaire,
+                                                 startingDate=past2_date,
+                                                 endingDate=future1_date,
+                                                 description='A short round which is currently running')
+
 
         self.user = User.objects.create_user('bob@bob.com', 'bob', 'bob', 'simons', user_id=12345)
         self.user2 = User.objects.create_user('joe@gmail.com', 'joe', 'Smith', '12345', user_id=6789)
@@ -60,8 +75,9 @@ class TestSetup:
                                      question=self.question3,
                                      order=2)
         batch_num = 0
+
         Response.objects.create(question=self.question1,
-                                roundDetail=self.round,
+                                roundDetail=self.round2,
                                 user=self.user,
                                 subjectUser=self.user2,
                                 label=None,
@@ -69,7 +85,7 @@ class TestSetup:
                                 batch_id=str(int(time.time()*1000)) + str(batch_num))
         batch_num += 1
         Response.objects.create(question=self.question1,
-                                roundDetail=self.round,
+                                roundDetail=self.round2,
                                 user=self.user,
                                 subjectUser=self.user2,
                                 label=None,
@@ -77,7 +93,7 @@ class TestSetup:
                                 batch_id=str(int(time.time()*1000)) + str(batch_num))
         batch_num += 1
         Response.objects.create(question=self.question2,
-                                roundDetail=self.round,
+                                roundDetail=self.round2,
                                 user=self.user,
                                 subjectUser=self.user2,
                                 label=None,
@@ -85,7 +101,7 @@ class TestSetup:
                                 batch_id=str(int(time.time()*1000)) + str(batch_num))
         batch_num += 1
         Response.objects.create(question=self.question2,
-                                roundDetail=self.round,
+                                roundDetail=self.round2,
                                 user=self.user,
                                 subjectUser=self.user2,
                                 label=None,
@@ -93,7 +109,7 @@ class TestSetup:
                                 batch_id=str(int(time.time()*1000)) + str(batch_num))
         batch_num += 1
         Response.objects.create(question=self.question3,
-                                roundDetail=self.round,
+                                roundDetail=self.round2,
                                 user=self.user,
                                 subjectUser=self.user2,
                                 label=None,
@@ -101,7 +117,7 @@ class TestSetup:
                                 batch_id=str(int(time.time()*1000)) + str(batch_num))
         batch_num += 1
         Response.objects.create(question=self.question3,
-                                roundDetail=self.round,
+                                roundDetail=self.round2,
                                 user=self.user,
                                 subjectUser=self.user2,
                                 label=None,
