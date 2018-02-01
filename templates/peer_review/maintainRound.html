@@ -288,6 +288,7 @@
                                     <th>Starting Date</th>
                                     <th>Ending Date</th>
                                     <th>Team Builder</th>
+                                    <th>Edit Questions</th>
                                     <th>Edit</th>
                                     <th>Remove</th>
                                     <th>Dump</th>
@@ -307,8 +308,13 @@
                                             <form method="post" action="/maintainTeam/{{ roundPk }}">
                                                 <input type="hidden" name="roundPk" value="{{ round.pk }}">
                                                 <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-                                                <input type="submit" class="btn btn-primary btn-xs" value="&#x21A0;">
+                                                <input type="submit" class="btn btn-primary btn-xs" value="&#x21A0; Teams">
                                             </form>
+                                        </td>
+                                        <td>
+                                            <a class="btn btn-primary btn-xs" href="/questionnaireAdmin/edit/{{ round.questionnaire.id }}">
+                                                &#x21A0; Questions
+                                            </a>
                                         </td>
                                         <td>
                                             <button type="button" name="edit" class='btn btn-success btn-xs edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ round.pk }}" data-pk="{{ round.pk }}">
