@@ -522,6 +522,7 @@ Todo:
                 $("#group-select-" + gruping + "-" + $(el).closest('tr').attr("id")).removeClass('active');
                 $("#group-select-" + $(el).closest('tr').attr("id")).prop("disabled", true);
                 $("#addBtn-" + $(el).closest('tr').attr('id')).html('<span class="glyphicon glyphicon glyphicon-plus-sign text-muted pull-right"  title="Question already added"></span>');
+                $("#question-grouping-" + $(el).closest('tr').attr("id")).val(gruping);
             });
         }
     </script>
