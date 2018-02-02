@@ -1,9 +1,10 @@
 language: python
 cache: pip
 python:
-  - "3.5"
+  - "3.6"
 env:
-  - DJANGO_VERSION=1.10.5
+  - DJANGO_VERSION=2.0.1
+
 install:
   - pip install -q Django==$DJANGO_VERSION
 script: python manage.py test
