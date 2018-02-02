@@ -123,7 +123,7 @@ def send_password_request_email(user_id, email_address, post_name, post_surname)
 
         # Emails are sent here
         if settings.EMAIL_HOST != "":
-            send_mail(email_subject, email_text, settings.EMAIL_HOST, [email_address], fail_silently=False)
+            send_mail(email_subject, email_text, settings.FROM_EMAIL_ADDRESS, [email_address], fail_silently=False)
         else:
             logger.warning("No EMAIL_HOST configured; Did not attempt to send email.")
 
