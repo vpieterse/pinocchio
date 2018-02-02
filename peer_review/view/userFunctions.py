@@ -1,4 +1,7 @@
 import base64
+import logging
+from smtplib import SMTPException
+
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import send_mail
@@ -10,6 +13,7 @@ from peer_review.forms import ResetForm
 from peer_review.models import RoundDetail, TeamDetail, User
 from pinocchio import baseSettings
 
+logger = logging.getLogger(__name__)
 
 @user_required
 def account_details(request):
@@ -118,13 +122,15 @@ def send_password_request_email(user_id, email_address, post_name, post_surname)
         print(email_text)
 
         # Emails are sent here
-        send_mail(email_subject, email_text, 'pinocchio@cs.up.ac.za', [email_address], fail_silently=False)
+        if settings.EMAIL_HOST != "":
+            send_mail(email_subject, email_text, settings.EMAIL_HOST, [email_address], fail_silently=False)
+        else:
+            logger.warning("No EMAIL_HOST configured; Did not attempt to send email.")
 
         return True
-    except Exception as e:
-        print(e)
-        return False
-
+    except SMTPException as e:
+        logger.error('Error while sending mail: ' + e)
+        raise e
 
 def user_error(request):
     # Renders error page with a 403 status code for forbidden users
@@ -141,17 +147,22 @@ def user_reset_password(request):
                 user = User.objects.get(user_id=user_id)
                 # Reset OTP for user // NO MORE
                 # messages.add_message(request, messages.success, "Password reset")
-                success = send_password_request_email(
-                    user_id=user_id,
-                    email_address=user.email,
-                    post_name=user.name,
-                    post_surname=user.surname
-                )
-                # return reset_password(request, user.userId)
-                if success:
-                    messages.add_message(request, messages.SUCCESS,
-                                         "Sending email to <strong>" + user.email + "</strong>. Please go"
-                                                                                    " and check your inbox.")
+                try:
+                    success = send_password_request_email(
+                        user_id=user_id,
+                        email_address=user.email,
+                        post_name=user.name,
+                        post_surname=user.surname
+                    )
+                    # return reset_password(request, user.userId)
+                    if success:
+                        messages.add_message(request, messages.SUCCESS,
+                                             "Sending email to <strong>" + user.email + "</strong>. Please go"
+                                                                                        " and check your inbox.")
+                except Exception as e:
+                    messages.add_message(request, messages.ERROR, "There was an error while sending the reset email. "
+                                                                  "Contact admin if the problem persists.")
+
                 return redirect('/forgotPassword/')
 
             except User.DoesNotExist:
