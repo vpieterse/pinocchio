@@ -52,6 +52,7 @@ urlpatterns = [
     url(r'^userAdmin/submitForm/?$', peer_review.view.userManagement.submit_new_user_form,
         name='submitUserForm'),
     url(r'^userAdmin/submitCSV/$', peer_review.view.userAdmin.submit_csv, name='submitCSV'),
+    url(r'^userAdmin/submitCSV_confirm/$', peer_review.view.userAdmin.confirm_csv, name='submitCSV_confirm'),
     url(r'^userAdmin/delete/$', views.user_delete, name='userDelete'),
     url(r'^userAdmin/userProfile/(?P<user_id>[0-9a-zA-Z]+)/?$', views.user_profile, name="userProfile"),
     url(r'^userAdmin/update/(?P<user_id>[0-9a-zA-Z]+)/?$',
