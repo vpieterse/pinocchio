@@ -10,9 +10,6 @@ Todo:
 {% block extrahead %}
     <script src="{% static "peer_review/js/tinymce/tinymce.min.js" %}"></script>
     <title>Questionnaire Admin</title>
-    <script>
-        var title="questionnaireAdmin";
-    </script>
 
 {% endblock %}
 
@@ -23,19 +20,17 @@ Todo:
             <div class = "alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
             {% endfor %}
         {% endif %}
-        <div class="panel-group" id="accordion">
-            <div class = "panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
-                    <h4 class="panel-title">
+        <div id="accordion">
+            <div class = "card my-3">
+                <div class="card-header" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
                         {% if questionnaire %}
-                            <b>Editing Questionnaire "{{questionnaire.label}}"</b><b class="caret"></b>
+                            Editing Questionnaire "{{questionnaire.label}}"<b class="caret"></b>
                         {% else %}
-                            <b>Create Questionnaire</b><b class="caret"></b>
+                            Create Questionnaire<b class="caret"></b>
                         {% endif %}
-                    </h4>
                 </div>
-                <div id="collapseOne" class="panel-collapse collapse in">
-                    <div class="panel-body">
+                <div id="collapseOne" class="collapse show" data-parent="#accordion">
+                    <div class="card-body">
                         <form onsubmit="return save()" onreset="empty()" id = "form-save" method="POST" action="/questionnaireAdmin/save">
                             {% csrf_token %}
                             <label for="title">Title</label>
@@ -47,8 +42,10 @@ Todo:
                             <label for="select-questions">Select Questions</label>
                             <div class="row" id = "select-questions">
                                 <div class="col-md-6">
-                                    <small class="text-muted">Click the <span class="glyphicon glyphicon glyphicon-plus-sign text-primary"></span> icon to add questions to the questionnaire.</small>
-                                    <table class='table moveable' id='question-table'>
+                                    <div class="pb-3">
+                                        <small class="text-muted">Click the <span class="glyphicon glyphicon glyphicon-plus-sign text-primary"></span> icon to add questions to the questionnaire.</small>
+                                    </div>
+                                    <table class="table moveable" id='question-table'>
                                         <thead>
                                             <tr>
                                                 <th>Question</th>
@@ -76,7 +73,7 @@ Todo:
                                 </div>
                                 <div class="col-md-6">
                                     <small class="text-muted">Click the <span class="glyphicon glyphicon glyphicon-minus-sign text-primary"></span> icon to remove questions from the questionnaire.</small>
-                                    <table id="selected-questions" class="table moveable">
+                                    <table id="selected-questions" class="table moveable mt-3">
                                         <thead>
                                             <tr>
                                                 <th></th>
@@ -126,14 +123,12 @@ Todo:
                     </div>
                 </div>
             </div>
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
-                    <h4 class="panel-title">
-                        <b>Maintain Questionnaires</b><b class="caret"></b>
-                    </h4>
+            <div class="card my-3">
+                <div class="card-header" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
+                    Maintain Questionnaires<b class="caret"></b>
                 </div>
-                <div id="collapseTwo" class="panel-collapse collapse">
-                    <div class="panel-body">
+                <div id="collapseTwo" class="collapse" data-parent="#accordion">
+                    <div class="card-body">
                         <input type="text" class="form-control" id="search" placeholder="Start typing to search">
                         <small class = "text-muted">Click the <span class="glyphicon glyphicon glyphicon-pencil text-primary"></span> icon to edit questionnaires, and the <span class="glyphicon glyphicon glyphicon-remove-circle text-primary"></span> icon to remove questionnaires.</small>
                     </div>
@@ -151,7 +146,7 @@ Todo:
                             {% for questionnaire in questionnaires %}
                                 <tr
                                     {% if questionnaire.inARound  %} title="This questionnaire is in a round and cannot be deleted."
-                                    {% else %} class = "deleteable" 
+                                    {% else %} class = "deletable"
                                     {% endif %}
                                     id = "{{ questionnaire.pk }}"
                                 >
@@ -206,7 +201,7 @@ Todo:
 
             //Allows selecting of questions to delete multiple questions
             $('#delete-many').hide();
-            $('#questionnaire-list').on('click', '.deleteable', function(event) {
+            $('#questionnaire-list').on('click', '.deletable', function(event) {
                 if ($(this).hasClass('active')) {
                     $(this).removeClass('active')
                 } else {

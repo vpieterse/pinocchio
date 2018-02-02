@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.conf.urls import include, url
+from django.conf.urls import url
 from django.conf.urls.static import static
 from django.contrib import admin
 from peer_review.view.maintainTeam import maintain_team, get_teams_for_round, change_user_team_for_round, \
@@ -17,7 +17,7 @@ import peer_review.view.userManagement
 from peer_review import views
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls), name='admin'),
+    url(r'^admin/', admin.site.urls, name='admin'),
 
     url(r'^forgotPassword', forgot_password,
         name='forgotPassword'),
@@ -32,7 +32,7 @@ urlpatterns = [
     url(r'^createRound/$', views.create_round, name='createRound'),
 
     url(r'^maintainTeam/$', maintain_team, name='maintainTeam'),
-    # url(r'^maintainTeam/(?P<round_pk>[0-9]+)/?$', views.maintain_team, name='maintainTeamR'),
+    url(r'^maintainTeam/(?P<round_pk>[0-9]+)/?$', maintain_team, name='maintainTeamR'),
 
     url(r'^getQuestionnaireForTeam/$', views.get_questionnaire_for_team,
         name='getQuestionnaireForTeam'),
@@ -75,7 +75,7 @@ urlpatterns = [
     url(r'^questionnaireAdmin/delete', delete_questionnaire, name='deleteQuestionnaire'),
     url(r'^questionnaireAdmin/$', questionnaire_admin, name='questionnaireAdmin'),
 
-    url(r'^maintainRound/dump/?$', views.round_dump, name='dumpRound'),
+    url(r'^maintainRound/dump/(?P<round_pk>[0-9]+)/?$', views.round_dump, name='dumpRound'),
     url(r'^maintainRound/delete/$', views.round_delete, name='deleteRound'),
     url(r'^maintainRound/update/(?P<round_pk>[0-9]+)/?$', views.round_update, name='updateRound'),
     url(r'^maintainTeam/getTeamsForRound/(?P<round_pk>[0-9]+)/?$', get_teams_for_round, name='getTeamsForRound'),
@@ -92,6 +92,7 @@ urlpatterns = [
         change_team_status, name='changeTeamStatus'),
     url(r'^maintainTeam/submitTeamCSV/$', submit_team_csv, name='submitTeamCSV'),
     url(r'^report/?$', views.report, name='report'),
+    url(r'^maintainTeam/report/(?P<round_pk>[0-9]+)/?$', views.report, name='reportR'),
     url(r'^report/getUser/(?P<user_id>[0-9a-zA-Z]+)/?$', views.get_user, name='getUserReport'),
     url(r'^login/auth/$', views.auth, name='auth'),
 

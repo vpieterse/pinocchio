@@ -6,6 +6,14 @@ counter_var = 0  # Global count variable
 
 
 @register.simple_tag
+def active(request, pattern):
+    import re
+    if re.search(pattern, request.path):
+        return 'active'
+    return ''
+
+
+@register.simple_tag
 def counter_inc():  # Increment
     global counter_var
     counter_var += 1

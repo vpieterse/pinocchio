@@ -22,8 +22,6 @@ def account_details(request):
 
 @user_required
 def member_details(request, user_id):
-    if not request.user.is_authenticated():
-        return user_error(request)
     member = get_object_or_404(User, user_id=user_id)
     context = {'user': member, 'is_logged_user': False}
     return render(request, 'peer_review/accountDetails.html', context)
@@ -41,9 +39,6 @@ def active_rounds(request):
 
 @user_required
 def get_team_members(request):
-    if not request.user.is_authenticated():
-        return user_error(request)
-
     user = request.user
     team_list = []
 
@@ -74,12 +69,12 @@ def sign_user_id(user_id):
     return b64encoded.decode('utf-8')
 
 
-# Unsign a given url-save base64 encoded userId
+# Decode a given url-save base64 encoded userId
 # to a string. Returns the user id if successful;
 # on failure, returns None. This function can fail
 # when the encoded userId has expired (max age) or
 # the signed key is invalid.
-def unsign_user_id(b64_user_id, max_age=None):
+def decode_user_id(b64_user_id, max_age=None):
     try:
         id_signer = TimestampSigner()
         unencoded_user_id = base64.urlsafe_b64decode(b64_user_id.encode('utf-8')).decode('utf-8')

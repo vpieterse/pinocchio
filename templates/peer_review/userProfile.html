@@ -3,28 +3,20 @@
 
 {% block extrahead %}
     <title>User Profile</title>
-    <!--Edit navbar active-->
-    <script>
-        title = "userAdmin";
-    </script>
 {% endblock extrahead %}
 
 {% block context %}
     <div class="container">
         <h1>{{ user.name }} {{ user.surname }}</h1>
 
-        <div class="panel-group" id="accordion">
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
-                    <h4 class="panel-title">
-                        <a>
-                            User's Rounds <b class="caret"></b>
-                        </a>
-                    </h4>
+        <div id="accordion">
+            <div class="card my-3">
+                <div class="card-header" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
+                    User's Rounds <b class="caret"></b>
                 </div>
 
-                <div id="collapseTwo" class="panel-collapse collapse in">
-                    <div class="panel-body">
+                <div id="collapseTwo" class="collapse show" data-parent="#accordion">
+                    <div class="card-body">
                         <table class="table" id="userRoundsTable" data-pk="{{ user.pk }}" data-csrf="{{ csrf_token }}">
                             <thead>
                                 <tr>

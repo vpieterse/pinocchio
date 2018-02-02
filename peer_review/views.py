@@ -15,7 +15,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 from peer_review.decorators.adminRequired import admin_required
 from peer_review.forms import RecoverPasswordForm
-from peer_review.view.userFunctions import unsign_user_id, sign_user_id
+from peer_review.view.userFunctions import decode_user_id, sign_user_id
 from .forms import DocumentForm, UserForm, LoginForm
 from .models import RoundDetail, TeamDetail, Response
 from .models import Questionnaire
@@ -49,7 +49,7 @@ def auth(request):
         if form.is_valid():
             user_id = request.POST.get('userName')
             password = request.POST.get('password')
-            user = authenticate(user_id=user_id, password=password)
+            user = authenticate(request, user_id=user_id, password=password)
             if user:
                 if user.is_active:
                     # Redirect if OTP is set
@@ -84,7 +84,7 @@ changing their password.
 def recover_password(request, key):
     if request.method == 'GET':
         # Test if the key is still valid
-        user_id = unsign_user_id(key, settings.FORGOT_PASSWORD_AGE)
+        user_id = decode_user_id(key, settings.FORGOT_PASSWORD_AGE)
         if not user_id:
             messages.error(request, 'The link has expired or is invalid. Please generate a new one.')
             return redirect('forgotPassword')
@@ -113,7 +113,7 @@ def recover_password(request, key):
         # If the form is valid, go ahead and change the user's password.
         if new_form.is_valid():
             try:
-                user_id = unsign_user_id(key, settings.FORGOT_PASSWORD_AGE)
+                user_id = decode_user_id(key, settings.FORGOT_PASSWORD_AGE)
                 if not user_id:
                     messages.error(request, 'The link has expired or is invalid. Please generate a new one.')
                     return redirect('forgotPassword')
@@ -193,9 +193,6 @@ def get_questionnaire_for_round(request, round_pk):
 
 @admin_required
 def get_user(request, user_id):
-    if not request.user.is_authenticated():
-        return user_error(request)
-
     response = {}
     if request.method == "GET":
         user = get_object_or_404(User, pk=user_id)
@@ -274,20 +271,17 @@ def write_dump(round_pk):
 
 
 @admin_required
-def round_dump(request):
-    if request.method == "POST":
-        round_pk = request.POST.get("roundPk")
-        dump_file = write_dump(round_pk)
-        # Download Dump
-        wrapper = FileWrapper(open(dump_file))
-        content_type = mimetypes.guess_type(dump_file)[0]
-        response = HttpResponse(wrapper, content_type=content_type)
-        current_round = get_object_or_404(RoundDetail, id=round_pk)
-        # response['Content-Length'] = os.path.getsize(dump_file)
-        response['Content-Disposition'] = "attachment; filename=" + time.strftime("%Y-%m-%d %H.%M.%S") \
-                                          + ' round_' + current_round.name + ".csv"
-        return response
-    return user_error(request)
+def round_dump(request, round_pk):
+    dump_file = write_dump(round_pk)
+    # Download Dump
+    wrapper = FileWrapper(open(dump_file))
+    content_type = mimetypes.guess_type(dump_file)[0]
+    response = HttpResponse(wrapper, content_type=content_type)
+    current_round = get_object_or_404(RoundDetail, id=round_pk)
+    # response['Content-Length'] = os.path.getsize(dump_file)
+    response['Content-Disposition'] = "attachment; filename=" + time.strftime("%Y-%m-%d %H.%M.%S") \
+                                      + ' round_' + current_round.name + ".csv"
+    return response
 
 
 @admin_required
@@ -310,7 +304,7 @@ def get_type_id(question_type):
     # 2 = Rank
     # 3 = Label
     # 4 = Rate
-    # 5 = Freeform
+    # 5 = FreeForm
 
     if question_type == "Choice":
         return 1
@@ -320,7 +314,7 @@ def get_type_id(question_type):
         return 3
     elif question_type == "Rate":
         return 4
-    elif question_type == "Freeform":
+    elif question_type == "FreeForm":
         return 5
     else:
         return -1
@@ -401,7 +395,7 @@ def create_round(request):
 @admin_required
 def maintain_round_with_error(request, error):
     if error == '1':  # Incorrect Date format
-        str_error = "Incorrect Date Format yyyy-mm-dd hh"
+        str_error = "Incorrect Date Format YYYY-mm-dd hh"
     else:
         str_error = "Unknown Error"
 
@@ -436,16 +430,9 @@ def maintain_round_with_error(request, error):
 
 
 @admin_required
-def report(request):
-    if request.method == "POST":
-        round_pk = request.POST.get("roundPk")
-        context = {
-            "roundPk": round_pk,
-            "rounds": RoundDetail.objects.all()
-        }
-    else:
-        context = {
-            "roundPk": "",
-            "rounds": RoundDetail.objects.all()
-        }
+def report(request, round_pk=""):
+    context = {
+        "roundPk": round_pk,
+        "rounds": RoundDetail.objects.all()
+    }
     return render(request, 'peer_review/report.html', context)

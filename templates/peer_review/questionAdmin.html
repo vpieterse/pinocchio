@@ -9,9 +9,6 @@ Todo:
 
 {% block extrahead %}
     <title>Question Admin</title>
-    <script>
-        var title = "questionAdmin";
-    </script>
 {% endblock %}
 
 {% block context %}
@@ -21,17 +18,15 @@ Todo:
                 <div class="alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
             {% endfor %}
         {% endif %}
-        <div class="panel-group" id="accordion">
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
-                    <h4 class="panel-title">
-                        <b>Create Question</b><b class="caret"></b>
-                    </h4>
+        <div id="accordion">
+            <div class="card my-3">
+                <div class="card-header" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
+                    Create Question<b class="caret"></b>
                 </div>
-                <div id="collapseOne" class="panel-collapse collapse in">
-                    <div class="panel-body">
+                <div id="collapseOne" class="collapse show" data-parent="#accordion">
+                    <div class="card-body">
                         <form onsubmit="return save()" onreset="empty()" id="form-save" method="POST"
-                            action="/questionAdmin/save">
+                            action="{% url 'saveQuestion' %}">
                             {% csrf_token %}
                             <fieldset class="form-group">
                                 <!-- Title -->
@@ -48,12 +43,12 @@ Todo:
                             </fieldset>
                             <!-- Grouping/Type headings -->
                             <div class="row">
-                                <div class="col-xs-6">
+                                <div class="col-6">
                                     <div class="pull-left">
                                         <label>Question Grouping</label>
                                     </div>
                                 </div>
-                                <div class="col-xs-6">
+                                <div class="col-6">
                                     <div class="pull-right">
                                         <label>Question Type</label>
                                     </div>
@@ -61,38 +56,38 @@ Todo:
                             </div>
                             <div class="row">
                                 <!-- Groupings -->
-                                <div class="col-xs-6">
+                                <div class="col-6">
                                     <div class="btn-group pull-left" id="groupings">
-                                        <label class="btn btn-default active" onclick="changeGrouping('Rest')">
+                                        <label class="btn btn-secondary active" onclick="changeGrouping('Rest')">
                                             Rest
                                         </label>
-                                        <label class="btn btn-default" onclick="changeGrouping('None')">
+                                        <label class="btn btn-secondary" onclick="changeGrouping('None')">
                                             None
                                         </label>
-                                        <label class="btn btn-default" onclick="changeGrouping('All')">
+                                        <label class="btn btn-secondary" onclick="changeGrouping('All')">
                                             All
                                         </label>
-                                        <label class="btn btn-default" onclick="changeGrouping('Label')">
+                                        <label class="btn btn-secondary" onclick="changeGrouping('Label')">
                                             Label
                                         </label>
                                     </div>
                                 </div>
                                 <!-- Types -->
-                                <div class="col-xs-6">
+                                <div class="col-6">
                                     <div class="btn-group pull-right" id="types">
-                                        <label class="btn btn-default active" onclick="changeType('Choice')">
+                                        <label class="btn btn-secondary active" onclick="changeType('Choice')">
                                             Choice
                                         </label>
-                                        <label class="btn btn-default" onclick="changeType('Freeform')">
-                                            Freeform
+                                        <label class="btn btn-secondary" onclick="changeType('FreeForm')">
+                                            FreeForm
                                         </label>
-                                        <label class="btn btn-default" onclick="changeType('Rank')">
+                                        <label class="btn btn-secondary" onclick="changeType('Rank')">
                                             Rank
                                         </label>
-                                        <label class="btn btn-default" onclick="changeType('Rate')">
+                                        <label class="btn btn-secondary" onclick="changeType('Rate')">
                                             Rate
                                         </label>
-                                        <label class="btn btn-default" onclick="changeType('Label')">
+                                        <label class="btn btn-secondary" onclick="changeType('Label')">
                                             Label
                                         </label>
                                     </div>
@@ -108,7 +103,7 @@ Todo:
                             <br/>
                             <div id="content">
                                 <div class="row">
-                                    <div class="col-xs-6">
+                                    <div class="col-6">
                                         <small>Loading..</small>
                                         <table class="table table-bordered">
                                             <thead>
@@ -124,7 +119,7 @@ Todo:
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="col-xs-6 labels-go-here">
+                                    <div class="col-6 labels-go-here">
                                     </div>
                                 </div>
                             </div>
@@ -145,39 +140,37 @@ Todo:
                     </div>
                 </div>
             </div>
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
-                    <h4 class="panel-title">
-                        <b>Maintain Questions</b><b class="caret"></b>
-                    </h4>
+            <div class="card my-3">
+                <div class="card-header" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
+                    Maintain Questions<b class="caret"></b>
                 </div>
-                <div id="collapseTwo" class="panel-collapse collapse">
-                    <div class="panel-body">
+                <div id="collapseTwo" class="collapse" data-parent="#accordion">
+                    <div class="card-body">
                         <input type="text" class="form-control" id="question-search"
                                placeholder="Start typing to search">
-                        <small class="text-muted">Click the <span
+                        <p class="text-muted">Click the <span
                                 class="glyphicon glyphicon glyphicon-pencil text-primary"></span> icon to edit
                             questions, and the <span
                                     class="glyphicon glyphicon glyphicon-remove-circle text-primary"></span> icon to
                             remove questions. Note that questions that have been added to questionnaires cannot be
                             deleted.
-                        </small>
+                        </p>
                     </div>
-                    <table id="question-list" class="table table-hover">
-                        <thead>
+                    <table id="question-list" class="table table-striped">
+                        <thead class="bg-dark text-light">
                         <tr>
                             <th>Title</th>
                             <th>Grouping</th>
                             <th>Type</th>
                             <th>Publish Date<span
-                                    class="glyphicon glyphicon glyphicon-remove-circle text-primary pull-right"
-                                    id="delete-many" onclick="deleteMany()" style="cursor:pointer"></th>
+                                    class="glyphicon glyphicon-remove-circle text-primary pull-right"
+                                    id="delete-many" onclick="deleteMany()" style="cursor:pointer"></span></th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for question in questions %}
                             <tr {% if not question.inAQuestionnaire %}
-                                class="deleteable"
+                                class="deletable"
                             {% else %}
                                 title="This question has been used in a questionnaire and cannot be deleted."
                             {% endif %}
@@ -215,9 +208,9 @@ Todo:
     </div>
 
     <!-- Choice -->
-    <div id="Choice" class="hidden">
+    <div id="Choice" class="d-none">
         <div class="row">
-            <div class="col-xs-6">
+            <div class="col-6">
                 <small class="text-muted">Click the <span class="glyphicon glyphicon-plus-sign text-primary"></span>
                     icon to add choices.
                 </small>
@@ -252,15 +245,15 @@ Todo:
                     </tbody>
                 </table>
             </div>
-            <div class="col-xs-6 labels-go-here">
+            <div class="col-6 labels-go-here">
             </div>
         </div>
     </div>
 
     <!-- Freeform -->
-    <div id="Freeform" class="hidden">
+    <div id="Freeform" class="d-none">
         <div class="row">
-            <div class="col-xs-4">
+            <div class="col-4">
                 <label for="freeform-type">Freeform type</label>
                 <select class="form-control" name="freeform-type">
                     <option value="Integer" {% if freeformType == "Integer" %} selected {% endif %} >
@@ -278,48 +271,48 @@ Todo:
                 </select>
                 <small>The type of answer the respondent is expected to give.</small>
             </div>
-            <div class="col-xs-2"></div>
-            <div class="col-xs-6 labels-go-here">
+            <div class="col-2"></div>
+            <div class="col-6 labels-go-here">
             </div>
         </div>
     </div>
 
     <!-- Rank -->
-    <div id="Rank" class="hidden">
+    <div id="Rank" class="d-none">
         <div class="row">
-            <div class="col-xs-6">
+            <div class="col-6">
                 <input type="text" name="rank-first" class="form-control" placeholder="Enter top word"
                        value="{{ rank.firstWord }}">
             </div>
-            <div class="col-xs-6">
+            <div class="col-6">
                 <input type="text" name="rank-second" class="form-control" placeholder="Enter bottom word"
                        value="{{ rank.secondWord }}">
             </div>
         </div>
         <div class="row">
             <br/>
-            <div class="col-xs-6 labels-go-here">
+            <div class="col-6 labels-go-here">
             </div>
         </div>
     </div>
 
     <!-- Rate -->
-    <div id="Rate" class="hidden">
+    <div id="Rate" class="d-none">
         <div class="row">
-            <div class="col-xs-6">
+            <div class="col-6">
                 <input type="text" name="rate-first" class="form-control" placeholder="Enter first value"
                        value="{{ rate.topWord }}">
             </div>
-            <div class="col-xs-6">
+            <div class="col-6">
                 <input type="text" name="rate-second" class="form-control" placeholder="Enter second value"
                        value="{{ rate.bottomWord }}">
             </div>
         </div>
         <br>
         <div class="row">
-            <div class="col-xs-6 labels-go-here">
+            <div class="col-6 labels-go-here">
             </div>
-            <div class="col-xs-6">
+            <div class="col-6">
                 <label>Optional: <input type="checkbox" name="rate-optional" value="a" {% if rate.optional %}
                                         checked {% endif %}></label>
             </div>
@@ -327,7 +320,7 @@ Todo:
     </div>
 
     <!-- Label table -->
-    <div class="hidden" id="label-table">
+    <div class="d-none" id="label-table">
         <small class="text-muted">Click the <span class="glyphicon glyphicon-plus-sign text-primary"></span> icon to add
             labels.
         </small>
@@ -489,7 +482,7 @@ Todo:
             });
             //Allows selecting of questions to delete multiple questions
             $('#delete-many').hide();
-            $('#question-list').on('click', '.deleteable', function (event) {
+            $('#question-list').on('click', '.deletable', function (event) {
                 if ($(this).hasClass('active')) {
                     $(this).removeClass('active')
                 } else {

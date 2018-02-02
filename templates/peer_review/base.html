@@ -5,16 +5,16 @@
     <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0"/>
     <script src="{% static 'peer_review/jquery.min.js' %}"></script>
     <link rel="stylesheet" href="{% static 'peer_review/css/bootstrap.min.css' %}">
-    <script src="{% static 'peer_review/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'peer_review/js/bootstrap.bundle.min.js' %}"></script>
     <link rel="stylesheet" href="{% static 'peer_review/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'peer_review/css/dataTables.min.css' %}">
     <link rel="stylesheet" href="{% static 'peer_review/bootstrap-sortable.css' %}">
     <link rel="icon" type="image/png" href="{% static 'peer_review/favicon.png' %}">
 
-    <script src="{% static 'peer_review/bootstrap-sortable.js' %}"></script>
+{#    <script src="{% static 'peer_review/bootstrap-sortable.js' %}"></script>#}
 
-    <link rel="stylesheet" href="{% static 'peer_review/css/dataTables.bootstrap.min.css' %}"/>
-    <script src="{% static 'peer_review/js/dataTables.min.js' %}"></script>
-    <script src="{% static 'peer_review/js/dataTables.bootstrap.min.js' %}"></script>
+    <script src="{% static 'peer_review/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'peer_review/js/dataTables.bootstrap4.min.js' %}"></script>
 
     <script src="{% static 'peer_review/js/modernizr-custom.js' %}"></script>
 
@@ -35,19 +35,13 @@
 
 {% block context %}{% endblock %}
 
-<div class="navbar navbar-default navbar-fixed-bottom">
+<nav class="navbar bg-dark navbar-dark fixed-bottom justify-content-between">
     <div class="container">
-        <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
+        <span class="navbar-text">&copy; Pinocchio Team</span>
         {% if user.is_authenticated %}
-        <a class="navbar-btn btn-danger btn pull-right" href="/login">Log Out</a>
+        <a class="btn-danger btn" href="{% url 'login' %}">Log Out</a>
         {% endif %}
     </div>
-</div>
-
-<!--Edit navbar active-->
-<script>
-    $("#" + title).addClass("active");
-</script>
-<!--end-->
+</nav>
 </body>
 </html>

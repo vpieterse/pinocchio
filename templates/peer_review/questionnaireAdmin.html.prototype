@@ -18,15 +18,13 @@ Todo:
 
 {% block context %}
     <div class = "container">
-        <div class="panel-group" id="accordion">
-            <div class = "panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
-                    <h4 class="panel-title">
-                        <b>Create Questionnaire</b><b class="caret"></b>
-                    </h4>
+        <div id="accordion">
+            <div class = "card my-3">
+                <div class="card-header" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
+                    Create Questionnaire<b class="caret"></b>
                 </div>
-                <div id="collapseOne" class="panel-collapse collapse in">
-                    <div class="panel-body">
+                <div id="collapseOne" class="collapse show" data-parent="#accordion">
+                    <div class="card-body">
                         <form onsubmit="return save()" onreset="empty()" id = "form-save" method="POST" action="/questionnaireAdmin/save">
                             {% csrf_token %}
                             <label for="title">Title</label>
@@ -37,7 +35,7 @@ Todo:
                         </form>
                         <br>
                     </div>
-                    <div class="panel-body" id="last-div">
+                    <div class="card-body" id="last-div">
                         <button class='btn btn-success' onclick="addQuestion()">Add Question
                         <button class='btn btn-primary pull-right'>Save
                     </div>
@@ -46,7 +44,7 @@ Todo:
         </div>
     </div>
     <div class="hidden">
-        <div class="panel-body" id = "empty-question">
+        <div class="card-body" id = "empty-question">
             <span class="pull-right glyphicon glyphicon-remove text-danger" onclick="deleteQuestion(this)"></span>
             <fieldset class="form-group">
                 <label>Question Text</label>
@@ -56,16 +54,16 @@ Todo:
             <div class = "row">
                 <div class="col-xs-6">
                     <div class="btn-group pull-left" id="groupings">
-                        <label class="btn btn-default active">
+                        <label class="btn btn-secondary active">
                             Rest
                         </label>
-                        <label class="btn btn-default">
+                        <label class="btn btn-secondary">
                             None
                         </label>
-                        <label class="btn btn-default">
+                        <label class="btn btn-secondary">
                             All
                         </label>
-                        <label class="btn btn-default">
+                        <label class="btn btn-secondary">
                             Label
                         </label>
                     </div>
@@ -73,19 +71,19 @@ Todo:
                 <!-- Types -->
                 <div class="col-xs-6">
                     <div class="btn-group pull-right" id="types">
-                        <label class="btn btn-default active">
+                        <label class="btn btn-secondary active">
                             Choice
                         </label>
-                        <label class="btn btn-default">
+                        <label class="btn btn-secondary">
                             Freeform
                         </label>
-                        <label class="btn btn-default">
+                        <label class="btn btn-secondary">
                             Rank
                         </label>
-                        <label class="btn btn-default">
+                        <label class="btn btn-secondary">
                             Rate
                         </label>
-                        <label class="btn btn-default">
+                        <label class="btn btn-secondary">
                             Label
                         </label>
                     </div>

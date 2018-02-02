@@ -2,30 +2,21 @@
 {% load staticfiles %}
 {% block extrabasehead %}
 {% csrf_token %}
-    <!--Edit navbar active-->
-    <script>
-        var title = "login";
-    </script>
-    <!--end-->
+    <title>Login</title>
 
     <!-- CSS for login form -->
     <style>
-        .form-signin {
+        .form-sign-in {
             max-width: 330px;
             padding: 15px;
             margin: 0 auto;
         }
 
-        .form-signin .form-signin-heading,
-        .form-signin .checkbox {
+        .form-sign-in .form-sign-in-heading{
             margin-bottom: 10px;
         }
 
-        .form-signin .checkbox {
-            font-weight: normal;
-        }
-
-        .form-signin .form-control {
+        .form-sign-in .form-control {
             position: relative;
             height: auto;
             -webkit-box-sizing: border-box;
@@ -35,24 +26,8 @@
             font-size: 16px;
         }
 
-        .form-signin .form-control:focus {
+        .form-sign-in .form-control:focus {
             z-index: 2;
-        }
-
-        .form-signin
-
-        #
-        {{ loginForm.email.id_for_label }}
-        input[type="email"] {
-            margin-bottom: -1px;
-            border-bottom-right-radius: 0;
-            border-bottom-left-radius: 0;
-        }
-
-        .form-signin #{{ loginForm.password.id_for_label }}input[type="password"] {
-            margin-bottom: 10px;
-            border-top-left-radius: 0;
-            border-top-right-radius: 0;
         }
 
     </style>
@@ -66,29 +41,27 @@
             {% endfor %}
         {% endif %}
 
-        <div class="panel-group">
-            <div class="panel  panel-default">
-                <div class="panel-heading">
-                    <h4 class="panel-title"><b>Login</b></h4>
-                </div>
-                <div class="panel-body">
+        <div class="card my-3">
+            <div class="card-header">
+                <h4 class="card-title mb-0"><b>Login</b></h4>
+            </div>
+            <div class="card-body">
 
-                    <form class="form-signin" role="form" method="post" action="/login/auth/">
-                        {% csrf_token %}
-                        <h2 class="form-signin-heading">Please sign in</h2>
-                        <label for="{{loginForm.userName.id_for_label}}" class="sr-only">User Name</label>
-                        <input name="{{loginForm.userName.html_name}}" type="text" id="{{loginForm.userName.id_for_label}}" class="form-control" placeholder="User Name" required
-                               autofocus>
-                        <label for="{{loginForm.password.id_for_label}}" class="sr-only">Password</label>
-                        <input name="{{loginForm.password.html_name}}" type="password" id="{{loginForm.password.id_for_label}}" class="form-control" placeholder="Password" required>
+                <form class="form-sign-in" role="form" method="post" action="{% url 'auth' %}">
+                    {% csrf_token %}
+                    <h2 class="form-sign-in-heading">Please sign in</h2>
+                    <label for="{{loginForm.userName.id_for_label}}" class="sr-only">User Name</label>
+                    <input name="{{loginForm.userName.html_name}}" type="text" id="{{loginForm.userName.id_for_label}}" class="form-control" placeholder="User Name" required
+                           autofocus>
+                    <label for="{{loginForm.password.id_for_label}}" class="sr-only">Password</label>
+                    <input name="{{loginForm.password.html_name}}" type="password" id="{{loginForm.password.id_for_label}}" class="form-control mt-3" placeholder="Password" required>
 
-                        <br>
-                        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+                    <br>
+                    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
 
-                        <br/>
-                        <a href="{% url 'forgotPassword' %}" style="text-align: center"><h5>Forgot your password? Click here.</h5></a>
-                    </form>
-                </div>
+                    <br/>
+                    <a href="{% url 'forgotPassword' %}" style="text-align: center"><h5>Forgot your password? Click here.</h5></a>
+                </form>
             </div>
         </div>
     </div>

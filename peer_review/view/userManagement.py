@@ -3,7 +3,7 @@ import string
 
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from peer_review.decorators.userRequired import user_required
 
 from peer_review.email import generate_otp_email
@@ -109,6 +109,7 @@ def user_update(request, user_id):
             user.surname = post_surname
             user.cell = post_cell
             user.email = post_email
-
+            print("updating user")
             user.save()
-    return HttpResponse()
+            return HttpResponse()
+    return redirect('/login/')

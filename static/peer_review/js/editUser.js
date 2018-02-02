@@ -25,9 +25,9 @@ function editUserHookUpdateButtons(jQueryObject) {
         $("#e_email").val(email.text());
 
         var e_status = $("#e_status");
-        if (status.text() == "U") {
+        if (status.text() === "U") {
             e_status.val("User");
-        } else if (status.text() == "A") {
+        } else if (status.text() === "A") {
             e_status.val("Admin");
         } else {
             e_status.val("");
@@ -35,7 +35,7 @@ function editUserHookUpdateButtons(jQueryObject) {
 
         if (!isAdmin) {
             e_status.prop("disabled", true);
-        } else if (userPK == pk) {
+        } else if (userPK === pk) {
             $("#resetPassword").show();
         } else {
             $("#resetPassword").hide();
@@ -44,9 +44,9 @@ function editUserHookUpdateButtons(jQueryObject) {
         $("#updateConfirm").unbind('click').on("click", function () {
             var uStatus = "";
 
-            if (e_status.val() == "User") {
+            if (e_status.val() === "User") {
                 uStatus = "U";
-            } else if ($("#e_status").val() == "Admin") {
+            } else if ($("#e_status").val() === "Admin") {
                 uStatus = "A";
             }
 
@@ -79,4 +79,4 @@ function editUserHookUpdateButtons(jQueryObject) {
             });
         });
     });
-};
+}

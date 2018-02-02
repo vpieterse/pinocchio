@@ -7,7 +7,7 @@
     <script src="{% static "peer_review/validation.js" %}"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#users tr').each(function () {
+            $('#users').find('tr').each(function () {
                 $(this).find('input[type="text"]').each(function () {
                     $(this).attr('size', $(this).val().length);
                 });
@@ -19,18 +19,14 @@
 {% block context %}
 
     <div class="container">
-        <div class="panel-group" id="accordion">
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
-                    <h4 class="panel-title">
-                        <a>
-                            Error <b class="caret"></b>
-                        </a>
-                    </h4>
+        <div id="accordion">
+            <div class="card my-3">
+                <div class="card-header" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
+                    Error <b class="caret"></b>
                 </div>
 
-                <div id="collapseOne" class="panel-collapse collapse in">
-                    <div class="panel-body">
+                <div id="collapseOne" class="collapse show" data-parent="#accordion">
+                    <div class="card-body">
                         <h3>
                             {{ message }}<br>
                             <b>Error: </b>{{ error }}
@@ -74,7 +70,7 @@
                             </div>
                             <div>
                                 <br>
-                                <a href="/userAdmin/">Home</a>
+                                <a href="{% url 'userAdmin' %}">Home</a>
                                 <a href="#">Template</a>
                             </div>
                         </div>
@@ -84,11 +80,13 @@
         </div>
     </div>
 
-    <div class="navbar navbar-default navbar-fixed-bottom">
+    <nav class="navbar bg-dark navbar-dark fixed-bottom justify-content-between">
         <div class="container">
-            <p class="navbar-text pull-left">&copy; Pinocchio Team</p>
-            <a class="navbar-btn btn-danger btn pull-right">Log Out</a>
+            <span class="navbar-text">&copy; Pinocchio Team</span>
+            {% if user.is_authenticated %}
+            <a class="btn-danger btn" href="{% url 'login' %}">Log Out</a>
+            {% endif %}
         </div>
-    </div>
+    </nav>
 
 {% endblock %}

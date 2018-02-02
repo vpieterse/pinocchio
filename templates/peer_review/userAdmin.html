@@ -3,40 +3,32 @@
 
 {% block extrahead %}
     <title>User Admin</title>
-    <!--Edit navbar active-->
-    <script>
-        title = "userAdmin";
-    </script>
 {% endblock extrahead %}
 
 {% block context %}
-    <div class="container">
-        {% if messages %}
-            {% for message in messages %}
-            <div class = "alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
-            {% endfor %}
-        {% endif %}
-        <div class="panel-group" id="accordion">
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
-                    <h4 class="panel-title">
-                        <a>
-                            <b>User Registration </b> <b class="caret"></b>
-                        </a>
-                    </h4>
+    <div id="accordion">
+        <div class="container">
+            {% if messages %}
+                {% for message in messages %}
+                <div class = "alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
+                {% endfor %}
+            {% endif %}
+            <div class="card my-3">
+                <div class="card-header" data-toggle="collapse"aria-expanded="true" data-target="#collapseOne" aria-controls="collapseOne">
+                    User Registration <b class="caret"></b>
                 </div>
                 {% if new_users or message or possible_users%}
-                    <div id="collapseOne" class="panel-collapse collapse">
+                    <div id="collapseOne" class="collapse" data-parent="#accordion">
                 {% else %}
-                    <div id="collapseOne" class="panel-collapse collapse in">
+                    <div id="collapseOne" class="collapse show" data-parent="#accordion">
                 {% endif %}
-                    <div class="panel-body">
+                    <div class="card-body">
                         {% block content %}
-                            <form action="/userAdmin/submitForm/" method="post"
+                            <form action="{%  url 'submitUserForm' %}" method="post"
                                   onsubmit="return validateUserForm();" class="form-horizontal user-form" id="userForm"
                                   role="form">
                                 {% csrf_token %}
-                                <div class="form-group">
+                                <div class="form-group row">
                                     <!-- Title Input -->
                                     <label for="title" class="col-sm-2 control-label">Title:</label>
 
@@ -52,7 +44,7 @@
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group row">
                                     <!-- Firsts Name Input -->
                                     <label for="firstName" class="col-sm-2 control-label">First Name:</label>
 
@@ -68,7 +60,7 @@
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group row">
                                     <!-- Email Input -->
                                     <label for="email" class="col-sm-2 control-label">Email:</label>
 
@@ -84,7 +76,7 @@
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group row">
                                     <!-- User Name Input -->
                                     <label for="userName" class="col-sm-2 control-label">User Name</label>
 
@@ -100,7 +92,7 @@
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group row">
                                     <!-- Submit Button -->
                                     <div class="col-sm-offset-2 col-sm-10">
                                         <button type="submit" class="save btn btn-info" id="submitUser">Submit</button>
@@ -112,30 +104,26 @@
                 </div>
             </div>
 
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
-                    <h4 class="panel-title">
-                        <a>
-                            User Registration Via CSV File <b class="caret"></b>
-                        </a>
-                    </h4>
+            <div class="card my-3">
+                <div class="card-header" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
+                    User Registration Via CSV File <b class="caret"></b>
                 </div>
                 {% if new_users or message or possible_users%}
-                    <div id="collapseTwo" class="panel-collapse collapse in">
+                    <div id="collapseTwo" class="collapse show" data-parent="#accordion">
                 {% else %}
-                    <div id="collapseTwo" class="panel-collapse collapse">
+                    <div id="collapseTwo" class="collapse" data-parent="#accordion">
                 {% endif %}
-                    <div class="panel-body">
+                    <div class="card-body">
                         <form class="col-md-6" action="{% url 'submitCSV' %}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             <p>{{ docForm.non_field_errors }}</p>
 
                             <p>{{ docForm.doc_file.label_tag }} {{ docForm.doc_file.help_text }}</p>
 
-                            <p>
+                            <div class="mb-3">
                                 {{ docForm.doc_file.errors }}
                                 {{ docForm.doc_file }}
-                            </p>
+                            </div>
 
                             <!-- Flag if upload is for testing or changing database
                                     0: Upload and make changes
@@ -143,17 +131,17 @@
                              -->
                             <input name="test-submit-flag" type="hidden" value="0" id="test-submit-flag">
 
-                            <p><input type="submit" value="Test" onclick="document.getElementById('test-submit-flag').value = 1"/>
-                            <input type="submit" value="Submit"  onclick="document.getElementById('test-submit-flag').value = 0"/></p>
+                            <p><input type="submit" value="Test" class="btn btn-success" onclick="document.getElementById('test-submit-flag').value = 1"/>
+                            <input type="submit" value="Submit" class="btn btn-secondary" onclick="document.getElementById('test-submit-flag').value = 0"/></p>
                         </form>
 
                         <form class="col-md-6" action="" method="post" enctype="multipart/form-data">
                             <p><label for="email_template">Email Template:</label></p>
-                            <input class="save btn btn-info" type="button" data-toggle="modal" data-target="#editEmailTemplate" id="email_template" value="Edit">
+                            <input class="save btn btn-primary" type="button" data-toggle="modal" data-target="#editEmailTemplate" id="email_template" value="Edit">
                         </form>
                     </div>
                     {%  if new_users or possible_users %}
-                        <div class = "panel-body">
+                        <div class = "card-body">
                             {% if new_users %}
                                 <div class="alert alert-success" role="alert">
                                     <strong>Success!</strong> The following users were added:
@@ -195,7 +183,7 @@
                             {% endif %}
                     {% endif %}
                         {% if message %}
-                            <div class = "panel-body">
+                            <div class = "card-body">
                                 {% if error == 0 %}
                                     <div class="alert alert-warning" role="alert">
                                         <p>Something seems to be wrong with the CSV file.</p>
@@ -269,17 +257,13 @@
                 </div>
             </div>
 
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseThree">
-                    <h4 class="panel-title">
-                        <a>
-                            Maintain Users <b class="caret"></b>
-                        </a>
-                    </h4>
+            <div class="card my-3">
+                <div class="card-header" data-toggle="collapse" data-parent="#accordion" data-target="#collapseThree">
+                    Maintain Users <b class="caret"></b>
                 </div>
 
-                <div id="collapseThree" class="panel-collapse collapse">
-                    <div class="panel-body">
+                <div id="collapseThree" class="collapse" data-parent="#accordion">
+                    <div class="card-body">
 
                         <!-- <input type="text" class="form-control" id="search" placeholder="Search"
                                onkeyup="showResult(this.value)"> -->
@@ -314,10 +298,10 @@
                                         <td data-id="email">{{ user.email }}</td>
                                         <td data-id="status">{{ user.status }}</td>
                                         <td>
-                                            <a type="button" class="btn btn-success btn-xs" href="/userAdmin/userProfile/{{ user.pk }}">R</a>
+                                            <a class="btn btn-success btn-sm" href="/userAdmin/userProfile/{{ user.pk }}">R</a>
                                         </td>
                                         <td>
-                                            <button type="button" name="edit" class='btn btn-success btn-xs edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ user.user_id }}" data-pk="{{ user.pk }}">
+                                            <button name="edit" class='btn btn-success btn-sm edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ user.user_id }}" data-pk="{{ user.pk }}">
                                                 &#9998;
                                             </button>
                                         </td>
@@ -330,7 +314,7 @@
                                 </tbody>
                             </table>
                             <br>
-                            <button type="button" name="remove" id="remove" class='btn btn-warning pull-right' data-csrf="{{ csrf_token }}" data-id="{{ user.user_id }}" data-pk="{{ user.pk }}">
+                            <button name="remove" id="remove" class='btn btn-warning pull-right' data-csrf="{{ csrf_token }}" data-id="{{ user.user_id }}" data-pk="{{ user.pk }}">
                                 Delete Users
                             </button>
                         </div>
@@ -339,15 +323,14 @@
             </div>
         </div>
     </div>
-
     {% include "peer_review/userEditModal.html" %}
 
     <div id="editEmailTemplate" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <h4 class="modal-title">Edit Email Template</h4>
+                    <button class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
                     <form role="form" id="modalEmailForm">
@@ -363,7 +346,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" data-csrf='{{ csrf_token }}' id="updateEmailConfirm" data-dismiss="modal">Update</button>
+                    <button class="btn btn-success" data-csrf='{{ csrf_token }}' id="updateEmailConfirm" data-dismiss="modal">Update</button>
                 </div>
             </div>
         </div>

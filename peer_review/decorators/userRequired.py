@@ -1,13 +1,14 @@
 from django.shortcuts import redirect
 
-def user_required(function=None, login_url='/login/'):
+
+def user_required(decorated_function=None, login_url='/login/'):
     """
     Wrapper of Django's login_required to add custom behaviour and redirects.
     """
 
     def _decorated(view_func):
         def _view(request, *args, **kwargs):
-            if request.user.is_authenticated():
+            if request.user.is_authenticated:
                 return view_func(request, *args, **kwargs)
             else:
                 return redirect(login_url)
@@ -18,7 +19,7 @@ def user_required(function=None, login_url='/login/'):
 
         return _view
 
-    if function is None:
+    if decorated_function is None:
         return _decorated
     else:
-        return _decorated(function)
+        return _decorated(decorated_function)

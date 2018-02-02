@@ -3,30 +3,21 @@
 
 {% block extrahead %}
     <title>Team Members</title>
-    <!--Edit navbar active-->
-    <script>
-        title = "teamMembers";
-    </script>
-    <!--end-->
 {% endblock extrahead %}
 {% block context %}
 {% load custom_tags %}
 {% spaceless %}
     <div class="container">
-        <div class="panel-group" id="accordion">
+        <div id="accordion">
             {% for teamGroup in teams %}
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ teamGroup.team.pk }}">
-                                {{ teamGroup.team.roundDetail.name }}: {{ teamGroup.team.teamName }}
-                                <i style="font-weight: normal">({{ teamGroup.members | length }} teammates)</i>
-                                <b class="caret"></b>
-                            </a>
-                        </h4>
+                <div class="card my-3">
+                    <div class="card-header" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ teamGroup.team.pk }}">
+                            {{ teamGroup.team.roundDetail.name }}: {{ teamGroup.team.teamName }}
+                            <i style="font-weight: normal">({{ teamGroup.members | length }} teammates)</i>
+                            <b class="caret"></b>
                     </div>
-                    <div id="collapse{{ teamGroup.team.pk }}" class="panel-collapse collapse">
-                        <div class="panel-body">
+                    <div id="collapse{{ teamGroup.team.pk }}" class="collapse" data-parent="#accordion">
+                        <div class="card-body">
                             <table id="table{{ teamGroup.team.pk }}" class="table">
                                 <thead>
                                     <tr>

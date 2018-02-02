@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template import loader
 from django.test import TestCase, Client
 from django.utils import timezone
@@ -10,9 +10,9 @@ import datetime
 class MaintainTeamTests(TestCase):
     def setUp(self):
         self.client = Client()
-        self.user1 = User.objects.create_user('bob@bob.com', 'bob', 'bob', 'simons', user_id=1)
-        self.user2 = User.objects.create_user('joe@joe.com', 'joe', 'joe', 'simons', user_id=2)
-        self.user3 = User.objects.create_user('rufy@rufy.com', 'roy', 'roy', 'simons', user_id=3)
+        self.user1 = User.objects.create_user('bob@bob.com', 'bob', 'bob', 'simon', user_id=1)
+        self.user2 = User.objects.create_user('joe@joe.com', 'joe', 'joe', 'simon', user_id=2)
+        self.user3 = User.objects.create_user('rufy@rufy.com', 'roy', 'roy', 'simon', user_id=3)
         self.admin = User.objects.create_superuser('admin', 'admin', user_id=4)
         self.round1 = RoundDetail.objects.create(name='Round 1',
                                                  startingDate=datetime.datetime.now(tz=timezone.get_current_timezone()),

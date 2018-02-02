@@ -5,7 +5,6 @@
     <title>Rounds</title>
     <script src="{% static "peer_review/validation.js" %}"></script>
     <script src="{% static "peer_review/search.js" %}"></script>
-    <script type="text/javascript" src="{% static "peer_review/js/jquery.dataTables.min.js" %}"></script>
     <script type="text/javascript">
         $(document).ready(function () {
 
@@ -17,9 +16,6 @@
 
 
         });
-    </script>
-    <script>
-        title = "maintainRound";
     </script>
 
     <script type="text/javascript">
@@ -175,18 +171,14 @@
         {% if error %}
             <div class="alert alert-danger">{{error}} </div>
         {% endif %}
-        <div class="panel-group" id="accordion">
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
-                    <h4 class="panel-title">
-                        <a>
-                            Create Round<b class="caret"> </b>
-                        </a>
-                    </h4>
+        <div id="accordion">
+            <div class="card my-3">
+                <div class="card-header" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
+                    Create Round<b class="caret"> </b>
                 </div>
 
-                <div id="collapseOne" class="panel-collapse collapse ">
-                    <div class="panel-body">
+                <div id="collapseOne" class="collapse" data-parent="#accordion">
+                    <div class="card-body">
 
                         <form role="form" id="roundForm" action="/createRound/" method="GET">
                             {% csrf_token %}
@@ -266,16 +258,12 @@
                 </div>
             </div>
 
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
-                    <h4 class="panel-title">
-                        <a>
-                            Maintain Round <b class="caret"></b>
-                        </a>
-                    </h4>
+            <div class="card my-3">
+                <div class="card-header" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
+                    Maintain Round <b class="caret"></b>
                 </div>
-                <div id="collapseTwo" class="panel-collapse collapse in">
-                    <div class="panel-body">
+                <div id="collapseTwo" class="collapse show" data-parent="#accordion">
+                    <div class="card-body">
 
 
                         <div>
@@ -285,14 +273,11 @@
                                     <th>Round Name</th>
                                     <th>Round Description</th>
                                     <th>Questionnaire Description</th>
-                                    <th>Starting Date</th>
-                                    <th>Ending Date</th>
-                                    <th>Team Builder</th>
-                                    <th>Edit</th>
-                                    <th>Remove</th>
-                                    <th>Dump</th>
-                                    <th>Report</th>
-                                    <th class="hidden">Questionnaire option types</th>
+                                    <th>Date</th>
+                                    <th class="d-none"></th>
+                                    <th class="d-none"></th>
+                                    <th>Actions</th>
+                                    <th class="d-none">Questionnaire option types</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -301,37 +286,24 @@
                                         <td data-id="roundName">{{ round.name }}</td>
                                         <td data-id="description">{{ round.description }}</td>
                                         <td data-id="questionnaire">{{ round.questionnaire.label }}</td>
-                                        <td data-id="startingDate">{{ round.startingDate|date:'DATETIME_FORMAT' }}</td>
-                                        <td data-id="endingDate">{{ round.endingDate|date:'DATETIME_FORMAT' }}</td>
+                                        <td>{{ round.startingDate|date:'DATE_FORMAT' }} till {{ round.endingDate|date:'DATE_FORMAT' }}</td>
+                                        <td class="d-none" data-id="startingDate">{{ round.startingDate|date:'DATETIME_FORMAT' }}</td>
+                                        <td class="d-none" data-id="endingDate">{{ round.endingDate|date:'DATETIME_FORMAT' }}</td>
                                         <td>
-                                            <form method="post" action="/maintainTeam/{{ roundPk }}">
-                                                <input type="hidden" name="roundPk" value="{{ round.pk }}">
-                                                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-                                                <input type="submit" class="btn btn-primary btn-xs" value="&#x21A0;">
-                                            </form>
+                                            <div class="btn-group">
+                                                <button name="edit" class='btn btn-success btn-sm edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ round.pk }}" data-pk="{{ round.pk }}">
+                                                    &#9998;
+                                                </button>
+                                                <a class="btn btn-info btn-sm" href="/maintainTeam/{{ round.pk }}">Teams</a>
+                                                <a class="btn btn-primary btn-sm" href="/maintainRound/dump/{{ round.pk }}">Dump</a>
+{#                                                <a class="btn btn-primary btn-sm" href="/maintainTeam/report/{{ round.pk }}">Report</a>#}
+                                                <button name="delete" class='text-white btn btn-warning btn-sm'
+                                                        id='remove' onclick="deleteRound({{round.pk}})">
+                                                    Delete
+                                                </button>
+                                            </div>
                                         </td>
-                                        <td>
-                                            <button type="button" name="edit" class='btn btn-success btn-xs edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ round.pk }}" data-pk="{{ round.pk }}">
-                                                &#9998;
-                                            </button>
-                                        </td>
-                                        <td>
-                                            <button type='button' name="delete" class='btn btn-warning btn-xs'
-                                                    id='remove' onclick="deleteRound({{round.pk}})">
-                                                Delete
-                                            </button>
-                                        </td>
-                                        <td>
-                                            <form method="post" action="/maintainRound/dump">
-                                                <input type="hidden" name="roundPk" value="{{ round.pk }}">
-                                                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-                                                <input type="submit" class="dump btn btn-info btn-xs" value="Dump">
-                                            </form>
-                                        </td>
-                                        <td>
-                                            <input type="submit" class="btn btn-info btn-xs report" value="Report">
-                                        </td>
-                                        <td data-id="roundQuestionnaireIntroData" class="hidden">
+                                        <td data-id="roundQuestionnaireIntroData" class="d-none">
                                             <div >
                                                 <option selected value="{{round.questionnaire.pk}}">{{ round.questionnaire.label}}</option>
                                                     {% for quest in questionnaires %}
@@ -398,11 +370,11 @@
                                                            value="{{ round.endingDate|date:'DATETIME_FORMAT' }}">
                                                 </td>
                                                 <!--SPANNER-->
-                                                <!--<td><button type='button' class='btn btn-default btn-xs' id='maintain'  onclick="window.location.href='/maintainTeam'"><span class="glyphicon glyphicon-wrench"></span></button></button></a></button></td>-->
+                                                <!--<td><button type='button' class='btn btn-secondary btn-sm' id='maintain'  onclick="window.location.href='/maintainTeam'"><span class="glyphicon glyphicon-wrench"></span></button></button></a></button></td>-->
 
                                                 <!--EDIT-->
                                                 <td>
-                                                    <button type='submit' name="edit" class='btn btn-success btn-xs'
+                                                    <button type='submit' name="edit" class='btn btn-success btn-sm'
                                                             id='edit' value="{{ round.description }}">Edit
                                                     </button>
                                                 </td>
@@ -413,21 +385,21 @@
                                             <form action="/maintainRound/delete/{{ round.pk }}" method="post"
                                                   onsubmit="return confirmDeletion()">
                                                 {% csrf_token %}
-                                                <button type='submit' name="delete" class='btn btn-warning btn-xs'
+                                                <button type='submit' name="delete" class='btn btn-warning btn-sm'
                                                         id='remove'>Delete
                                                 </button>
                                             </form>
                                         </td>
 
                                         <td>
-                                            <input type="button" class="btn btn-info btn-xs dump" value="Dump" data-pk="{{ round.pk }}">
+                                            <input  class="btn btn-info btn-sm dump" value="Dump" data-pk="{{ round.pk }}">
                                         </td>
 
                                         <td>
                                             <form action="/report/" method="POST">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="roundPk" value="{{ round.pk }}">
-                                                <input type="submit" class="btn btn-info btn-xs report" value="Report">
+                                                <input type="submit" class="btn btn-info btn-sm report" value="Report">
                                             </form>
                                         </td>
                                     </tr>
@@ -443,8 +415,8 @@
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
                             <h4 class="modal-title">Edit Round</h4>
+                            <button class="close" data-dismiss="modal">&times;</button>
                         </div>
                         <div class="modal-body">
                             <form role="form" id="modalForm">
@@ -478,7 +450,7 @@
                             </form>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-success" id="updateConfirm" data-dismiss="modal">Update</button>
+                            <button class="btn btn-success" id="updateConfirm" data-dismiss="modal">Update</button>
                         </div>
                     </div>
                 </div>

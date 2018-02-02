@@ -2,12 +2,6 @@
 {% load staticfiles %}
 
 {% block extrabasehead %}
-    <!--Edit navbar active-->
-    <script>
-        var title = "NULL";
-    </script>
-    <!--end-->
-
     {% block extrahead %}{% endblock %}
 {% endblock %}
 {% block basecontext %}
@@ -30,5 +24,5 @@
     {% block context %}{% endblock %}
 {% endblock %}
 {% block logout %}
-    <a class="navbar-btn btn-primary btn pull-right" href="/login">Login</a>
+    <a class="navbar-btn btn-primary btn pull-right" href="{% url 'login' %}">Login</a>
 {% endblock %}

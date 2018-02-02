@@ -21,9 +21,9 @@
 
     //The function to load the responses
     getResponses({{ q.id }}, function (responses) {
-        if (responses.answers.length != 0) {
+        if (responses.answers.length !== 0) {
             for (var x = 0; x < responses.answers.length; x++) {
-                row = $("#{{ q.id }}").find('.rankTable tr').eq(responses.answers[x]).find('td');
+                var row = $("#{{ q.id }}").find('.rankTable tr').eq(responses.answers[x]).find('td');
                 row.eq(0).html(responses.labelOrUserNames[x]);
                 row[0].dataset['id'] = responses.labelOrUserIds[x];
             }

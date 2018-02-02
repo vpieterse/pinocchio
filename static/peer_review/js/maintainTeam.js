@@ -193,7 +193,7 @@ var UserHandler = function(userTableElement) {
                 "targets": [3]}],
             dom: tableLayout
         });
-        $teams.find(".panel-heading").unbind("click").on("click", function(event) {
+        $teams.find(".card-header").unbind("click").on("click", function(event) {
             console.log(event.currentTarget.classList.contains("collapsed"));
             self.currentTeam = event.currentTarget.getAttribute("href").substring(1);
         });
@@ -280,7 +280,7 @@ RoundHandler = function (dropdownSelector, userHandler) {
                 self.userHandler.addTeam(teamTable, i);
             }
         }
-        $teams.find(".panel-heading").first().addClass("collapsed").trigger("click");
+        $teams.find(".card-header").first().addClass("collapsed").trigger("click");
 
     };
 };

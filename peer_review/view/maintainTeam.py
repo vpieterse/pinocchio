@@ -11,21 +11,13 @@ from peer_review.forms import DocumentForm
 from peer_review.view.userFunctions import user_error
 from django.template import loader
 
+
 @admin_required
-def maintain_team(request):
-    if request.method == "POST":
-        round_pk = request.POST.get("roundPk")
-
-        context = {'users': User.objects.filter(Q(is_active=1) & (Q(status='S') | Q(status='U'))),
-                   'rounds': RoundDetail.objects.all(),
-                   'teams': TeamDetail.objects.all(),
-                   'roundPk': round_pk}
-
-    else:
-        context = {'users': User.objects.filter(Q(is_active=1) & (Q(status='S') | Q(status='U'))),
-                   'rounds': RoundDetail.objects.all(),
-                   'teams': TeamDetail.objects.all(),
-                   'roundPk': "none"}
+def maintain_team(request, round_pk="none"):
+    context = {'users': User.objects.filter(Q(is_active=1) & (Q(status='S') | Q(status='U'))),
+               'rounds': RoundDetail.objects.all(),
+               'teams': TeamDetail.objects.all(),
+               'roundPk': round_pk}
     return render(request, 'peer_review/maintainTeam.html', context)
 
 
@@ -41,11 +33,15 @@ def change_team_status(request, team_pk, status):
 def change_user_team_for_round(request, round_pk, user_id, team_name):
     try:
         team = TeamDetail.objects.filter(user_id=user_id).get(roundDetail_id=round_pk)
+        print("got a team")
     except TeamDetail.DoesNotExist:
+        print("had to create TeamDetail")
+        user = User.objects.get(user_id=user_id)
         team = TeamDetail(
-            user=get_object_or_404(User, user_id=user_id),
+            user=user,
             roundDetail=get_object_or_404(RoundDetail, pk=round_pk)
         )
+        print(team.user.user_id)
 
     team.teamName = team_name
     if team_name == 'emptyTeam':
@@ -63,7 +59,6 @@ def get_teams_for_round(request, round_pk):
                 "teams": []}
     team_sizes = {}
     team_tables = {}
-    users = {}
     for team in teams:
         if team.teamName not in team_sizes:
             team_sizes[team.teamName] = 0
@@ -157,7 +152,6 @@ def submit_team_csv(request):
     if not request.user.is_authenticated():
         return user_error(request)
 
-    global error_type
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
 
@@ -197,7 +191,8 @@ def submit_team_csv(request):
                             error_type = "Not all fields contain values."
                         elif valid == 4:
                             error_type = "One of these headers does not exist, 'user_id', 'round_name', or 'team_name'."
-
+                        else:
+                            error_type = "None"
                         os.remove(file_path)
                         return render(request, 'peer_review/csvTeamError.html',
                                       {'message': message, 'row': row_list, 'error': error_type})

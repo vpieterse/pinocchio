@@ -3,11 +3,6 @@
 
 {% block extrahead %}
     <title>Team Admin</title>
-    <!--Edit navbar active-->
-    <script>
-        title = "maintainTeam";
-    </script>
-    <!--end-->
     <!--Select correct table-->
     <script>
         var numTeams = 0;
@@ -24,15 +19,13 @@
 {% endblock extrahead %}
 {% block context %}
     <div class="container">
-        <div class="panel-group" id="accordion">
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
-                    <h4 class="panel-title">
-                        <b>Team Builder</b><b class="caret"></b>
-                    </h4>
+        <div id="accordion">
+            <div class="card my-3">
+                <div class="card-header" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
+                    Team Builder<b class="caret"></b>
                 </div>
-                <div id="collapseOne" class="panel-collapse collapse in">
-                    <div class="panel-body">
+                <div id="collapseOne" class="collapse show" data-parent="#accordion">
+                    <div class="card-body">
                         <div>
                             <h4>Select Round</h4>
                             <form role="form" method="post" action="#">
@@ -44,18 +37,16 @@
                                                 <option value="{{ round.pk }}" desc="{{ round.description }}">{{ round.name }}</option>
                                             {% endfor %}
                                         </select>
-                                        <a href="/maintainRound" class="btn btn-info btn-xs plus">+</a>
+                                        <a href="/maintainRound" class="btn btn-info btn-sm plus">+</a>
                                     </div>
                                 </div>
                             </form>
                         </div>
                         <br />
                         <div class="">
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <h4 class="panel-title"><b>Round Description</b></h4>
-                                </div>
-                                <div class="panel-body" id="roundDesc">
+                            <div class="card my-3">
+                                <div class="card-header">Round Description</div>
+                                <div class="card-body" id="roundDesc">
                                     Please select a round above
                                 </div>
                             </div>
@@ -65,11 +56,9 @@
                         <br />
                         <div class="row" id="tablesContainer">
                             <div class="col-sm-6">
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title"><b>User List</b></h4>
-                                    </div>
-                                    <div class="panel-body">
+                                <div class="card my-3">
+                                    <div class="card-header">User List</div>
+                                    <div class="card-body">
                                         <div >
                                             <table class='table moveable sortable' id='users'>
                                                 <thead>
@@ -96,16 +85,14 @@
                                 </div>
                             </div>
                             <div class="col-sm-6">
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title"><b>Teams</b></h4>
-                                    </div>
-                                    <div class="panel-body">
-                                        <div class="panel-group" id="teams">
+                                <div class="card my-3">
+                                    <div class="card-header">Teams</div>
+                                    <div class="card-body">
+                                        <div id="teams">
                                         </div>
-                                        <div class="panel panel-default">
-                                            <div class="panel-heading">
-                                                <h4 class="panel-title"><input type="button" value="+" class="btn btn-info btn-xs plus" id="addTeam"/><b> Add</b></h4>
+                                        <div class="card my-3">
+                                            <div class="card-header">
+                                                <input type="button" value="+" class="btn btn-info btn-sm plus" id="addTeam"/><b> Add</b>
                                             </div>
                                         </div>
                                     </div>
@@ -115,14 +102,12 @@
                     </div>
                 </div>
             </div>
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
-                    <h4 class="panel-title">
-                        <b>Create Teams Via CSV File</b><b class="caret"></b>
-                    </h4>
+            <div class="card my-3">
+                <div class="card-header" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
+                    Create Teams Via CSV File<b class="caret"></b>
                 </div>
-                <div id="collapseTwo" class="panel-collapse collapse">
-                    <div class="panel-body">
+                <div id="collapseTwo" class="collapse" data-parent="#accordion">
+                    <div class="card-body">
                         <form role="form" method="post" action="{% url 'submitTeamCSV' %}" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="form-group">

@@ -1,5 +1,5 @@
 from datetime import datetime, timezone, timedelta
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 from peer_review.models import User, Questionnaire, RoundDetail, TeamDetail, Question, QuestionType, QuestionGrouping
 
@@ -77,13 +77,14 @@ class AuthenticationTests(TestCase):
             for args in arg_split[1:]:
                 name_value = args.split("=")
                 arguments[name_value[0]] = name_value[1]
+
             if len(arguments) > 0:
                 response = self.client.get(reverse(page, kwargs=arguments))
             else:
                 response = self.client.get(reverse(page))
+
             if response.status_code == 302:
                 # print("When we go to " + page + ", we are redirected to " + response.url)
-                self.assertRedirects(response, '/login/')
+                self.assertRedirects(response, '/login/', )
             else:
-                # print(page + str(response.status_code))
                 self.assertEquals(response.status_code, 403)

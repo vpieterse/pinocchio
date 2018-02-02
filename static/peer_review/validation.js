@@ -8,29 +8,24 @@ function validateUserForm() {
 	var user_id = $("#user_id").val();
 	var status = $("#status").val();
 
-	if (title == null || title == "")
-	{
-		// $("#title").addClass
-	}
-
-    if (title == null || title == "" ||
-		initials == null || initials == "" ||
-		name == null || name == "" ||
-		surname == null || surname == "" ||
-		email == null || email == "" ||
-		cell == null || cell == "" ||
-		user_id == null || user_id == "" ||
-		status == null || status == "") {
+    if (title === null || title === "" ||
+		initials === null || initials === "" ||
+		name === null || name === "" ||
+		surname === null || surname === "" ||
+		email === null || email === "" ||
+		cell === null || cell === "" ||
+		user_id === null || user_id === "" ||
+		status === null || status === "") {
         alert("Please fill in all fields");
         return false;
     }
 
-	if (password != passwordConfirm){
+	if (password !== passwordConfirm){
 		alert("Passwords do not correspond");
 		return false;
 	}
 
-	if (status != 'A' && status != 'a' && status != 'U' && status != 'u')
+	if (status !== 'A' && status !== 'a' && status !== 'U' && status !== 'u')
 	{
 		alert("Please select a valid status");
 		return false;

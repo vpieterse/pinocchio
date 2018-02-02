@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import QuestionType, QuestionGrouping, Question, Choice, Rank, Rate, User, Questionnaire, \
-    RoundDetail, TeamDetail, Label, QuestionOrder, FreeformItem, Response
+    RoundDetail, TeamDetail, Label, QuestionOrder, FreeFormItem, Response
 
 admin.site.register(QuestionType)
 admin.site.register(QuestionGrouping)
@@ -15,5 +15,5 @@ admin.site.register(Questionnaire)
 admin.site.register(RoundDetail)
 admin.site.register(TeamDetail)
 admin.site.register(Label)
-admin.site.register(FreeformItem)
+admin.site.register(FreeFormItem)
 admin.site.register(Response)

@@ -1,5 +1,5 @@
 from datetime import datetime, timezone, timedelta
-from peer_review.models import Questionnaire, RoundDetail, User, Question, FreeformItem, Choice, QuestionOrder, Response, \
+from peer_review.models import Questionnaire, RoundDetail, User, Question, FreeFormItem, Choice, QuestionOrder, Response, \
     QuestionType, QuestionGrouping
 import time
 
@@ -17,15 +17,15 @@ class TestSetup:
                                                 endingDate=end_date,
                                                 description='Hey there, we have a round')
 
-        self.user = User.objects.create_user('bob@bob.com', 'bob', 'bob', 'simons', user_id=12345)
+        self.user = User.objects.create_user('bob@bob.com', 'bob', 'bob', 'simon', user_id=12345)
         self.user2 = User.objects.create_user('joe@gmail.com', 'joe', 'Smith', '12345', user_id=6789)
 
         self.question1 = Question.objects.create(questionText="Hey I'm a question number 1",
                                                  questionLabel="I'm the label",
                                                  pubDate=datetime.now(timezone(timedelta(hours=2))),
-                                                 questionType=QuestionType.objects.create(name="Freeform"),
+                                                 questionType=QuestionType.objects.create(name="FreeForm"),
                                                  questionGrouping=QuestionGrouping.objects.create(grouping="None"))
-        FreeformItem.objects.create(question=self.question1, freeformType="Paragraph")
+        FreeFormItem.objects.create(question=self.question1, freeformType="Paragraph")
 
         self.question2 = Question.objects.create(questionText="Different question here",
                                                  questionLabel="I'm the label for the question",

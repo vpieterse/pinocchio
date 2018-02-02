@@ -3,78 +3,65 @@
 
 {% block extrahead %}
     <title>Account Details</title>
-    <!--Edit navbar active-->
-    <script>
-        title = "accountDetails";
-    </script>
-    <!--end-->
 {% endblock extrahead %}
 {% block context %}
     <div class="container">
-        <div class="panel-group">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h4 class="panel-title">
-                        <b>{{ user.user_id }} - {{ user.initials }} ({{ user.name }}) {{ user.surname }}</b>
-                    </h4>
+        <div class="card my-3">
+            <div class="card-header">{{ user.user_id }} - {{ user.initials }} ({{ user.name }}) {{ user.surname }}</div>
+            <div class="card-body form-horizontal" id="user{{ user.user_id }}">
+                <div class="form-group row">
+                    <label for="title" class="col-sm-2 control-label">Title:</label>
+                    <div class="col-sm-3">
+                        <div id="title" class="card-disabled" data-id="title">{{ user.title }}</div>
+                    </div>
+
+                    <label for="initials" class="col-sm-2 control-label">Initials:</label>
+                    <div class="col-sm-3">
+                        <div id="initials" class="card-disabled" data-id="initials">{{ user.initials }}</div>
+                    </div>
                 </div>
-                <div class="panel">
-                    <div class="panel-body form-horizontal" id="user{{ user.user_id }}">
-                        <div class="form-group">
-                            <label for="title" class="col-sm-2 control-label">Title:</label>
-                            <div class="col-sm-3">
-                                <div id="title" class="panel-disabled" data-id="title">{{ user.title }}</div>
-                            </div>
 
-                            <label for="initials" class="col-sm-2 control-label">Initials:</label>
-                            <div class="col-sm-3">
-                                <div id="initials" class="panel-disabled" data-id="initials">{{ user.initials }}</div>
-                            </div>
-                        </div>
+                <div class="form-group row">
+                    <label for="name" class="col-sm-2 control-label">Name:</label>
+                    <div class="col-sm-3">
+                        <div id="name" class="card-disabled" data-id="name">{{ user.name }}</div>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="name" class="col-sm-2 control-label">Name:</label>
-                            <div class="col-sm-3">
-                                <div id="name" class="panel-disabled" data-id="name">{{ user.name }}</div>
-                            </div>
+                    <label for="surname" class="col-sm-2 control-label">Surname:</label>
+                    <div class="col-sm-3">
+                        <div id="surname" class="card-disabled" data-id="surname">{{ user.surname }}</div>
+                    </div>
+                </div>
 
-                            <label for="surname" class="col-sm-2 control-label">Surname:</label>
-                            <div class="col-sm-3">
-                                <div id="surname" class="panel-disabled" data-id="surname">{{ user.surname }}</div>
-                            </div>
-                        </div>
+                <div class="form-group row">
+                    <label for="email" class="col-sm-2 control-label">Email:</label>
+                    <div class="col-sm-3">
+                        <div id="email" class="card-disabled" data-id="email">{{ user.email }}</div>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="email" class="col-sm-2 control-label">Email:</label>
-                            <div class="col-sm-3">
-                                <div id="email" class="panel-disabled" data-id="email">{{ user.email }}</div>
-                            </div>
+                    <label for="cell" class="col-sm-2 control-label">Cell Number:</label>
+                    <div class="col-sm-3">
+                        <div id="cell" class="card-disabled" data-id="cell">{{ user.cell }}</div>
+                    </div>
+                </div>
 
-                            <label for="cell" class="col-sm-2 control-label">Cell Number:</label>
-                            <div class="col-sm-3">
-                                <div id="cell" class="panel-disabled" data-id="cell">{{ user.cell }}</div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="user_id" class="col-sm-2 control-label">User Name:</label>
-                            <div class="col-sm-3">
-                                <div id="user_id" class="panel-disabled" data-id="user_id">{{ user.user_id }}</div>
-                            </div>
-                            <label for="userStatus" class="col-sm-2 control-label">User Status:</label>
-                            <div class="col-sm-3">
-                                <div id="userStatus" class="panel-disabled" data-id="userStatus">{{ user.status }}</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-12">
-                               {% if is_logged_user == True %}
-                                   <button type="button" name="edit" class='btn btn-primary pull-right edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ user.user_id }}" data-pk="{{ user.pk }}">
-                                        Edit
-                                    </button>
-                                {% endif %}
-                            </div>
-                        </div>
+                <div class="form-group row">
+                    <label for="user_id" class="col-sm-2 control-label">User Name:</label>
+                    <div class="col-sm-3">
+                        <div id="user_id" class="card-disabled" data-id="user_id">{{ user.user_id }}</div>
+                    </div>
+                    <label for="userStatus" class="col-sm-2 control-label">User Status:</label>
+                    <div class="col-sm-3">
+                        <div id="userStatus" class="card-disabled" data-id="userStatus">{{ user.status }}</div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-12">
+                       {% if is_logged_user == True %}
+                           <button type="button" name="edit" class='btn btn-primary pull-right edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ user.user_id }}" data-pk="{{ user.pk }}">
+                                Edit
+                            </button>
+                        {% endif %}
                     </div>
                 </div>
             </div>

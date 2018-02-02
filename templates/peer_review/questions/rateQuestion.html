@@ -1,13 +1,13 @@
 <script>
-    var batchnum = 0;
+    var batch_num = 0;
     //This function gets called when the Save button is pushed
     saveFunctions.push(function () {
         d = new Date();
-        var batch_id = d.getTime()+ "" + batchnum;
-        batchnum++;
+        var batch_id = d.getTime()+ "" + batch_num;
+        batch_num++;
         $("#{{ q.id }}").find("input[type=range]").each( function(i, rangeItem)
         {
-        	$input = $(rangeItem);
+        	var $input = $(rangeItem);
             var json = {
                 'questionPk': {{ q.id }},
                 'roundPk': roundPk,
@@ -16,17 +16,17 @@
                 'subjectUser': rangeItem.dataset.labelid,
                 'batch_id': batch_id
             };
-            optional = $input.siblings().find('input[type=checkbox]');
+            var optional = $input.siblings().find('input[type=checkbox]');
             if (optional.size()) {
                 if (optional.is(":checked")) {
                     json.answer = -1;
                 }
             }
             console.log(json);
-        	sendToView(json);
+        	 sendToView(json);
         });
         
-    })
+    });
 
     $('document').ready(function() {
         getResponses({{ q.id }}, function (responses) {
@@ -43,20 +43,26 @@
 </script>
 <p><strong>{{ number }}</strong>. {{ q.questionText }}</p>
 {% if q.questionGrouping.grouping == "None" %}
-	<span class="text-muted">{{ q.get_rate.topWord }}</span><span class = "text-muted pull-right">{{ q.get_rate.bottomWord }}</span>
-	<input class="slider" type="range" min="0" max="100" value="50" step="1"/>
+	<label>
+        <span class="text-muted">{{ q.get_rate.topWord }}</span><span class = "text-muted pull-right">{{ q.get_rate.bottomWord }}</span>
+	    <input class="slider" type="range" min="0" max="100" value="50" step="1"/>
+    </label>
 {% elif q.questionGrouping.grouping == "Label" %}
 	{% for l in q.get_labels %}
-		<h4>{{ l.labelText }}</h4>
-		<span class="text-muted">{{ q.get_rate.topWord }}</span><span class = "text-muted pull-right">{{ q.get_rate.bottomWord }}</span>
-		<input class="slider" data-labelid = "{{l.pk}}" type="range" min="0" max="100" value="50" step="1"/>
+        <h4>{{ l.labelText }}</h4>
+		<label>
+            <span class="text-muted">{{ q.get_rate.topWord }}</span><span class = "text-muted float-right">{{ q.get_rate.bottomWord }}</span>
+            <input class="slider" data-labelid = "{{l.pk}}" type="range" min="0" max="100" value="50" step="1"/>
+        </label>
 	{% endfor %}
 {% else %}
 	{% for u in teamMembers %}
 		{% if q.questionGrouping.grouping == "All" or u != currentUser %}			
-			<h4>{{ u.name }} {{ u.surname }}</h4>
-			<span class="text-muted">{{ q.get_rate.topWord }}</span><span class = "text-muted pull-right">{{ q.get_rate.bottomWord }}</span>
-			<input class="slider" data-labelid = "{{u.pk}}" type="range" min="0" max="100" value="50" step="1"/>
+            <h4>{{ u.name }} {{ u.surname }}</h4>
+            <label>
+                <span class="text-muted">{{ q.get_rate.topWord }}</span><span class = "text-muted float-right">{{ q.get_rate.bottomWord }}</span>
+                <input class="slider" data-labelid = "{{u.pk}}" type="range" min="0" max="100" value="50" step="1"/>
+            </label>
 		{% endif %}
 	{% endfor %}
 {% endif %}

@@ -4,7 +4,7 @@ from django.http import HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 
-from ..models import Question, QuestionOrder, QuestionType, QuestionGrouping, Choice, Rank, Rate, FreeformItem, Label
+from ..models import Question, QuestionOrder, QuestionType, QuestionGrouping, Choice, Rank, Rate, FreeFormItem, Label
 from peer_review.decorators.adminRequired import admin_required
 
 
@@ -41,7 +41,7 @@ def edit_question(request, question_pk):
                'questions': get_questions(),
                'labels': Label.objects.filter(question=question),
                'choices': Choice.objects.filter(question=question),
-               'freeformType': str(FreeformItem.objects.filter(question=question).first()),
+               'freeFormType': str(FreeFormItem.objects.filter(question=question).first()),
                'rate': Rate.objects.filter(question=question).first(),
                'rank': Rank.objects.filter(question=question).first()}
     return render(request, 'peer_review/questionAdmin.html', context)
@@ -78,7 +78,7 @@ def save_question(request):
             Choice.objects.filter(question=q).delete()
             Rank.objects.filter(question=q).delete()
             Rate.objects.filter(question=q).delete()
-            FreeformItem.objects.filter(question=q).delete()
+            FreeFormItem.objects.filter(question=q).delete()
             Label.objects.filter(question=q).delete()
             q.questionText = question_text
             q.questionLabel = question_title
@@ -114,8 +114,8 @@ def save_question(request):
                                 topWord=request.POST['rate-first'],
                                 bottomWord=request.POST['rate-second'],
                                 optional=('rate-optional' in request.POST))
-        elif question_type == 'Freeform':
-            FreeformItem.objects.create(question=q, freeformType=request.POST['freeform-type'])
+        elif question_type == 'FreeForm':
+            FreeFormItem.objects.create(question=q, freeformType=request.POST['freeForm-type'])
 
     messages.add_message(request, messages.SUCCESS, "Question saved successfully")
     return HttpResponseRedirect('/questionAdmin')

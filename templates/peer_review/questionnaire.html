@@ -9,8 +9,6 @@
 
     <script src="{% static "peer_review/js/tinymce/tinymce.min.js" %}"></script>
     <script>
-        //Edit navbar active
-        title = "questionnaire";
         //Variables used for saving
         var roundPk = "{{ round }}";
         var saveFunctions = [];
@@ -32,12 +30,12 @@
 {% block context %}
     {% csrf_token %}
     <div class="container">
-        <div class="panel panel-default">
-            <div class="panel-heading">
+        <div class="card my-3">
+            <div class="card-header">
                 {{ questionnaire.intro|safe }}
             </div>
             {% for q in questionOrders %}
-                <div id="{{ q.question.id }}" class="panel-body">
+                <div id="{{ q.question.id }}" class="card-body">
                     {# Label #}
                     {% ifequal q.question.questionType.name 'Label' %}
                         {% include "peer_review/questions/labelQuestion.html" with q=q.question number=q.order %}
@@ -62,7 +60,7 @@
                 </div>
             {% endfor %}
             {% if not preview %}
-                <div class="panel-body">
+                <div class="card-body">
 
                     <button class='btn btn-success' onclick="saveProgress()">Save Progress</button>
                 <span id="results">

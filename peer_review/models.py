@@ -28,8 +28,8 @@ class Question(models.Model):
     questionText = models.CharField(max_length=1000)
     questionLabel = models.CharField(max_length=300, unique=True)
     pubDate = models.DateTimeField('date published')
-    questionType = models.ForeignKey(QuestionType)
-    questionGrouping = models.ForeignKey(QuestionGrouping)
+    questionType = models.ForeignKey(QuestionType, on_delete=models.SET_NULL, null=True)
+    questionGrouping = models.ForeignKey(QuestionGrouping, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.questionText
@@ -55,12 +55,12 @@ class Question(models.Model):
     def get_rate(self):
         return Rate.objects.get(question=self)
 
-    def get_freeform_item(self):
-        return FreeformItem.objects.get(question=self)
+    def get_free_form_item(self):
+        return FreeFormItem.objects.get(question=self)
 
 
 class Choice(models.Model):
-    question = models.ForeignKey(Question)
+    question = models.ForeignKey(Question, on_delete=models.SET_NULL, null=True)
     choiceText = models.CharField(max_length=200)
     num = models.IntegerField(default=1)
 
@@ -68,8 +68,8 @@ class Choice(models.Model):
         return self.choiceText
 
 
-class FreeformItem(models.Model):
-    question = models.ForeignKey(Question)
+class FreeFormItem(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.SET_NULL, null=True)
     # Can only be of the following types:
     PARAGRAPH = "Paragraph"  # (300)
     WORD = "Word"  # (25)
@@ -81,14 +81,14 @@ class FreeformItem(models.Model):
         (INTEGER, "Integer"),
         (REAL, "Real"),
     )
-    freeformType = models.CharField(max_length=300, choices=TYPE_CHOICES, default=PARAGRAPH)
+    freeFormType = models.CharField(max_length=300, choices=TYPE_CHOICES, default=PARAGRAPH)
 
     def __str__(self):
-        return self.freeformType
+        return self.freeFormType
 
 
 class Rank(models.Model):
-    question = models.ForeignKey(Question)
+    question = models.ForeignKey(Question, on_delete=models.SET_NULL, null=True)
     firstWord = models.CharField(max_length=200)
     secondWord = models.CharField(max_length=200)
 
@@ -97,14 +97,14 @@ class Rank(models.Model):
 
 
 class Rate(models.Model):
-    question = models.ForeignKey(Question)
+    question = models.ForeignKey(Question, on_delete=models.SET_NULL, null=True)
     topWord = models.CharField(max_length=25)
     bottomWord = models.CharField(max_length=25)
     optional = models.BooleanField(default=False)
 
 
 class Label(models.Model):
-    question = models.ForeignKey(Question)
+    question = models.ForeignKey(Question, on_delete=models.SET_NULL, null=True)
     labelText = models.CharField(max_length=200)
 
     def __str__(self):
@@ -185,8 +185,8 @@ class Questionnaire(models.Model):
 
 
 class QuestionOrder(models.Model):
-    questionnaire = models.ForeignKey(Questionnaire)
-    question = models.ForeignKey(Question)
+    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.SET_NULL, null=True)
+    question = models.ForeignKey(Question, on_delete=models.SET_NULL, null=True)
     order = models.IntegerField(default=1)
 
     def __str__(self):
@@ -195,7 +195,7 @@ class QuestionOrder(models.Model):
 
 class RoundDetail(models.Model):
     name = models.CharField(max_length=15, unique=True)
-    questionnaire = models.ForeignKey(Questionnaire, null=True)
+    questionnaire = models.ForeignKey(Questionnaire, null=True, on_delete=models.SET_NULL)
     startingDate = models.DateTimeField('starting date')
     endingDate = models.DateTimeField('ending date')
     description = models.CharField(max_length=300)
@@ -205,8 +205,8 @@ class RoundDetail(models.Model):
 
 
 class TeamDetail(models.Model):
-    user = models.ForeignKey(User, null=False)
-    roundDetail = models.ForeignKey(RoundDetail)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    roundDetail = models.ForeignKey(RoundDetail, on_delete=models.SET_NULL, null=True)
     teamName = models.CharField(max_length=200, default="emptyTeam")
     NOT_ATTEMPTED = "Not attempted"
     IN_PROGRESS = "In progress"
@@ -231,7 +231,7 @@ class TeamDetail(models.Model):
         return self.status == TeamDetail.IN_PROGRESS
 
     def is_completed(self):
-        return self.is_in_progress() and self.is_in_past();
+        return self.is_in_progress() and self.is_in_past()
 
     def is_not_attempted(self):
         return self.status == TeamDetail.NOT_ATTEMPTED
@@ -248,11 +248,11 @@ class TeamDetail(models.Model):
 
 class Response(models.Model):
     batch_id = models.IntegerField()
-    question = models.ForeignKey(Question)  # The question
-    roundDetail = models.ForeignKey(RoundDetail)  # The round
-    user = models.ForeignKey(User, null=False, related_name="user")  # The answerer
-    subjectUser = models.ForeignKey(User, null=True, related_name="otherUser")  # The person the question is about.
-    label = models.ForeignKey(Label, null=True)  # The label the question is about.
+    question = models.ForeignKey(Question, on_delete=models.SET_NULL, null=True)  # The question
+    roundDetail = models.ForeignKey(RoundDetail, on_delete=models.SET_NULL, null=True)  # The round
+    user = models.ForeignKey(User, null=True, related_name="user", on_delete=models.SET_NULL)  # The answerer
+    subjectUser = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="otherUser")  # The person the question is about.
+    label = models.ForeignKey(Label, null=True, on_delete=models.SET_NULL)  # The label the question is about.
     answer = models.CharField(max_length=300)
 
     def __str__(self):

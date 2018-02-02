@@ -9,7 +9,7 @@ def admin_required_test(user):
     return False
 
 
-def admin_required(function=None, redirect_field_name=None, login_url='/login/'):
+def admin_required(decorated_function=None, redirect_field_name=None, login_url='/login/'):
     """
     Decorator for views that checks that the user is logged in
     and has the "admin" permission set. Users with an 'A' status
@@ -30,7 +30,7 @@ def admin_required(function=None, redirect_field_name=None, login_url='/login/')
 
         return _view
 
-    if function is None:
+    if decorated_function is None:
         return _decorated
     else:
-        return _decorated(function)
+        return _decorated(decorated_function)
