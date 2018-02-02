@@ -49,9 +49,9 @@
 	<input class="slider" type="range" min="0" max="100" value="50" step="1"/>
 {% elif grouping == "Label" %}
 	{% for l in questionLabels %}
-		<h4>{{ l.labelText }}</h4>
+		<h4>{{ l.label.labelText }}</h4>
 		<span class="text-muted">{{ q.get_rate.topWord }}</span><span class = "text-muted pull-right">{{ q.get_rate.bottomWord }}</span>
-		<input class="slider" data-labelid = "{{l.pk}}" type="range" min="0" max="100" value="50" step="1"/>
+		<input class="slider" data-labelid = "{{l.label.pk}}" type="range" min="0" max="100" value="50" step="1"/>
 	{% endfor %}
 {% else %}
 	{% for u in teamMembers %}

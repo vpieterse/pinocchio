@@ -49,10 +49,10 @@
     {% endfor %}
 {% elif grouping == "Label" %}
     {% for l in questionLabels %}
-        <h4>{{ l }}</h4>
+        <h4>{{ l.label }}</h4>
         {% for choice in q.get_choices %}
             <div class="radio">
-                <label><input type="radio" name = "{{ l.pk }} "data-labelid = "{{ l.pk }}" value="{{ choice }}">{{ choice.choiceText }}</label>
+                <label><input type="radio" name = "{{ l.label.pk }} "data-labelid = "{{ l.label.pk }}" value="{{ choice }}">{{ choice.choiceText }}</label>
             </div> 
         {% endfor %}
     {% endfor %}
