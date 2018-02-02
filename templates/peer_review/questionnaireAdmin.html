@@ -24,20 +24,20 @@ Todo:
             <div class = "alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
             {% endfor %}
         {% endif %}
-        <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog">
+        <div class="modal fade" id="confirm-modal" tabindex="-1" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h4 class="modal-title">Confirm Delete</h4>
+                        <h4 class="modal-title" id="modal-title"></h4>
                     </div>
                     <div class="modal-body">
-                        <p id="delete-msg"></p>
-                        <p id="delete-questionnaire" font-size="14pt"></p>
+                        <p id="modal-msg"></p>
+                        <p id="modal-content" font-size="14pt"></p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <a class="btn btn-danger" onclick="$('#form-delete').submit()">Delete</a>
+                        <a class="btn btn-danger" id="modal-action"></a>
                     </div>
                 </div>
             </div>
@@ -193,14 +193,14 @@ Todo:
                                 <th>Title</th>
                                 <th>
                                     Number of Questions
-                                    <span id="delete-many" style = "cursor: pointer" onclick = "deleteMany()" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-danger" data-toggle="modal" data-target="#confirm-delete"></span>
+                                    <span id="delete-many" style = "cursor: pointer" onclick = "deleteMany()" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-danger" data-toggle="modal" data-target="#confirm-modal"></span>
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for questionnaire in questionnaires %}
                                 <tr
-                                    {% if questionnaire.inARound  %} title="This questionnaire is in a round and cannot be edited or deleted."
+                                    {% if questionnaire.inARound  %} title="This questionnaire is in a round and cannot be deleted."
                                     {% else %} class = "deleteable" 
                                     {% endif %}
                                     id = "{{ questionnaire.pk }}"
@@ -212,11 +212,10 @@ Todo:
                                         {{ questionnaire.questionCount }}
                                         {% if questionnaire.inARound %}
                                             <span class="glyphicon glyphicon glyphicon-remove-circle pull-right text-muted"></span>
-                                            <span class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-muted">&nbsp</span>
                                         {% else %}
-                                            <span style = "cursor: pointer" onclick = "deleteQuestionnaire('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-danger" data-toggle="modal" data-target="#confirm-delete" title="Delete Questionnaire"></span>
-                                            <span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
+                                            <span style = "cursor: pointer" onclick = "deleteQuestionnaire('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-danger" data-toggle="modal" data-target="#confirm-modal" title="Delete Questionnaire"></span>
                                         {% endif %}
+                                        <span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}','{{questionnaire.inARound}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
                                         <span style = "cursor: pointer" onclick = "preview('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-eye-open pull-right text-primary" title="Preview">&nbsp</span>
                                     </td>
                                 </tr>   
@@ -430,8 +429,24 @@ Todo:
             $(el).closest('tr').remove(); 
         }
 
-        function edit(pk) {
-            window.location = '/questionnaireAdmin/edit/'+pk;
+        function edit(pk, isInRound) {
+            if(isInRound == 'True') {
+                var strcnf = "";
+                $('#questionnaire-pk').val(pk);
+                {% for questn in questionnaires %}
+                    if ("{{ questn.pk }}" == pk) {
+                        strcnf = "{{ questn.title }}";
+                    }
+                {% endfor %}
+                $('#confirm-modal').modal('show');
+                $('#modal-title').html("Confirm Edit: <strong>" + strcnf + "</strong>");
+                $('#modal-msg').html('The following questionnaire is already in a round. Are you sure you want to edit?');
+                $("#modal-action").attr("onclick","window.location='/questionnaireAdmin/edit/" + pk + "'");
+                $("#modal-action").html("Edit");
+                $('#modal-content').html("");
+            } else {
+                window.location = '/questionnaireAdmin/edit/'+pk;
+            }
         }
         
         function preview(pk) {
@@ -448,8 +463,11 @@ Todo:
                     strcnf = "{{ questn.title }}";
                 }
             {% endfor %}
-            $('#delete-msg').html('You are about to delete the following questionnaire, this procedure is irreversible.');
-            $('#delete-questionnaire').html('<strong>' + strcnf + '</strong>');
+            $('#modal-title').html("Confirm Delete");
+            $('#modal-msg').html('You are about to delete the following questionnaire, this procedure is irreversible.');
+            $('#modal-content').html('<strong>' + strcnf + '</strong>');
+            $("#modal-action").attr("onclick","$(\"#form-delete\").submit()");
+            $("#modal-action").html("Delete");
         }
 
         function deleteMany() {
@@ -464,8 +482,11 @@ Todo:
                 pks += el.id + ';#';
             });
             $('#questionnaire-pk').val(pks.slice(0, -2));
-            $('#delete-msg').html('You are about to delete the following questionnaires, this procedure is irreversible.');
-            $('#delete-questionnaire').html('<strong>' + strcnf + '</strong>');
+            $('#modal-title').html("Confirm Delete");
+            $('#modal-msg').html('You are about to delete the following questionnaires, this procedure is irreversible.');
+            $('#modal-content').html('<strong>' + strcnf + '</strong>');
+            $("#modal-action").attr("onclick","$(\"#form-delete\").submit()");
+            $("#modal-action").html("Delete");
         }
 
         function closeErrors() {
