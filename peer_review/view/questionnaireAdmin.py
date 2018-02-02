@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404, get_list_or_404
 from peer_review.decorators.adminRequired import admin_required
 
@@ -132,3 +132,12 @@ def get_questionnaires(request):
                          })
     return response
 
+# Checks if a questionnaire with the same label already exists
+@admin_required
+def check_questionnaire(request):
+    if request.method == "POST":
+        title = request.POST.get("title")
+        if Questionnaire.objects.filter(label=title).exists():
+            return JsonResponse({'result': 1})
+        else:
+            return JsonResponse({'result': 0})

@@ -58,7 +58,7 @@ Todo:
                     <div class="panel-body">
                         <form onsubmit="return save()" onreset="empty()" id = "form-save" method="POST" action="/questionnaireAdmin/save">
                             {% csrf_token %}
-                            <label for="title">Title</label>
+                            <label for="title" id="title-label">Title</label>
                             <input type="text" name="title" class="form-control" id="title" placeholder="Enter title" value="{{questionnaire.label}}" autocomplete="off" required>
                             <br/>
                             <label for="intro">Introduction</label>
@@ -497,6 +497,29 @@ Todo:
             }, 3000);
         }
 
+        function checkIfExist() {
+            var exists = false;
+            $.ajax({
+                url: "/questionnaireAdmin/check",
+                type: "POST",
+                async: false,
+                data: {'title': $("#title").val(), 'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').prop('value')},
+                dataType: "json",
+                success: function (data) {
+                    if (data.result === 1)
+                        exists = true;
+                },
+                failure: function () {
+                    exists = true;
+                },
+                error: function () {
+                    exists = true;
+                },
+                timeout: 3000 // 3 Second timeout
+            });
+            return exists;
+        }
+
         function save() {
             if($('#selected-questions > tbody > tr').size() == 0) {
                 $("#diverrors").html("<div class=\"alert alert-danger\">Please add questions to the questionnaire</div>");
@@ -516,7 +539,16 @@ Todo:
             questionTable.page(curPage).draw('page');
             $('#questions').val(questions);
             $("#qgrouping").val(groupings);
-            return true;
+            if(checkIfExist()) {
+                $('html, body').animate({
+                        scrollTop: $("#title-label").offset().top
+                    }, 500);
+                $("#title").select();
+                showSnackbar("<strong>Error:</strong> A question with that title already exists.");
+                return false;
+            } else {
+                return true;
+            }
         }
 
         function empty() {
