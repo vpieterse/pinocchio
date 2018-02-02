@@ -77,7 +77,7 @@ def validate_csv(fields: List[str], file_path: str) -> CsvStatus:
         reader: csv.DictReader = csv.DictReader(csv_file, skipinitialspace=True)
 
         # Try parsing csv into tuples according to the given fields
-        users: List[Dict[str, str]] = list()
+        items: List[Dict[str, str]] = list()
 
         for row in reader:
             # Make sure all fields were found in the row
@@ -87,9 +87,9 @@ def validate_csv(fields: List[str], file_path: str) -> CsvStatus:
                         valid=False,
                         error_message='No value found for key '
                         '\'' + key + '\' on line ' + str(reader.line_num))
-            users.append(row)
+            items.append(row)
 
-    if users:
-        return CsvStatus(valid=True, error_message=None, data=users)
+    if items:
+        return CsvStatus(valid=True, error_message=None, data=items)
     else:
         return CsvStatus(valid=False, error_message='No entries in CSV file')
