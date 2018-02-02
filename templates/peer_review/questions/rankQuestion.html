@@ -39,7 +39,7 @@
     {% if grouping == "Label" %}
         {% for l in questionLabels %}
             <tr>
-                <td data-id="{{ l.id }}" class="rankItem">{{ l }}</td>
+                <td data-id="{{ l.label.id }}" class="rankItem">{{ l.label }}</td>
                 <td>
                     <div style="text-align: right; width: auto;">
                         <a class="move up" href="javascript:void(0)" title="move up">

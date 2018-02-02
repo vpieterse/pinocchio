@@ -70,9 +70,9 @@
     {% for l in questionLabels %}
         <span>{{ l.label.labelText }}:</span>
         <p>
-            <label data-id="{{ l.id }}">
+            <label data-id="{{ l.label.id }}">
                 {% if q.get_freeform_item.freeformType == q.get_freeform_item.PARAGRAPH %}
-                    <textarea class="answer tinymce" id = "tinymce-{{number}}-{{l.id}}"></textarea>
+                    <textarea class="answer tinymce" id = "tinymce-{{number}}-{{l.label.id}}"></textarea>
                 {% elif q.get_freeform_item.freeformType == q.get_freeform_item.WORD %}
                     <input type="text" maxlength="25" class="answer"/>
                 {% elif q.get_freeform_item.freeformType == q.get_freeform_item.INTEGER %}
