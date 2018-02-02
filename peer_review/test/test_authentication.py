@@ -37,7 +37,8 @@ class AuthenticationTests(TestCase):
                        'questionAdmin', 'saveQuestionnaire',
                        'editQuestionnaire|questionnaire_pk='+str(self.questionnaire.pk),
                        'previewQuestionnaire|questionnaire_pk='+str(self.questionnaire.pk),
-                       'deleteQuestionnaire', 'questionnaireAdmin', 'dumpRound',
+                       'deleteQuestionnaire', 'questionnaireAdmin',
+                       'dumpRound|round_pk='+str(self.round.pk),
                        'getTeamsForRound|round_pk='+str(self.round.pk),
                        'getQuestionnaireRound|round_pk='+str(self.round.pk),
                        'changeUserTeamForRound|round_pk='+str(self.round.pk) +

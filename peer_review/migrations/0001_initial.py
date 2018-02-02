@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
             name='FreeformItem',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('freeformType', models.CharField(choices=[('Paragraph', 'Paragraph'), ('Word', 'Word'), ('Integer', 'Integer'), ('Real', 'Real')], default='Paragraph', max_length=300)),
+                ('freeFormType', models.CharField(choices=[('Paragraph', 'Paragraph'), ('Word', 'Word'), ('Integer', 'Integer'), ('Real', 'Real')], default='Paragraph', max_length=300)),
             ],
         ),
         migrations.CreateModel(

@@ -25,7 +25,7 @@ class TestSetup:
                                                  pubDate=datetime.now(timezone(timedelta(hours=2))),
                                                  questionType=QuestionType.objects.create(name="FreeForm"),
                                                  questionGrouping=QuestionGrouping.objects.create(grouping="None"))
-        FreeFormItem.objects.create(question=self.question1, freeformType="Paragraph")
+        FreeFormItem.objects.create(question=self.question1, freeFormType="Paragraph")
 
         self.question2 = Question.objects.create(questionText="Different question here",
                                                  questionLabel="I'm the label for the question",

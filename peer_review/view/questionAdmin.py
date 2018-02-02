@@ -115,7 +115,7 @@ def save_question(request):
                                 bottomWord=request.POST['rate-second'],
                                 optional=('rate-optional' in request.POST))
         elif question_type == 'FreeForm':
-            FreeFormItem.objects.create(question=q, freeformType=request.POST['freeForm-type'])
+            FreeFormItem.objects.create(question=q, freeFormType=request.POST['freeForm-type'])
 
     messages.add_message(request, messages.SUCCESS, "Question saved successfully")
     return HttpResponseRedirect('/questionAdmin')

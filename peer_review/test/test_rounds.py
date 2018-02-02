@@ -51,8 +51,8 @@ class RoundTests(TestCase):
     def test_round_dump(self):
         self.client.login(username='1111', password='admin')
 
-        url = reverse('dumpRound')
-        response = self.client.post(url, {'roundPk': self.ts.round.id})
+        url = reverse('dumpRound', kwargs={'round_pk': self.ts.round.pk})
+        response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
         # data = json.loads(response.content.decode())

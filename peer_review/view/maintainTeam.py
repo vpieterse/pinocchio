@@ -33,15 +33,12 @@ def change_team_status(request, team_pk, status):
 def change_user_team_for_round(request, round_pk, user_id, team_name):
     try:
         team = TeamDetail.objects.filter(user_id=user_id).get(roundDetail_id=round_pk)
-        print("got a team")
     except TeamDetail.DoesNotExist:
-        print("had to create TeamDetail")
         user = User.objects.get(user_id=user_id)
         team = TeamDetail(
             user=user,
             roundDetail=get_object_or_404(RoundDetail, pk=round_pk)
         )
-        print(team.user.user_id)
 
     team.teamName = team_name
     if team_name == 'emptyTeam':
