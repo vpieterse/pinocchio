@@ -26,7 +26,6 @@ You should now be able to log in with the superuser's userid and password.
 
 -------------
 
-
 ### Deployment Instructions
 The default configuration is loaded from `/pinocchio/baseSettings.py` which in turn imports extra
 settings from `/pinocchio/globalSettings.py`. The current base settings is set up for deploying locally.
@@ -39,3 +38,21 @@ This will pull all extra settings from the `globalSettings.py` script.
 We prefer [deploying Pinocchio with WSGI.](https://docs.djangoproject.com/en/1.11/howto/deployment/wsgi/)
 
 -------------
+
+### Docker Images
+
+#### Development
+Included in the repository is a simple Docker image bundling the required version of Python and
+Django needed to run it locally. There is a separate Dockerfile for production.
+
+Usage:
+- From project root, run `docker-compose` with the development config file:
+    - `# docker-compose -f docker-compose-development.yml`
+- After everything downloaded, execute `bash` in the container to finish first-time setup:
+    - `# docker-compose -f docker-compose-development.yml run dev_server bash` 
+- Follow the steps from the installation guide if needed. This would include migrating the  
+  database and creating a new superuser.
+- After initial setup, the Django development server can be started with `docker-compose`
+    - `# docker-compose -f docker-compose-development.yml up`
+- Django should now be serving Pinocchio on port 8000 as well as listening for code changes.
+- **ADVANCED:** *TODO: How to connect PyCharm to Docker container for remote debugging -> wiki page?*
