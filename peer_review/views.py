@@ -11,7 +11,7 @@ from django.db.models.aggregates import Max
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
 
 from peer_review.decorators.adminRequired import admin_required
 from peer_review.forms import RecoverPasswordForm
@@ -164,7 +164,26 @@ def get_questionnaire_for_team(request):
 
 @admin_required
 def user_list(request):
-    users = User.objects.all
+    users = User.objects.all()
+    responses = Response.objects.all()
+
+    users_w, users_wo = [],[]
+    has_response = False
+
+    for response in responses:
+        for user in users:
+            if user.user_id == response.user.user_id:
+                has_response = True
+
+            if has_response:
+                if (user not in users_wo) and (user not in users_w):
+                    users_w.append(user)
+                has_response = False
+            else:
+                if (user not in users_wo) and (user not in users_w):
+                    users_wo.append(user)
+
+
     user_form = UserForm()
     doc_form = DocumentForm()
 
@@ -175,9 +194,12 @@ def user_list(request):
     file.close()
 
     reset_link = '/recoverPassword/' + sign_user_id(request.user.user_id)
+
     return render(request, 'peer_review/userAdmin.html',
-                  {'users': users, 'userForm': user_form, 'docForm': doc_form, 'email_text': email_text,
-                   'reset_link': reset_link})
+            {'users': users, 'users_w': users_w, 'users_wo': users_wo,
+            'userForm': user_form, 'docForm': doc_form,
+            'email_text': email_text, 'reset_link': reset_link}
+        )
 
 
 @admin_required()
@@ -222,8 +244,6 @@ def user_delete(request):
     if request.method == "POST":
         to_delete = request.POST.getlist("toDelete[]")
 
-        have_responses = []
-
         for userPk in to_delete:
             user = get_object_or_404(User, pk=userPk)
 
@@ -236,11 +256,19 @@ def user_delete_handler(request):
     # currently mimics user_delete
     if request.method == "POST":
         to_delete = request.POST.getlist("toDelete[]")
-
-        have_responses = []
+        responses = Response.objects.all()
 
         for userPk in to_delete:
             user = get_object_or_404(User, pk=userPk)
+
+            for i in range(len(responses)):
+                if user.user_id == responses[i].user.user_id:
+                    response = get_list_or_404(Response, user=responses[i].user)
+                    j = 0
+                    size = len(response)
+                    while j < size:
+                        response[j].delete()
+                        j+=1
 
             user.delete()
 

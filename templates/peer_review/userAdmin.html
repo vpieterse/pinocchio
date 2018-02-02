@@ -303,7 +303,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {% for user in users %}
+                                {% for user in users_w %}
                                     <tr id="user{{ user.pk }}">
                                         <td data-id="user_id">{{ user.user_id }}</td>
                                         <td data-id="title">{{ user.title }}</td>
@@ -323,7 +323,31 @@
                                         </td>
 
                                         <td>
-                                            <input type="checkbox" class="multiRemove" data-id="{{ user.user_id }}" data-pk="{{ user.pk }}">
+                                            <input type="checkbox" class="multiRemove wResponses" data-id="{{ user.user_id }}" data-pk="{{ user.pk }}">
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                {% for user in users_wo %}
+                                    <tr id="user{{ user.pk }}">
+                                        <td data-id="user_id">{{ user.user_id }}</td>
+                                        <td data-id="title">{{ user.title }}</td>
+                                        <td data-id="initials">{{ user.initials }}</td>
+                                        <td data-id="name">{{ user.name }}</td>
+                                        <td data-id="surname">{{ user.surname }}</td>
+                                        <td data-id="cell">{{ user.cell }}</td>
+                                        <td data-id="email">{{ user.email }}</td>
+                                        <td data-id="status">{{ user.status }}</td>
+                                        <td>
+                                            <a type="button" class="btn btn-success btn-xs" href="/userAdmin/userProfile/{{ user.pk }}">R</a>
+                                        </td>
+                                        <td>
+                                            <button type="button" name="edit" class='btn btn-success btn-xs edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ user.user_id }}" data-pk="{{ user.pk }}">
+                                                &#9998;
+                                            </button>
+                                        </td>
+
+                                        <td>
+                                            <input type="checkbox" class="multiRemove woResponses" data-id="{{ user.user_id }}" data-pk="{{ user.pk }}">
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -371,6 +395,7 @@
 
     <script src="{% static "peer_review/search.js" %}"></script>
     <script src="{% static "peer_review/validation.js" %}"></script>
+    <script src="{% static "peer_review/user-delete.js" %}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             const table = $("#users").DataTable({
@@ -403,60 +428,6 @@
                     alert("Updated");
                 }
             });
-        });
-
-        $("#remove").on("click", function () {
-            var toDelete = [];
-            var token = $(this).data("csrf");
-
-            $("input:checked.multiRemove").each(function() {
-                if (this.checked) {
-                    toDelete.push({
-                        "id": $(this).data("id"),
-                        "pk": $(this).data("pk")
-                    });
-                }
-            });
-
-            var toDeleteMessage =
-                    "Are you sure you want to delete the following users?\n\n";
-            var reponsePrompt = [
-                    "The following users have responses assosiated with them:\n\n",
-                    "Are you sure you want to delete these users and all" +
-                    " responses assosiated with them?\n\n"
-                ];
-
-            var toDeleteList = [];
-
-            $.each(toDelete, function(index, value) {
-                toDeleteMessage += value.id + "\n";
-                toDeleteList.push(value.pk);
-            });
-
-            if(confirm(toDeleteMessage)) {
-                var data = {
-                    'toDelete': toDeleteList,
-                    'csrfmiddlewaretoken': token
-                };
-
-                $.ajax({
-                    type: 'POST',
-                    url: '/userAdmin/deleteHandler/',
-                    data: data,
-                    success: function() {
-                        // value is not working properly and therefore fading
-                        // fading isnt happening
-                        $.each(toDeleteList, function(index, value) {
-                            $("#users > tbody > tr#user" + value).fadeOut(500);
-                        });
-
-                        var secondConfirmDeleteList = [];
-
-                    }
-                });
-            }
-
-
         });
 
     </script>
