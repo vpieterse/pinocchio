@@ -200,7 +200,7 @@ Todo:
                         <tbody>
                             {% for questionnaire in questionnaires %}
                                 <tr
-                                    {% if questionnaire.inARound  %} title="This questionnaire is in a round and cannot be deleted."
+                                    {% if questionnaire.inARound  %} title="This questionnaire is in a round and cannot be edited or deleted."
                                     {% else %} class = "deleteable" 
                                     {% endif %}
                                     id = "{{ questionnaire.pk }}"
@@ -212,11 +212,12 @@ Todo:
                                         {{ questionnaire.questionCount }}
                                         {% if questionnaire.inARound %}
                                             <span class="glyphicon glyphicon glyphicon-remove-circle pull-right text-muted"></span>
+                                            <span class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-muted">&nbsp</span>
                                         {% else %}
                                             <span style = "cursor: pointer" onclick = "deleteQuestionnaire('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-danger" data-toggle="modal" data-target="#confirm-delete" title="Delete Questionnaire"></span>
+                                            <span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
                                         {% endif %}
                                         <span style = "cursor: pointer" onclick = "preview('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-eye-open pull-right text-primary" title="Preview">&nbsp</span>
-                                        <span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
                                     </td>
                                 </tr>   
                             {% endfor %}
