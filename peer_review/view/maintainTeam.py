@@ -13,11 +13,11 @@ from django.template import loader
 
 
 @admin_required
-def maintain_team(request, round_pk="none"):
+def maintain_team(request, round_pk=0):
     context = {'users': User.objects.filter(Q(is_active=1) & (Q(status='S') | Q(status='U'))),
                'rounds': RoundDetail.objects.all(),
                'teams': TeamDetail.objects.all(),
-               'roundPk': round_pk}
+               'preselectedRoundPk': int(round_pk)}
     return render(request, 'peer_review/maintainTeam.html', context)
 
 

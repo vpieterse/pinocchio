@@ -1,5 +1,7 @@
+import logging
 import random
 import string
+from smtplib import SMTPException
 
 from django.contrib import messages
 from django.http import HttpResponseRedirect
@@ -12,6 +14,7 @@ from peer_review.models import User
 from peer_review.decorators.adminRequired import admin_required, admin_required_test
 from django.http import HttpResponse
 
+logger = logging.getLogger(__name__)
 
 def forgot_password(request):
     reset_form = ResetForm()
@@ -70,19 +73,23 @@ def submit_new_user_form(request):
             # user = User(title=post_title, initials=post_initials, name=post_name, surname=post_surname,
             #            cell=post_cell, email=post_email, userId=post_user_id)
 
-            user = create_user_send_otp(user_title=post_title, user_initials=post_initials, user_name=post_name,
-                                        user_surname=post_surname, user_cell=post_cell, user_user_id=post_user_id,
-                                        user_email=post_email, user_status=post_status)
-            if not user:
-                messages.add_message(request, messages.ERROR, "User could not be added")
-            else:
-                messages.add_message(request, messages.SUCCESS, "User added successfully")
+            try:
+                user = create_user_send_otp(user_title=post_title, user_initials=post_initials, user_name=post_name,
+                                            user_surname=post_surname, user_cell=post_cell, user_user_id=post_user_id,
+                                            user_email=post_email, user_status=post_status)
+                if not user:
+                    messages.add_message(request, messages.ERROR, "User could not be added")
+                else:
+                    messages.add_message(request, messages.SUCCESS, "User added successfully")
+
+            except SMTPException:
+                messages.add_message(request, messages.ERROR, "Error sending OTP email!")
 
             return HttpResponseRedirect("/userAdmin")
         else:
             messages.add_message(request,
                                  messages.ERROR,
-                                 "Form filled in incorrectly or username/email is already in use")
+                                 "Form filled in incorrectly or username/email is already in use.")
     else:
         UserForm()
     return HttpResponseRedirect("/userAdmin")

@@ -32,12 +32,18 @@
                                 <div class="form-inline">
                                     <div class="form-group">
                                         <select id='selectedRound' class="form-control" style="width:auto" name="type">
-                                            <option selected value=""></option>
+                                            {% if not preselectedRoundPk %}
+                                                <option selected value=""></option>
+                                            {% endif %}
                                             {% for round in rounds %}
-                                                <option value="{{ round.pk }}" desc="{{ round.description }}">{{ round.name }}</option>
+                                                <option
+                                                        {% if preselectedRoundPk == round.pk %}
+                                                            selected="selected"
+                                                        {% endif %}
+                                                        value="{{ round.pk }}" desc="{{ round.description }}">{{ round.name }}</option>
                                             {% endfor %}
                                         </select>
-                                        <a href="/maintainRound" class="btn btn-info btn-sm plus">+</a>
+                                        <a href="/maintainRound" class="ml-3 btn btn-info btn-sm plus">+</a>
                                     </div>
                                 </div>
                             </form>
@@ -51,9 +57,6 @@
                                 </div>
                             </div>
                         </div>
-                        <br />
-                        <div class="col-md-12 col-sm-12" style="padding: 5px"></div>
-                        <br />
                         <div class="row" id="tablesContainer">
                             <div class="col-sm-6">
                                 <div class="card my-3">

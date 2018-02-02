@@ -295,6 +295,9 @@
                                                     &#9998;
                                                 </button>
                                                 <a class="btn btn-info btn-sm" href="/maintainTeam/{{ round.pk }}">Teams</a>
+                                                <a class="btn btn-primary btn-sm" href="/questionnaireAdmin/edit/{{ round.questionnaire.id }}">
+                                                    Questions
+                                                </a>
                                                 <a class="btn btn-primary btn-sm" href="/maintainRound/dump/{{ round.pk }}">Dump</a>
 {#                                                <a class="btn btn-primary btn-sm" href="/maintainTeam/report/{{ round.pk }}">Report</a>#}
                                                 <button name="delete" class='text-white btn btn-warning btn-sm'
@@ -306,13 +309,13 @@
                                         <td data-id="roundQuestionnaireIntroData" class="d-none">
                                             <div >
                                                 <option selected value="{{round.questionnaire.pk}}">{{ round.questionnaire.label}}</option>
-                                                    {% for quest in questionnaires %}
-                                                        {% if round.questionnaire.intro == quest.intro %}
+                                                {% for quest in questionnaires %}
+                                                    {% if round.questionnaire.intro == quest.intro %}
 
-                                                        {% else %}
-                                                            <option value="{{quest.pk}}">{{ quest.label }}</option>
-                                                        {% endif %}
-                                                    {% endfor %}
+                                                    {% else %}
+                                                        <option value="{{quest.pk}}">{{ quest.label }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
                                             </div>
                                         </td>
                                     </tr>
