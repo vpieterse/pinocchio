@@ -8,6 +8,7 @@ Todo:
 
 {% block extrahead %}
     <title>Question Admin</title>
+    <link rel="stylesheet" href="{% static "peer_review/css/snackbar.css" %}">
     <script>
         var title = "questionAdmin";
     </script>
@@ -38,6 +39,7 @@ Todo:
                 </div>
             </div>
         </div>
+        <div id="snackbar"></div>
         <div class="panel-group" id="accordion">
             <div class="panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
@@ -52,7 +54,7 @@ Todo:
                             {% csrf_token %}
                             <fieldset class="form-group">
                                 <!-- Title -->
-                                <label for="question-title">Title</label>
+                                <label for="question-title" id="title-label">Title</label>
                                 <input type="text" name="question-title" class="form-control" id="question-title"
                                     placeholder="Enter title" value="{{ question.questionLabel }}" autocomplete="off" required>
                                 <small class="text-muted">A short identifying name to be used in making questionnaires</small>
@@ -347,27 +349,66 @@ Todo:
             }, 3000);
         }
 
+        function showSnackbar(msg) {
+            $("#snackbar").html(msg);
+            $("#snackbar").addClass("show");
+            setTimeout(function() {
+                $("#snackbar").removeClass("show");
+            }, 3000);
+        }
+
+        function checkIfExist() {
+            var exists = false;
+            $.ajax({
+                url: "/questionAdmin/check",
+                type: "POST",
+                async: false,
+                data: {'title': $("#question-title").val(), 'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').prop('value')},
+                dataType: "json",
+                success: function (data) {
+                    if (data.result === 1)
+                        exists = true;
+                },
+                failure: function () {
+                    exists = true;
+                },
+                error: function () {
+                    exists = true;
+                },
+                timeout: 3000 // 3 Second timeout
+            });
+            return exists;
+        }
+
         function save(event) {
-            if ($('#question-type').val() == "Choice") {
-                var choices = "";
-                $('#content').find('#choice-table > tbody > tr > td > input').each(function (i, el) {
-                    choices += el.value.trim() + ';#';
-                });
-                $('#question-choices').val(choices.slice(0, -2));
-                if (choices == "") {
-                    $("#diverrors").html("<div class=\"alert alert-danger\">Please enter choices</div>");
-                    closeErrors();
-                    return false;
-                } else if ((choices.split(";#").length - 1) < 2) {
-                    $("#diverrors").html("<div class=\"alert alert-danger\">Please enter at least two choices</div>");
-                    closeErrors();
-                    return false;
-                } else {
-                    return true;
+            if(checkIfExist()) {
+                $('html, body').animate({
+                        scrollTop: $("#title-label").offset().top
+                    }, 500);
+                $("#question-title").select();
+                showSnackbar("<strong>Error:</strong> A question with that title already exists.");
+                return false;
+            } else {
+                if ($('#question-type').val() == "Choice") {
+                    var choices = "";
+                    $('#content').find('#choice-table > tbody > tr > td > input').each(function (i, el) {
+                        choices += el.value.trim() + ';#';
+                    });
+                    $('#question-choices').val(choices.slice(0, -2));
+                    if (choices == "") {
+                        $("#diverrors").html("<div class=\"alert alert-danger\">Please enter choices</div>");
+                        closeErrors();
+                        return false;
+                    } else if ((choices.split(";#").length - 1) < 2) {
+                        $("#diverrors").html("<div class=\"alert alert-danger\">Please enter at least two choices</div>");
+                        closeErrors();
+                        return false;
+                    } else {
+                        return true;
+                    }
                 }
+                return true;
             }
-            
-            return true;
         }
 
         function edit(pk) {
@@ -450,6 +491,13 @@ Todo:
                 }
 
             });
+            // Disable Enter key
+            $(window).keydown(function(event){
+                if(event.keyCode == 13) {
+                  event.preventDefault();
+                  return false;
+                }
+              });
         })
 
     </script>

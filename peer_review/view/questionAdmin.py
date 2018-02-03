@@ -1,6 +1,5 @@
 from django.contrib import messages
-from django.http import HttpResponseRedirect
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseRedirect, HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 
@@ -119,3 +118,15 @@ def get_questions():
                          'pk': question.pk,
                          'inAQuestionnaire': QuestionOrder.objects.filter(question=question).exists()})
     return response
+
+
+# Checks if a question with the same title already exists
+@admin_required
+def check_question(request):
+    if request.method == "POST":
+        title = request.POST.get("title")
+        if Question.objects.filter(questionLabel=title).exists():
+            return JsonResponse({'result': 1})
+        else:
+            return JsonResponse({'result': 0})
+

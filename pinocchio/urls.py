@@ -4,7 +4,8 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from peer_review.view.maintainTeam import maintain_team, get_teams_for_round, change_user_team_for_round, \
     change_team_status, submit_team_csv, get_teams, get_new_team
-from peer_review.view.questionAdmin import save_question, edit_question, question_admin, delete_question
+from peer_review.view.questionAdmin import save_question, edit_question, question_admin, delete_question, \
+    check_question
 from peer_review.view.questionnaire import save_questionnaire_progress, get_responses
 from peer_review.view.questionnaireAdmin import save_questionnaire, questionnaire_preview, delete_questionnaire, \
     questionnaire_admin, edit_questionnaire, check_questionnaire
@@ -63,6 +64,7 @@ urlpatterns = [
     url(r'^userAdmin/$', views.user_list, name='userAdmin'),
 
     url(r'^questionAdmin/save', save_question, name='saveQuestion'),
+    url(r'^questionAdmin/check', check_question, name='checkQuestion'),
     url(r'^questionAdmin/delete', delete_question, name='deleteQuestion'),
     url(r'^questionAdmin/edit/(?P<question_pk>[0-9]+)/?$', edit_question, name='editQuestion'),
     url(r'^questionAdmin', question_admin, name='questionAdmin'),

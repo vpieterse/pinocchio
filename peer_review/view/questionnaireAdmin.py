@@ -132,7 +132,7 @@ def get_questionnaires(request):
                          })
     return response
 
-# Checks if a questionnaire with the same label already exists
+# Checks if a questionnaire with the same title already exists
 @admin_required
 def check_questionnaire(request):
     if request.method == "POST":
