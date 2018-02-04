@@ -17,6 +17,8 @@ Pinocchio is a system which should assist researchers, and group managers to mon
     - `pip install -r ./requirements.txt`
 - Apply Database Migrations
     - `python manage.py migrate`
+- Load required data into database
+    - `python manage.py loaddata QuestionGroupings`
 - Create root user
     - `python manage.py createsuperuser` 
 - Run the server
