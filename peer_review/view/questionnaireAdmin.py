@@ -112,17 +112,41 @@ def save_questionnaire(request):
         messages.add_message(request, messages.SUCCESS, "Questionnaire saved successfully.")
     return HttpResponseRedirect('/questionnaireAdmin')
 
+# Create JSON object from a label query set
+def jsonilabl(qlst, qids):
+    rtn = []
+    temprtn = {}
+    labls = []
+    for elem in qlst:
+        for labl in elem:
+            labls.append(labl.labelText)
+        temprtn['questionId'] = qids.pop().pk
+        temprtn['questionLabel'] = labls
+        rtn.append(json.dumps(temprtn))
+        temprtn = {}
+        labls = []
+    return str(json.dumps(rtn))
+
 
 # Render the questionnaireAdmin template with the questionnaires details filled in
 @admin_required
 def edit_questionnaire(request, questionnaire_pk):
     current_questionnaire = get_object_or_404(Questionnaire, pk=questionnaire_pk)
+    q_labels = []
+    q_ids = []
+    for ind, qord in enumerate(QuestionOrder.objects.filter(questionnaire=current_questionnaire)):
+        if qord.questionGrouping == QuestionGrouping.objects.get(grouping="Label"):
+            q_labels.append(Label.objects.filter(questionOrder=qord))
+            q_ids.append(get_object_or_404(Question, pk=qord.question.pk))
+
+    q_ids.reverse()
     context = {'questions': Question.objects.all(),
                'questionnaires': get_questionnaires(request),
                'questionnaire': current_questionnaire,
                'questionOrders': QuestionOrder.objects.filter(
                    questionnaire=current_questionnaire),
-               'questgrouping': QuestionGrouping.objects.all()}
+               'questgrouping': QuestionGrouping.objects.all(),
+               'questionLabels': jsonilabl(q_labels, q_ids)}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
 

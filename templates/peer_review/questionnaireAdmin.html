@@ -595,6 +595,26 @@ Todo:
                 $("#question-grouping-" + $(el).closest('tr').attr("id")).val(gruping);
             });
             $("#title").attr("disabled", "disabled");
+            $("#question-labels").val({{ questionLabels | safe }});
+            $("#question-labels").val("[" + $("#question-labels").val() + "]");
+            qlabArr = JSON.parse($("#question-labels").val())
+            $("#question-labels").val("[]"); // Rethink initial storage
+            $("#labelCount").text(0);
+            for(i = 0; i < qlabArr.length; i++) {
+                var labels = "";
+                var questLabels = {};
+                for(j = 0; j < qlabArr[i].questionLabel.length; j++) {
+                    labels += qlabArr[i].questionLabel[j] + ';#';
+                    questLabels["questionId"] = qlabArr[i].questionId.toString();
+                    questLabels["questionLabel"] = labels.slice(0, -2);
+                }
+                var jsonArr = JSON.parse($("#question-labels").val());
+                if(jsonArr.length == 0) {
+                    $("#question-labels").val("[" + JSON.stringify(questLabels) + "]");
+                } else {
+                    $("#question-labels").val($("#question-labels").val().slice(0, -1) + ',' + JSON.stringify(questLabels) + "]");
+                }
+            }
         }
     </script>
 {% endblock %}
