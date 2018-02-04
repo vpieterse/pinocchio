@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404, get_list_or_404
 from peer_review.decorators.adminRequired import admin_required
 
-from ..models import Question, Questionnaire, RoundDetail, QuestionOrder, User, TeamDetail, QuestionGrouping, Label, QuestionLabel
+from ..models import Question, Questionnaire, RoundDetail, QuestionOrder, User, TeamDetail, QuestionGrouping, Label
 
 import json
 
@@ -26,7 +26,11 @@ def questionnaire_preview(request, questionnaire_pk):
 
     #q_orders = get_object_or_404(QuestionOrder, questionnaire=questionnaire)
     q_orders = QuestionOrder.objects.filter(questionnaire=questionnaire)
-    q_labels = QuestionLabel.objects.filter(questionOrder=q_orders)
+    q_labels = []
+    for ind, qord in enumerate(q_orders):
+        if qord.questionGrouping == QuestionGrouping.objects.get(grouping="Label"):
+            q_labels.append(Label.objects.filter(questionOrder=qord))
+
     
     mock_round = RoundDetail(name='Preview Round', questionnaire=questionnaire, description='This is a preview round')
     
@@ -43,6 +47,19 @@ def questionnaire_preview(request, questionnaire_pk):
                'round': 0,
                'preview': 1}
     return render(request, 'peer_review/questionnaire.html', context)
+
+# Returns the QuestionOrder record that a question is stored in
+def get_qord(qordLst, queId):
+    rtnInd = -1
+    for ind in range(0, len(qordLst)):
+        if qordLst[ind].question == Question.objects.get(pk=queId):
+            rtnInd = ind
+            break
+
+    if rtnInd == -1:
+        return None # Error
+    else:
+        return qordLst[rtnInd]
 
 
 # Save a questionnaire
@@ -66,23 +83,31 @@ def save_questionnaire(request):
         else:
             q = Questionnaire.objects.create(intro=intro, label=title)
 
+        questionOrdersLst = []
         for index, question in enumerate(questions):
             if question.isdigit(): 
-                QuestionOrder.objects.create(questionnaire=q,
+                qordtmp = QuestionOrder.objects.create(questionnaire=q,
                                              question=get_object_or_404(Question, pk=question),
                                              questionGrouping=QuestionGrouping.objects.get(grouping=groupings[index]),
                                              order=index)
+                if qordtmp.questionGrouping == QuestionGrouping.objects.get(grouping="Label"):
+                    questionOrdersLst.append(qordtmp)
+
+        
         labells = []
         for indx in range(0, len(qlabels)): 
             tmpjsn = json.dumps(qlabels[int(indx)])
             curjsn = json.loads(str(tmpjsn))
             labels = str(curjsn['questionLabel']).split(";#")
             for lable in labels: 
-                labells.append(Label.objects.create(question=Question.objects.get(pk=curjsn['questionId']), labelText=lable).pk)
+                qord = get_qord(questionOrdersLst, curjsn['questionId'])
+                if qord is not None:
+                    Label.objects.create(questionOrder=qord, labelText=lable)
+                else:
+                    Questionnaire.objects.get(pk=q.pk).delete()
+                    messages.add_message(request, messages.WARNING, "Error: Questionnaire could not be created.")
+                    return HttpResponseRedirect('/questionnaireAdmin')
 
-        for questo in QuestionOrder.objects.filter(questionnaire=q):
-            for el, lab in enumerate(labells):
-                QuestionLabel.objects.create(questionOrder=questo, label=Label.objects.get(pk=lab))
 
         messages.add_message(request, messages.SUCCESS, "Questionnaire saved successfully.")
     return HttpResponseRedirect('/questionnaireAdmin')
@@ -113,7 +138,12 @@ def delete_questionnaire(request):
                 messages.add_message(request, messages.WARNING,
                                      "Error: Something went wrong when deleting the questionnaire")
                 return HttpResponseRedirect('/questionnaireAdmin')
-        messages.add_message(request, messages.SUCCESS, str(len(pks)) + " questionnaire(s) deleted successfully")
+        rtnStr = str(len(pks)) + " questionnaire(s)"
+        if len(pks) > 1:
+            rtnStr = str(len(pks)) + " questionnaires"
+        else:
+            rtnStr = "Questionnaire"
+        messages.add_message(request, messages.SUCCESS, rtnStr + " deleted successfully")
         return HttpResponseRedirect('/questionnaireAdmin')
     else:
         return HttpResponseRedirect('/questionnaireAdmin')

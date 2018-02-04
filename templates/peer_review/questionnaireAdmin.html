@@ -539,16 +539,21 @@ Todo:
             questionTable.page(curPage).draw('page');
             $('#questions').val(questions);
             $("#qgrouping").val(groupings);
-            if(checkIfExist()) {
-                $('html, body').animate({
-                        scrollTop: $("#title-label").offset().top
-                    }, 500);
-                $("#title").select();
-                showSnackbar("<strong>Error:</strong> A questionnaire with that title already exists.");
-                return false;
-            } else {
+            {% if questionnaire %}
+                $("#title").removeAttr("disabled");
                 return true;
-            }
+            {% else %}
+                if(checkIfExist()) {
+                    $('html, body').animate({
+                            scrollTop: $("#title-label").offset().top
+                        }, 500);
+                    $("#title").select();
+                    showSnackbar("<strong>Error:</strong> A questionnaire with that title already exists.");
+                    return false;
+                } else {
+                    return true;
+                }
+            {% endif %}
         }
 
         function empty() {
@@ -559,6 +564,9 @@ Todo:
                 removeQuestion(el);
             });
             $(".labels-go-here").hide(100);
+            $('html, body').animate({
+                    scrollTop: $(".container").offset().top
+                }, 300);
         }
 
         function changeGrouping(group, questionId) {
@@ -586,6 +594,7 @@ Todo:
                 $("#addBtn-" + $(el).closest('tr').attr('id')).html('<span class="glyphicon glyphicon glyphicon-plus-sign text-muted pull-right"  title="Question already added"></span>');
                 $("#question-grouping-" + $(el).closest('tr').attr("id")).val(gruping);
             });
+            $("#title").attr("disabled", "disabled");
         }
     </script>
 {% endblock %}

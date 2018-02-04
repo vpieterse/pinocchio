@@ -381,14 +381,7 @@ Todo:
         }
 
         function save(event) {
-            if(checkIfExist()) {
-                $('html, body').animate({
-                        scrollTop: $("#title-label").offset().top
-                    }, 500);
-                $("#question-title").select();
-                showSnackbar("<strong>Error:</strong> A question with that title already exists.");
-                return false;
-            } else {
+            {% if question %}
                 if ($('#question-type').val() == "Choice") {
                     var choices = "";
                     $('#content').find('#choice-table > tbody > tr > td > input').each(function (i, el) {
@@ -403,12 +396,38 @@ Todo:
                         $("#diverrors").html("<div class=\"alert alert-danger\">Please enter at least two choices</div>");
                         closeErrors();
                         return false;
-                    } else {
-                        return true;
                     }
                 }
+                $("#question-title").removeAttr("disabled");
                 return true;
-            }
+            {% else %}
+                if(checkIfExist()) {
+                    $('html, body').animate({
+                            scrollTop: $("#title-label").offset().top
+                        }, 500);
+                    $("#question-title").select();
+                    showSnackbar("<strong>Error:</strong> A question with that title already exists.");
+                    return false;
+                } else {
+                    if ($('#question-type').val() == "Choice") {
+                        var choices = "";
+                        $('#content').find('#choice-table > tbody > tr > td > input').each(function (i, el) {
+                            choices += el.value.trim() + ';#';
+                        });
+                        $('#question-choices').val(choices.slice(0, -2));
+                        if (choices == "") {
+                            $("#diverrors").html("<div class=\"alert alert-danger\">Please enter choices</div>");
+                            closeErrors();
+                            return false;
+                        } else if ((choices.split(";#").length - 1) < 2) {
+                            $("#diverrors").html("<div class=\"alert alert-danger\">Please enter at least two choices</div>");
+                            closeErrors();
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            {% endif %}
         }
 
         function edit(pk) {
@@ -420,7 +439,9 @@ Todo:
             {% if question %}
                 window.location = '/questionAdmin/';
             {% endif %}
-
+            $('html, body').animate({
+                    scrollTop: $(".container").offset().top
+                }, 300);
         }
 
         function deleteQuestion(pk) {
@@ -457,9 +478,11 @@ Todo:
                 $('#types > label').addClass('disabled');
                 $('#types > label:contains("{{ question.questionType }}")').removeClass('disabled');
                 $('#types > label:contains("{{ question.questionType }}")').addClass('active');
+                $("#question-title").attr("disabled", "disabled");
             {% else %}
                 changeType('Choice');
                 $('#types > label').removeClass('disabled');
+                $("#question-title").removeAttr("disabled");
             {% endif %}
             //Hide alerts
             setTimeout(function () {

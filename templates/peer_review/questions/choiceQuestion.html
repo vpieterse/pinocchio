@@ -6,10 +6,10 @@
         d = new Date();
         var batch_id = d.getTime()+ "" + batch_num;
         batch_num++;
-        $("#{{ q.id }}").find("input:checked").each( function(i, choiceItem)
+        $("#{{ q.question.id }}").find("input:checked").each( function(i, choiceItem)
         {
             var json = {
-                'questionPk': {{ q.id }},
+                'questionPk': {{ q.question.id }},
                 'roundPk': roundPk,
                 'label': choiceItem.dataset.labelid,
                 'answer': choiceItem.value,
@@ -23,15 +23,15 @@
 
     $('document').ready(function() {
         {% if not preview %}
-        getResponses({{ q.id }}, function (responses)
+        getResponses({{ q.question.id }}, function (responses)
         {
             if (responses.answers.length != 0)
             {
                 {% if grouping == "None" %}
-                    $("#{{ q.id }}").find('[value="'+responses.answers[0]+'"]').prop('checked', true);
+                    $("#{{ q.question.id }}").find('[value="'+responses.answers[0]+'"]').prop('checked', true);
                 {% else %}
                 for (var x = 0; x < responses.answers.length; x++) {
-                    $("#{{ q.id }}").find('*[data-labelid="'+responses.labelOrUserIds[x]+'"]').filter('[value="'+responses.answers[x]+'"]').prop('checked', true);
+                    $("#{{ q.question.id }}").find('*[data-labelid="'+responses.labelOrUserIds[x]+'"]').filter('[value="'+responses.answers[x]+'"]').prop('checked', true);
                 }
                {% endif %}
             } 
@@ -40,26 +40,30 @@
     })
 
 </script>
-<p><strong>{{ number|add:"1" }}</strong>. {{ q.questionText }}</p>
+<p><strong>{{ number|add:"1" }}</strong>. {{ q.question.questionText }}</p>
 {% if grouping == "None" %}
-    {% for choice in q.get_choices %}
+    {% for choice in q.question.get_choices %}
             <div class="radio">
                 <label><input type="radio" name="{{ number }}" value="{{ choice }}">{{ choice.choiceText }}</label>
             </div>
     {% endfor %}
 {% elif grouping == "Label" %}
-    {% for l in questionLabels %}
-        <h4>{{ l.label }}</h4>
-        {% for choice in q.get_choices %}
-            <div class="radio">
-                <label><input type="radio" name = "{{ l.label.pk }} "data-labelid = "{{ l.label.pk }}" value="{{ choice }}">{{ choice.choiceText }}</label>
-            </div> 
+    {% for lbls in questionLabels %}
+        {% for labl in lbls %}
+            {% ifequal labl.questionOrder.pk q.pk %}
+                <h4>{{ labl.labelText }}</h4>
+                {% for choice in q.question.get_choices %}
+                    <div class="radio">
+                        <label><input type="radio" name = "{{ labl.pk }} "data-labelid = "{{ labl.pk }}" value="{{ choice }}">{{ choice.choiceText }}</label>
+                    </div>
+                {% endfor %}
+            {% endifequal %}
         {% endfor %}
     {% endfor %}
 {% elif grouping == "All" %}
     {% for u in teamMembers %}
         <h4>{{ u.name }} {{ u.surname }}</h4>
-        {% for choice in q.get_choices %}
+        {% for choice in q.question.get_choices %}
             <div class="radio">
                 <label><input type="radio" name = "{{ u.pk }}" data-labelid = "{{ u.pk }}" value="{{ choice }}">{{ choice.choiceText }}</label>
             </div> 
@@ -67,12 +71,14 @@
     {% endfor %}
 {% elif grouping == "Rest" %}
     {% for u in teamMembers %}
-        <h4>{{ u.name }} {{ u.surname }}</h4>
-        {% for choice in q.get_choices %}
-            <div class="radio">
-                <label><input type="radio" name = "{{ u.pk }}{{q.pk}}"  data-labelid = "{{ u.pk }}" value="{{ choice }}">{{ choice.choiceText }}</label>
-            </div> 
-        {% endfor %}
+        {% if u != currentUser %}
+            <h4>{{ u.name }} {{ u.surname }}</h4>
+            {% for choice in q.question.get_choices %}
+                <div class="radio">
+                    <label><input type="radio" name = "{{ u.pk }}{{q.question.pk}}"  data-labelid = "{{ u.pk }}" value="{{ choice }}">{{ choice.choiceText }}</label>
+                </div> 
+            {% endfor %}
+        {% endif %}
     {% endfor %}
 {% endif %}
 <br/>

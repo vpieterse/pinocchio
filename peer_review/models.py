@@ -102,14 +102,6 @@ class Rate(models.Model):
     optional = models.BooleanField(default=False)
 
 
-class Label(models.Model):
-    question = models.ForeignKey(Question)
-    labelText = models.CharField(max_length=200)
-
-    def __str__(self):
-        return self.labelText
-
-
 class UserManager(BaseUserManager):
     def create_user(self, email, password, name, surname, **kwargs):
         user = self.model(
@@ -193,9 +185,12 @@ class QuestionOrder(models.Model):
         return self.question.questionLabel
 
 
-class QuestionLabel(models.Model): 
-    questionOrder = models.ForeignKey(QuestionOrder, null=False, on_delete=models.CASCADE)
-    label = models.ForeignKey(Label, null=False, on_delete=models.CASCADE)
+class Label(models.Model):
+    questionOrder = models.ForeignKey(QuestionOrder)
+    labelText = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.labelText
 
 
 class RoundDetail(models.Model):

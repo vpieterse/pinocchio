@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from peer_review.decorators.userRequired import user_required
 
-from ..models import Question, RoundDetail, QuestionOrder, User, TeamDetail, Response, Label, QuestionLabel
+from ..models import Question, RoundDetail, QuestionGrouping, QuestionOrder, User, TeamDetail, Response, Label
 
 
 @user_required
@@ -15,7 +15,12 @@ def questionnaire(request, round_pk):
         round_object = RoundDetail.objects.get(pk=round_pk)
         questionnaire_object = round_object.questionnaire
         q_orders = QuestionOrder.objects.filter(questionnaire=questionnaire_object)
-        q_labels = QuestionLabel.objects.filter(questionOrder=q_orders)
+        q_labels = []
+        for ind, qord in enumerate(q_orders):
+            if qord.questionGrouping == QuestionGrouping.objects.get(grouping="Label"):
+                q_labels.append(Label.objects.filter(questionOrder=qord))
+
+
         team_name = TeamDetail.objects.get(user=user, roundDetail=RoundDetail.objects.get(pk=round_pk)).teamName
         q_team = User.objects.filter(teamdetail__teamName=team_name,
                                      teamdetail__roundDetail=RoundDetail.objects.get(pk=round_pk))
@@ -57,11 +62,11 @@ def save_questionnaire_progress(request):
         # user = User.objects.get(userId='14035548')  # TEST
         grup = QuestionOrder.objects.get(questionnaire=round_detail.questionnaire, question=question).questionGrouping
         # If grouping == None, there is no label or subjectUser
-        if grup == "None":
+        if grup == QuestionGrouping.objects.get(grouping="None"):
             label = None 
             subject_user = None
         # If grouping == Label, there is a label but no subjectUser
-        elif grup == "Label":
+        elif grup == QuestionGrouping.objects.get(grouping="Label"):
             try:
                 label = Label.objects.get(pk=request.POST.get('label'))
                 subject_user = None
@@ -115,6 +120,7 @@ def get_responses(request):
             json['labelOrUserNames'].append(r.label.labelText)
             json['labelOrUserIds'].append(r.label.id)
         elif grup != "None":
-            json['labelOrUserNames'].append(r.subjectUser.name + ' ' + r.subjectUser.surname)
-            json['labelOrUserIds'].append(r.subjectUser.user_id)
+            if r.subjectUser != None:
+                json['labelOrUserNames'].append(r.subjectUser.name + ' ' + r.subjectUser.surname)
+                json['labelOrUserIds'].append(r.subjectUser.user_id)
     return JsonResponse(json)

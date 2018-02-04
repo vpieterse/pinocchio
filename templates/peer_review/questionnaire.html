@@ -40,23 +40,23 @@
                 <div id="{{ q.question.id }}" class="panel-body">
                     {# Label #}
                     {% ifequal q.question.questionType.name 'Label' %}
-                        {% include "peer_review/questions/labelQuestion.html" with q=q.question number=q.order grouping=q.questionGrouping.grouping %}
+                        {% include "peer_review/questions/labelQuestion.html" with number=q.order grouping=q.questionGrouping.grouping %}
                     {% endifequal %}
                     {# Rate #}
                     {% ifequal q.question.questionType.name 'Rate' %}
-                        {% include "peer_review/questions/rateQuestion.html" with q=q.question number=q.order grouping=q.questionGrouping.grouping %}
+                        {% include "peer_review/questions/rateQuestion.html" with number=q.order grouping=q.questionGrouping.grouping %}
                     {% endifequal %}
                     {# Rank #}
                     {% ifequal q.question.questionType.name 'Rank' %}
-                        {% include "peer_review/questions/rankQuestion.html"  with q=q.question number=q.order grouping=q.questionGrouping.grouping %}
+                        {% include "peer_review/questions/rankQuestion.html"  with number=q.order grouping=q.questionGrouping.grouping %}
                     {% endifequal %}
                     {# Choice #}
                     {% ifequal q.question.questionType.name 'Choice' %}
-                        {% include "peer_review/questions/choiceQuestion.html"  with q=q.question number=q.order  grouping=q.questionGrouping.grouping %}
+                        {% include "peer_review/questions/choiceQuestion.html"  with number=q.order  grouping=q.questionGrouping.grouping %}
                     {% endifequal %}
                     {# Freeform #}
                     {% ifequal q.question.questionType.name 'Freeform' %}
-                        {% include "peer_review/questions/freeformQuestion.html"  with q=q.question number=q.order grouping=q.questionGrouping.grouping %}
+                        {% include "peer_review/questions/freeformQuestion.html"  with number=q.order grouping=q.questionGrouping.grouping %}
                     {% endifequal %}
                     <hr/>
                 </div>
