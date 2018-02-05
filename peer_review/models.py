@@ -29,7 +29,6 @@ class Question(models.Model):
     questionLabel = models.CharField(max_length=300, unique=True)
     pubDate = models.DateTimeField('date published')
     questionType = models.ForeignKey(QuestionType)
-    questionGrouping = models.ForeignKey(QuestionGrouping)
 
     def __str__(self):
         return self.questionText
@@ -101,14 +100,6 @@ class Rate(models.Model):
     topWord = models.CharField(max_length=25)
     bottomWord = models.CharField(max_length=25)
     optional = models.BooleanField(default=False)
-
-
-class Label(models.Model):
-    question = models.ForeignKey(Question)
-    labelText = models.CharField(max_length=200)
-
-    def __str__(self):
-        return self.labelText
 
 
 class UserManager(BaseUserManager):
@@ -187,10 +178,19 @@ class Questionnaire(models.Model):
 class QuestionOrder(models.Model):
     questionnaire = models.ForeignKey(Questionnaire)
     question = models.ForeignKey(Question)
+    questionGrouping = models.ForeignKey(QuestionGrouping, default=4) # default: None
     order = models.IntegerField(default=1)
 
     def __str__(self):
         return self.question.questionLabel
+
+
+class Label(models.Model):
+    questionOrder = models.ForeignKey(QuestionOrder)
+    labelText = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.labelText
 
 
 class RoundDetail(models.Model):

@@ -9,6 +9,7 @@ Todo:
 
 {% block extrahead %}
     <script src="{% static "peer_review/js/tinymce/tinymce.min.js" %}"></script>
+    <link rel="stylesheet" href="{% static "peer_review/css/snackbar.css" %}">
     <title>Questionnaire Admin</title>
     <script>
         var title="questionnaireAdmin";
@@ -23,6 +24,25 @@ Todo:
             <div class = "alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
             {% endfor %}
         {% endif %}
+        <div class="modal fade" id="confirm-modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title" id="modal-title"></h4>
+                    </div>
+                    <div class="modal-body">
+                        <p id="modal-msg"></p>
+                        <p id="modal-content" font-size="14pt"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <a class="btn btn-danger" id="modal-action"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="snackbar"></div>
         <div class="panel-group" id="accordion">
             <div class = "panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
@@ -38,8 +58,8 @@ Todo:
                     <div class="panel-body">
                         <form onsubmit="return save()" onreset="empty()" id = "form-save" method="POST" action="/questionnaireAdmin/save">
                             {% csrf_token %}
-                            <label for="title">Title</label>
-                            <input type="text" name="title" class="form-control" id="title" placeholder="Enter title" value="{{questionnaire.label}}" required>
+                            <label for="title" id="title-label">Title</label>
+                            <input type="text" name="title" class="form-control" id="title" placeholder="Enter title" value="{{questionnaire.label}}" autocomplete="off" required>
                             <br/>
                             <label for="intro">Introduction</label>
                             <input id="intro" class = "form-control" value="{{ questionnaire.intro }}" name="intro">
@@ -47,13 +67,12 @@ Todo:
                             <label for="select-questions">Select Questions</label>
                             <div class="row" id = "select-questions">
                                 <div class="col-md-6">
-                                    <small class="text-muted">Click the <span class="glyphicon glyphicon glyphicon-plus-sign text-primary"></span> icon to add questions to the questionnaire.</small>
+                                    <small class="text-muted">Click the <span class="glyphicon glyphicon glyphicon-plus-sign text-muted"></span> icon to add questions to the questionnaire.</small>
                                     <table class='table moveable' id='question-table'>
                                         <thead>
                                             <tr>
                                                 <th>Question</th>
                                                 <th>Question Type</th>
-                                                <th>Grouping</th>
                                                 <th>Grouping</th>
                                                 <th></th>
                                             </tr>
@@ -63,10 +82,19 @@ Todo:
                                             <tr id="{{ question.pk }}">
                                                 <td class="question-label">{{ question.questionLabel }}</td>
                                                 <td class="question-type">{{ question.questionType.name }}</td>
-                                                <td class="question-grouping">{{ question.questionGrouping.grouping }}</td>
-                                                <td class = "hidden"> {{ question.questionText }} </td>
-                                                
-                                                <td>
+                                                <td class="question-grouping-select" align="center">
+                                                    <div class="dropdown">
+                                                      <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" id="group-select-{{ question.pk }}">Select Grouping <span class="caret"></span></button>
+                                                      <ul class="dropdown-menu" id="groups">
+                                                        {% for grup in questgrouping %}
+                                                            <li class="list-group-item" id="group-select-{{ grup }}-{{ question.pk }}" align="center"><a style="cursor: pointer" onclick="changeGrouping('{{ grup }}', {{ question.pk }})">{{ grup }}</a></li>
+                                                        {% endfor %}
+                                                      </ul>
+                                                    </div>
+                                                </td>
+                                                <input type="hidden" id="question-label-{{ question.pk }}" value="{{ question.questionLabel }}">
+                                                <input type="hidden" id="question-grouping-{{ question.pk }}" value="Rest">
+                                                <td id="addBtn-{{ question.pk }}">
                                                     <span onclick="addQuestion(this)" class="glyphicon glyphicon glyphicon-plus-sign text-primary pull-right"  style="cursor:pointer"></span>
                                                 </td>
                                             </tr>
@@ -74,8 +102,27 @@ Todo:
                                         </tbody>
                                     </table>
                                 </div>
+                                <!-- Label table -->
+                                <div class="hidden" id="label-table">
+                                    <label id="labelCount" hidden>0</label>
+                                    <small class="text-muted">Click the <span class="glyphicon glyphicon-plus-sign text-muted"></span> icon to add labels.</small>
+                                    <table class="table table-bordered" id="labeltable">
+                                        <thead>
+                                        <tr>
+                                            <th class="text-center">
+                                                <label id="label-heading">Labels for { question }</label>
+                                                <span style="cursor: pointer" onclick="addRowToTable(this)"
+                                                      class="glyphicon glyphicon-plus-sign pull-right text-primary"></span>
+                                            </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-xs-6 labels-go-here"></div>
                                 <div class="col-md-6">
-                                    <small class="text-muted">Click the <span class="glyphicon glyphicon glyphicon-minus-sign text-primary"></span> icon to remove questions from the questionnaire.</small>
+                                    <small class="text-muted">Click the <span class="glyphicon glyphicon glyphicon-minus-sign text-muted"></span> icon to remove questions from the questionnaire.</small>
                                     <table id="selected-questions" class="table moveable">
                                         <thead>
                                             <tr>
@@ -95,9 +142,9 @@ Todo:
                                                     </td>
                                                     <td class = "question-label">{{ question.question.questionLabel }}</td>
                                                     <td class = "question-type">{{ question.question.questionType.name }}</td>
-                                                    <td class = "question-grouping">{{ question.question.questionGrouping.grouping }}</td>
+                                                    <td class = "question-grouping">{{ question.questionGrouping.grouping }}</td>
                                                     <td>
-                                                        <span onclick="removeQuestion(this)" class="glyphicon glyphicon glyphicon-minus-sign text-primary pull-right"  style="cursor:pointer"></span>
+                                                        <span onclick="removeQuestion(this)" class="glyphicon glyphicon glyphicon-minus-sign text-danger pull-right"  style="cursor:pointer"></span>
                                                     </td>
                                                 </tr>
                                             {% endfor %}
@@ -106,10 +153,13 @@ Todo:
                                 </div>
                             </div>
                             <br/>
-                            <input type="hidden" name="questions" id = "questions"> 
+                            <input type="hidden" name="questions" id="questions" value="">
+                            <input type="hidden" name="qgrouping" id="qgrouping" value="">
+                            <input type="hidden" name="question-labels" id="question-labels" value="[]">
                             {% if questionnaire %}
                                 <input type="hidden" name="pk" value="{{ questionnaire.pk }}">                
                             {% endif %}
+                            <div id="diverrors"></div>
                             <button type="submit" class = "btn btn-primary">
                                 <span class="glyphicon glyphicon-ok"></span>
                                 Submit
@@ -135,7 +185,7 @@ Todo:
                 <div id="collapseTwo" class="panel-collapse collapse">
                     <div class="panel-body">
                         <input type="text" class="form-control" id="search" placeholder="Start typing to search">
-                        <small class = "text-muted">Click the <span class="glyphicon glyphicon glyphicon-pencil text-primary"></span> icon to edit questionnaires, and the <span class="glyphicon glyphicon glyphicon-remove-circle text-primary"></span> icon to remove questionnaires.</small>
+                        <small class = "text-muted">Click the <span class="glyphicon glyphicon glyphicon-pencil text-muted"></span> icon to edit questionnaires, and the <span class="glyphicon glyphicon glyphicon-remove-circle text-muted"></span> icon to remove questionnaires.</small>
                     </div>
                     <table id = "questionnaire-list" class="table table-hover">
                         <thead>
@@ -143,7 +193,7 @@ Todo:
                                 <th>Title</th>
                                 <th>
                                     Number of Questions
-                                    <span id="delete-many" style = "cursor: pointer" onclick = "deleteMany()" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
+                                    <span id="delete-many" style = "cursor: pointer" onclick = "deleteMany()" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-danger" data-toggle="modal" data-target="#confirm-modal"></span>
                                 </th>
                             </tr>
                         </thead>
@@ -159,14 +209,14 @@ Todo:
                                         {{ questionnaire.title }}
                                     </td>
                                     <td>
-                                        {{ questionnaire.questionOrders.count }}
+                                        {{ questionnaire.questionCount }}
                                         {% if questionnaire.inARound %}
                                             <span class="glyphicon glyphicon glyphicon-remove-circle pull-right text-muted"></span>
                                         {% else %}
-                                            <span style = "cursor: pointer" onclick = "deleteQuestionnaire('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
+                                            <span style = "cursor: pointer" onclick = "deleteQuestionnaire('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-danger" data-toggle="modal" data-target="#confirm-modal" title="Delete Questionnaire"></span>
                                         {% endif %}
-                                        <span style = "cursor: pointer" onclick = "preview('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-eye-open pull-right text-primary">&nbsp</span>
-                                        <span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
+                                        <span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}','{{questionnaire.inARound}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
+                                        <span style = "cursor: pointer" onclick = "preview('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-eye-open pull-right text-primary" title="Preview">&nbsp</span>
                                     </td>
                                 </tr>   
                             {% endfor %}
@@ -182,6 +232,7 @@ Todo:
     </div>
 
     <script>
+        var questionTable = null;
         $(document).ready(function() {
             tinymce.init({ selector:'#intro',
             language: 'en_GB',
@@ -192,8 +243,10 @@ Todo:
             toolbar: 'undo redo bold italiclignleft aligncenter alignright bullist numlist outdent indent styleselect fontsizeselect emoticons image a', });
             //Hide alerts
             setTimeout(function() {
-                $('.alert').hide(100);
-            }, 10000);
+                $(".alert").fadeTo(500, 0).slideUp(500, function(){
+                    $(this).remove(); 
+                });
+            }, 5000);
             //Todo: Search the other columns as well
             $("#search").keyup(function() {
                 var value = this.value;
@@ -203,6 +256,11 @@ Todo:
                     $(this).toggle(id.toLowerCase().indexOf(value.toLowerCase()) !== -1);
                 });
             });
+            $('.labels-go-here').hide();
+            $('.labels-go-here').html($('#label-table').html());
+            {% for label in labels %}
+                addLabel("{{label}}");
+            {% endfor %}
 
             //Allows selecting of questions to delete multiple questions
             $('#delete-many').hide();
@@ -219,10 +277,49 @@ Todo:
                 }
 
             });
+            {% if questionnaire %}
+                setupEdit();
+            {% endif %}
+            questionTable = $('#question-table').DataTable({paging: true});
 
-            $('#question-table').DataTable();
-
+            // Disable Enter key
+            $(window).keydown(function(event){
+                if(event.keyCode == 13) {
+                  event.preventDefault();
+                  return false;
+                }
+              });
         });
+
+        //** Functions used for table manipulations **//
+        function addRowToTable(el) {
+            var row = $('<td></td>');
+            row.append('<input type="text" placeholder="Enter Label" style="border:none;"/>');
+            row.append('<span onclick="removeRow(this)" class = "glyphicon glyphicon-remove-circle pull-right text-danger" style="cursor:pointer"></span>');
+            row.append('<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-up pull-left text-primary" style="cursor:pointer"></span>');
+            row.append('<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-down pull-left text-primary" style="cursor:pointer"></span>');
+
+            $(el).closest('table').find('tbody').append(row);
+            row.wrap('<tr></tr>');
+            row.addClass('text-center');
+            labCount = parseInt($("#labelCount").text());
+            labCount++;
+            $("#labelCount").text(labCount);
+            return row;
+        }
+
+        function addLabel(labelText) {
+            row = addRowToTable($('#content').find('#labeltable')[0]);
+            $(row).find('input').val(labelText);
+
+        }
+
+        function removeRow(el) {
+            $(el).closest('tr').remove();
+            labCount = parseInt($("#labelCount").text());
+            labCount--;
+            $("#labelCount").text(labCount);
+        }
 
         function moveRow(el) {
             var row = $(el).closest('tr');
@@ -232,65 +329,292 @@ Todo:
                 row.next().after(row);
         }
 
-        function addQuestion(el) {              
+        function showSnackbar(msg) {
+            $("#snackbar").html(msg);
+            $("#snackbar").addClass("show");
+            setTimeout(function() {
+                $("#snackbar").removeClass("show");
+            }, 3000);
+        }
+
+        function addQuestion(el) {
             if ($(el).hasClass('text-primary')) {
-                var row = $(el).closest('tr'); 
-                var tr = $('<tr id = "'+row.attr('id')+'"></tr>');
-                tr.append('<td><span onclick="moveRow(this)" class="glyphicon glyphicon glyphicon-arrow-up text-primary pull-left"  style="cursor:pointer"></span><span onclick="moveRow(this)" class="glyphicon glyphicon glyphicon-arrow-down text-primary pull-left"  style="cursor:pointer"></span></td>');
-                tr.append('<td class="question-label">'+row.find('.question-label').html()+'</td>');
-                tr.append('<td>'+row.find('.question-type').html()+'</td>');
-                tr.append('<td>'+row.find('.question-grouping').html()+'</td>');
-                tr.append('<td><span onclick="removeQuestion(this)" class="glyphicon glyphicon glyphicon-minus-sign text-primary pull-right"  style="cursor:pointer"></span></td>');
-                $('#selected-questions').append(tr);
-                //To ensure only one of each question in questionnaire
-                // $(el).removeClass('text-primary').addClass('text-muted');
+                var row = $(el).closest('tr');
+                var questLabel = row.find('.question-label').html();
+                if (row.find("#group-select-" + row.attr("id")).html().includes("Select Grouping")) {
+                    showSnackbar("Please select grouping for: <strong>" + questLabel + "</strong>");
+                } else {
+                    if ($("#question-grouping-" + row.attr("id")).val() == "Label") {
+                        $(".labels-go-here").show(100);
+                        if(parseInt($("#labelCount").text()) < 1) {
+                            showSnackbar("Please enter labels for: <strong>" + questLabel + "</strong>");
+                            return;
+                        } else if(parseInt($("#labelCount").text()) < 2) {
+                            showSnackbar("Please enter at least two labels for: <strong>" + questLabel + "</strong>");
+                            return;
+                        } else {
+                            // Store labels
+                            var labels = "";
+                            var shouldContinue = true;
+                            $('#labeltable > tbody > tr > td > input').each(function (i, el) {
+                                if(!$.trim(el.value).length) {
+                                    showSnackbar("Please fill in blank labels");
+                                    shouldContinue = false;
+                                }
+                                labels += el.value.trim() + ';#';
+                            });
+                            if(shouldContinue) {
+                                $("#labelCount").text(0);
+                                var questLabels = {};
+                                questLabels["questionId"] = row.attr("id");
+                                questLabels["questionLabel"] = labels.slice(0, -2);
+                                var jsonArr = JSON.parse($("#question-labels").val());
+                                if(jsonArr.length == 0) {
+                                    $('#question-labels').val("[" + JSON.stringify(questLabels) + "]");
+                                } else {
+                                    $('#question-labels').val($('#question-labels').val().slice(0, -1) + ',' + JSON.stringify(questLabels) + "]");
+                                }
+                                // empty table
+                                $('.labels-go-here').html($('#label-table').html());
+                                $(".labels-go-here").hide(100);    
+                            } else {
+                                return;
+                            }
+                        }
+                    }
+
+                    var tr = $('<tr id = "'+row.attr('id')+'"></tr>');
+                    tr.append('<td><span onclick="moveRow(this)" class="glyphicon glyphicon glyphicon-arrow-up text-primary pull-left"  style="cursor:pointer"></span><span onclick="moveRow(this)" class="glyphicon glyphicon glyphicon-arrow-down text-primary pull-left"  style="cursor:pointer"></span></td>');
+                    tr.append('<td class="question-label">'+row.find('.question-label').html()+'</td>');
+                    tr.append('<td>'+row.find('.question-type').html()+'</td>');
+                    tr.append('<td>'+row.find("#question-grouping-" + row.attr("id")).val()+'</td>');
+                    tr.append('<td><span onclick="removeQuestion(this)" class="glyphicon glyphicon glyphicon-minus-sign text-danger pull-right"  style="cursor:pointer"></span></td>');
+                    $('#selected-questions').append(tr);
+                    // Disable grouping and add buttons
+                    $("#group-select-" + row.attr("id")).prop("disabled", true);
+                    $("#addBtn-" + $(el).closest('tr').attr('id')).html('<span class="glyphicon glyphicon glyphicon-plus-sign text-muted pull-right"  title="Question already added"></span>');
+                }
             }
         }
 
         function removeQuestion(el) {
-            //To ensure one of each question in questionnaire
-            // $('#question-table > tbody > tr:contains("'+$(el).closest('tr').find('.question-label').html()+'")').find('span.glyphicon-plus-sign').addClass('text-primary').removeClass('text-muted');
-            $(el).closest('tr').remove();
+            // Enable grouping and add buttons
+            curPage = questionTable.page.info().page;
+            questionTable.destroy(); // Refresh across pages in datatable
+            $("#group-select-" + $(el).closest('tr').attr("id")).prop("disabled", false);
+            $("#addBtn-" + $(el).closest('tr').attr('id')).html('<span onclick="addQuestion(this)" class="glyphicon glyphicon glyphicon-plus-sign text-primary pull-right"  style="cursor:pointer"></span>');
+            questionTable = $('#question-table').DataTable({paging: true});
+            questionTable.page(curPage).draw('page');
+            if($("#question-grouping-" + $(el).closest('tr').attr("id")).val() == "Label") {
+                var jsonArr = JSON.parse($("#question-labels").val());
+                $('#question-labels').val("[]");
+                for(i = 0; i < jsonArr.length; i++) {
+                    if(jsonArr[i].questionId != $(el).closest('tr').attr("id")) {
+                        if(i == 0) {
+                            $('#question-labels').val("[" + JSON.stringify(jsonArr[i]) + "]");
+                        } else {
+                            $('#question-labels').val($('#question-labels').val().slice(0, -1) + ',' + JSON.stringify(jsonArr[i]) + "]");
+                        }
+                    }
+                }
+            }
+            curPage = questionTable.page.info().page;
+            questionTable.destroy(); // Refresh across pages in datatable
+            $("#group-select-" + $(el).closest('tr').attr("id")).html("Select Grouping <span class=\"caret\"></span>");
+            {% for grup in questgrouping %}
+                $("#group-select-{{ grup }}-" + $(el).closest('tr').attr("id")).removeClass('active');
+            {% endfor %}
+            questionTable = $('#question-table').DataTable({paging: true});
+            questionTable.page(curPage).draw('page');
+            $(el).closest('tr').remove(); 
         }
 
-        function edit(pk) {
-            window.location = '/questionnaireAdmin/edit/'+pk;
+        function edit(pk, isInRound) {
+            if(isInRound == 'True') {
+                var strcnf = "";
+                $('#questionnaire-pk').val(pk);
+                {% for questn in questionnaires %}
+                    if ("{{ questn.pk }}" == pk) {
+                        strcnf = "{{ questn.title }}";
+                    }
+                {% endfor %}
+                $('#confirm-modal').modal('show');
+                $('#modal-title').html("Confirm Edit: <strong>" + strcnf + "</strong>");
+                $('#modal-msg').html('The following questionnaire is already in a round. Are you sure you want to edit?');
+                $("#modal-action").attr("onclick","window.location='/questionnaireAdmin/edit/" + pk + "'");
+                $("#modal-action").html("Edit");
+                $('#modal-content').html("");
+            } else {
+                window.location = '/questionnaireAdmin/edit/'+pk;
+            }
         }
         
         function preview(pk) {
             $("body").append("<a id='previewLink' href='/questionnairePreview/" + pk + "' target='_blank' style='display:none'></a>");
-            // alert(getElementById('previewLink'));
             document.getElementById('previewLink').click();
             $("#previewLink").remove();
-        } 
+        }
 
         function deleteQuestionnaire(pk) {
+            var strcnf = "";
             $('#questionnaire-pk').val(pk);
-            $('#form-delete').submit();
+            {% for questn in questionnaires %}
+                if ("{{ questn.pk }}" == pk) {
+                    strcnf = "{{ questn.title }}";
+                }
+            {% endfor %}
+            $('#modal-title').html("Confirm Delete");
+            $('#modal-msg').html('You are about to delete the following questionnaire, this procedure is irreversible.');
+            $('#modal-content').html('<strong>' + strcnf + '</strong>');
+            $("#modal-action").attr("onclick","$(\"#form-delete\").submit()");
+            $("#modal-action").html("Delete");
         }
 
         function deleteMany() {
             var pks = "";
+            var strcnf = "";
             $('#questionnaire-list > tbody > tr.active').each(function(i, el) {
+                {% for questn in questionnaires %}
+                    if ("{{ questn.pk }}" == el.id) {
+                        strcnf += "{{ questn.title }}<br/>";
+                    }
+                {% endfor %}
                 pks += el.id + ';#';
             });
             $('#questionnaire-pk').val(pks.slice(0, -2));
-            $('#form-delete').submit();
+            $('#modal-title').html("Confirm Delete");
+            $('#modal-msg').html('You are about to delete the following questionnaires, this procedure is irreversible.');
+            $('#modal-content').html('<strong>' + strcnf + '</strong>');
+            $("#modal-action").attr("onclick","$(\"#form-delete\").submit()");
+            $("#modal-action").html("Delete");
+        }
+
+        function closeErrors() {
+            setTimeout(function () {
+                $(".alert").fadeTo(500, 0).slideUp(500, function(){
+                    $(this).remove(); 
+                });
+            }, 3000);
+        }
+
+        function checkIfExist() {
+            var exists = false;
+            $.ajax({
+                url: "/questionnaireAdmin/check",
+                type: "POST",
+                async: false,
+                data: {'title': $("#title").val(), 'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').prop('value')},
+                dataType: "json",
+                success: function (data) {
+                    if (data.result === 1)
+                        exists = true;
+                },
+                failure: function () {
+                    exists = true;
+                },
+                error: function () {
+                    exists = true;
+                },
+                timeout: 3000 // 3 Second timeout
+            });
+            return exists;
         }
 
         function save() {
+            if($('#selected-questions > tbody > tr').size() == 0) {
+                $("#diverrors").html("<div class=\"alert alert-danger\">Please add questions to the questionnaire</div>");
+                closeErrors();
+                return false;
+            }
+            // Associative arrays
             var questions = "";
+            var groupings = "";
+            curPage = questionTable.page.info().page;
+            questionTable.destroy(); // Refresh across pages in datatable
             $('#selected-questions > tbody > tr').each(function(i, el) {
                 questions += el.id + ';#';
+                groupings += $("#question-grouping-" + el.id).val() + ';#';
             });
+            questionTable = $('#question-table').DataTable({paging: true});
+            questionTable.page(curPage).draw('page');
             $('#questions').val(questions);
+            $("#qgrouping").val(groupings);
+            {% if questionnaire %}
+                $("#title").removeAttr("disabled");
+                return true;
+            {% else %}
+                if(checkIfExist()) {
+                    $('html, body').animate({
+                            scrollTop: $("#title-label").offset().top
+                        }, 500);
+                    $("#title").select();
+                    showSnackbar("<strong>Error:</strong> A questionnaire with that title already exists.");
+                    return false;
+                } else {
+                    return true;
+                }
+            {% endif %}
         }
 
         function empty() {
             {% if questionnaire %}
                 window.location = '/questionnaireAdmin/';
             {% endif %}
-            $('#selected-questions > tbody').empty();
+            $('#selected-questions > tbody > tr').each(function (i, el) {
+                removeQuestion(el);
+            });
+            $(".labels-go-here").hide(100);
+            $('html, body').animate({
+                    scrollTop: $(".container").offset().top
+                }, 300);
+        }
+
+        function changeGrouping(group, questionId) {
+            $("#group-select-" + questionId).html(group + " <span class=\"caret\"></span>");
+            $("#question-grouping-" + questionId).val(group);
+            {% for grup in questgrouping %}
+                $("#group-select-{{ grup }}-" + questionId).removeClass('active');
+            {% endfor %}
+            $("#group-select-" + group + "-" + questionId).addClass('active');
+            if (group == "Label") {
+                $("#label-heading").text("Labels: " + $("#question-label-" + questionId).val());
+                $('.labels-go-here').html($('#label-table').html()); // Set new table
+                $(".labels-go-here").show(100);
+            } else {
+                $(".labels-go-here").hide(100);
+            }
+        }
+
+        function setupEdit() {
+            $('#selected-questions > tbody > tr').each(function(i, el) {
+                var gruping = $(el).closest('tr').find('td:eq(3)').text();
+                $("#group-select-" + $(el).closest('tr').attr("id")).html(gruping + " <span class=\"caret\"></span>");
+                $("#group-select-" + gruping + "-" + $(el).closest('tr').attr("id")).removeClass('active');
+                $("#group-select-" + $(el).closest('tr').attr("id")).prop("disabled", true);
+                $("#addBtn-" + $(el).closest('tr').attr('id')).html('<span class="glyphicon glyphicon glyphicon-plus-sign text-muted pull-right"  title="Question already added"></span>');
+                $("#question-grouping-" + $(el).closest('tr').attr("id")).val(gruping);
+            });
+            $("#title").attr("disabled", "disabled");
+            $("#question-labels").val({{ questionLabels | safe }});
+            $("#question-labels").val("[" + $("#question-labels").val() + "]");
+            qlabArr = JSON.parse($("#question-labels").val())
+            $("#question-labels").val("[]"); // Rethink initial storage
+            $("#labelCount").text(0);
+            for(i = 0; i < qlabArr.length; i++) {
+                var labels = "";
+                var questLabels = {};
+                for(j = 0; j < qlabArr[i].questionLabel.length; j++) {
+                    labels += qlabArr[i].questionLabel[j] + ';#';
+                    questLabels["questionId"] = qlabArr[i].questionId.toString();
+                    questLabels["questionLabel"] = labels.slice(0, -2);
+                }
+                var jsonArr = JSON.parse($("#question-labels").val());
+                if(jsonArr.length == 0) {
+                    $("#question-labels").val("[" + JSON.stringify(questLabels) + "]");
+                } else {
+                    $("#question-labels").val($("#question-labels").val().slice(0, -1) + ',' + JSON.stringify(questLabels) + "]");
+                }
+            }
         }
     </script>
 {% endblock %}

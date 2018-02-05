@@ -6,9 +6,9 @@
         d = new Date();
         var batch_id = d.getTime()+ "" + batch_num;
         batch_num++;
-        $("#{{ q.id }}").find('.rankItem').each(function (i, rankItem) {
+        $("#{{ q.question.id }}").find('.rankItem').each(function (i, rankItem) {
             var json = {
-                'questionPk': {{ q.id }},
+                'questionPk': {{ q.question.id }},
                 'roundPk': roundPk,
                 'label': rankItem.dataset.id,
                 'answer': i,
@@ -20,39 +20,45 @@
     });
 
     //The function to load the responses
-    getResponses({{ q.id }}, function (responses) {
+    {% if not preview %}
+    getResponses({{ q.question.id }}, function (responses) {
         if (responses.answers.length != 0) {
             for (var x = 0; x < responses.answers.length; x++) {
-                row = $("#{{ q.id }}").find('.rankTable tr').eq(responses.answers[x]).find('td');
+                row = $("#{{ q.question.id }}").find('.rankTable tr').eq(responses.answers[x]).find('td');
                 row.eq(0).html(responses.labelOrUserNames[x]);
                 row[0].dataset['id'] = responses.labelOrUserIds[x];
             }
         }
     });
+    {% endif %}
 </script>
-<p><strong>{{ number|add:"1" }}</strong>. {{ q.questionText }}</p>
+<p><strong>{{ number|add:"1" }}</strong>. {{ q.question.questionText }}</p>
 <br/>
-<p><strong> {{ q.get_rank.firstWord }} </strong></p>
+<p><strong> {{ q.question.get_rank.firstWord }} </strong></p>
 <table class="table table-responsive rankTable">
-    {% if q.questionGrouping.grouping == "Label" %}
-        {% for l in q.get_labels %}
-            <tr>
-                <td data-id="{{ l.id }}" class="rankItem">{{ l }}</td>
-                <td>
-                    <div style="text-align: right; width: auto;">
-                        <a class="move up" href="javascript:void(0)" title="move up">
-                            <span class="glyphicon glyphicon-arrow-up"></span>
-                        </a>
-                        <a class="move down" href="javascript:void(0)" title="move down">
-                            <span class="glyphicon glyphicon-arrow-down"></span>
-                        </a>
-                    </div>
-                </td>
-            </tr>
+    {% if grouping == "Label" %}
+        {% for lbls in questionLabels %}
+            {% for labl in lbls %}
+                {% ifequal labl.questionOrder.pk q.pk %}
+                    <tr>
+                        <td data-id="{{ labl.pk }}" class="rankItem">{{ labl.labelText }}</td>
+                        <td>
+                            <div style="text-align: right; width: auto;">
+                                <a class="move up" href="javascript:void(0)" title="move up">
+                                    <span class="glyphicon glyphicon-arrow-up"></span>
+                                </a>
+                                <a class="move down" href="javascript:void(0)" title="move down">
+                                    <span class="glyphicon glyphicon-arrow-down"></span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endifequal %}
+            {% endfor %}
         {% endfor %}
     {% else %}
         {% for u in teamMembers %}
-            {% if q.questionGrouping.grouping == "Rest" %}
+            {% if grouping == "Rest" %}
                 {% if u != currentUser %}
                     <tr>
                         <td data-id="{{ u.user_id }}" class="rankItem">{{ u.name }} {{ u.surname }}</td>
@@ -86,4 +92,4 @@
         {% endfor %}
     {% endif %}
 </table>
-<p><strong> {{ q.get_rank.secondWord }} </strong></p>
+<p><strong> {{ q.question.get_rank.secondWord }} </strong></p>
