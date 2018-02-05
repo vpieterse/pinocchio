@@ -220,7 +220,7 @@ Todo:
                                         {% else %}
                                             <span style = "cursor: pointer" onclick = "deleteQuestionnaire('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-danger" data-toggle="modal" data-target="#confirm-modal" title="Delete Questionnaire"></span>
                                         {% endif %}
-                                        <span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}','{{questionnaire.inARound}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
+                                        <span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
                                         <span style = "cursor: pointer" onclick = "preview('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-eye-open pull-right text-primary" title="Preview">&nbsp</span>
                                     </td>
                                 </tr>   
@@ -540,7 +540,7 @@ Todo:
             $(el).closest('tr').remove(); 
         }
 
-        function edit(pk, isInRound) {
+        function edit(pk) {
             window.location = '/questionnaireAdmin/edit/'+pk;
         }
         
