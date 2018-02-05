@@ -98,7 +98,8 @@ def get_responses(request):
     question = get_object_or_404(Question, pk=request.GET.get('questionPk'))
     round_detail = get_object_or_404(RoundDetail, pk=request.GET.get('roundPk'))
     user = request.user
-    grup = QuestionOrder.objects.get(questionnaire=round_detail.questionnaire, question=question).questionGrouping
+    grup = QuestionOrder.objects.get(
+        questionnaire=round_detail.questionnaire, question=question).questionGrouping.grouping
 
     responses = Response.objects.filter(user=user,
                                         roundDetail=round_detail,
