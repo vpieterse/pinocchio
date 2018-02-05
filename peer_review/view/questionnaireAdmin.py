@@ -113,7 +113,7 @@ def save_questionnaire(request):
     return HttpResponseRedirect('/questionnaireAdmin')
 
 # Create JSON object from a label query set
-def jsonify_label(qlst, qids):
+def jsonify_labels(qlst, qids):
     rtn = []
     temprtn = {}
     labls = []
@@ -147,7 +147,7 @@ def edit_questionnaire(request, questionnaire_pk):
                    questionnaire=current_questionnaire),
                'questgrouping': QuestionGrouping.objects.all(),
                'inARound': RoundDetail.objects.filter(questionnaire=current_questionnaire).exists(),
-               'questionLabels': jsonify_label(q_labels, q_ids)}
+               'questionLabels': jsonify_labels(q_labels, q_ids)}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
 

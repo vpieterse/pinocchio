@@ -747,10 +747,17 @@ Todo:
                     questLabels["questionLabel"] = labels.slice(0, -2);
                 }
                 var jsonArr = JSON.parse($("#question-labels").val());
-                if(jsonArr.length == 0) {
-                    $("#question-labels").val("[" + JSON.stringify(questLabels) + "]");
-                } else {
-                    $("#question-labels").val($("#question-labels").val().slice(0, -1) + ',' + JSON.stringify(questLabels) + "]");
+                /* Add empty label check to prevent errors from questions
+                    created before the model update that supports labels
+                    from the questionnaire builder
+                    - Not backwards compatible
+                */
+                if(JSON.stringify(questLabels) != "{}") {
+                    if(jsonArr.length == 0) {
+                        $("#question-labels").val("[" + JSON.stringify(questLabels) + "]");
+                    } else {
+                        $("#question-labels").val($("#question-labels").val().slice(0, -1) + ',' + JSON.stringify(questLabels) + "]");
+                    }
                 }
             }
         }
