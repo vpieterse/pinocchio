@@ -264,7 +264,7 @@ Todo:
                 });
             });
             $('.labels-go-here').hide();
-            editingLabels = false;
+            resetLabelEdit();
             $('.labels-go-here').html($('#label-table').html());
             {% for label in labels %}
                 addLabel("{{label}}");
@@ -391,6 +391,11 @@ Todo:
             }   
         }
 
+        function resetLabelEdit() {
+            editingLabels = false;
+            $("#labelCount").text(0);
+        }
+
         //** Functions used for table manipulations **//
         function addRowToTable(el) {
             var row = $('<td></td>');
@@ -460,6 +465,11 @@ Todo:
                             return;
                         } else {
                             // Store labels
+                            var qidLid = $("#qid-lid").text().split("-");
+                            if(qidLid[0] != row.attr("id")) {
+                                showSnackbar("Warning: Labels are not for <strong>" + questLabel + "</strong>");
+                                return;
+                            }
                             var labels = "";
                             var shouldContinue = true;
                             $('#labeltable > tbody > tr > td > input').each(function (i, el) {
@@ -483,7 +493,7 @@ Todo:
                                 // empty table
                                 $('.labels-go-here').html($('#label-table').html());
                                 $(".labels-go-here").hide(100);
-                                editingLabels = false;
+                                resetLabelEdit();
                             } else {
                                 return;
                             }
@@ -663,7 +673,7 @@ Todo:
                 removeQuestion(el);
             });
             $(".labels-go-here").hide(100);
-            editingLabels = false;
+            resetLabelEdit();
             $('html, body').animate({
                     scrollTop: $(".container").offset().top
                 }, 300);
@@ -678,12 +688,13 @@ Todo:
             $("#group-select-" + group + "-" + questionId).addClass('active');
             if (group == "Label") {
                 $("#label-heading").text("Labels: " + $("#question-label-" + questionId).val());
+                $("#qid-lid").text(questionId + "-0");
                 $('.labels-go-here').html($('#label-table').html()); // Set new table
                 $(".labels-go-here").show(100);
             } else {
                 $(".labels-go-here").hide(100);
-                editingLabels = false;
             }
+            resetLabelEdit();
         }
 
         //* Display labels that are alredy stored *//
