@@ -11,21 +11,17 @@ from peer_review.forms import DocumentForm
 from peer_review.view.userFunctions import user_error
 from django.template import loader
 
+
 @admin_required
 def maintain_team(request):
+    context = {'users': User.objects.filter(Q(is_active=1) & (Q(status='S') | Q(status='U'))),
+               'rounds': RoundDetail.objects.all(),
+               'teams': TeamDetail.objects.all()}
+
     if request.method == "POST":
         round_pk = request.POST.get("roundPk")
+        context['preselectedRoundPk'] = int(round_pk)
 
-        context = {'users': User.objects.filter(Q(is_active=1) & (Q(status='S') | Q(status='U'))),
-                   'rounds': RoundDetail.objects.all(),
-                   'teams': TeamDetail.objects.all(),
-                   'roundPk': round_pk}
-
-    else:
-        context = {'users': User.objects.filter(Q(is_active=1) & (Q(status='S') | Q(status='U'))),
-                   'rounds': RoundDetail.objects.all(),
-                   'teams': TeamDetail.objects.all(),
-                   'roundPk': "none"}
     return render(request, 'peer_review/maintainTeam.html', context)
 
 
@@ -63,7 +59,6 @@ def get_teams_for_round(request, round_pk):
                 "teams": []}
     team_sizes = {}
     team_tables = {}
-    users = {}
     for team in teams:
         if team.teamName not in team_sizes:
             team_sizes[team.teamName] = 0

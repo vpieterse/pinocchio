@@ -39,9 +39,15 @@
                                 <div class="form-inline">
                                     <div class="form-group">
                                         <select id='selectedRound' class="form-control" style="width:auto" name="type">
-                                            <option selected value=""></option>
+                                            {% if not preselectedRoundPk %}
+                                                <option selected value=""></option>
+                                            {% endif %}
                                             {% for round in rounds %}
-                                                <option value="{{ round.pk }}" desc="{{ round.description }}">{{ round.name }}</option>
+                                                <option
+                                                        {% if preselectedRoundPk == round.pk %}
+                                                            selected="selected"
+                                                        {% endif %}
+                                                        value="{{ round.pk }}" desc="{{ round.description }}">{{ round.name }}</option>
                                             {% endfor %}
                                         </select>
                                         <a href="/maintainRound" class="btn btn-info btn-xs plus">+</a>
