@@ -36,7 +36,7 @@ Todo:
                         <p id="modal-content" font-size="14pt"></p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal" id="modal-cancel">Cancel</button>
                         <a class="btn btn-danger" id="modal-action"></a>
                     </div>
                 </div>
@@ -286,6 +286,9 @@ Todo:
 
             });
             {% if questionnaire %}
+                {% if inARound %}
+                    editWarning();
+                {% endif %}
                 setupEdit();
             {% endif %}
             questionTable = $('#question-table').DataTable({paging: true});
@@ -298,6 +301,16 @@ Todo:
                 }
               });
         });
+
+        function editWarning() {
+            $('#confirm-modal').modal('show');
+            $('#modal-title').html("Confirm Edit: <strong>{{ questionnaire.label }}</strong>");
+            $('#modal-msg').html('The following questionnaire is already in a round.<br/><strong style="color: red; font-size: 16px">Existing repsonses may be lost.</strong><br/><br/>Are you sure you want to edit?');
+            $("#modal-cancel").attr("onclick","window.location='/questionnaireAdmin/'");
+            $("#modal-action").html("Edit");
+            $("#modal-action").attr("data-dismiss","modal");
+            $('#modal-content').html("");
+        }
 
         function showSnackbar(msg) {
             $("#snackbar").html(msg);
@@ -528,23 +541,7 @@ Todo:
         }
 
         function edit(pk, isInRound) {
-            if(isInRound == 'True') {
-                var strcnf = "";
-                $('#questionnaire-pk').val(pk);
-                {% for questn in questionnaires %}
-                    if ("{{ questn.pk }}" == pk) {
-                        strcnf = "{{ questn.title }}";
-                    }
-                {% endfor %}
-                $('#confirm-modal').modal('show');
-                $('#modal-title').html("Confirm Edit: <strong>" + strcnf + "</strong>");
-                $('#modal-msg').html('The following questionnaire is already in a round. Are you sure you want to edit?');
-                $("#modal-action").attr("onclick","window.location='/questionnaireAdmin/edit/" + pk + "'");
-                $("#modal-action").html("Edit");
-                $('#modal-content').html("");
-            } else {
-                window.location = '/questionnaireAdmin/edit/'+pk;
-            }
+            window.location = '/questionnaireAdmin/edit/'+pk;
         }
         
         function preview(pk) {
@@ -565,6 +562,8 @@ Todo:
             $('#modal-msg').html('You are about to delete the following questionnaire, this procedure is irreversible.');
             $('#modal-content').html('<strong>' + strcnf + '</strong>');
             $("#modal-action").attr("onclick","$(\"#form-delete\").submit()");
+            $("#modal-action").removeAttr("data-dismiss");
+            $("#modal-cancel").removeAttr("onclick");
             $("#modal-action").html("Delete");
         }
 
@@ -584,6 +583,8 @@ Todo:
             $('#modal-msg').html('You are about to delete the following questionnaires, this procedure is irreversible.');
             $('#modal-content').html('<strong>' + strcnf + '</strong>');
             $("#modal-action").attr("onclick","$(\"#form-delete\").submit()");
+            $("#modal-action").removeAttr("data-dismiss","modal");
+            $("#modal-cancel").removeAttr("onclick");
             $("#modal-action").html("Delete");
         }
 

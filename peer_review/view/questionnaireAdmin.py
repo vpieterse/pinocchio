@@ -146,6 +146,7 @@ def edit_questionnaire(request, questionnaire_pk):
                'questionOrders': QuestionOrder.objects.filter(
                    questionnaire=current_questionnaire),
                'questgrouping': QuestionGrouping.objects.all(),
+               'inARound': RoundDetail.objects.filter(questionnaire=current_questionnaire).exists(),
                'questionLabels': jsonilabl(q_labels, q_ids)}
     return render(request, 'peer_review/questionnaireAdmin.html', context)
 
