@@ -51,7 +51,7 @@ Usage:
 - From project root, run `docker-compose` with the development config file:
     - `# docker-compose -f docker-compose-development.yml`
 - After everything downloaded, execute `bash` in the container to finish first-time setup:
-    - `# docker-compose -f docker-compose-development.yml run dev_server bash` 
+    - `# docker-compose -f docker-compose-development.yml run dev_server sh` 
 - Follow the steps from the installation guide if needed. This would include migrating the  
   database and creating a new superuser.
 - After initial setup, the Django development server can be started with `docker-compose`
