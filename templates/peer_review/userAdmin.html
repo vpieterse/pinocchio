@@ -128,6 +128,16 @@
                 <div id="collapseTwo" class="panel-collapse collapse {% if message or possible_users%}in{% endif %}">
 
                     <div class="panel-body">
+                        <div>
+                            <strong>Example CSV</strong>:<br>
+                            <pre id="csv_example"></pre>
+                            <script>
+                                let str =
+                                    'title, initials, name, surname, email, cell, user_id\n' +
+                                    'Mr, JF, John, Bool, johnbool@example.com, 123456789, john';
+                                $('#csv_example').text(str);
+                            </script>
+                        </div>
                         <form class="col-md-6" action="{% url 'submitCSV' %}" method="post"
                               enctype="multipart/form-data">
                             {% csrf_token %}
