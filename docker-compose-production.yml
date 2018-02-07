@@ -5,8 +5,6 @@ services:
     build:
       context: ./
       dockerfile: ./docker_images/production/app/Dockerfile
-    ports:
-      - "8000:8000"
     volumes:
       - .:/app
 
@@ -14,3 +12,7 @@ services:
     build: ./docker_images/production/nginx/
     ports:
       - "80:80"
+    volumes:
+      - .:/app
+    depends_on:
+      - "app"

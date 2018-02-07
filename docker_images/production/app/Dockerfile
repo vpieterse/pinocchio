@@ -19,4 +19,5 @@ ENV PYTHONUNBUFFERED 0
 # Start UWSGI server
 # TODO (Raymond): Run uwsgi as regular user?
 # TODO (Raymond): uwsgi config file?
-CMD uwsgi --plugin http,python3 --http 0.0.0.0:8000 --module pinocchio.wsgi
+# TODO (Raymond): collectstatic?
+CMD uwsgi --plugin http,python3 --socket 0.0.0.0:8001 --module pinocchio.wsgi
