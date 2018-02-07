@@ -58,15 +58,66 @@ def validate_header(csv_file, fields: List[str]) -> CsvStatus:
     return CsvStatus(valid=True, error_message=None)
 
 
-def validate_csv(fields: List[str], file_path: str) -> CsvStatus:
-    """Validate the CSV file according to the given fields
+def contains_duplicates(items: List[Dict[str, str]], primary_key_field: str) -> CsvStatus:
+    """Check if duplicate primary keys were found in the Csv file
+
+    Args:
+        items: The list of item dicts to check
+        primary_key_field: The header in the CSV to check for duplicates
+
+    Returns:
+        Only returns subsequent duplicates in data.
+
+        A CsvStatus object that has the following cases:
+
+        No duplicates found:
+            valid = True
+            data = None
+
+        Duplicates found:
+            valid = False
+            data != None
+
+        Primary key not found:
+            Valid = False
+            data = None
+    """
+    duplicates: List[Dict[str, str]] = list()
+    found_primary_keys: Dict[str, bool] = dict()
+
+    for item in items:
+        if primary_key_field not in item:
+            return CsvStatus(valid=False,
+                             error_message='Primary key field %s was not '
+                                           'found in one of the rows' %
+                                           primary_key_field,
+                             data=None);
+
+        if not item[primary_key_field] in found_primary_keys:
+            found_primary_keys[item[primary_key_field]] = True
+        else:
+            duplicates.append(item)
+
+    if duplicates:
+        return CsvStatus(valid=False,
+                         error_message='CSV file contains duplicate primary keys',
+                         data=duplicates)
+    else:
+        return CsvStatus(valid=True, data=None)
+
+
+def validate_csv(fields: List[str], file_path: str, primary_key_field:str = None) -> CsvStatus:
+    """Try to parse the csv file and return the status and optionally the data
 
     Args:
         fields: The column headers to validate
         file_path: The path of the CSV file
+        primary_key_field: The header column to use as primary key for checking
+            duplicates
 
     Returns:
         A 'CsvStatus' object indicating the state of the csv file
+        and the data if it was valid
     """
     with open(file_path) as csv_file:
         header_result = validate_header(csv_file, fields)
@@ -89,6 +140,11 @@ def validate_csv(fields: List[str], file_path: str) -> CsvStatus:
                         '\'' + key + '\' on line ' + str(reader.line_num))
             items.append(row)
 
+        if primary_key_field:
+            duplicate_result: CsvStatus = contains_duplicates(items=items, primary_key_field=primary_key_field)
+
+            if not duplicate_result.valid and duplicate_result.data:
+                return duplicate_result
     if items:
         return CsvStatus(valid=True, error_message=None, data=items)
     else:

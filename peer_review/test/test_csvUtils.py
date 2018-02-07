@@ -14,6 +14,7 @@ class CsvUtilsTest(TestCase):
 
     TODO(egeldenhuys): Test styles independently
     TODO(egeldenhuys): Test if `headers` not in `fields` are ignored
+    TODO(egeldenhuys): Test duplicate user ids
     """
 
     def setUp(self):
@@ -27,7 +28,7 @@ class CsvUtilsTest(TestCase):
         # Pass when all fields are also in the csv header
         # Pass when there are spaces after the ',' delimiter
         result: csv_utils.CsvStatus = csv_utils.validate_csv(
-            self.fields, self.csv_dir + '/valid.csv')
+                self.fields, self.csv_dir + '/valid.csv')
         self.assertEqual(result.valid, True,
                          "Could not find all the fields in csv header")
 
@@ -40,12 +41,12 @@ class CsvUtilsTest(TestCase):
 
         # Pass when there are extra fields in the csv header
         result = csv_utils.validate_csv(
-            self.fields, self.csv_dir + '/valid_header_extra.csv')
+                self.fields, self.csv_dir + '/valid_header_extra.csv')
         self.assertEqual(result.valid, True)
 
     def test_user_validation(self):
         result: csv_utils.CsvStatus = csv_utils.validate_csv(
-            self.fields, self.csv_dir + '/valid_users.csv')
+                self.fields, self.csv_dir + '/valid_users.csv')
         self.assertEqual(result.valid, True)
         self.assertNotEqual(result.data, None)
         self.assertEqual(len(result.data), 3)
@@ -85,14 +86,14 @@ class CsvUtilsTest(TestCase):
 
     def test_no_users(self):
         result: csv_utils.CsvStatus = csv_utils.validate_csv(
-            self.fields, self.csv_dir + '/no_users.csv')
+                self.fields, self.csv_dir + '/no_users.csv')
         self.assertEqual(result.valid, False)
         self.assertNotEqual(result.error_message, None)
         self.assertEqual(result.data, None)
 
     def test_invalid_row(self):
         result: csv_utils.CsvStatus = csv_utils.validate_csv(
-            self.fields, self.csv_dir + '/invalid_row.csv')
+                self.fields, self.csv_dir + '/invalid_row.csv')
         self.assertEqual(result.valid, False)
         self.assertNotEqual(result.error_message, None)
         self.assertEqual(result.data, None)
@@ -105,7 +106,7 @@ class CsvUtilsTest(TestCase):
 
     def test_styles(self):
         result: csv_utils.CsvStatus = csv_utils.validate_csv(
-            self.fields, self.csv_dir + '/valid_style.csv')
+                self.fields, self.csv_dir + '/valid_style.csv')
         self.assertEqual(result.valid, True)
 
         user2: Dict[str, str] = dict()
@@ -118,3 +119,21 @@ class CsvUtilsTest(TestCase):
         user2['user_id'] = 'johny'
 
         self.assertDictEqual(result.data[0], user2)
+
+    def test_primary_key(self):
+        result: csv_utils.CsvStatus = csv_utils.validate_csv(
+                ['user_id', 'name'], self.csv_dir + '/invalid_duplicate_pk.csv',
+                primary_key_field='user_id')
+        self.assertEqual(result.valid, False)
+        self.assertNotEqual(result.error_message, '')
+        self.assertNotEqual(result.error_message, None)
+        self.assertNotEqual(result.data, None)
+
+        self.assertEqual(len(result.data), 1)
+        self.assertEqual(result.data[0]['user_id'], 'fred')
+        self.assertEqual(result.data[0]['name'], 'The Fred')
+
+        result: csv_utils.CsvStatus = csv_utils.validate_csv(
+                self.fields, self.csv_dir + '/valid_users.csv', primary_key_field='user_id')
+        self.assertEqual(result.valid, True)
+        self.assertNotEqual(result.data, None)

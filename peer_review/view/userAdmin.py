@@ -11,6 +11,7 @@ from peer_review.models import User, Document
 from peer_review.view.userManagement import create_user_send_otp
 from peer_review.modules.csv_utils import CsvStatus
 import peer_review.modules.csv_utils as csv_utils
+import  django.core.exceptions
 
 # TODO(egeldenhuys): Rename this module to relate to user CSV upload
 # TODO(egeldenhuys): Test the functions in this module
@@ -171,7 +172,7 @@ def user_exists(user_id: str) -> bool:
     try:
         user = User.objects.get(user_id=user_id)
         return bool(user)
-    except Exception:
+    except django.core.exceptions.ObjectDoesNotExist:
         # User does not exist
         pass
 
@@ -226,7 +227,7 @@ def submit_csv(request) -> HttpResponse:
         # [1:] Strip the leading /
         file_path: str = csv_file.doc_file.url[1:]
 
-        result: CsvStatus = csv_utils.validate_csv(fields, file_path=file_path)
+        result: CsvStatus = csv_utils.validate_csv(fields, file_path=file_path, primary_key_field='user_id')
 
         if result.valid:
             existing_users: List[Dict[str, str]] = list()
@@ -247,6 +248,9 @@ def submit_csv(request) -> HttpResponse:
                 context_data['error_code'] = 0
                 context_data['request_id'] = path_leaf(csv_file.doc_file.url)
         else:
+            if result.data:
+                context_data['possible_users'] = result.data
+
             context_data['message'] = result.error_message
             context_data['error_code'] = 1
 
