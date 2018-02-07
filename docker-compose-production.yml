@@ -11,7 +11,7 @@ services:
   nginx:
     build: ./docker_images/production/nginx/
     ports:
-      - "80:80"
+      - "80:8000"
     volumes:
       - .:/app
     depends_on:
