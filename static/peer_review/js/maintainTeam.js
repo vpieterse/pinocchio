@@ -294,7 +294,7 @@ var PageHandler = function() {
         self.userHandler.init();
         self.roundHandler = new RoundHandler(self.roundDropdownSelector, self.userHandler);
         self.roundHandler.init();
-        $("#addTeam").parent("h4").parent("div").on("click", self.addTeamClick);
+        $("#addTeam").parent("div").on("click", self.addTeamClick);
 
         // It is possible that the round dropdown comes pre-selected. Thus, fire the "change" event
         // on the dropdown to ensure page is loaded correctly
