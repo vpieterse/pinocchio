@@ -68,7 +68,6 @@ def confirm_csv(request) -> HttpResponse:
     context_data: Dict[str, Any] = init_context_data()
 
     if request.method == 'POST':
-        print(request.POST)
         if 'request_id' in request.POST and 'confirm' in request.POST:
             request_id: str = str(request.POST['request_id'])
             confirm: int = int(request.POST['confirm'])

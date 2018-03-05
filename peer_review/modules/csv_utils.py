@@ -1,8 +1,10 @@
 """Functions for parsing and validating CSV files"""
 
 from typing import Dict, List
+import logging
 import csv
 
+logger = logging.getLogger(__name__)
 
 class CsvStatus(object):
     """Holds information on the validity of the csv file and the returned data
@@ -44,7 +46,12 @@ def validate_header(csv_file, fields: List[str]) -> CsvStatus:
     """
     csv_file.seek(0)
     reader = csv.reader(csv_file, fields, skipinitialspace=True)
-    header: List[str] = next(reader)
+
+    try:
+        header: List[str] = next(reader)
+    except UnicodeDecodeError as e:
+        logger.error('Failed to decode byte as utf-8 in CSV file', exc_info=1)
+        return CsvStatus(valid=False, error_message=str(e))
 
     for item in fields:
         if item not in header:
@@ -100,7 +107,7 @@ def contains_duplicates(items: List[Dict[str, str]], primary_key_field: str) -> 
 
     if duplicates:
         return CsvStatus(valid=False,
-                         error_message='CSV file contains duplicate primary keys',
+                         error_message='CSV file contains duplicate primary keys.',
                          data=duplicates)
     else:
         return CsvStatus(valid=True, data=None)
@@ -130,21 +137,28 @@ def validate_csv(fields: List[str], file_path: str, primary_key_field:str = None
         # Try parsing csv into tuples according to the given fields
         items: List[Dict[str, str]] = list()
 
-        for row in reader:
-            # Make sure all fields were found in the row
-            for key, value in row.items():
-                if not value:
-                    return CsvStatus(
-                        valid=False,
-                        error_message='No value found for key '
-                        '\'' + key + '\' on line ' + str(reader.line_num))
-            items.append(row)
+        try:
+            for row in reader:
+                # Make sure all fields were found in the row
+                for key, value in row.items():
+                    if not value:
+                        return CsvStatus(
+                            valid=False,
+                            error_message='No value found for key '
+                            '\'' + key + '\' on line ' + str(reader.line_num))
+                items.append(row)
+        except UnicodeDecodeError:
+            logger.error('Failed to decode byte as utf-8 in CSV file at line {0}'.format(reader.line_num),
+                         exc_info=1)
+            return CsvStatus(valid=False,
+                             error_message='Invalid byte at line {0}: Cannot decode as utf-8'.format(reader.line_num))
 
         if primary_key_field:
             duplicate_result: CsvStatus = contains_duplicates(items=items, primary_key_field=primary_key_field)
 
             if not duplicate_result.valid and duplicate_result.data:
                 return duplicate_result
+
     if items:
         return CsvStatus(valid=True, error_message=None, data=items)
     else:
