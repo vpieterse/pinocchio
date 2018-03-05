@@ -125,6 +125,9 @@ def validate_csv(fields: List[str], file_path: str, primary_key_field:str = None
     Returns:
         A 'CsvStatus' object indicating the state of the csv file
         and the data if it was valid
+
+    Note:
+        Prints an exception message when there is a UnicodeDecodeError
     """
     with open(file_path) as csv_file:
         header_result = validate_header(csv_file, fields)

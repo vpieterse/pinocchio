@@ -150,7 +150,7 @@ class CsvUtilsTest(TestCase):
         self.assertEqual(result.error_message, None)
         # TODO(egeldenhuys): Test returned data
 
-    # TODO(egeldenhuys): Hide exception messa
+    # The exception message is only a message, nothing crashed.
     def test_corrupt(self):
         result: csv_utils.CsvStatus = csv_utils.validate_csv(
                 fields=self.fields,
