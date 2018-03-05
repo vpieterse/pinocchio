@@ -179,7 +179,7 @@ class Questionnaire(models.Model):
 class QuestionOrder(models.Model):
     questionnaire = models.ForeignKey(Questionnaire, on_delete=models.SET_NULL, null=True)
     question = models.ForeignKey(Question, on_delete=models.SET_NULL, null=True)
-    questionGrouping = models.ForeignKey(QuestionGrouping, default=4) # default: None
+    questionGrouping = models.ForeignKey(QuestionGrouping, default=4, on_delete=models.SET_NULL, null=True) # default: None
     order = models.IntegerField(default=1)
 
     def __str__(self):
@@ -187,7 +187,7 @@ class QuestionOrder(models.Model):
 
 
 class Label(models.Model):
-    questionOrder = models.ForeignKey(QuestionOrder, on_delete=models.SET_NULL)
+    questionOrder = models.ForeignKey(QuestionOrder, on_delete=models.SET_NULL, null=True)
     labelText = models.CharField(max_length=200)
 
     def __str__(self):

@@ -9,7 +9,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('peer_review', '0032_auto_20170714_0818'),
+        ('peer_review', '0001_initial')
     ]
 
     operations = [
