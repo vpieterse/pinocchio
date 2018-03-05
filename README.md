@@ -13,7 +13,7 @@ Pinocchio is a system which should assist researchers, and group managers to mon
 - _(Recommended)_ Create a new Python 3 virtual environment
     - Create it: `python3 -m venv ./environment`
     - Activate it: `source ./environment/bin/activate`
-- Install Django **1.11** and other packages
+- Install Django **2.01** and other packages
     - `pip install -r ./requirements.txt`
 - Apply Database Migrations
     - `python manage.py migrate`

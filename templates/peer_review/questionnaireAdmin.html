@@ -82,7 +82,7 @@ Todo:
                                                 <td class="question-type">{{ question.questionType.name }}</td>
                                                 <td class="question-grouping-select" align="center">
                                                     <div class="dropdown">
-                                                      <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" id="group-select-{{ question.pk }}">Select Grouping <span class="caret"></span></button>
+                                                      <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" id="group-select-{{ question.pk }}">Select Grouping</button>
                                                       <ul class="dropdown-menu" id="groups">
                                                         {% for grup in questgrouping %}
                                                             <li class="list-group-item" id="group-select-{{ grup }}-{{ question.pk }}" align="center"><a style="cursor: pointer" onclick="changeGrouping('{{ grup }}', {{ question.pk }})">{{ grup }}</a></li>
