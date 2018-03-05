@@ -6,10 +6,10 @@
         d = new Date();
         var batch_id = d.getTime()+ "" + batch_num;
         batch_num++;
-        $("#{{ q.id }}").find("input:checked").each( function(i, choiceItem)
+        $("#{{ q.question.id }}").find("input:checked").each( function(i, choiceItem)
         {
             var json = {
-                'questionPk': {{ q.id }},
+                'questionPk': {{ q.question.id }},
                 'roundPk': roundPk,
                 'label': choiceItem.dataset.labelid,
                 'answer': choiceItem.value,
@@ -22,55 +22,62 @@
     })
 
     $('document').ready(function() {
-        getResponses({{ q.id }}, function (responses)
+        {% if not preview %}
+        getResponses({{ q.question.id }}, function (responses)
         {
             if (responses.answers.length !== 0)
             {
-                {% if q.questionGrouping.grouping == "None" %}
-                    $("#{{ q.id }}").find('[value="'+responses.answers[0]+'"]').prop('checked', true);
+                {% if grouping == "None" %}
+                    $("#{{ q.question.id }}").find('[value="'+responses.answers[0]+'"]').prop('checked', true);
                 {% else %}
                 for (var x = 0; x < responses.answers.length; x++) {
-                    $("#{{ q.id }}").find('*[data-labelid="'+responses.labelOrUserIds[x]+'"]').filter('[value="'+responses.answers[x]+'"]').prop('checked', true);
+                    $("#{{ q.question.id }}").find('*[data-labelid="'+responses.labelOrUserIds[x]+'"]').filter('[value="'+responses.answers[x]+'"]').prop('checked', true);
                 }
                {% endif %}
             } 
         });
+        {% endif %}
     })
 
 </script>
-<p><strong>{{ number|add:"1" }}</strong>. {{ q.questionText }}</p>
-{% if q.questionGrouping.grouping == "None" %}
-    {% for choice in q.get_choices %}
+<p><strong>{{ number|add:"1" }}</strong>. {{ q.question.questionText }}</p>
+{% if grouping == "None" %}
+    {% for choice in q.question.get_choices %}
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="{{ number }}" value="{{ choice }}" id="{{ number }}{{ choice }}"><label class="form-check-label" for="{{ number }}{{ choice }}">{{ choice.choiceText }}</label>
             </div>
     {% endfor %}
-{% elif q.questionGrouping.grouping == "Label" %}
-    {% for l in q.get_labels %}
-        <h4>{{ l.labelText }}</h4>
-        {% for choice in q.get_choices %}
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name = "{{ l.pk }} " data-labelid = "{{ l.pk }}" value="{{ choice }}" id="{{ choice }}{{ l.pk }}"><label class="form-check-label" for="{{ choice }}{{ l.pk }}">{{ choice.choiceText }}</label>
-            </div> 
+{% elif grouping == "Label" %}
+    {% for labl in lbls %}
+            {% ifequal labl.questionOrder.pk q.pk %}
+                <h4>{{ labl.labelText }}</h4>
+                {% for choice in q.question.get_choices %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name = "{{ labl.pk }} " data-labelid = "{{ labl.pk }}" value="{{ choice }}" id="{{ choice }}{{ labl.pk }}"><label class="form-check-label" for="{{ choice }}{{ labl.pk }}">{{ choice.choiceText }}</label>
+                    </div>
+                {% endfor %}
+            {% endifequal %}
         {% endfor %}
     {% endfor %}
-{% elif q.questionGrouping.grouping == "All" %}
+{% elif grouping == "All" %}
     {% for u in teamMembers %}
         <h4>{{ u.name }} {{ u.surname }}</h4>
-        {% for choice in q.get_choices %}
+        {% for choice in q.question.get_choices %}
             <div class="form-check">
-                <input class="form-check-input" type="radio" name = "{{ u.pk }}" data-labelid = "{{ u.pk }}" value="{{ choice }}" id="{{ u.pk }}{{ choice }}"><label class="form-check-label" for="{{ u.pk }}{{ choice }}>{{ choice.choiceText }}</label>
-            </div> 
+                <input class="form-check-input" type="radio" name = "{{ u.pk }}" data-labelid = "{{ u.pk }}" value="{{ choice }}" id="{{ u.pk }}{{ choice }}"><label class="form-check-label" for="{{ u.pk }}{{ choice }}">{{ choice.choiceText }}</label>
+            </div>
         {% endfor %}
     {% endfor %}
-{% elif q.questionGrouping.grouping == "Rest" %}
+{% elif grouping == "Rest" %}
     {% for u in teamMembers %}
-        <h4>{{ u.name }} {{ u.surname }}</h4>
-        {% for choice in q.get_choices %}
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name = "{{ u.pk }}{{q.pk}}"  data-labelid = "{{ u.pk }}" value="{{ choice }}" id="{{ u.pk }}{{ choice }}"><label class="form-check-label" for="{{ u.pk }}{{ choice }}>{{ choice.choiceText }}</label>
-            </div> 
-        {% endfor %}
+        {% if u != currentUser %}
+            <h4>{{ u.name }} {{ u.surname }}</h4>
+            {% for choice in q.question.get_choices %}
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name = "{{ u.pk }}{{q.pk}}"  data-labelid = "{{ u.pk }}" value="{{ choice }}" id="{{ u.pk }}{{ choice }}"><label class="form-check-label" for="{{ u.pk }}{{ choice }}">{{ choice.choiceText }}</label>
+                </div>
+            {% endfor %}
+        {% endif %}
     {% endfor %}
 {% endif %}
 <br/>

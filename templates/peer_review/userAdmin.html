@@ -8,97 +8,97 @@
 {% block context %}
     <div id="accordion">
         <div class="container">
-            {% if messages %}
-                {% for message in messages %}
-                <div class = "alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
-                {% endfor %}
-            {% endif %}
-            <div class="card my-3">
-                <div class="card-header" data-toggle="collapse"aria-expanded="true" data-target="#collapseOne" aria-controls="collapseOne">
+        {% if messages %}
+            {% for message in messages %}
+            <div class = "alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
+            {% endfor %}
+        {% endif %}
+        <div class="card my-3">
+            <div class="card-header" data-toggle="collapse" aria-expanded="true" data-target="#collapseOne"aria-controls="collapseOne">
                     User Registration <b class="caret"></b>
-                </div>
+                        </div>
                 {% if new_users or message or possible_users%}
-                    <div id="collapseOne" class="collapse" data-parent="#accordion">
+                    <div id="collapseOne" class="collapse " data-parent="#accordion">
                 {% else %}
-                    <div id="collapseOne" class="collapse show" data-parent="#accordion">
-                {% endif %}
+                <div id="collapseOne" class="collapse show" data-parent="#accordion">
+                    {% endif %}
                     <div class="card-body">
                         {% block content %}
-                            <form action="{%  url 'submitUserForm' %}" method="post"
-                                  onsubmit="return validateUserForm();" class="form-horizontal user-form" id="userForm"
-                                  role="form">
-                                {% csrf_token %}
-                                <div class="form-group row">
-                                    <!-- Title Input -->
-                                    <label for="title" class="col-sm-2 control-label">Title:</label>
+                        <form action="{%  url 'submitUserForm' %}" method="post"
+                              onsubmit="return validateUserForm();" class="form-horizontal user-form" id="userForm"
+                              role="form">
+                            {% csrf_token %}
+                            <div class="form-group row">
+                                <!-- Title Input -->
+                                <label for="title" class="col-sm-2 control-label">Title:</label>
 
-                                    <div class="col-sm-3">
-                                        {{ userForm.title }}
-                                    </div>
-
-                                    <!-- Initials Input -->
-                                    <label for="initials" class="col-sm-2 control-label">Initials:</label>
-
-                                    <div class="col-sm-3">
-                                        {{ userForm.initials }}
-                                    </div>
+                                <div class="col-sm-3">
+                                    {{ userForm.title }}
                                 </div>
 
-                                <div class="form-group row">
-                                    <!-- Firsts Name Input -->
-                                    <label for="firstName" class="col-sm-2 control-label">First Name:</label>
+                                <!-- Initials Input -->
+                                <label for="initials" class="col-sm-2 control-label">Initials:</label>
 
-                                    <div class="col-sm-3">
-                                        {{ userForm.name }}
-                                    </div>
+                                <div class="col-sm-3">
+                                    {{ userForm.initials }}
+                                </div>
+                            </div>
 
-                                    <!-- Surname Input -->
-                                    <label for="surname" class="col-sm-2 control-label">Surname:</label>
+                            <div class="form-group row">
+                                <!-- Firsts Name Input -->
+                                <label for="firstName" class="col-sm-2 control-label">First Name:</label>
 
-                                    <div class="col-sm-3">
-                                        {{ userForm.surname }}
-                                    </div>
+                                <div class="col-sm-3">
+                                    {{ userForm.name }}
                                 </div>
 
-                                <div class="form-group row">
-                                    <!-- Email Input -->
-                                    <label for="email" class="col-sm-2 control-label">Email:</label>
+                                <!-- Surname Input -->
+                                <label for="surname" class="col-sm-2 control-label">Surname:</label>
 
-                                    <div class="col-sm-3">
-                                        {{ userForm.email }}
-                                    </div>
+                                <div class="col-sm-3">
+                                    {{ userForm.surname }}
+                                </div>
+                            </div>
 
-                                    <!--Cell Number Input -->
-                                    <label for="cellNumber" class="col-sm-2 control-label">Cell Number:</label>
+                            <div class="form-group row">
+                                <!-- Email Input -->
+                                <label for="email" class="col-sm-2 control-label">Email:</label>
 
-                                    <div class="col-sm-3">
-                                        {{ userForm.cell }}
-                                    </div>
+                                <div class="col-sm-3">
+                                    {{ userForm.email }}
                                 </div>
 
-                                <div class="form-group row">
-                                    <!-- User Name Input -->
-                                    <label for="userName" class="col-sm-2 control-label">User Name</label>
+                                <!--Cell Number Input -->
+                                <label for="cellNumber" class="col-sm-2 control-label">Cell Number:</label>
 
-                                    <div class="col-sm-3">
-                                        {{ userForm.user_id }}
-                                    </div>
+                                <div class="col-sm-3">
+                                    {{ userForm.cell }}
+                                </div>
+                            </div>
 
-                                    <!-- Status Input -->
-                                    <label for="status" class="col-sm-2 control-label">Status:</label>
+                            <div class="form-group row">
+                                <!-- User Name Input -->
+                                <label for="userName" class="col-sm-2 control-label">User Name</label>
 
-                                    <div class="col-sm-3">
-                                        {{ userForm.status }}
-                                    </div>
+                                <div class="col-sm-3">
+                                    {{ userForm.user_id }}
                                 </div>
 
-                                <div class="form-group row">
-                                    <!-- Submit Button -->
-                                    <div class="col-sm-offset-2 col-sm-10">
-                                        <button type="submit" class="save btn btn-info" id="submitUser">Submit</button>
-                                    </div>
+                                <!-- Status Input -->
+                                <label for="status" class="col-sm-2 control-label">Status:</label>
+
+                                <div class="col-sm-3">
+                                    {{ userForm.status }}
                                 </div>
-                            </form>
+                            </div>
+
+                            <div class="form-group row">
+                                <!-- Submit Button -->
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="submit" class="save btn btn-info" id="submitUser">Submit</button>
+                                </div>
+                            </div>
+                        </form>
                         {% endblock %}
                     </div>
                 </div>
@@ -108,13 +108,22 @@
                 <div class="card-header" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
                     User Registration Via CSV File <b class="caret"></b>
                 </div>
-                {% if new_users or message or possible_users%}
-                    <div id="collapseTwo" class="collapse show" data-parent="#accordion">
-                {% else %}
-                    <div id="collapseTwo" class="collapse" data-parent="#accordion">
-                {% endif %}
+                <!-- TODO(egeldenhuys): rename message to something specific to CSV uploading.-->
+                <div id="collapseTwo" class="collapse {% if message or possible_users%}show{% endif %}">
+
                     <div class="card-body">
-                        <form class="col-md-6" action="{% url 'submitCSV' %}" method="post" enctype="multipart/form-data">
+                        <div>
+                            <strong>Example CSV</strong>:<br>
+                            <pre id="csv_example"></pre>
+                            <script>
+                                let str =
+                                    'title, initials, name, surname, email, cell, user_id\n' +
+                                    'Mr, JF, John, Bool, johnbool@example.com, 123456789, john';
+                                $('#csv_example').text(str);
+                            </script>
+                        </div>
+                        <form class="col-md-6" action="{% url 'submitCSV' %}" method="post"
+                              enctype="multipart/form-data">
                             {% csrf_token %}
                             <p>{{ docForm.non_field_errors }}</p>
 
@@ -124,141 +133,87 @@
                                 {{ docForm.doc_file.errors }}
                                 {{ docForm.doc_file }}
                             </div>
-
-                            <!-- Flag if upload is for testing or changing database
-                                    0: Upload and make changes
-                                    1: Only test input and display validation message
-                             -->
-                            <input name="test-submit-flag" type="hidden" value="0" id="test-submit-flag">
-
-                            <p><input type="submit" value="Test" class="btn btn-success" onclick="document.getElementById('test-submit-flag').value = 1"/>
-                            <input type="submit" value="Submit" class="btn btn-secondary" onclick="document.getElementById('test-submit-flag').value = 0"/></p>
+                            <input type="submit" value="Submit"/>
                         </form>
 
+                        <!-- TODO(egeldenhuys): Move Email template to different location -->
                         <form class="col-md-6" action="" method="post" enctype="multipart/form-data">
                             <p><label for="email_template">Email Template:</label></p>
-                            <input class="save btn btn-primary" type="button" data-toggle="modal" data-target="#editEmailTemplate" id="email_template" value="Edit">
+                            <input class="save btn btn-primary" type="button" data-toggle="modal"
+                                   data-target="#editEmailTemplate" id="email_template" value="Edit">
                         </form>
                     </div>
-                    {%  if new_users or possible_users %}
-                        <div class = "card-body">
-                            {% if new_users %}
-                                <div class="alert alert-success" role="alert">
-                                    <strong>Success!</strong> The following users were added:
-                                </div>
-                                {% for u in new_users %}
-                                    <em>{{ u.name }} ({{ u.initials }}) {{ u.surname }}</em>
-                                    <br>
-                                {% endfor %}
+                    <!-- existance of error_code indicates we recieved a response
+                    from the submit_csv() function -->
+                    {% if error_code != None %}
+                    <div class="card-body">
 
-                            {%  elif possible_users %}
-                                <div class="alert alert-warning" role="alert">
-                                    <strong>The CSV file is valid.</strong> The following users will be added:
-                                </div>
-                                <div class='table-responsive'>
-                                    <table class='table sortable'>
-                                        <thead>
-                                        <tr>
-                                            <th>Title</th>
-                                            <th>Initials</th>
-                                            <th>Name</th>
-                                            <th>Surname</th>
-                                            <th>Email</th>
-                                            <th>Cell</th>
-                                            <th>UserID</th>
-                                        </thead>
-                                        {% for row in possible_users %}
-                                            <tr>
-                                                <td>{{ row.title }}</td>
-                                                <td>{{ row.initials }}</td>
-                                                <td>{{ row.name }}</td>
-                                                <td>{{ row.surname }}</td>
-                                                <td>{{ row.email }}</td>
-                                                <td>{{ row.cell }}</td>
-                                                <td>{{ row.user_id }}</td>
-                                            </tr>
-                                        {% endfor %}
-                                    </table>
-                                </div>
+                        {% if error_code == 0 %}
+                        <div class="alert alert-success" role="alert">
+                            {{ message }}
+                        </div>
+
+                            {% if possible_users %}
+                            <!-- TODO(egeldenhuys): Add button to skip to bottom? -->
+                            <div class="alert alert-info" role="alert">
+                                Confirm the transaction at the bottom of the page
+                            </div>
                             {% endif %}
-                    {% endif %}
-                        {% if message %}
-                            <div class = "card-body">
-                                {% if error == 0 %}
-                                    <div class="alert alert-warning" role="alert">
-                                        <p>Something seems to be wrong with the CSV file.</p>
-                                    </div>
-                                    <p>The format should be:</p>
-                                    <p><em>title,initials,name,surname,email,cell,user_id</em></p>
-                                    <p>An example entry is <em>"Mr","M","Matthew","Botha","mmm@gmail.com","0123456789","14141414","S"</em></p>
-                                {% else %}
-                                    <div class="alert alert-danger" role="alert">
-                                        There is an error in the CSV, at line {{ message }}:
-                                {% endif %}
 
-                                {% if error == 2 %}
-                                    Not all fields contain values.
-                                    </div>
-                                {% elif error == 3 %}
-                                     Cell number is invalid.
-                                    </div>
-                                {% elif error == 4 %}
-                                    The following user already exists.
-                                    </div>
-                                    <div class='table-responsive'>
-                                        <table class='table'>
-                                            <thead>
-                                            <tr>
-                                                <th>Title</th>
-                                                <th>Initials</th>
-                                                <th>Name</th>
-                                                <th>Surname</th>
-                                                <th>Email</th>
-                                                <th>Cell</th>
-                                                <th>UserID</th>
-                                            </thead>
-                                            <tr>
-                                                <td>
-                                                    {{ row.0 }}
-                                                </td>
-                                                <td>
-                                                    {{ row.1 }}
-                                                </td>
-                                                <td>
-                                                    {{ row.2 }}
-                                                </td>
-                                                <td>
-                                                    {{ row.3 }}
-                                                </td>
-                                                <td>
-                                                    {{ row.4 }}
-                                                </td>
-                                                <td>
-                                                    {{ row.5 }}
-                                                </td>
-                                                <td>
-                                                    {{ row.6 }}
-                                                </td>
-                                                <td>
-                                                    {{ row.7 }}
-                                                </td>
-                                                <td>
-                                                    {{ row.8 }}
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                {% endif %}
-                            </div>
+                        {% else %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ message }}
+                        </div>
                         {% endif %}
-                        {%  if new_users or possible_users %}
-                            </div>
+
+                        {% if possible_users %}
+                        <div class='table-responsive'>
+                            <table class='table'>
+                                <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Initials</th>
+                                    <th>Name</th>
+                                    <th>Surname</th>
+                                    <th>Email</th>
+                                    <th>Cell</th>
+                                    <th>UserID</th>
+                                </thead>
+                                {% for row in possible_users %}
+                                <tr>
+                                    <td>{{ row.title }}</td>
+                                    <td>{{ row.initials }}</td>
+                                    <td>{{ row.name }}</td>
+                                    <td>{{ row.surname }}</td>
+                                    <td>{{ row.email }}</td>
+                                    <td>{{ row.cell }}</td>
+                                    <td>{{ row.user_id }}</td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
                         {% endif %}
+
+                        {% if error_code == 0 and possible_users %}
+                        <form action="{% url 'submitCSV_confirm' %}" method="post"
+                              enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            <input type="hidden" name="request_id" value="{{request_id}}"><br>
+                            <input id="confirm" type="hidden" name="confirm" value="0"><br>
+
+                            <input type="submit" value="Cancel" onclick="document.getElementById('confirm').value='0'">
+                            <input type="submit" value="Confirm" onclick="document.getElementById('confirm').value='1'">
+                        </form>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 
             <div class="card my-3">
-                <div class="card-header" data-toggle="collapse" data-parent="#accordion" data-target="#collapseThree">
+                <div class="card-header" data-toggle="collapse" data-parent="#accordion"
+                     data-target="#collapseThree">
                     Maintain Users <b class="caret"></b>
                 </div>
 
@@ -288,33 +243,40 @@
                                 </thead>
                                 <tbody>
                                 {% for user in users %}
-                                    <tr id="user{{ user.pk }}">
-                                        <td data-id="user_id">{{ user.user_id }}</td>
-                                        <td data-id="title">{{ user.title }}</td>
-                                        <td data-id="initials">{{ user.initials }}</td>
-                                        <td data-id="name">{{ user.name }}</td>
-                                        <td data-id="surname">{{ user.surname }}</td>
-                                        <td data-id="cell">{{ user.cell }}</td>
-                                        <td data-id="email">{{ user.email }}</td>
-                                        <td data-id="status">{{ user.status }}</td>
-                                        <td>
-                                            <a class="btn btn-success btn-sm" href="/userAdmin/userProfile/{{ user.pk }}">R</a>
-                                        </td>
-                                        <td>
-                                            <button name="edit" class='btn btn-success btn-sm edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ user.user_id }}" data-pk="{{ user.pk }}">
-                                                &#9998;
-                                            </button>
-                                        </td>
+                                <tr id="user{{ user.pk }}">
+                                    <td data-id="user_id">{{ user.user_id }}</td>
+                                    <td data-id="title">{{ user.title }}</td>
+                                    <td data-id="initials">{{ user.initials }}</td>
+                                    <td data-id="name">{{ user.name }}</td>
+                                    <td data-id="surname">{{ user.surname }}</td>
+                                    <td data-id="cell">{{ user.cell }}</td>
+                                    <td data-id="email">{{ user.email }}</td>
+                                    <td data-id="status">{{ user.status }}</td>
+                                    <td>
+                                        <a class="btn btn-success btn-sm"
+                                           href="/userAdmin/userProfile/{{ user.pk }}">R</a>
+                                    </td>
+                                    <td>
+                                        <button name="edit" class='btn btn-success btn-sm edit'
+                                                data-toggle="modal" data-target="#editModal"
+                                                data-csrf='{{ csrf_token }}' data-id="{{ user.user_id }}"
+                                                data-pk="{{ user.pk }}">
+                                            &#9998;
+                                        </button>
+                                    </td>
 
-                                        <td>
-                                            <input type="checkbox" class="multiRemove" data-id="{{ user.user_id }}" data-pk="{{ user.pk }}">
-                                        </td>
-                                    </tr>
+                                    <td>
+                                        <input type="checkbox" class="multiRemove" data-id="{{ user.user_id }}"
+                                               data-pk="{{ user.pk }}">
+                                    </td>
+                                </tr>
                                 {% endfor %}
                                 </tbody>
                             </table>
                             <br>
-                            <button name="remove" id="remove" class='btn btn-warning pull-right' data-csrf="{{ csrf_token }}" data-id="{{ user.user_id }}" data-pk="{{ user.pk }}">
+                            <button name="remove" id="remove" class='btn btn-warning pull-right'
+                                    data-csrf="{{ csrf_token }}" data-id="{{ user.user_id }}"
+                                    data-pk="{{ user.pk }}">
                                 Delete Users
                             </button>
                         </div>
@@ -337,23 +299,27 @@
                         <div class="form-group">
                             <label for="user_id">Email Text:</label>
                             <p>
-                                Please use {first_name}, {last_name}, {otp}, {datetime} and {login} to indicate the positioning of the user's first name, last name, one time password,
+                                Please use {first_name}, {last_name}, {otp}, {datetime} and {login} to indicate the
+                                positioning of the user's first name, last name, one time password,
                                 time of registration and login details, example:<br><br>
-                                Hello {first_name} {last_name} your username is {login} and your OTP is {otp}. It expires in 7 days from {datetime}
+                                Hello {first_name} {last_name} your username is {login} and your OTP is {otp}. It
+                                expires in 7 days from {datetime}
                             </p>
                             <textarea id="emailText" rows="15" type="text" class="form-control" id="email_text">{{ email_text }}</textarea>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-success" data-csrf='{{ csrf_token }}' id="updateEmailConfirm" data-dismiss="modal">Update</button>
+                    <button class="btn btn-success" data-csrf='{{ csrf_token }}'
+                            id="updateEmailConfirm" data-dismiss="modal">Update
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="{% static "peer_review/search.js" %}"></script>
-    <script src="{% static "peer_review/validation.js" %}"></script>
+    <script src="{% static 'peer_review/search.js' %}"></script>
+    <script src="{% static 'peer_review/validation.js' %}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             const table = $("#users").DataTable({
@@ -428,6 +394,10 @@
             }
         });
 
+
+
+
+
     </script>
 
-{% endblock context %}
+    {% endblock context %}

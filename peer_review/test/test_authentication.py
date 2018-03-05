@@ -19,8 +19,7 @@ class AuthenticationTests(TestCase):
         self.question = Question.objects.create(questionText="Hey I'm a question",
                                                 questionLabel="I'm the label",
                                                 pubDate=datetime.now(timezone(timedelta(hours=2))),
-                                                questionType=QuestionType.objects.create(name="Rank"),
-                                                questionGrouping=QuestionGrouping.objects.create(grouping="ALL"))
+                                                questionType=QuestionType.objects.create(name="Rank"))
         start_date = datetime.now(timezone(timedelta(hours=2)))
         end_date = datetime.now(timezone(timedelta(hours=2)))
         self.round = RoundDetail.objects.create(name='test round', questionnaire=self.questionnaire,

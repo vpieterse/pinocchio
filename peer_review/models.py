@@ -103,14 +103,6 @@ class Rate(models.Model):
     optional = models.BooleanField(default=False)
 
 
-class Label(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.SET_NULL, null=True)
-    labelText = models.CharField(max_length=200)
-
-    def __str__(self):
-        return self.labelText
-
-
 class UserManager(BaseUserManager):
     def create_user(self, email, password, name, surname, **kwargs):
         user = self.model(
@@ -187,10 +179,19 @@ class Questionnaire(models.Model):
 class QuestionOrder(models.Model):
     questionnaire = models.ForeignKey(Questionnaire, on_delete=models.SET_NULL, null=True)
     question = models.ForeignKey(Question, on_delete=models.SET_NULL, null=True)
+    questionGrouping = models.ForeignKey(QuestionGrouping, default=4) # default: None
     order = models.IntegerField(default=1)
 
     def __str__(self):
         return self.question.questionLabel
+
+
+class Label(models.Model):
+    questionOrder = models.ForeignKey(QuestionOrder, on_delete=models.SET_NULL)
+    labelText = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.labelText
 
 
 class RoundDetail(models.Model):
