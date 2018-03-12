@@ -3,12 +3,12 @@
 Todo:
 	Fix search so that it searches multiple columns
     Filter question lists by type
-    Move grouping choice to questionnaireAdmin
 {% endcomment %}
 {% load staticfiles %}
 
 {% block extrahead %}
     <title>Question Admin</title>
+    <link rel="stylesheet" href="{% static "peer_review/css/snackbar.css" %}">
     <script>
         var title = "questionAdmin";
     </script>
@@ -21,6 +21,25 @@ Todo:
                 <div class="alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
             {% endfor %}
         {% endif %}
+        <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Confirm Delete</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p id="delete-msg"></p>
+                        <p id="delete-question" font-size="14pt"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <a class="btn btn-danger" onclick="$('#form-delete').submit()">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="snackbar"></div>
         <div class="panel-group" id="accordion">
             <div class="panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
@@ -35,9 +54,9 @@ Todo:
                             {% csrf_token %}
                             <fieldset class="form-group">
                                 <!-- Title -->
-                                <label for="question-title">Title</label>
+                                <label for="question-title" id="title-label">Title</label>
                                 <input type="text" name="question-title" class="form-control" id="question-title"
-                                    placeholder="Enter title" value="{{ question.questionLabel }}" required>
+                                    placeholder="Enter title" value="{{ question.questionLabel }}" autocomplete="off" required>
                                 <small class="text-muted">A short identifying name to be used in making questionnaires</small>
                             </fieldset>
                             <!-- Question Content -->
@@ -46,40 +65,18 @@ Todo:
                                 <textarea class="form-control" id="question-content" name="question-content" rows="3"
                                         style="resize:none;width:100%" required>{{ question.questionText }}</textarea>
                             </fieldset>
-                            <!-- Grouping/Type headings -->
+                            <!-- Type Headings -->
                             <div class="row">
                                 <div class="col-xs-6">
                                     <div class="pull-left">
-                                        <label>Question Grouping</label>
-                                    </div>
-                                </div>
-                                <div class="col-xs-6">
-                                    <div class="pull-right">
                                         <label>Question Type</label>
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
-                                <!-- Groupings -->
-                                <div class="col-xs-6">
-                                    <div class="btn-group pull-left" id="groupings">
-                                        <label class="btn btn-default active" onclick="changeGrouping('Rest')">
-                                            Rest
-                                        </label>
-                                        <label class="btn btn-default" onclick="changeGrouping('None')">
-                                            None
-                                        </label>
-                                        <label class="btn btn-default" onclick="changeGrouping('All')">
-                                            All
-                                        </label>
-                                        <label class="btn btn-default" onclick="changeGrouping('Label')">
-                                            Label
-                                        </label>
-                                    </div>
-                                </div>
                                 <!-- Types -->
                                 <div class="col-xs-6">
-                                    <div class="btn-group pull-right" id="types">
+                                    <div class="btn-group pull-left" id="types">
                                         <label class="btn btn-default active" onclick="changeType('Choice')">
                                             Choice
                                         </label>
@@ -98,7 +95,6 @@ Todo:
                                     </div>
                                 </div>
                             </div>
-                            <input type="hidden" name="question-grouping" id="question-grouping" value="Rest">
                             <input type="hidden" name="question-type" id="question-type" value="Choice">
                             <input type="hidden" id="question-choices" name="question-choices">
                             <input type="hidden" id="question-labels" name="question-labels">
@@ -109,7 +105,7 @@ Todo:
                             <div id="content">
                                 <div class="row">
                                     <div class="col-xs-6">
-                                        <small>Loading..</small>
+                                        <small>Loading...</small>
                                         <table class="table table-bordered">
                                             <thead>
                                             <tr>
@@ -124,11 +120,10 @@ Todo:
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="col-xs-6 labels-go-here">
-                                    </div>
                                 </div>
                             </div>
                             <br/>
+                            <div id="diverrors"></div>
                             <button type="submit" class="btn btn-primary">
                                 <span class="glyphicon glyphicon-ok"></span>
                                 Submit
@@ -156,9 +151,9 @@ Todo:
                         <input type="text" class="form-control" id="question-search"
                                placeholder="Start typing to search">
                         <small class="text-muted">Click the <span
-                                class="glyphicon glyphicon glyphicon-pencil text-primary"></span> icon to edit
+                                class="glyphicon glyphicon glyphicon-pencil text-muted"></span> icon to edit
                             questions, and the <span
-                                    class="glyphicon glyphicon glyphicon-remove-circle text-primary"></span> icon to
+                                    class="glyphicon glyphicon glyphicon-remove-circle text-muted"></span> icon to
                             remove questions. Note that questions that have been added to questionnaires cannot be
                             deleted.
                         </small>
@@ -167,11 +162,10 @@ Todo:
                         <thead>
                         <tr>
                             <th>Title</th>
-                            <th>Grouping</th>
                             <th>Type</th>
                             <th>Publish Date<span
-                                    class="glyphicon glyphicon glyphicon-remove-circle text-primary pull-right"
-                                    id="delete-many" onclick="deleteMany()" style="cursor:pointer"></th>
+                                    class="glyphicon glyphicon glyphicon-remove-circle text-danger pull-right"
+                                    id="delete-many" onclick="deleteMany()" style="cursor:pointer" data-toggle="modal" data-target="#confirm-delete"></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -184,7 +178,6 @@ Todo:
                                 id="{{ question.pk }}"
                             >
                                 <td>{{ question.title }}</td>
-                                <td>{{ question.grouping }}</td>
                                 <td>{{ question.type }}</td>
                                 <td>{{ question.date }}
                                     {% if question.inAQuestionnaire %}
@@ -192,7 +185,7 @@ Todo:
                                               title="This question has been used in a questionnaire and cannot be deleted."></span>
                                     {% else %}
                                         <span style="cursor: pointer" onclick="deleteQuestion('{{ question.pk }}')"
-                                              class="glyphicon glyphicon glyphicon-remove-circle pull-right text-primary"></span>
+                                              class="glyphicon glyphicon glyphicon-remove-circle pull-right text-danger" data-toggle="modal" data-target="#confirm-delete" title="Delete Question"></span>
                                     {% endif %}
                                     <span style="cursor: pointer" onclick="edit('{{ question.pk }}')"
                                           class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
@@ -218,7 +211,7 @@ Todo:
     <div id="Choice" class="hidden">
         <div class="row">
             <div class="col-xs-6">
-                <small class="text-muted">Click the <span class="glyphicon glyphicon-plus-sign text-primary"></span>
+                <small class="text-muted">Click the <span class="glyphicon glyphicon-plus-sign text-muted"></span>
                     icon to add choices.
                 </small>
                 <table class="table table-bordered" id="choice-table">
@@ -235,10 +228,10 @@ Todo:
                     {% for choice in choices %}
                         <tr class="text-center">
                             <td>
-                                <input type="text" placeholder="Enter choice" style="border:none;"
+                                <input type="text" placeholder="Enter Choice" style="border:none;"
                                        value="{{ choice }}"/>
                                 <span onclick="removeRow(this)"
-                                      class="glyphicon glyphicon-remove-circle pull-right text-primary"
+                                      class="glyphicon glyphicon-remove-circle pull-right text-danger"
                                       style="cursor:pointer"></span>
                                 <span onclick="moveRow(this)"
                                       class="glyphicon glyphicon-arrow-up pull-left text-primary"
@@ -251,8 +244,6 @@ Todo:
                     {% endfor %}
                     </tbody>
                 </table>
-            </div>
-            <div class="col-xs-6 labels-go-here">
             </div>
         </div>
     </div>
@@ -278,9 +269,6 @@ Todo:
                 </select>
                 <small>The type of answer the respondent is expected to give.</small>
             </div>
-            <div class="col-xs-2"></div>
-            <div class="col-xs-6 labels-go-here">
-            </div>
         </div>
     </div>
 
@@ -289,16 +277,11 @@ Todo:
         <div class="row">
             <div class="col-xs-6">
                 <input type="text" name="rank-first" class="form-control" placeholder="Enter top word"
-                       value="{{ rank.firstWord }}">
+                       value="{{ rank.firstWord }}" required>
             </div>
             <div class="col-xs-6">
                 <input type="text" name="rank-second" class="form-control" placeholder="Enter bottom word"
-                       value="{{ rank.secondWord }}">
-            </div>
-        </div>
-        <div class="row">
-            <br/>
-            <div class="col-xs-6 labels-go-here">
+                       value="{{ rank.secondWord }}" required>
             </div>
         </div>
     </div>
@@ -308,42 +291,20 @@ Todo:
         <div class="row">
             <div class="col-xs-6">
                 <input type="text" name="rate-first" class="form-control" placeholder="Enter first value"
-                       value="{{ rate.topWord }}">
+                       value="{{ rate.topWord }}" required>
             </div>
             <div class="col-xs-6">
                 <input type="text" name="rate-second" class="form-control" placeholder="Enter second value"
-                       value="{{ rate.bottomWord }}">
+                       value="{{ rate.bottomWord }}" required>
             </div>
         </div>
         <br>
         <div class="row">
-            <div class="col-xs-6 labels-go-here">
-            </div>
             <div class="col-xs-6">
                 <label>Optional: <input type="checkbox" name="rate-optional" value="a" {% if rate.optional %}
                                         checked {% endif %}></label>
             </div>
         </div>
-    </div>
-
-    <!-- Label table -->
-    <div class="hidden" id="label-table">
-        <small class="text-muted">Click the <span class="glyphicon glyphicon-plus-sign text-primary"></span> icon to add
-            labels.
-        </small>
-        <table class="table table-bordered" id="labeltable">
-            <thead>
-            <tr>
-                <th class="text-center">
-                    <span>Labels</span>
-                    <span style="cursor: pointer" onclick="addRowToTable(this)"
-                          class="glyphicon glyphicon-plus-sign pull-right text-primary"></span>
-                </th>
-            </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
     </div>
     <script>
 
@@ -352,34 +313,13 @@ Todo:
             $('#types > label:contains("' + type + '")').addClass('active');
             $('#question-type').val(type);
             $('#content').html($('#' + type).html());
-            $('#groupings').find('label').show(100);
-            if (type == 'Label') {
-                changeGrouping('None');
-                $('#groupings').find('label').not(":eq(1)").hide(100);
-            } else if (type == 'Rank') {
-                if ($('#groupings').find('label').eq(1).hasClass('active')) {
-                    changeGrouping('Rest');
-                }
-                $('#groupings').find('label').eq(1).hide(100);
-            }
-        }
-
-        function changeGrouping(group) {
-            $('#groupings > label').removeClass('active');
-            $('#groupings > label:contains("' + group + '")').addClass('active');
-            $('#question-grouping').val(group);
-            if (group == 'Label') {
-                $('.labels-go-here').show(100);
-            } else {
-                $('.labels-go-here').hide(100);
-            }
         }
 
         //** Functions used for table manipulations **//
         function addRowToTable(el) {
             var row = $('<td></td>');
-            row.append('<input type="text" placeholder="Enter choice" style="border:none;"/>');
-            row.append('<span onclick="removeRow(this)" class = "glyphicon glyphicon-remove-circle pull-right text-primary" style="cursor:pointer"></span>');
+            row.append('<input type="text" placeholder="Enter Choice" style="border:none;" required/>');
+            row.append('<span onclick="removeRow(this)" class = "glyphicon glyphicon-remove-circle pull-right text-danger" style="cursor:pointer"></span>');
             row.append('<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-up pull-left text-primary" style="cursor:pointer"></span>');
             row.append('<span onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-down pull-left text-primary" style="cursor:pointer"></span>');
 
@@ -387,12 +327,6 @@ Todo:
             row.wrap('<tr></tr>');
             row.addClass('text-center');
             return row;
-        }
-
-        function addLabel(labelText) {
-            row = addRowToTable($('#content').find('#labeltable')[0]);
-            $(row).find('input').val(labelText);
-
         }
 
         function removeRow(el) {
@@ -407,31 +341,93 @@ Todo:
                 row.next().after(row);
         }
 
+        function closeErrors() {
+            setTimeout(function () {
+                $(".alert").fadeTo(500, 0).slideUp(500, function(){
+                    $(this).remove(); 
+                });
+            }, 3000);
+        }
+
+        function showSnackbar(msg) {
+            $("#snackbar").html(msg);
+            $("#snackbar").addClass("show");
+            setTimeout(function() {
+                $("#snackbar").removeClass("show");
+            }, 3000);
+        }
+
+        function checkIfExist() {
+            var exists = false;
+            $.ajax({
+                url: "/questionAdmin/check",
+                type: "POST",
+                async: false,
+                data: {'title': $("#question-title").val(), 'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').prop('value')},
+                dataType: "json",
+                success: function (data) {
+                    if (data.result === 1)
+                        exists = true;
+                },
+                failure: function () {
+                    exists = true;
+                },
+                error: function () {
+                    exists = true;
+                },
+                timeout: 3000 // 3 Second timeout
+            });
+            return exists;
+        }
+
         function save(event) {
-            if ($('#question-type').val() == "Rank" && $('#question-grouping').val() == "Label") {
-                if ($('#labeltable > tbody > tr > td > input').size() < 2) {
-                    a = $('.container').eq(1).prepend('<div class = "alert alert-warning">Error: Rank with label grouping needs at least two labels.</div>');
-                    setTimeout(function () {
-                        $('.container').eq(1).find('.alert').hide(100);
-                    }, 5000);
-                    return false;
+            {% if question %}
+                if ($('#question-type').val() == "Choice") {
+                    var choices = "";
+                    $('#content').find('#choice-table > tbody > tr > td > input').each(function (i, el) {
+                        choices += el.value.trim() + ';#';
+                    });
+                    $('#question-choices').val(choices.slice(0, -2));
+                    if (choices == "") {
+                        $("#diverrors").html("<div class=\"alert alert-danger\">Please enter choices</div>");
+                        closeErrors();
+                        return false;
+                    } else if ((choices.split(";#").length - 1) < 2) {
+                        $("#diverrors").html("<div class=\"alert alert-danger\">Please enter at least two choices</div>");
+                        closeErrors();
+                        return false;
+                    }
                 }
-            }
-            if ($('#question-type').val() == "Choice") {
-                var choices = "";
-                $('#content').find('#choice-table > tbody > tr > td > input').each(function (i, el) {
-                    choices += el.value + ';#';
-                });
-                $('#question-choices').val(choices.slice(0, -2));
-            }
-            if ($('#question-grouping').val() == "Label") {
-                var labels = "";
-                $('#labeltable > tbody > tr > td > input').each(function (i, el) {
-                    labels += el.value + ';#';
-                });
-                $('#question-labels').val(labels.slice(0, -2));
-            }
-            return true;
+                $("#question-title").removeAttr("disabled");
+                return true;
+            {% else %}
+                if(checkIfExist()) {
+                    $('html, body').animate({
+                            scrollTop: $("#title-label").offset().top
+                        }, 500);
+                    $("#question-title").select();
+                    showSnackbar("<strong>Error:</strong> A question with that title already exists.");
+                    return false;
+                } else {
+                    if ($('#question-type').val() == "Choice") {
+                        var choices = "";
+                        $('#content').find('#choice-table > tbody > tr > td > input').each(function (i, el) {
+                            choices += el.value.trim() + ';#';
+                        });
+                        $('#question-choices').val(choices.slice(0, -2));
+                        if (choices == "") {
+                            $("#diverrors").html("<div class=\"alert alert-danger\">Please enter choices</div>");
+                            closeErrors();
+                            return false;
+                        } else if ((choices.split(";#").length - 1) < 2) {
+                            $("#diverrors").html("<div class=\"alert alert-danger\">Please enter at least two choices</div>");
+                            closeErrors();
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            {% endif %}
         }
 
         function edit(pk) {
@@ -439,45 +435,61 @@ Todo:
         }
 
         function empty() {
-            $('.labels-go-here').html($('#label-table').html());
             $('#content').html($('#' + $('#question-type').val()).html());
             {% if question %}
                 window.location = '/questionAdmin/';
             {% endif %}
-
+            $('html, body').animate({
+                    scrollTop: $(".container").offset().top
+                }, 300);
         }
 
         function deleteQuestion(pk) {
+            var strcnf = "";
             $('#question-pk').val(pk);
-            $('#form-delete').submit();
+            {% for quest in questions %}
+                if ("{{ quest.pk }}" == pk) {
+                    strcnf = "{{ quest.title }}";
+                }
+            {% endfor %}
+            $('#delete-msg').html('You are about to delete the following question, this procedure is irreversible.');
+            $('#delete-question').html('<strong>' + strcnf + '</strong>');
         }
 
         function deleteMany() {
             var pks = "";
+            var strcnf = "";
             $('#question-list > tbody > tr.active').each(function (i, el) {
+                {% for quest in questions %}
+                    if ("{{ quest.pk }}" == el.id) {
+                        strcnf += "{{ quest.title }}<br/>";
+                    }
+                {% endfor %}
                 pks += el.id + ';#';
             });
             $('#question-pk').val(pks.slice(0, -2));
-            $('#form-delete').submit();
-
+            $('#delete-msg').html('You are about to delete the following questions, this procedure is irreversible.');
+            $('#delete-question').html('<strong>' + strcnf + '</strong>');
         }
 
         $(document).ready(function () {
-            $('.labels-go-here').hide();
-            $('.labels-go-here').html($('#label-table').html());
             {% if question %}
                 changeType('{{ question.questionType }}');
-                changeGrouping('{{ question.questionGrouping }}');
-                {% for label in labels %}
-                addLabel("{{label}}");
-                {% endfor %}
+                $('#types > label').addClass('disabled');
+                $('#types > label:contains("{{ question.questionType }}")').removeClass('disabled');
+                $('#types > label:contains("{{ question.questionType }}")').addClass('active');
+                $("#question-title").attr("disabled", "disabled");
             {% else %}
                 changeType('Choice');
+                $('#types > label').removeClass('disabled');
+                $("#question-title").removeAttr("disabled");
             {% endif %}
             //Hide alerts
             setTimeout(function () {
-                $('.alert').hide(100);
-            }, 10000);
+                $(".alert").fadeTo(500, 0).slideUp(500, function(){
+                    $(this).remove(); 
+                });
+            }, 5000);
             //ToDo: Search the other columns as well
             $("#question-search").keyup(function () {
                 var value = this.value;
@@ -502,6 +514,13 @@ Todo:
                 }
 
             });
+            // Disable Enter key
+            $(window).keydown(function(event){
+                if(event.keyCode == 13) {
+                  event.preventDefault();
+                  return false;
+                }
+              });
         })
 
     </script>

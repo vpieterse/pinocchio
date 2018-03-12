@@ -1,5 +1,7 @@
-$(document).on("ready", function() {
-    $(".edit").on("click", function () {
+// Call this function with the jQuery object representing the
+// DOM element from which to start searching for the user's fields
+function editUserHookUpdateButtons(jQueryObject) {
+    jQueryObject.find(".edit").on("click", function () {
         var pk = $(this).data("pk");
         $("#more").attr("data-pk", pk);
         var token = $(this).data("csrf");
@@ -31,15 +33,15 @@ $(document).on("ready", function() {
             e_status.val("");
         }
 
-        if(!isAdmin) {
+        if (!isAdmin) {
             e_status.prop("disabled", true);
-        } else if(userPK == pk) {
+        } else if (userPK == pk) {
             $("#resetPassword").show();
         } else {
             $("#resetPassword").hide();
         }
 
-        $("#updateConfirm").on("click", function () {
+        $("#updateConfirm").unbind('click').on("click", function () {
             var uStatus = "";
 
             if (e_status.val() == "User") {
@@ -77,4 +79,4 @@ $(document).on("ready", function() {
             });
         });
     });
-});
+};

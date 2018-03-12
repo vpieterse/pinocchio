@@ -32,9 +32,6 @@
 {% block context %}
     {% csrf_token %}
     <div class="container">
-        <div id="results" class="row">
-            {# The success or failure message will display here #}
-        </div>
         <div class="panel panel-default">
             <div class="panel-heading">
                 {{ questionnaire.intro|safe }}
@@ -43,23 +40,23 @@
                 <div id="{{ q.question.id }}" class="panel-body">
                     {# Label #}
                     {% ifequal q.question.questionType.name 'Label' %}
-                        {% include "peer_review/questions/labelQuestion.html" with q=q.question number=q.order %}
+                        {% include "peer_review/questions/labelQuestion.html" with number=q.order grouping=q.questionGrouping.grouping %}
                     {% endifequal %}
                     {# Rate #}
                     {% ifequal q.question.questionType.name 'Rate' %}
-                        {% include "peer_review/questions/rateQuestion.html" with q=q.question number=q.order %}
+                        {% include "peer_review/questions/rateQuestion.html" with number=q.order grouping=q.questionGrouping.grouping %}
                     {% endifequal %}
                     {# Rank #}
                     {% ifequal q.question.questionType.name 'Rank' %}
-                        {% include "peer_review/questions/rankQuestion.html"  with q=q.question number=q.order %}
+                        {% include "peer_review/questions/rankQuestion.html"  with number=q.order grouping=q.questionGrouping.grouping %}
                     {% endifequal %}
                     {# Choice #}
                     {% ifequal q.question.questionType.name 'Choice' %}
-                        {% include "peer_review/questions/choiceQuestion.html"  with q=q.question number=q.order %}
+                        {% include "peer_review/questions/choiceQuestion.html"  with number=q.order  grouping=q.questionGrouping.grouping %}
                     {% endifequal %}
                     {# Freeform #}
                     {% ifequal q.question.questionType.name 'Freeform' %}
-                        {% include "peer_review/questions/freeformQuestion.html"  with q=q.question number=q.order %}
+                        {% include "peer_review/questions/freeformQuestion.html"  with number=q.order grouping=q.questionGrouping.grouping %}
                     {% endifequal %}
                     <hr/>
                 </div>
@@ -67,7 +64,14 @@
             {% if not preview %}
             <div class="panel-body">
                 <button class='btn btn-success' onclick="saveProgress()">Save Progress</button>
+                <span id="results">
+                        {# The success or failure message will display here #}
+                    </span>
             </div>
+            {% else %}
+                <div class="panel-body">
+                    <button class='btn btn-primary pull-right' onclick="exitPreview()">Close Preview</button>
+                </div>
             {% endif %}
         </div>
     </div>
@@ -75,13 +79,13 @@
     <script>
         $(document).ready(function () {
             tinymce.init({ selector:'.tinymce',
-                statusbar: false, 
+                statusbar: false,
                 menubar: '',
                 plugins: "emoticons",
                 toolbar: 'undo redo bold italiclignleft aligncenter alignright bullist numlist outdent indent styleselect fontsizeselect emoticons image a'});
 
             //Enables moving the labels in a rank question
-            $('.rankTable').on("click", '.move', function () {                
+            $('.rankTable').on("click", '.move', function () {
                 var row = $(this).closest('tr');
                 if ($(this).hasClass('up'))
                     row.prev().before(row);
@@ -95,36 +99,40 @@
                 saveFunctions[x]();
         }
 
+        function exitPreview() {
+            window.close();
+        }
+
         //Tell the user whether the save succeeded or failed.
         function showFailure(failed){
             if (failed)
             //Show failure message
-                $('#results').html('<div class="alert alert-danger">Error: One or more answers failed to save</div>');
+                $('#results').html('<span class="alert alert-danger">Error: One or more answers failed to save</span>');
             else
             //Show success message
-                $('#results').html('<div class="alert alert-success">Progress successfully saved!</div>');
+                $('#results').html('<span class="alert alert-success">Progress successfully saved!</span>');
             window.location= "#";
             //Make the alert box disappear after 5 seconds
             window.setTimeout(function () {
-                $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                $(".alert").fadeTo(500, 0, function () {
                     $(this).remove();
                 });
             }, 5000);
         }
-        
+
 
         {% if not preview %}
 
         function showSuccessMessage(failed) {
             if (failed)
             //Show failure message
-                $('#results').html('<div class="alert alert-danger">Error: One or more answers failed to save</div>');
+                $('#results').html('<span class="alert alert-danger">Error: One or more answers failed to save</span>');
             else
             //Show success message
-                $('#results').html('<div class="alert alert-success">Progress successfully saved!</div>');
+                $('#results').html('<span class="alert alert-success">Progress successfully saved!</span>');
             //Make the alert box disappear after 5 seconds
             window.setTimeout(function () {
-                $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                $(".alert").fadeTo(500, 0, function () {
                     $(this).remove();
                 });
             }, 5000);

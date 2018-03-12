@@ -1,0 +1,30 @@
+[
+  {
+    "model": "peer_review.questiongrouping",
+    "pk": 1,
+    "fields": {
+      "grouping": "Rest"
+    }
+  },
+  {
+    "model": "peer_review.questiongrouping",
+    "pk": 2,
+    "fields": {
+      "grouping": "All"
+    }
+  },
+  {
+    "model": "peer_review.questiongrouping",
+    "pk": 3,
+    "fields": {
+      "grouping": "Label"
+    }
+  },
+  {
+    "model": "peer_review.questiongrouping",
+    "pk": 4,
+    "fields": {
+      "grouping": "None"
+    }
+  }
+]

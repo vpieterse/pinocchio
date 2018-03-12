@@ -3,11 +3,12 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from peer_review.view.maintainTeam import maintain_team, get_teams_for_round, change_user_team_for_round, \
-    change_team_status, submit_team_csv, get_teams
-from peer_review.view.questionAdmin import save_question, edit_question, question_admin, delete_question
+    change_team_status, submit_team_csv, get_teams, get_new_team
+from peer_review.view.questionAdmin import save_question, edit_question, question_admin, delete_question, \
+    check_question
 from peer_review.view.questionnaire import save_questionnaire_progress, get_responses
 from peer_review.view.questionnaireAdmin import save_questionnaire, questionnaire_preview, delete_questionnaire, \
-    questionnaire_admin, edit_questionnaire
+    questionnaire_admin, edit_questionnaire, check_questionnaire
 from peer_review.view.roundManagement import maintain_round
 from peer_review.view.userAdmin import submit_csv
 from peer_review.view.userFunctions import user_reset_password, active_rounds, get_team_members, account_details, \
@@ -63,11 +64,13 @@ urlpatterns = [
     url(r'^userAdmin/$', views.user_list, name='userAdmin'),
 
     url(r'^questionAdmin/save', save_question, name='saveQuestion'),
+    url(r'^questionAdmin/check', check_question, name='checkQuestion'),
     url(r'^questionAdmin/delete', delete_question, name='deleteQuestion'),
     url(r'^questionAdmin/edit/(?P<question_pk>[0-9]+)/?$', edit_question, name='editQuestion'),
     url(r'^questionAdmin', question_admin, name='questionAdmin'),
 
     url(r'^questionnaireAdmin/save$', save_questionnaire, name='saveQuestionnaire'),
+    url(r'^questionnaireAdmin/check', check_questionnaire, name='checkQuestionnaire'),
     url(r'^questionnaireAdmin/edit/(?P<questionnaire_pk>[0-9]+)/?$', edit_questionnaire,
         name='editQuestionnaire'),
     url(r'^questionnairePreview/(?P<questionnaire_pk>[0-9]+)/?$', questionnaire_preview,
@@ -78,8 +81,9 @@ urlpatterns = [
     url(r'^maintainRound/dump/?$', views.round_dump, name='dumpRound'),
     url(r'^maintainRound/delete/$', views.round_delete, name='deleteRound'),
     url(r'^maintainRound/update/(?P<round_pk>[0-9]+)/?$', views.round_update, name='updateRound'),
-    url(r'^maintainTeam/getTeamsForRound/(?P<round_pk>[0-9]+)/?$', get_teams_for_round,
-        name='getTeamsForRound'),
+    url(r'^maintainTeam/getTeamsForRound/(?P<round_pk>[0-9]+)/?$', get_teams_for_round, name='getTeamsForRound'),
+    url(r'^maintainTeam/getNewTeam/(?P<team_name>[0-9a-zA-Z]+)/?$', get_new_team,
+        name='getNewTeam'),
     url(r'^maintainTeam/getQuestionnaireForRound/(?P<round_pk>[0-9]+)/?$',
         views.get_questionnaire_for_round,
         name='getQuestionnaireRound'),
@@ -96,7 +100,7 @@ urlpatterns = [
 
     url(r'^maintainRound/delete/$', views.round_delete),
     url(r'^maintainRound/(?P<error>[0-9]+)/?$', views.maintain_round_with_error,
-        name='maintainRoundWithError'),
+        name='maintainRoundWithError')
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

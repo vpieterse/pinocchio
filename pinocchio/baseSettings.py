@@ -91,7 +91,7 @@ en_formats.DATETIME_FORMAT = "Y-m-d H:i"
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Johannesburg' # UTC+2
 
 USE_I18N = True
 
@@ -122,7 +122,8 @@ STATICFILES_DIRS = (
 
 AUTH_USER_MODEL = 'peer_review.User'
 EMAIL_USE_TLS = False
-EMAIL_HOST = "kendy.up.ac.za"
+# Change EMAIL_HOST to a valid mail server to send mail.
+EMAIL_HOST = ""
 EMAIL_PORT = 25
 EMAIL_HOST_USER = ""
 EMAIL_HOST_PASSWORD = ""

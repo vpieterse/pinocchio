@@ -9,23 +9,19 @@ from ..models import User, RoundDetail, TeamDetail, Document
 from peer_review.decorators.adminRequired import admin_required
 from peer_review.forms import DocumentForm
 from peer_review.view.userFunctions import user_error
+from django.template import loader
 
 
 @admin_required
 def maintain_team(request):
+    context = {'users': User.objects.filter(Q(is_active=1) & (Q(status='S') | Q(status='U'))),
+               'rounds': RoundDetail.objects.all(),
+               'teams': TeamDetail.objects.all()}
+
     if request.method == "POST":
         round_pk = request.POST.get("roundPk")
+        context['preselectedRoundPk'] = int(round_pk)
 
-        context = {'users': User.objects.filter(Q(is_active=1) & (Q(status='S') | Q(status='U'))),
-                   'rounds': RoundDetail.objects.all(),
-                   'teams': TeamDetail.objects.all(),
-                   'roundPk': round_pk}
-
-    else:
-        context = {'users': User.objects.filter(Q(is_active=1) & (Q(status='S') | Q(status='U'))),
-                   'rounds': RoundDetail.objects.all(),
-                   'teams': TeamDetail.objects.all(),
-                   'roundPk': "none"}
     return render(request, 'peer_review/maintainTeam.html', context)
 
 
@@ -58,22 +54,47 @@ def change_user_team_for_round(request, round_pk, user_id, team_name):
 @admin_required
 def get_teams_for_round(request, round_pk):
     teams = TeamDetail.objects.filter(roundDetail_id=round_pk)
-    response = {}
+    response = {"users": {},
+                "teamTables": {},
+                "teams": []}
     team_sizes = {}
-
+    team_tables = {}
     for team in teams:
         if team.teamName not in team_sizes:
             team_sizes[team.teamName] = 0
         team_sizes[team.teamName] += 1
 
     for team in teams:
-        response[team.pk] = {
-            'user_id': team.user.user_id,
-            'teamName': team.teamName,
-            'status': team.status,
-            'teamSize': team_sizes[team.teamName]
+        if team.teamName not in team_tables:
+            team_tables[team.teamName] = []
+
+        team_tables[team.teamName].append(team.user)
+        response["users"][team.user.user_id] = True
+
+    for userList in team_tables:
+        template = loader.get_template('peer_review/maintainTeam-teamPanel.html')
+        context = {
+            'team_name': userList,
+            'userList': team_tables[userList],
+            'team_size': team_sizes[userList],
         }
+        new_team = template.render(context, request)
+        response['teamTables'][userList] = new_team
+        response['teams'].append(userList)
     # print(response)
+    return JsonResponse(response)
+
+
+@admin_required
+def get_new_team(request, team_name):
+    template = loader.get_template('peer_review/maintainTeam-teamPanel.html')
+    context = {
+        'team_name': team_name,
+        'userList': [],
+        'team_size': 0,
+
+    }
+    response = {'success': True, 'team': template.render(context, request)}
     return JsonResponse(response)
 
 
@@ -173,7 +194,7 @@ def submit_team_csv(request):
                             error_type = "One of these headers does not exist, 'user_id', 'round_name', or 'team_name'."
 
                         os.remove(file_path)
-                        return render(request, 'peer_review/csvError.html',
+                        return render(request, 'peer_review/csvTeamError.html',
                                       {'message': message, 'row': row_list, 'error': error_type})
         else:
             message = "Oops! Something seems to be wrong with the CSV file."

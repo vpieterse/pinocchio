@@ -168,7 +168,7 @@
                                     <strong>The CSV file is valid.</strong> The following users will be added:
                                 </div>
                                 <div class='table-responsive'>
-                                    <table class='table'>
+                                    <table class='table sortable'>
                                         <thead>
                                         <tr>
                                             <th>Title</th>
@@ -286,8 +286,7 @@
 
                         <div>
                             <!-- ToDo fix sortable -->
-                            <!-- ToDo implement delete confirmation -->
-                            <table id='users'>
+                            <table id='users' class="table">
                                 <thead>
                                 <tr>
                                     <th>User Name</th>
@@ -374,7 +373,13 @@
     <script src="{% static "peer_review/validation.js" %}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
-            $("#users").DataTable();
+            const table = $("#users").DataTable({
+                "initComplete": function () {
+                    // Hook update user buttons
+                    editUserHookUpdateButtons(this.api().rows().nodes().toJQuery());
+                }
+            });
+
             $(".btn.more").on("click", function () {
                 var pk = $(this).data("pk");
                 window.location.href = "" + pk;

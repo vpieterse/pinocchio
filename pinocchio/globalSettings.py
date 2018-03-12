@@ -14,3 +14,8 @@ Please note the trailing slash!
 TODO: CHANGE IN PRODUCTION
 """
 EXTERNAL_URL = 'http://pinocchio.cs.up.ac.za/'
+
+"""
+The address emails are sent from.
+"""
+FROM_EMAIL_ADDRESS = 'pinocchio@cs.up.ac.za'
