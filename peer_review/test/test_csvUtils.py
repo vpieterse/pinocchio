@@ -1,6 +1,7 @@
 from django.test import TestCase
 import peer_review.modules.csv_utils as csv_utils
 import os
+import logging
 
 from typing import Dict
 
@@ -152,6 +153,8 @@ class CsvUtilsTest(TestCase):
 
     # The exception message is only a message, nothing crashed.
     def test_corrupt(self):
+        # csv_utils prints when handling corrupt file
+        logging.disable(logging.CRITICAL)
         result: csv_utils.CsvStatus = csv_utils.validate_csv(
                 fields=self.fields,
                 file_path=self.csv_dir + '/invalid_corrupt.csv'
@@ -159,8 +162,11 @@ class CsvUtilsTest(TestCase):
         self.assertEqual(result.valid, False)
         self.assertEqual(result.data, None)
         self.assertNotEqual(result.error_message, None)
+        logging.disable(logging.NOTSET)
 
     def test_corrupt2(self):
+        # csv_utils prints when handling corrupt file
+        logging.disable(logging.CRITICAL)
         result: csv_utils.CsvStatus = csv_utils.validate_csv(
                 fields=self.fields,
                 file_path=self.csv_dir + '/invalid_corrupt2.csv'
@@ -169,3 +175,4 @@ class CsvUtilsTest(TestCase):
         self.assertEqual(result.valid, False)
         self.assertEqual(result.data, None)
         self.assertNotEqual(result.error_message, None)
+        logging.disable(logging.NOTSET)
