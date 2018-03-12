@@ -36,7 +36,7 @@ Todo:
                         <p id="modal-content" font-size="14pt"></p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal" id="modal-cancel">Cancel</button>
                         <a class="btn btn-danger" id="modal-action"></a>
                     </div>
                 </div>
@@ -59,7 +59,8 @@ Todo:
                         <form onsubmit="return save()" onreset="empty()" id = "form-save" method="POST" action="/questionnaireAdmin/save">
                             {% csrf_token %}
                             <label for="title" id="title-label">Title</label>
-                            <input type="text" name="title" class="form-control" id="title" placeholder="Enter title" value="{{questionnaire.label}}" autocomplete="off" required>
+                            <input type="text" name="title" class="form-control" id="title" placeholder="Enter title" value="{{questionnaire.label}}" autocomplete="off" required onchange="checkAvail()" oninput="resetField()">
+                            <label id="availStat" hidden>unknown</label>
                             <br/>
                             <label for="intro">Introduction</label>
                             <input id="intro" class = "form-control" value="{{ questionnaire.intro }}" name="intro">
@@ -110,6 +111,7 @@ Todo:
                                         <thead>
                                         <tr>
                                             <th class="text-center">
+                                                <label id="qid-lid" hidden>qid-lid</label>
                                                 <label id="label-heading">Labels for { question }</label>
                                                 <span style="cursor: pointer" onclick="addRowToTable(this)"
                                                       class="glyphicon glyphicon-plus-sign pull-right text-primary"></span>
@@ -142,7 +144,11 @@ Todo:
                                                     </td>
                                                     <td class = "question-label">{{ question.question.questionLabel }}</td>
                                                     <td class = "question-type">{{ question.question.questionType.name }}</td>
-                                                    <td class = "question-grouping">{{ question.questionGrouping.grouping }}</td>
+                                                    <td class = "question-grouping">{{ question.questionGrouping.grouping }}
+                                                        {% ifequal question.questionGrouping.grouping "Label" %}
+                                                            <span class="glyphicon glyphicon-pencil pull-right text-success" style="cursor: pointer" onclick="showLabels(this)"></span>
+                                                        {% endifequal %}
+                                                    </td>
                                                     <td>
                                                         <span onclick="removeQuestion(this)" class="glyphicon glyphicon glyphicon-minus-sign text-danger pull-right"  style="cursor:pointer"></span>
                                                     </td>
@@ -215,7 +221,7 @@ Todo:
                                         {% else %}
                                             <span style = "cursor: pointer" onclick = "deleteQuestionnaire('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon-remove-circle pull-right text-danger" data-toggle="modal" data-target="#confirm-modal" title="Delete Questionnaire"></span>
                                         {% endif %}
-                                        <span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}','{{questionnaire.inARound}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
+                                        <span style = "cursor: pointer" onclick = "edit('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-pencil pull-right text-primary">&nbsp</span>
                                         <span style = "cursor: pointer" onclick = "preview('{{questionnaire.pk}}')" class="glyphicon glyphicon glyphicon glyphicon-eye-open pull-right text-primary" title="Preview">&nbsp</span>
                                     </td>
                                 </tr>   
@@ -233,6 +239,8 @@ Todo:
 
     <script>
         var questionTable = null;
+        var editingLabels = false;
+        var editId = -1;
         $(document).ready(function() {
             tinymce.init({ selector:'#intro',
             language: 'en_GB',
@@ -257,6 +265,7 @@ Todo:
                 });
             });
             $('.labels-go-here').hide();
+            resetLabelEdit();
             $('.labels-go-here').html($('#label-table').html());
             {% for label in labels %}
                 addLabel("{{label}}");
@@ -273,11 +282,14 @@ Todo:
                 if ($('#questionnaire-list').find('.active').length > 0) {
                     $('#delete-many').show(100);
                 } else {
-                    $('#delete-many').hide(100);                    
+                    $('#delete-many').hide(100);
                 }
 
             });
             {% if questionnaire %}
+                {% if inARound %}
+                    editWarning();
+                {% endif %}
                 setupEdit();
             {% endif %}
             questionTable = $('#question-table').DataTable({paging: true});
@@ -289,7 +301,102 @@ Todo:
                   return false;
                 }
               });
+            $('[data-toggle="tooltip"]').tooltip();
         });
+
+        function editWarning() {
+            $('#confirm-modal').modal('show');
+            $('#modal-title').html("Confirm Edit: <strong>{{ questionnaire.label }}</strong>");
+            $('#modal-msg').html('The following questionnaire is already in a round.<br/><strong style="color: red; font-size: 16px">Existing repsonses may be lost.</strong><br/><br/>Are you sure you want to edit?');
+            $("#modal-cancel").attr("onclick","window.location='/questionnaireAdmin/'");
+            $("#modal-action").html("Edit");
+            $("#modal-action").attr("data-dismiss","modal");
+            $('#modal-content').html("");
+        }
+
+        function showSnackbar(msg) {
+            $("#snackbar").html(msg);
+            $("#snackbar").addClass("show");
+            setTimeout(function() {
+                $("#snackbar").removeClass("show");
+            }, 3000);
+        }
+
+        //* Update any labels that are alredy stored *//
+        function updateLabels(el, args, dirr = 0) {
+            /* *** ARGS ***
+            /*  0 - Label edit
+            /*  1 - Label insert
+            /*  2 - Label delete
+            /*  3 - Label re-order
+                    *** DIRR ***
+                /*      -1 - Down
+                /*       0 - Not Set
+                /*       1 - Up
+            */
+
+            var labId = {};
+            if(args == 1) {
+                labId = $(el).closest('table').find('#qid-lid').text().split("-");
+            } else {
+                labId = $(el).attr("id").split("-");
+            }
+            jsonArr = JSON.parse($("#question-labels").val());
+            for(i = 0; i < jsonArr.length; i++) {
+                if(jsonArr[i].questionId == labId[0]) {
+                    var updatedLabels = "";
+                    var lablls = jsonArr[i].questionLabel.split(";#");
+                    if(args == 0) { // Edit
+                        if(!$.trim(el.value).length) {
+                            showSnackbar("Labels cannot be left blank");
+                            $(el).val(lablls[labId[1]]);
+                            $(el).select();
+                            return; // Nothing left to do
+                        } else {
+                            lablls[labId[1]] = $(el).val();
+                        }
+                    } else if(args == 1) { // Insert
+                        lablls.length++;
+                        lablls[lablls.length - 1] = "New-Label";
+                    } else if(args == 2) { // Delete
+                        lablls.splice(labId[1], 1);
+                    } else { // Re-order
+                        // Swap order
+                        if(dirr == 1) { // Moving up
+                            if(labId[1] > 0) {
+                                // Not already at top
+                                lablls.splice(labId[1] - 1, 0, lablls.splice(labId[1], 1)[0]);
+                            }
+                        } else if(dirr == -1) { // Moving down
+                            if(labId[1] < (lablls.length - 1)) {
+                                // Not already at bottom
+                                lablls.splice(labId[1] + 1, 0, lablls.splice(labId[1], 1)[0]);
+                            }
+                        } else {
+                            // Function call error
+                            showSnackbar("<strong>Error:</strong> Failed to change label order");
+                        }
+                    }
+                    for(j = 0; j < lablls.length; j++) {
+                        updatedLabels += lablls[j] + ";#";
+                    }
+                    jsonArr[i].questionLabel = updatedLabels.slice(0, -2);
+                    $("#question-labels").val(JSON.stringify(jsonArr));
+                    if(args != 0) { // Edit will not change ids
+                        showLabels(labId[0], true); // Refresh table [ids]
+                        if(args == 1) {
+                            $("#" + labId[0] + "-" + (lablls.length - 1)).select();
+                        }
+                    }
+                    break;
+                }
+            }   
+        }
+
+        function resetLabelEdit() {
+            editingLabels = false;
+            $("#labelCount").text(0);
+        }
 
         //** Functions used for table manipulations **//
         function addRowToTable(el) {
@@ -305,6 +412,9 @@ Todo:
             labCount = parseInt($("#labelCount").text());
             labCount++;
             $("#labelCount").text(labCount);
+            if(editingLabels) {
+                updateLabels(el, 1);
+            }
             return row;
         }
 
@@ -319,22 +429,25 @@ Todo:
             labCount = parseInt($("#labelCount").text());
             labCount--;
             $("#labelCount").text(labCount);
+            if(editingLabels) {
+                updateLabels(el, 2);
+            }
         }
 
         function moveRow(el) {
             var row = $(el).closest('tr');
-            if ($(el).hasClass('glyphicon-arrow-up'))
+            if ($(el).hasClass('glyphicon-arrow-up')) {
                 row.prev().before(row);
-            else if ($(el).hasClass('glyphicon-arrow-down'))
+                if(editingLabels) {
+                    updateLabels(el, 3, 1);
+                }
+            }
+            else if ($(el).hasClass('glyphicon-arrow-down')) {
                 row.next().after(row);
-        }
-
-        function showSnackbar(msg) {
-            $("#snackbar").html(msg);
-            $("#snackbar").addClass("show");
-            setTimeout(function() {
-                $("#snackbar").removeClass("show");
-            }, 3000);
+                if(editingLabels) {
+                    updateLabels(el, 3, -1);
+                }
+            }
         }
 
         function addQuestion(el) {
@@ -354,6 +467,11 @@ Todo:
                             return;
                         } else {
                             // Store labels
+                            var qidLid = $("#qid-lid").text().split("-");
+                            if(qidLid[0] != row.attr("id")) {
+                                showSnackbar("Warning: Labels are not for <strong>" + questLabel + "</strong>");
+                                return;
+                            }
                             var labels = "";
                             var shouldContinue = true;
                             $('#labeltable > tbody > tr > td > input').each(function (i, el) {
@@ -376,7 +494,8 @@ Todo:
                                 }
                                 // empty table
                                 $('.labels-go-here').html($('#label-table').html());
-                                $(".labels-go-here").hide(100);    
+                                $(".labels-go-here").hide(100);
+                                resetLabelEdit();
                             } else {
                                 return;
                             }
@@ -387,7 +506,11 @@ Todo:
                     tr.append('<td><span onclick="moveRow(this)" class="glyphicon glyphicon glyphicon-arrow-up text-primary pull-left"  style="cursor:pointer"></span><span onclick="moveRow(this)" class="glyphicon glyphicon glyphicon-arrow-down text-primary pull-left"  style="cursor:pointer"></span></td>');
                     tr.append('<td class="question-label">'+row.find('.question-label').html()+'</td>');
                     tr.append('<td>'+row.find('.question-type').html()+'</td>');
-                    tr.append('<td>'+row.find("#question-grouping-" + row.attr("id")).val()+'</td>');
+                    if($("#question-grouping-" + row.attr("id")).val() == "Label") {
+                        tr.append('<td>'+row.find("#question-grouping-" + row.attr("id")).val()+'<span class="glyphicon glyphicon-pencil pull-right text-success" style="cursor: pointer" onclick="showLabels(this)"></span></td>');
+                    } else {
+                        tr.append('<td>'+row.find("#question-grouping-" + row.attr("id")).val()+'</td>');
+                    }
                     tr.append('<td><span onclick="removeQuestion(this)" class="glyphicon glyphicon glyphicon-minus-sign text-danger pull-right"  style="cursor:pointer"></span></td>');
                     $('#selected-questions').append(tr);
                     // Disable grouping and add buttons
@@ -429,24 +552,8 @@ Todo:
             $(el).closest('tr').remove(); 
         }
 
-        function edit(pk, isInRound) {
-            if(isInRound == 'True') {
-                var strcnf = "";
-                $('#questionnaire-pk').val(pk);
-                {% for questn in questionnaires %}
-                    if ("{{ questn.pk }}" == pk) {
-                        strcnf = "{{ questn.title }}";
-                    }
-                {% endfor %}
-                $('#confirm-modal').modal('show');
-                $('#modal-title').html("Confirm Edit: <strong>" + strcnf + "</strong>");
-                $('#modal-msg').html('The following questionnaire is already in a round. Are you sure you want to edit?');
-                $("#modal-action").attr("onclick","window.location='/questionnaireAdmin/edit/" + pk + "'");
-                $("#modal-action").html("Edit");
-                $('#modal-content').html("");
-            } else {
-                window.location = '/questionnaireAdmin/edit/'+pk;
-            }
+        function edit(pk) {
+            window.location = '/questionnaireAdmin/edit/'+pk;
         }
         
         function preview(pk) {
@@ -467,6 +574,8 @@ Todo:
             $('#modal-msg').html('You are about to delete the following questionnaire, this procedure is irreversible.');
             $('#modal-content').html('<strong>' + strcnf + '</strong>');
             $("#modal-action").attr("onclick","$(\"#form-delete\").submit()");
+            $("#modal-action").removeAttr("data-dismiss");
+            $("#modal-cancel").removeAttr("onclick");
             $("#modal-action").html("Delete");
         }
 
@@ -486,6 +595,8 @@ Todo:
             $('#modal-msg').html('You are about to delete the following questionnaires, this procedure is irreversible.');
             $('#modal-content').html('<strong>' + strcnf + '</strong>');
             $("#modal-action").attr("onclick","$(\"#form-delete\").submit()");
+            $("#modal-action").removeAttr("data-dismiss","modal");
+            $("#modal-cancel").removeAttr("onclick");
             $("#modal-action").html("Delete");
         }
 
@@ -497,27 +608,44 @@ Todo:
             }, 3000);
         }
 
-        function checkIfExist() {
-            var exists = false;
+        function checkAvail() {
+            if(!$.trim($("#title").val()).length) {
+                return; // Textbox blank
+            }
             $.ajax({
                 url: "/questionnaireAdmin/check",
                 type: "POST",
-                async: false,
-                data: {'title': $("#title").val(), 'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').prop('value')},
+                async: true,
+                data: {'title': $.trim($("#title").val()), 'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').prop('value')},
                 dataType: "json",
                 success: function (data) {
-                    if (data.result === 1)
-                        exists = true;
+                    if (data.result === 1) { // Not available
+                        $("#title").attr("style", "background-color: #C04000; color: white");
+                        $("#title").attr("data-toggle", "tooltip");
+                        $("#title").attr("title", "Title already exists");
+                        $("#availStat").text("false");
+                    } else {
+                        $("#title").attr("style", "background-color: #387C44; color: white");
+                        $("#title").attr("data-toggle", "tooltip");
+                        $("#title").attr("title", "Title is available");
+                        $("#availStat").text("true");
+                    }
                 },
                 failure: function () {
-                    exists = true;
+                    $("#availStat").text("fail");
                 },
                 error: function () {
-                    exists = true;
+                    $("#availStat").text("error");
                 },
                 timeout: 3000 // 3 Second timeout
             });
-            return exists;
+        }
+
+        function resetField() {
+            $("#title").removeAttr("style");
+            $("#title").removeAttr("data-toggle");
+            $("#title").removeAttr("title");
+            $("#availStat").text("unknown");
         }
 
         function save() {
@@ -533,7 +661,7 @@ Todo:
             questionTable.destroy(); // Refresh across pages in datatable
             $('#selected-questions > tbody > tr').each(function(i, el) {
                 questions += el.id + ';#';
-                groupings += $("#question-grouping-" + el.id).val() + ';#';
+                groupings += $.trim($("#question-grouping-" + el.id).val()) + ';#';
             });
             questionTable = $('#question-table').DataTable({paging: true});
             questionTable.page(curPage).draw('page');
@@ -543,7 +671,8 @@ Todo:
                 $("#title").removeAttr("disabled");
                 return true;
             {% else %}
-                if(checkIfExist()) {
+                $("#title").val($.trim($("#title").val()));
+                if($("#availStat").text() == "false") {
                     $('html, body').animate({
                             scrollTop: $("#title-label").offset().top
                         }, 500);
@@ -564,6 +693,7 @@ Todo:
                 removeQuestion(el);
             });
             $(".labels-go-here").hide(100);
+            resetLabelEdit();
             $('html, body').animate({
                     scrollTop: $(".container").offset().top
                 }, 300);
@@ -578,11 +708,50 @@ Todo:
             $("#group-select-" + group + "-" + questionId).addClass('active');
             if (group == "Label") {
                 $("#label-heading").text("Labels: " + $("#question-label-" + questionId).val());
+                $("#qid-lid").text(questionId + "-0");
                 $('.labels-go-here').html($('#label-table').html()); // Set new table
                 $(".labels-go-here").show(100);
             } else {
                 $(".labels-go-here").hide(100);
             }
+            resetLabelEdit();
+        }
+
+        //* Display labels that are alredy stored *//
+        function showLabels(el, haveId = false) {
+            if(haveId) {
+                labId = el;
+            } else {
+                labId = $(el).closest('tr').attr("id");
+            }
+            $("#label-heading").text("Labels: " + $("#question-label-" + labId).val());
+            $("#qid-lid").text(labId + "-0");
+            $('.labels-go-here').html($('#label-table').html()); // Set new table
+            $("#labelCount").text(0);
+            $(".labels-go-here").show(100);
+            jsonArr = JSON.parse($("#question-labels").val());
+            for(i = 0; i < jsonArr.length; i++) {
+                if(jsonArr[i].questionId == labId) {
+                    var lablls = jsonArr[i].questionLabel.split(";#");
+                    for(n = 0; n < lablls.length; n++) {
+                        var row = $('<td></td>');
+                        row.append('<input type="text" id="' + labId + '-' + n + '" value="' + lablls[n] + '" style="border:none;" onChange="updateLabels(this, 0)"/>');
+                        row.append('<span id="' + labId + '-' + n + '" onclick="removeRow(this)" class = "glyphicon glyphicon-remove-circle pull-right text-danger" style="cursor:pointer"></span>');
+                        row.append('<span id="' + labId + '-' + n + '" onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-up pull-left text-primary" style="cursor:pointer"></span>');
+                        row.append('<span id="' + labId + '-' + n + '" onclick="moveRow(this)" class = "glyphicon glyphicon-arrow-down pull-left text-primary" style="cursor:pointer"></span>');
+
+                        $(".labels-go-here > #labeltable").find('tbody').append(row);
+                        row.wrap('<tr></tr>');
+                        row.addClass('text-center');
+                        labCount = parseInt($("#labelCount").text());
+                        labCount++;
+                        $("#labelCount").text(labCount);
+                    }
+                    editId = jsonArr[i].questionId;
+                    break;
+                }
+            }
+            editingLabels = true; // Set label edit flag
         }
 
         function setupEdit() {
@@ -609,10 +778,17 @@ Todo:
                     questLabels["questionLabel"] = labels.slice(0, -2);
                 }
                 var jsonArr = JSON.parse($("#question-labels").val());
-                if(jsonArr.length == 0) {
-                    $("#question-labels").val("[" + JSON.stringify(questLabels) + "]");
-                } else {
-                    $("#question-labels").val($("#question-labels").val().slice(0, -1) + ',' + JSON.stringify(questLabels) + "]");
+                /* Add empty label check to prevent errors from questions
+                    created before the model update that supports labels
+                    from the questionnaire builder
+                    - Not backwards compatible
+                */
+                if(JSON.stringify(questLabels) != "{}") {
+                    if(jsonArr.length == 0) {
+                        $("#question-labels").val("[" + JSON.stringify(questLabels) + "]");
+                    } else {
+                        $("#question-labels").val($("#question-labels").val().slice(0, -1) + ',' + JSON.stringify(questLabels) + "]");
+                    }
                 }
             }
         }
