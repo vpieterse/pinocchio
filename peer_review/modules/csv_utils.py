@@ -6,6 +6,17 @@ import csv
 
 logger = logging.getLogger(__name__)
 
+class OptionalKeyNotFoundError(Exception):
+    """Exception raised for errors in the input.
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message
+
+
 class CsvStatus(object):
     """Holds information on the validity of the csv file and the returned data
 
@@ -113,12 +124,38 @@ def contains_duplicates(items: List[Dict[str, str]], primary_key_field: str) -> 
         return CsvStatus(valid=True, data=None)
 
 
-def validate_csv(fields: List[str], file_path: str, primary_key_field:str = None) -> CsvStatus:
+def validate_optionals(fields: List[str], optional_fields: List[str]) -> None:
+    """Check that all optionals are in fields, otherwise raise exception
+
+    Args:
+        fields: All the column titles in the CSV
+        optionals: The fields in the headers that can be empty
+
+    Raises:
+        OptionalKeyNotFoundError: when a key in the optional was not found
+            in fields
+
+    Returns:
+        None
+    """
+
+    for val in optional_fields:
+        if val not in fields:
+            raise OptionalKeyNotFoundError('Optional key "{0}" was not found in the fields list'.format(val))
+
+
+def validate_csv(fields: List[str], file_path: str,
+                 primary_key_field: str = None,
+                 optional_fields: List[str] = None) -> CsvStatus:
     """Try to parse the csv file and return the status and optionally the data
+
+    Note:
+        This is the entry point for validating a csv
 
     Args:
         fields: The column headers to validate
         file_path: The path of the CSV file
+        optional_fields: Fields in the fields array that can be empty
         primary_key_field: The header column to use as primary key for checking
             duplicates
 
@@ -128,7 +165,14 @@ def validate_csv(fields: List[str], file_path: str, primary_key_field:str = None
 
     Note:
         Prints an exception message when there is a UnicodeDecodeError
+        and the data if it was valid.
+
+        If a key was marked as optional, when it was not in the CSV
+        its value will be ''
     """
+    if optional_fields:
+        validate_optionals(fields, optional_fields)
+
     with open(file_path) as csv_file:
         header_result = validate_header(csv_file, fields)
 
@@ -155,6 +199,19 @@ def validate_csv(fields: List[str], file_path: str, primary_key_field:str = None
                          exc_info=1)
             return CsvStatus(valid=False,
                              error_message='Invalid byte at line {0}: Cannot decode as utf-8'.format(reader.line_num))
+        for row in reader:
+            # Make sure all fields were found in the row
+            for key, value in row.items():
+                if not value:
+                    if optional_fields and key not in optional_fields or not optional_fields:
+                        return CsvStatus(
+                                valid=False,
+                                error_message='No value found for key '
+                                              '\'' + key + '\' on line '
+                                              + str(
+                                                reader.line_num))
+
+            items.append(row)
 
         if primary_key_field:
             duplicate_result: CsvStatus = contains_duplicates(items=items, primary_key_field=primary_key_field)

@@ -2,7 +2,7 @@ from django.test import TestCase
 import peer_review.modules.csv_utils as csv_utils
 import os
 import logging
-
+from peer_review.modules.csv_utils import OptionalKeyNotFoundError
 from typing import Dict
 
 
@@ -176,3 +176,35 @@ class CsvUtilsTest(TestCase):
         self.assertEqual(result.data, None)
         self.assertNotEqual(result.error_message, None)
         logging.disable(logging.NOTSET)
+
+    def test_optional_fields(self):
+        # Optional fields may be None
+        # Non optional cannot be None or empty
+        # Only the primary_key_field must be unique and not empty
+
+        # When an optional field is given that is not part of
+        # the fields, then an exception is thrown
+
+        self.assertRaises(OptionalKeyNotFoundError,
+                          csv_utils.validate_csv,
+                          ['pk', 'optional'],
+                          'should_not_read_csv.csv',
+                          primary_key_field='pk',
+                          optional_fields=['should_not_be_found'])
+
+        result: csv_utils.CsvStatus = csv_utils.validate_csv(
+                ['pk', 'name', 'middle_name', 'last_name'],
+                self.csv_dir + '/valid_optional.csv',
+                primary_key_field='pk',
+                optional_fields=['middle_name'])
+
+        self.assertEqual(len(result.data), 2)
+        self.assertEqual(result.data[0]['pk'], '1')
+        self.assertEqual(result.data[0]['name'], 'Fred')
+        self.assertEqual(result.data[0]['middle_name'], 'John')
+        self.assertEqual(result.data[0]['last_name'], 'Bool')
+
+        self.assertEqual(result.data[1]['pk'], '2')
+        self.assertEqual(result.data[1]['name'], 'James')
+        self.assertEqual(result.data[1]['middle_name'], '')
+        self.assertEqual(result.data[1]['last_name'], 'TheMan')
