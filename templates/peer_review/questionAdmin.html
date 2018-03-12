@@ -56,7 +56,8 @@ Todo:
                                 <!-- Title -->
                                 <label for="question-title" id="title-label">Title</label>
                                 <input type="text" name="question-title" class="form-control" id="question-title"
-                                    placeholder="Enter title" value="{{ question.questionLabel }}" autocomplete="off" required>
+                                    placeholder="Enter title" value="{{ question.questionLabel }}" autocomplete="off" required required onchange="checkAvail()" oninput="resetField()">
+                                <label id="availStat" hidden>unknown</label>
                                 <small class="text-muted">A short identifying name to be used in making questionnaires</small>
                             </fieldset>
                             <!-- Question Content -->
@@ -357,27 +358,44 @@ Todo:
             }, 3000);
         }
 
-        function checkIfExist() {
-            var exists = false;
+        function checkAvail() {
+            if(!$.trim($("#question-title").val()).length) {
+                return; // Textbox blank
+            }
             $.ajax({
                 url: "/questionAdmin/check",
                 type: "POST",
-                async: false,
-                data: {'title': $("#question-title").val(), 'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').prop('value')},
+                async: true,
+                data: {'title': $.trim($("#question-title").val()), 'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').prop('value')},
                 dataType: "json",
                 success: function (data) {
-                    if (data.result === 1)
-                        exists = true;
+                    if (data.result === 1) { // Not available
+                        $("#question-title").attr("style", "background-color: #C04000; color: white");
+                        $("#question-title").attr("data-toggle", "tooltip");
+                        $("#question-title").attr("title", "Title already exists");
+                        $("#availStat").text("false");
+                    } else {
+                        $("#question-title").attr("style", "background-color: #387C44; color: white");
+                        $("#question-title").attr("data-toggle", "tooltip");
+                        $("#question-title").attr("title", "Title is available");
+                        $("#availStat").text("true");
+                    }
                 },
                 failure: function () {
-                    exists = true;
+                    $("#availStat").text("fail");
                 },
                 error: function () {
-                    exists = true;
+                    $("#availStat").text("error");
                 },
                 timeout: 3000 // 3 Second timeout
             });
-            return exists;
+        }
+
+        function resetField() {
+            $("#question-title").removeAttr("style");
+            $("#question-title").removeAttr("data-toggle");
+            $("#question-title").removeAttr("title");
+            $("#availStat").text("unknown");
         }
 
         function save(event) {
@@ -401,7 +419,7 @@ Todo:
                 $("#question-title").removeAttr("disabled");
                 return true;
             {% else %}
-                if(checkIfExist()) {
+                if($("#availStat").text() == "false") {
                     $('html, body').animate({
                             scrollTop: $("#title-label").offset().top
                         }, 500);
@@ -425,6 +443,7 @@ Todo:
                             return false;
                         }
                     }
+                    $("#question-title").val($.trim($("#question-title").val()));
                     return true;
                 }
             {% endif %}
@@ -521,6 +540,7 @@ Todo:
                   return false;
                 }
               });
+            $('[data-toggle="tooltip"]').tooltip();
         })
 
     </script>
