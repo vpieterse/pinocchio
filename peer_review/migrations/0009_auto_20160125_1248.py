@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='rounddetail',
             name='name',
-            field=models.CharField(default=datetime.datetime(2016, 1, 25, 10, 48, 24, 742441, tzinfo=utc), max_length=15),
+            field=models.CharField(max_length=15, unique=True),
             preserve_default=False,
         ),
         migrations.AlterField(
