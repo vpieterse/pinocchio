@@ -26,7 +26,7 @@ class QuestionGrouping(models.Model):
 
 class Question(models.Model):
     questionText = models.CharField(max_length=1000)
-    questionLabel = models.CharField(max_length=300, unique=True)
+    questionLabel = models.CharField(max_length=255, unique=True)
     pubDate = models.DateTimeField('date published')
     questionType = models.ForeignKey(QuestionType)
 
@@ -168,7 +168,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Questionnaire(models.Model):
     intro = models.CharField(max_length=1000)
-    label = models.CharField(max_length=300, unique=True)
+    label = models.CharField(max_length=255, unique=True)
     questionOrders = models.ManyToManyField(Question, through='QuestionOrder')
 
     def __str__(self):
