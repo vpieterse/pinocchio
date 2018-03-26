@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='label',
             name='questionOrder',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, to='peer_review.QuestionOrder'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='peer_review.QuestionOrder'),
             preserve_default=False,
         ),
         migrations.DeleteModel(
