@@ -14,13 +14,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='question',
             name='questionLabel',
-            field=models.CharField(max_length=300, default=''),
+            field=models.CharField(max_length=255, default=''),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='questionnaire',
             name='label',
-            field=models.CharField(max_length=300, default=''),
+            field=models.CharField(max_length=255, default=''),
             preserve_default=False,
         ),
         migrations.AlterField(

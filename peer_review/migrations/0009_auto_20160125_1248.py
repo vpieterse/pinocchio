@@ -16,23 +16,23 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='rounddetail',
             name='name',
-            field=models.CharField(default=datetime.datetime(2016, 1, 25, 10, 48, 24, 742441, tzinfo=utc), max_length=15),
+            field=models.CharField(max_length=15, unique=True),
             preserve_default=False,
         ),
         migrations.AlterField(
             model_name='question',
             name='questionLabel',
-            field=models.CharField(max_length=300, unique=True),
+            field=models.CharField(max_length=255, unique=True),
         ),
         migrations.AlterField(
             model_name='questionnaire',
             name='label',
-            field=models.CharField(max_length=300, unique=True),
+            field=models.CharField(max_length=255, unique=True),
         ),
         migrations.AlterField(
             model_name='rounddetail',
             name='description',
-            field=models.CharField(max_length=300),
+            field=models.CharField(max_length=255),
         ),
         migrations.AlterField(
             model_name='rounddetail',

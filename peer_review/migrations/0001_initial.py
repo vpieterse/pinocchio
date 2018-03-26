@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
             name='Question',
             fields=[
                 ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
-                ('questionText', models.CharField(max_length=300)),
+                ('questionText', models.CharField(max_length=255)),
                 ('pubDate', models.DateTimeField(verbose_name='date published')),
             ],
         ),

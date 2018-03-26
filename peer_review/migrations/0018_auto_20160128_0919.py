@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name='Response',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('answer', models.CharField(max_length=300)),
+                ('answer', models.CharField(max_length=255)),
                 ('label', models.ForeignKey(to='peer_review.Label')),
                 ('question', models.ForeignKey(to='peer_review.Question')),
             ],

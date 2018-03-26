@@ -22,12 +22,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='question',
             name='questionLabel',
-            field=models.CharField(max_length=300, unique=True),
+            field=models.CharField(max_length=255, unique=True),
         ),
         migrations.AlterField(
             model_name='questionnaire',
             name='label',
-            field=models.CharField(max_length=300, unique=True),
+            field=models.CharField(max_length=255, unique=True),
         ),
         migrations.AlterField(
             model_name='teamdetail',
