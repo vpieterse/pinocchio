@@ -189,29 +189,20 @@ def validate_csv(fields: List[str], file_path: str,
                 # Make sure all fields were found in the row
                 for key, value in row.items():
                     if not value:
-                        return CsvStatus(
-                            valid=False,
-                            error_message='No value found for key '
-                            '\'' + key + '\' on line ' + str(reader.line_num))
+                        if (optional_fields and key not in
+                                optional_fields) or not optional_fields:
+                            return CsvStatus(
+                                    valid=False,
+                                    error_message='No value found for key '
+                                                  '\'' + key + '\' on line '
+                                                  + str(
+                                            reader.line_num))
                 items.append(row)
         except UnicodeDecodeError:
             logger.error('Failed to decode byte as utf-8 in CSV file at line {0}'.format(reader.line_num),
                          exc_info=1)
             return CsvStatus(valid=False,
                              error_message='Invalid byte at line {0}: Cannot decode as utf-8'.format(reader.line_num))
-        for row in reader:
-            # Make sure all fields were found in the row
-            for key, value in row.items():
-                if not value:
-                    if optional_fields and key not in optional_fields or not optional_fields:
-                        return CsvStatus(
-                                valid=False,
-                                error_message='No value found for key '
-                                              '\'' + key + '\' on line '
-                                              + str(
-                                                reader.line_num))
-
-            items.append(row)
 
         if primary_key_field:
             duplicate_result: CsvStatus = contains_duplicates(items=items, primary_key_field=primary_key_field)

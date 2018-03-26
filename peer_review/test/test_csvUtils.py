@@ -193,8 +193,8 @@ class CsvUtilsTest(TestCase):
                           optional_fields=['should_not_be_found'])
 
         result: csv_utils.CsvStatus = csv_utils.validate_csv(
-                ['pk', 'name', 'middle_name', 'last_name'],
-                self.csv_dir + '/valid_optional.csv',
+                fields=['pk', 'name', 'middle_name', 'last_name'],
+                file_path=self.csv_dir + '/valid_optional.csv',
                 primary_key_field='pk',
                 optional_fields=['middle_name'])
 
