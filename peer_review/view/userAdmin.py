@@ -59,8 +59,11 @@ def confirm_csv(request) -> HttpResponse:
             1 - Some error
     """
     # TODO(egeldenhuys): Get fields from User Model
-    fields: list = [
+    fields: list[str] = [
         'title', 'initials', 'name', 'surname', 'cell', 'email', 'user_id'
+    ]
+    optionals: list[str] = [
+        'title', 'cell'
     ]
 
     base_dir: str = 'media/documents'
@@ -73,7 +76,9 @@ def confirm_csv(request) -> HttpResponse:
             confirm: int = int(request.POST['confirm'])
             file_path = os.path.join(base_dir, request_id)
             if confirm == 1:
-                status: CsvStatus = csv_utils.validate_csv(fields, file_path)
+                status: CsvStatus = csv_utils.validate_csv(fields=fields,
+                                                           file_path=file_path,
+                                                           optional_fields=optionals)
 
                 if status.valid:
                     if not users_exist(status.data):
@@ -212,6 +217,9 @@ def submit_csv(request) -> HttpResponse:
     fields: list = [
         'title', 'initials', 'name', 'surname', 'cell', 'email', 'user_id'
     ]
+    optional_fields: list = [
+        'cell', 'title'
+    ]
 
     context_data: Dict[str, Any] = init_context_data()
     context_data['error_code'] = 3
@@ -226,7 +234,10 @@ def submit_csv(request) -> HttpResponse:
         # [1:] Strip the leading /
         file_path: str = csv_file.doc_file.url[1:]
 
-        result: CsvStatus = csv_utils.validate_csv(fields, file_path=file_path, primary_key_field='user_id')
+        result: CsvStatus = csv_utils.validate_csv(fields,
+                                                   file_path=file_path,
+                                                   primary_key_field='user_id',
+                                                   optional_fields=optional_fields)
 
         if result.valid:
             existing_users: List[Dict[str, str]] = list()

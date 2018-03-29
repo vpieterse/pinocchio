@@ -138,7 +138,10 @@
                                 $('#csv_example').text(str);
                             </script>
 
-                            The CSV file needs to be encoded in utf-8.
+                            <ul>
+                                <li><em>title</em> and <em>cell</em> are optional fields.</li>
+                                <li>The CSV file needs to be encoded in utf-8.</li>
+                            </ul>
                         </div>
                         <form class="col-md-6" action="{% url 'submitCSV' %}" method="post"
                               enctype="multipart/form-data">
