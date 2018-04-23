@@ -1,6 +1,5 @@
 # Pinocchio
 [![Waffle.io - Columns and their card count](https://badge.waffle.io/teampinocchio/pinocchio.svg?columns=all)](https://waffle.io/teampinocchio/pinocchio) 
-[![Stories in Ready](https://badge.waffle.io/teampinocchio/pinocchio.png?label=ready&title=Ready)](https://waffle.io/teampinocchio/pinocchio)
 
 Pinocchio is a system which should assist researchers, and group managers to monitor team activities and to allocate teams. In the capstone course of the Department of Computer Science of the University of Pretoria the system is used for regular peer assessments. The system analyses student  reports to determine participatory styles of students. The participatory styles as well as other personal data such as academic standing and personality attributes can be used to allocate teams.  
 
