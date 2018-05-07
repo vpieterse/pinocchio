@@ -411,7 +411,6 @@ def maintain_round_with_error(request, error):
                'error': str_error}
     return render(request, 'peer_review/maintainRound.html', context)
 
-
 # Create a response
 # {respondent_pk, labelPk/userPk, roundPk, answer, questionPk}
 # @user_required
