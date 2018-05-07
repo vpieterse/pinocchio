@@ -15,6 +15,7 @@ from pinocchio import baseSettings
 
 logger = logging.getLogger(__name__)
 
+
 @user_required
 def account_details(request):
     user = get_object_or_404(User, user_id=request.user.user_id)
@@ -129,8 +130,9 @@ def send_password_request_email(user_id, email_address, post_name, post_surname)
 
         return True
     except SMTPException as e:
-        logger.error('Error while sending mail: ' + e)
+        logger.error('Error while sending mail: ' + str(e))
         raise e
+
 
 def user_error(request):
     # Renders error page with a 403 status code for forbidden users
