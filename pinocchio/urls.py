@@ -9,7 +9,8 @@ from peer_review.view.questionAdmin import save_question, edit_question, questio
 from peer_review.view.questionnaire import save_questionnaire_progress, get_responses
 from peer_review.view.questionnaireAdmin import save_questionnaire, questionnaire_preview, delete_questionnaire, \
     questionnaire_admin, edit_questionnaire, check_questionnaire
-from peer_review.view.roundManagement import maintain_round
+from peer_review.view.roundManagement import maintain_round, create_round, maintain_round_with_error, round_delete, \
+    round_update, round_dump
 from peer_review.view.userAdmin import submit_csv
 from peer_review.view.userFunctions import user_reset_password, active_rounds, get_team_members, account_details, \
     member_details
@@ -30,7 +31,7 @@ urlpatterns = [
     url(r'^changePassword/', views.change_password, name='changePassword'),
 
     url(r'^maintainRound/$', maintain_round, name='maintainRound'),
-    url(r'^createRound/$', views.create_round, name='createRound'),
+    url(r'^createRound/$', create_round, name='createRound'),
 
     url(r'^maintainTeam/$', maintain_team, name='maintainTeam'),
     # url(r'^maintainTeam/(?P<round_pk>[0-9]+)/?$', views.maintain_team, name='maintainTeamR'),
@@ -79,9 +80,9 @@ urlpatterns = [
     url(r'^questionnaireAdmin/delete', delete_questionnaire, name='deleteQuestionnaire'),
     url(r'^questionnaireAdmin/$', questionnaire_admin, name='questionnaireAdmin'),
 
-    url(r'^maintainRound/dump/?$', views.round_dump, name='dumpRound'),
-    url(r'^maintainRound/delete/$', views.round_delete, name='deleteRound'),
-    url(r'^maintainRound/update/(?P<round_pk>[0-9]+)/?$', views.round_update, name='updateRound'),
+    url(r'^maintainRound/dump/?$', round_dump, name='dumpRound'),
+    url(r'^maintainRound/delete/$', round_delete, name='deleteRound'),
+    url(r'^maintainRound/update/(?P<round_pk>[0-9]+)/?$', round_update, name='updateRound'),
     url(r'^maintainTeam/getTeamsForRound/(?P<round_pk>[0-9]+)/?$', get_teams_for_round, name='getTeamsForRound'),
     url(r'^maintainTeam/getNewTeam/(?P<team_name>[0-9a-zA-Z]+)/?$', get_new_team,
         name='getNewTeam'),
@@ -99,8 +100,8 @@ urlpatterns = [
     url(r'^report/getUser/(?P<user_id>[0-9a-zA-Z]+)/?$', views.get_user, name='getUserReport'),
     url(r'^login/auth/$', views.auth, name='auth'),
 
-    url(r'^maintainRound/delete/$', views.round_delete),
-    url(r'^maintainRound/(?P<error>[0-9]+)/?$', views.maintain_round_with_error,
+    url(r'^maintainRound/delete/$', round_delete),
+    url(r'^maintainRound/(?P<error>[0-9]+)/?$', maintain_round_with_error,
         name='maintainRoundWithError')
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
