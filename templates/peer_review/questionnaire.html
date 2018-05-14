@@ -63,10 +63,12 @@
             {% endfor %}
             {% if not preview %}
             <div class="panel-body">
-                <button class='btn btn-success' onclick="saveProgress()">Save Progress</button>
-                <span id="results">
+                <div>
+                    <button class='btn btn-success' onclick="saveProgress()">Save Progress</button><br>
+                </div>
+                <div id="results">
                         {# The success or failure message will display here #}
-                    </span>
+                </div>
             </div>
             {% else %}
                 <div class="panel-body">
@@ -131,11 +133,11 @@
             //Show success message
                 $('#results').html('<span class="alert alert-success">Progress successfully saved!</span>');
             //Make the alert box disappear after 5 seconds
-            window.setTimeout(function () {
+            /*window.setTimeout(function () {
                 $(".alert").fadeTo(500, 0, function () {
                     $(this).remove();
                 });
-            }, 5000);
+            }, 5000);*/
         }
 
         //Sends the data to the view to be processed. Parameter data needs to be an object with fields:

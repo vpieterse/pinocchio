@@ -234,7 +234,6 @@ def update_email(request):
         file.close()
     return HttpResponseRedirect('../')
 
-
 # Create a response
 # {respondent_pk, labelPk/userPk, roundPk, answer, questionPk}
 # @user_required

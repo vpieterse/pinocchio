@@ -156,3 +156,20 @@ tr .selectable {
 #tablesContainer .dataTables_wrapper div.dataTables_paginate {
     text-align: center;
 }
+
+@media (max-width: 700px) {
+    .mce-container, .mce-container *, .mce-widget, .mce-widget *, .mce-reset {
+        white-space: normal !important;
+    }
+}
+
+#results {
+    margin:20px 0;
+}
+@media (max-width: 300px) {
+    #results .alert {
+        padding-left: 5px;
+        padding-right: 5px;
+        display: block;
+    }
+}
